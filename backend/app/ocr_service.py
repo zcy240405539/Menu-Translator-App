@@ -5,9 +5,14 @@ os.environ["FLAGS_cpu_deterministic"] = "1"
 import tempfile
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
-from paddleocr import PaddleOCR
+#from paddleocr import PaddleOCR
+try:
+    from paddleocr import PaddleOCR
+except ImportError:
+    PaddleOCR = None
 
 
+'''
 ocr_engine = PaddleOCR(
     use_angle_cls=True,
     lang="en",
@@ -15,6 +20,37 @@ ocr_engine = PaddleOCR(
     enable_mkldnn=False,
     show_log=False
 )
+'''
+
+def get_ocr_engine():
+    global ocr_engine
+
+    if PaddleOCR is None:
+        return None
+
+    if ocr_engine is None:
+        ocr_engine = PaddleOCR(use_angle_cls=True, lang="ch")
+
+    return ocr_engine
+
+
+def extract_text_from_image(image_path: str) -> str:
+    engine = get_ocr_engine()
+
+    if engine is None:
+        return ""
+
+    result = engine.ocr(image_path, cls=True)
+
+    texts = []
+    for line in result:
+        for item in line:
+            texts.append(item[1][0])
+
+    return "\n".join(texts)
+
+
+
 
 def save_resized_image(file_bytes: bytes) -> str:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
@@ -37,7 +73,7 @@ def save_resized_image(file_bytes: bytes) -> str:
     image.save(resized_path, "JPEG", quality=90)
 
     return resized_path
-
+'''
 def extract_text_from_image(file_bytes: bytes) -> str:
     image_path = save_resized_image(file_bytes)
 
@@ -57,7 +93,7 @@ def extract_text_from_image(file_bytes: bytes) -> str:
                 lines.append(text)
 
     return "\n".join(lines)
-
+'''
 def extract_layout_blocks_from_image(file_bytes: bytes) -> list:
     image_path = save_resized_image(file_bytes)
     result = ocr_engine.ocr(image_path, cls=True)
