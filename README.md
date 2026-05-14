@@ -80,13 +80,13 @@ menu-translator-app/
 │  │	├─ image_service.py
 │  │	├─ dish_cache_service.py
 │  │	├─ menu_cache_service.py
-│  │	├─ openrouter_service.py
-│  │	└─ .env
+│  │	└─ openrouter_service.py
 │  ├─ static/
 │  │	├─ README/
 │  │	├─ dish_images/
 │  │	└─ generated_images/
 │  ├─ uploads/
+│  ├─ .env
 │  └─ requirements.txt
 └─ frontend/
    ├─ App.js

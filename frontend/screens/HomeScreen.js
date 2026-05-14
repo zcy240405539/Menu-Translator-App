@@ -9,6 +9,7 @@ import {
 import { saveMenuHistory } from "../storage/menuStorage";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 import {
   Appbar,
   Button,
@@ -41,7 +42,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
 
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ["images"],
-      quality: 0.5,
+      quality: 0.8,
       allowsEditing: false,
     });
 
@@ -49,6 +50,30 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
       setImageUri(result.assets[0].uri);
     }
   };
+
+const compressImage = async (uri) => {
+  try {
+    const result = await ImageManipulator.manipulateAsync(
+      uri,
+      [
+        {
+          resize: {
+            width: 1000,
+          },
+        },
+      ],
+      {
+        compress: 0.55,
+        format: ImageManipulator.SaveFormat.JPEG,
+      }
+    );
+
+    return result.uri;
+  } catch (err) {
+    console.log("Image compression failed:", err);
+    return uri;
+  }
+};
 
 const selectFromFile = async () => {
   try {
@@ -83,11 +108,25 @@ const selectFromFile = async () => {
 
     try {
       setLoading(true);
-      const fileToUpload = selectedFile || {
-        uri: imageUri,
-        name: "menu.jpg",
-        mimeType: "image/jpeg",
-      };
+
+      const isPdf =
+        selectedFile?.mimeType === "application/pdf" ||
+        selectedFile?.name?.toLowerCase().endsWith(".pdf");
+
+      let fileToUpload;
+
+      if (isPdf) {
+        fileToUpload = selectedFile;
+      } else {
+        const originalUri = selectedFile?.uri || imageUri;
+        const compressedUri = await compressImage(originalUri);
+
+        fileToUpload = {
+          uri: compressedUri,
+          name: "menu_compressed.jpg",
+          mimeType: "image/jpeg",
+        };
+      }
 
       const data = await parseMenuFile(fileToUpload, targetLang);
 

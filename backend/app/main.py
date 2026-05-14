@@ -27,6 +27,7 @@ from app.ocr_service import (
 from app.openrouter_service import (
     call_openrouter_for_menu,
     call_openrouter_for_dish_detail,
+    call_openrouter_vision_for_menu,
 )
 from app.dish_cache_service import normalize_dish_name
 from app.image_service import get_or_create_dish_image
@@ -153,26 +154,32 @@ async def parse_menu(
     target_lang: str = "zh",
 ):
     try:
-        from app.ocr_service import extract_layout_blocks_from_image
-        from app.openrouter_service import (
-            call_openrouter_for_menu_layout,
-        )
-
         file_bytes = await file.read()
+        mime_type = file.content_type or "image/jpeg"
 
-        ocr_blocks = extract_layout_blocks_from_image(file_bytes)
+        if "pdf" in mime_type:
+            raise HTTPException(
+                status_code=400,
+                detail="PDF parsing is not enabled yet. Please upload an image file first.",
+            )
 
-        result = call_openrouter_for_menu_layout(
-            ocr_blocks=ocr_blocks,
+        result = call_openrouter_vision_for_menu(
+            image_bytes=file_bytes,
+            mime_type=mime_type,
             target_lang=target_lang,
         )
 
-        result["ocr_blocks"] = ocr_blocks
+        result["ocr_blocks"] = []
+        result["parser"] = "openrouter_vision"
 
         return result
 
+    except HTTPException:
+        raise
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # =========================
 # Dish Detail
@@ -305,7 +312,7 @@ def run_menu_parse_task(
     try:
         from app.ocr_service import extract_layout_blocks_from_image
         from app.openrouter_service import (
-            call_openrouter_for_menu_structure,
+            call_openrouter_vision_for_menu,
             call_openrouter_for_missing_dish_details,
         )
         from app.database import SessionLocal
@@ -344,35 +351,34 @@ def run_menu_parse_task(
                 return
 
             # 没命中菜单缓存，才做 OCR + 第一轮 OpenRouter
-            content_type = MENU_TASKS[task_id].get("content_type", "")
-
-            all_ocr_blocks = []
+            content_type = MENU_TASKS[task_id].get("content_type", "") or "image/jpeg"
 
             if "pdf" in content_type:
-                from app.pdf_service import pdf_bytes_to_images
+                raise RuntimeError("PDF parsing is not enabled yet. Please upload an image file first.")
 
-                page_images = pdf_bytes_to_images(file_bytes, max_pages=5)
-
-                for page_index, page_bytes in enumerate(page_images):
-                    page_blocks = extract_layout_blocks_from_image(page_bytes)
-
-                    for block in page_blocks:
-                        block["page"] = page_index + 1
-
-                    all_ocr_blocks.extend(page_blocks)
-
-            else:
-                all_ocr_blocks = extract_layout_blocks_from_image(file_bytes)
-
-            ocr_blocks = all_ocr_blocks
-
-
-            result = call_openrouter_for_menu_structure(
-                ocr_blocks=ocr_blocks,
+            result = call_openrouter_vision_for_menu(
+                image_bytes=file_bytes,
+                mime_type=content_type,
                 target_lang=target_lang,
             )
 
+            ocr_blocks = [
+                {
+                    "text": item.get("original_name"),
+                    "description_original": item.get("description_original"),
+                    "price": item.get("price"),
+                    "section_heading_original": item.get("section_heading_original"),
+                    "source": "openrouter_vision",
+                }
+                for item in result.get("menu_items", [])
+            ]
+
             menu_items = result.get("menu_items", [])
+            source_language = result.get("source_language")
+
+            for item in menu_items:
+                if not item.get("source_language"):
+                    item["source_language"] = source_language
 
             enriched_items, missing_items = apply_cache_to_items(
                 db=db,
@@ -383,7 +389,7 @@ def run_menu_parse_task(
             if missing_items:
                 missing_details = []
 
-                batch_size = 10
+                batch_size = 5
 
                 for i in range(0, len(missing_items), batch_size):
                     batch = missing_items[i:i + batch_size]

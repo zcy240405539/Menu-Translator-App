@@ -1,7 +1,8 @@
 import json
 import re
 import requests
-
+import base64
+import os
 from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -24,6 +25,8 @@ def get_target_language_name(target_lang: str) -> str:
 
 
 def _extract_json_from_text(content: str) -> dict:
+    if not content:
+        raise ValueError("OpenRouter returned empty content")
     content = content.strip()
 
     # 去 markdown
@@ -104,7 +107,7 @@ def _build_payload(system_prompt: str, user_prompt: str, max_tokens: int = 6000)
         "max_tokens": max_tokens,
     }
 
-    if ":free" not in OPENROUTER_MODEL:
+    if OPENROUTER_MODEL and ":free" not in OPENROUTER_MODEL:
         payload["response_format"] = {"type": "json_object"}
 
     return payload
@@ -210,19 +213,12 @@ JSON schema:
   "restaurant_type": "",
   "menu_items": [
     {{
-        "id": "dish_001",
-        "original_name": "",
-        "translated_name": "",
-        "price": null,
-        "category": "normalized_snake_case_section_key",
-        "section_heading_original": "",
-        "section_heading_translated": "",
-        "description": "",
-        "ingredients": [],
-        "allergens": [],
-        "spicy_level": 0,
-        "image_prompt": "",
-        "confidence": 0.0
+      "id": "dish_001",
+      "original_name": "",
+      "price": "",
+      "category": "",
+      "section_heading_original": "",
+      "section_heading_translated": ""
     }}
   ]
 }}
@@ -492,9 +488,10 @@ def call_openrouter_for_missing_dish_details(dishes, target_lang="zh"):
 You are a food translation and dish explanation assistant.
 
 Target language: {target_lang}
-
 Only enrich the dishes provided.
 Return valid JSON array only.
+Use description_original as the main evidence. Do not invent details unrelated to the original menu text. 
+Also translate section_heading_original into target language and return section_heading_translated
 
 For each dish, return:
 - id
@@ -506,6 +503,7 @@ For each dish, return:
 - spicy_level
 - image_prompt
 - cuisine
+- section_heading_translated
 
 Rules:
 - Translate dish name into target language.
@@ -514,6 +512,15 @@ Rules:
 - Allergens should be common allergen names in target language.
 - spicy_level is 0-5.
 - Do not invent price or section.
+- Translate section_heading_original into target language and return section_heading_translated.
+- Do not change category.
+- Preserve price from input if present.
+- cuisine must be a standardized English cuisine label.
+- Use labels like: American, French, Italian, Chinese, Japanese, Korean, Mexican, Mediterranean, European, Cafe, Seafood, Dessert, Drink, Other.
+- Do not translate cuisine into the target language.
+- section_heading_translated must translate section_heading_original into target language.
+- If section_heading_original is "SANDWICH COMBINATIONS", section_heading_translated should be "三明治组合" for zh as target language.
+- If section_heading_original is "STARTER", section_heading_translated should be "开胃菜" for zh as target language.
 
 Input dishes:
 {json.dumps(dishes, ensure_ascii=False)}
@@ -523,13 +530,15 @@ Return:
   {{
     "id": "dish_001",
     "original_name": "",
+    "source_language": "",
     "translated_name": "",
     "description": "",
     "ingredients": [],
     "allergens": [],
     "spicy_level": 0,
     "image_prompt": "",
-    "cuisine": ""
+    "cuisine": "",
+    "section_heading_translated": ""
   }}
 ]
 
@@ -560,7 +569,12 @@ The first character must be [ and the last character must be ].
 
     response.raise_for_status()
 
-    content = response.json()["choices"][0]["message"]["content"]
+    data = response.json()
+    content = data["choices"][0]["message"].get("content")
+
+    if not content:
+        print("EMPTY DETAIL RESPONSE:", data)
+        return []
 
     if "```json" in content:
         content = content.split("```json")[1].split("```")[0].strip()
@@ -612,9 +626,138 @@ def extract_json_from_llm(content: str):
     json_text = re.sub(r",\s*]", "]", json_text)
 
     try:
-        return json.loads(json_text)
+        decoder = json.JSONDecoder()
+        parsed, _ = decoder.raw_decode(json_text)
+        return parsed
     except Exception as e:
         raise ValueError(
             f"Invalid JSON after cleanup: {e}\n\nExtracted:\n{json_text[-2000:]}\n\nRaw:\n{text[:2000]}"
         )
     
+
+def call_openrouter_vision_for_menu(
+    image_bytes: bytes,
+    mime_type: str = "image/jpeg",
+    target_lang: str = "zh",
+) -> dict:
+    target_language_name = get_target_language_name(target_lang)
+
+    vision_model = os.getenv(
+        "OPENROUTER_VISION_MODEL",
+        "openrouter/free"
+    )
+
+    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+    image_data_url = f"data:{mime_type};base64,{image_base64}"
+
+    prompt = f"""
+You are a strict restaurant menu OCR and layout parser.
+
+Analyze the menu image directly.
+
+Target language code: {target_lang}
+Target language name: {target_language_name}
+
+Return ONLY valid raw JSON.
+Do not use markdown.
+Do not include explanations.
+Extract at most 35 menu items. Prioritize the most visible items.
+If the menu is long, do not continue beyond 35 items.
+Return complete valid JSON even if not all items are extracted.
+Never include section headings such as APPETIZERS, SUSHI, SOUPS & SALADS, ENTREES, DESSERTS as menu_items. Use them only as section_heading_original.
+
+Your task:
+Extract ONLY real purchasable menu items from the image.
+
+Very important rules:
+- Do NOT translate dish names in this step.
+- Do NOT generate descriptions.
+- Do NOT generate ingredients.
+- Do NOT infer allergens.
+- Do NOT invent dishes.
+- Do NOT rewrite or summarize menu text.
+- original_name must be the exact dish name from the menu.
+- description_original should contain nearby description text only if it is clearly under that dish.
+- If a line is only a section heading, do not include it as a menu item.
+- If a line is only an instruction such as "Choice of", "Served with", "per person", "Prix Fixe", do not include it as a menu item.
+- If a section heading says "LUNCH PRIX FIXE", keep it as section_heading_original, not as a dish.
+- Extract price only when it is visually attached to the same dish.
+- If price appears as "$26", return "26".
+- If price appears as "$36 per person", return "36".
+- If no price is visually attached to the dish, return null.
+- Do not merge dish name with description.
+- Dish name is usually the bold/title line.
+- Description is usually smaller text below the dish name.
+- Preserve the visual section grouping.
+- If the menu has a prix fixe, set menu, tasting menu, combo, or per-person price, put it in menu_pricing.
+- Do not copy set menu prices to every dish unless the price is visually attached to that specific dish.
+- For "LUNCH PRIX FIXE $36 per person", return menu_pricing label="LUNCH PRIX FIXE", price="36", unit="per person".
+
+Return JSON schema:
+{{
+  "source_language": "",
+  "target_language": "{target_lang}",
+  "restaurant_type": "",
+  "menu_pricing": [
+    {{
+      "label": "",
+      "price": "",
+      "unit": "",
+      "applies_to": ""
+    }}
+  ],
+  "menu_items": [
+    {{
+      "id": "dish_001",
+      "original_name": "",
+      "description_original": "",
+      "price": null,
+      "category": "",
+      "section_heading_original": "",
+      "section_heading_translated": ""
+    }}
+  ]
+}}
+
+Bad examples, do NOT extract as dishes:
+- "LUNCH PRIX FIXE"
+- "ENTRÉE Choice of:"
+- "STARTER Choice of:"
+- "Served with Fresh Baked Cookies. $36 per person"
+- "g/m"
+- footer notes
+- allergy notices
+
+Output only JSON.
+"""
+    payload = {
+        "model": vision_model,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt,
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": image_data_url,
+                        },
+                    },
+                ],
+            }
+        ],
+        "temperature": 0.1,
+        "max_tokens": 3500,
+    }
+
+    data = _post_openrouter(payload, timeout=180)
+    content = data["choices"][0]["message"].get("content")
+
+    if not content:
+        print("EMPTY VISION RESPONSE:", data)
+        raise RuntimeError("OpenRouter Vision returned empty content. Please retry or switch model.")
+
+    return _extract_json_from_text(content)

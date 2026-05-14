@@ -34,22 +34,8 @@ def get_ocr_engine():
     return ocr_engine
 
 
-def extract_text_from_image(image_path: str) -> str:
-    engine = get_ocr_engine()
-
-    if engine is None:
-        return ""
-
-    result = engine.ocr(image_path, cls=True)
-
-    texts = []
-    for line in result:
-        for item in line:
-            texts.append(item[1][0])
-
-    return "\n".join(texts)
-
-
+def extract_text_from_image(*args, **kwargs) -> str:
+    return ""
 
 
 def save_resized_image(file_bytes: bytes) -> str:
@@ -93,7 +79,7 @@ def extract_text_from_image(file_bytes: bytes) -> str:
                 lines.append(text)
 
     return "\n".join(lines)
-'''
+
 def extract_layout_blocks_from_image(file_bytes: bytes) -> list:
     image_path = save_resized_image(file_bytes)
     result = ocr_engine.ocr(image_path, cls=True)
@@ -128,3 +114,8 @@ def extract_layout_blocks_from_image(file_bytes: bytes) -> list:
     blocks = sorted(blocks, key=lambda b: (b["center_y"], b["center_x"]))
 
     return blocks
+'''
+
+def extract_layout_blocks_from_image(file_bytes: bytes) -> list:
+    return []
+
