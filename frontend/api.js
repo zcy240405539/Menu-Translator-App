@@ -1,5 +1,5 @@
 //const API_BASE_URL = "http://127.0.0.1:8000";
-const API_BASE_URL = "http://172.20.0.217:8000";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 
 // 如果你用手机 Expo Go 测试，要改成电脑局域网 IP：
