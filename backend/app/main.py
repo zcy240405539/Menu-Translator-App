@@ -412,8 +412,7 @@ def run_menu_parse_task(
 
             if missing_items:
                 missing_details = []
-
-                batch_size = 5
+                batch_size = 2
 
                 for i in range(0, len(missing_items), batch_size):
                     batch = missing_items[i:i + batch_size]

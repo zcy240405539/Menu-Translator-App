@@ -3,8 +3,13 @@ import re
 import requests
 import base64
 import os
-from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
-
+#from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_MODEL
+VISION_FALLBACK_MODELS = [
+    OPENROUTER_VISION_MODEL,
+    "google/gemini-2.5-flash-lite",
+    "baidu/qianfan-ocr-fast:free",
+]
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
@@ -488,47 +493,33 @@ def call_openrouter_for_missing_dish_details(dishes, target_lang="zh"):
         return []
 
     prompt = f"""
-You are a food translation and dish explanation assistant.
+You are a restaurant dish translator.
 
 Target language: {target_lang}
-Only enrich the dishes provided. 
-Return valid JSON array only.
-Use description_original as the main evidence. Do not invent details unrelated to the original menu text. 
 
-For each dish, return:
-- id
-- original_name
-- translated_name
-- description
-- ingredients
-- allergens
-- spicy_level
-- image_prompt
-- cuisine
-- section_heading_translated
+Only enrich the input dishes.
+Use original_name and description_original as evidence.
+Do not invent prices or sections.
+Return only valid raw JSON array. No markdown. No explanation.
 
 Rules:
-- Translate dish name into target language.
-- Description must be in target language.
-- Ingredients should be translated into target language.
-- Allergens should be common allergen names in target language.
-- spicy_level is 0-5.
-- Do not invent price or section.
-- Translate section_heading_original into target language and return section_heading_translated.
-- Do not change category.
-- Preserve price from input if present.
-- cuisine must be a standardized English cuisine label in Title Case. Do not translate cuisine into the target language. If unsure, use "Other".
-- Use labels like: American, French, Italian, Chinese, Japanese, Korean, Mexican, Mediterranean, European, Cafe, Seafood, Dessert, Drink, Other.
-- section_heading_translated must translate section_heading_original into target language.
-
+- translated_name: translate original_name into target language.
+- description: one short customer-friendly sentence.
+- If target language is zh, description must be under 35 Chinese characters.
+- ingredients: max 5 items, translated.
+- allergens: max 5 common allergens, translated.
+- spicy_level: integer 0-5.
+- image_prompt: English only, under 20 words.
+- cuisine: English Title Case only. If unsure, use "Other".
+- section_heading_translated: translate section_heading_original.
 
 Input dishes:
 {json.dumps(dishes, ensure_ascii=False)}
 
-Return:
+Return schema:
 [
   {{
-    "id": "dish_001",
+    "id": "",
     "original_name": "",
     "source_language": "",
     "translated_name": "",
@@ -541,15 +532,8 @@ Return:
     "section_heading_translated": ""
   }}
 ]
-
-Critical output rule:
-Return ONLY raw JSON array.
-Do not include explanation.
-Do not include markdown.
-Do not include ```json fences.
-The first character must be [ and the last character must be ].
 """
-
+    
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers={
@@ -562,7 +546,7 @@ The first character must be [ and the last character must be ].
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.2,
-            "max_tokens": 2500,
+            "max_tokens": 1200,
         },
         timeout=180,
     )
@@ -642,10 +626,7 @@ def call_openrouter_vision_for_menu(
 ) -> dict:
     target_language_name = get_target_language_name(target_lang)
 
-    vision_model = os.getenv(
-        "OPENROUTER_VISION_MODEL",
-        "openrouter/free"
-    )
+    vision_model = OPENROUTER_VISION_MODEL
 
     image_base64 = base64.b64encode(image_bytes).decode("utf-8")
     image_data_url = f"data:{mime_type};base64,{image_base64}"
@@ -653,82 +634,60 @@ def call_openrouter_vision_for_menu(
     prompt = f"""
 You are a strict restaurant menu OCR and layout parser.
 
-Analyze the menu image directly.
-
 Target language code: {target_lang}
 Target language name: {target_language_name}
 
-Return ONLY valid raw JSON.
-Do not use markdown.
-Do not include explanations.
-Return complete valid JSON even if not all items are extracted.
-Never include section headings such as APPETIZERS, SUSHI, SOUPS & SALADS, ENTREES, DESSERTS as menu_items. Use them only as section_heading_original.
+Return only valid raw JSON. No markdown. No explanation.
+If reaching the limit, stop early and close the JSON correctly.
 
-Your task:
-Extract OCR layout lines from the image. Do not build final menu_items.
-Classify each output item only as section_heading or dish_name.
+Task:
+Extract compact menu layout lines from the image.
+Do not build final translated menu_items.
+Classify each output line only as:
+- section_heading
+- dish_name
 
-Very important rules:
-- Do NOT translate dish names in this step.
-- Do NOT generate descriptions.
-- Do NOT generate ingredients.
-- Do NOT infer allergens.
-- Do NOT invent dishes.
-- Do NOT rewrite or summarize menu text.
-- original_name must be the exact dish name from the menu.
-- description_original should contain nearby description text only if it is clearly under that dish.
-- If a line is only a section heading, do not include it as a menu item.
-- If a line is only an instruction such as "Choice of", "Served with", "per person", "Prix Fixe", do not include it as a menu item.
-- If a section heading says "LUNCH PRIX FIXE", do not include it in layout_lines. Put it only in menu_pricing.
-- Extract price only when it is visually attached to the same dish.
-- If price appears as "$26", return "26".
-- If price appears as "$36 per person", return "36".
-- For boxed/list sections like SUSHI, prices may appear in a right-aligned column. Match each dish to the price on the same visual row, even if the price is far to the right.
-- If no price is visually attached to the dish, return null, do not leave price_text null if a number is visible on the same row as the dish.
-- Do not merge dish name with description.
-- Dish name is usually the bold/title line.
-- Description is usually smaller text below the dish name.
-- Preserve the visual section grouping.
-- If the menu has a prix fixe, set menu, tasting menu, combo, or per-person price, put it in menu_pricing.
-- Do not copy set menu prices to every dish unless the price is visually attached to that specific dish.
-- For "LUNCH PRIX FIXE $36 per person", return menu_pricing label="LUNCH PRIX FIXE", price="36", unit="per person".
+Rules:
+- Do not translate in this step.
+- Do not generate ingredients, allergens, cuisine, or final descriptions.
+- Do not invent dishes or prices.
+- Use exact visible dish names.
+- Use section headings only for grouping.
+- Never include section headings as dishes.
+- Exclude logos, footers, allergy notes, tax notes, service charges, social media, and decorative text.
+- For each dish, combine dish name, nearby description, and same-row price into one layout_lines item.
+- Put nearby description into description_text.
+- Set price_text to the same-row right-aligned price if visible. Otherwise set price_text to null.
+- For boxed/list sections like SUSHI, prices may appear far right; match by the same visual row.
+- Do not output separate price-only or description-only lines.
+- Remove noise such as g/m.
 
-HARD LIMIT:
-- Return at most 25 layout_lines total.
+Prix fixe / set menu rules:
+- Do not include prix fixe headings as layout_lines.
+- Put prix fixe / set menu / combo pricing into menu_pricing.
+- Include label, price, unit, description, applies_to, and details.
+- details should list visible starter and entrée choices as readable plain text.
+
+Hard limit:
+- Return at most 25 layout_lines.
 - Include menu_pricing first if visible.
-- Stop after 25 layout_lines and close the JSON immediately.
 - Never output more than 25 objects inside layout_lines.
 
-Important compact output rules:
-- Do NOT output separate price-only lines.
-- Do NOT output separate description-only lines.
-- For each dish, combine dish name, nearby description, and nearby price into ONE layout_lines item.
-- layout_lines should contain only:
-  1. section_heading lines
-  2. dish_name lines
-- If text is a description under a dish, put it into description_text of that dish.
-- If text is a price near a dish, put it into price_text of that dish.
-- Return complete valid JSON. Stop early if needed.
-
-
-
-Return JSON schema:
+JSON schema:
 {{
   "source_language": "",
   "target_language": "{target_lang}",
   "restaurant_type": "",
   "menu_pricing": [
     {{
-        "label": "",
-        "price": "",
-        "unit": "",
-        "description": "",
-        "applies_to": "",
-        "details": ""
+      "label": "",
+      "price": "",
+      "unit": "",
+      "description": "",
+      "applies_to": "",
+      "details": ""
     }}
   ],
-
-
   "layout_lines": [
     {{
       "text": "",
@@ -741,35 +700,9 @@ Return JSON schema:
     }}
   ]
 }}
-
-Bad examples, do NOT extract as dishes:
-- "LUNCH PRIX FIXE"
-- "ENTRÉE Choice of:"
-- "STARTER Choice of:"
-- "Served with Fresh Baked Cookies. $36 per person"
-- "g/m"
-- footer notes
-- allergy notices
-
-
-If the menu contains prix fixe / set menu / set meal / combo pricing / omakase, return it in menu_pricing.
-Example:
-LUNCH PRIX FIXE
-Served with Fresh Baked Cookies. $36 per person
-For prix fixe / set menu, put all visible starter choices and entree choices into menu_pricing.details as readable plain text.
-
-Return:
-{{
-  "label": "LUNCH PRIX FIXE",
-  "price": "36",
-  "unit": "per person",
-  "description": "Served with Fresh Baked Cookies.",
-  "applies_to": "STARTER Choice of, ENTRÉE Choice of"
-}}
-Do not include LUNCH PRIX FIXE itself as a dish.
-
-Output only JSON.
 """
+
+
     payload = {
         "model": vision_model,
         "messages": [
@@ -796,11 +729,30 @@ Output only JSON.
         },
     }
 
-    data = _post_openrouter(payload, timeout=180)
-    content = data["choices"][0]["message"].get("content")
+    last_error = None
 
-    if not content:
-        print("EMPTY VISION RESPONSE:", data)
-        raise RuntimeError("OpenRouter Vision returned empty content. Please retry or switch model.")
+    for model_name in VISION_FALLBACK_MODELS:
+        try:
+            if not model_name:
+                continue
 
-    return _extract_json_from_text(content)
+            payload["model"] = model_name
+
+            print(f"Trying vision model: {model_name}")
+
+            data = _post_openrouter(payload, timeout=180)
+            content = data["choices"][0]["message"].get("content")
+
+            if not content:
+                last_error = f"Empty content from {model_name}"
+                print(last_error)
+                continue
+
+            return _extract_json_from_text(content)
+
+        except Exception as e:
+            last_error = e
+            print(f"Vision model failed: {model_name} -> {e}")
+            continue
+
+    raise RuntimeError(f"All vision models failed: {last_error}")
