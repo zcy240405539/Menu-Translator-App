@@ -11,5 +11,5 @@ pydantic-settings
 openai
 pillow
 paddleocr==2.7.0.3
-paddlepaddle
+paddlepaddle==2.6.2
 opencv-python-headless
