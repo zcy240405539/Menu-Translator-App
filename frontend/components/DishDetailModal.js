@@ -1,0 +1,387 @@
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Modal,
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+} from "react-native";
+import {
+  ActivityIndicator,
+  Appbar,
+  Button,
+  Card,
+  Chip,
+  Divider,
+  Portal,
+  Surface,
+  Text,
+  Snackbar,
+} from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { addDishToCart } from "../storage/cartStorage";
+import { getText } from "../i18n";
+import { getDishDetail } from "../api";
+
+function formatPrice(price) {
+  if (price === null || price === undefined || price === "") return "";
+  const text = String(price).trim();
+  if (text.startsWith("$")) return text;
+  return `$${text}`;
+}
+
+function getTranslatedName(dish) {
+  return (
+    dish?.translated_name ||
+    dish?.translated_name_zh ||
+    dish?.translated_name_en ||
+    dish?.name ||
+    dish?.original_name ||
+    ""
+  );
+}
+
+function getTranslatedDescription(dish) {
+  return (
+    dish?.description ||
+    dish?.description_zh ||
+    dish?.description_en ||
+    ""
+  );
+}
+
+function normalizeArray(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map((item) => String(item));
+}
+
+function normalizeKey(text) {
+  return String(text || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\u4e00-\u9fff]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function InfoSection({ title, children }) {
+  return (
+    <View style={styles.infoSection}>
+      <Text variant="titleMedium" style={styles.sectionTitle}>
+        {title}
+      </Text>
+      <View style={styles.sectionContent}>{children}</View>
+    </View>
+  );
+}
+
+export default function DishDetailModal({
+  visible,
+  dish,
+  targetLang,
+  onClose,
+  menuInfo,
+}) {
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [detail, setDetail] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  const lang = targetLang === "zh" ? "zh" : "en";
+  const t = getText(lang).detail;
+
+  const cacheKey = useMemo(() => {
+    if (!dish) return null;
+    const name = dish.original_name || dish.translated_name || dish.name || "";
+    return `dish_detail_${targetLang}_${normalizeKey(name)}`;
+  }, [dish, targetLang]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDetail() {
+      if (!visible || !dish || !cacheKey) return;
+
+      const baseName =
+        dish.original_name ||
+        dish.translated_name ||
+        dish.name ||
+        "";
+
+      try {
+        setLoadingDetail(true);
+
+        const cachedText = await AsyncStorage.getItem(cacheKey);
+        if (cachedText && !cancelled) {
+          setDetail(JSON.parse(cachedText));
+          setLoadingDetail(false);
+          return;
+        }
+
+        const remoteDetail = await getDishDetail(baseName, targetLang);
+
+        if (!cancelled) {
+          setDetail(remoteDetail);
+          await AsyncStorage.setItem(cacheKey, JSON.stringify(remoteDetail));
+        }
+      } catch (err) {
+        console.warn("Load dish detail failed:", err);
+      } finally {
+        if (!cancelled) {
+          setLoadingDetail(false);
+        }
+      }
+    }
+
+    loadDetail();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, dish, targetLang, cacheKey]);
+
+  if (!dish) return null;
+
+  const mergedDish = {
+    ...dish,
+    ...(detail || {}),
+  };
+
+  const title = getTranslatedName(mergedDish);
+  const description = getTranslatedDescription(mergedDish);
+  const ingredients = normalizeArray(mergedDish.ingredients);
+  const allergens = normalizeArray(mergedDish.allergens);
+  const price = formatPrice(mergedDish.price || dish.price);
+  const imageUrl = mergedDish.image_url || mergedDish.thumbnail_url;
+
+  return (
+    <Portal>
+      <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+        <Surface style={styles.screen}>
+          <Appbar.Header mode="center-aligned" style={styles.appbar}>
+            <Appbar.BackAction onPress={onClose} />
+            <Appbar.Content title={title || t.description} />
+          </Appbar.Header>
+
+          <ScrollView contentContainerStyle={styles.content}>
+            <Card mode="elevated" style={styles.heroCard}>
+              {imageUrl ? (
+                <Image
+                  source={{ uri: imageUrl }}
+                  style={styles.dishImage}
+                  resizeMode="cover"
+                />
+              ) : null}
+
+              <Card.Content>
+                <Text variant="headlineSmall" style={styles.title}>
+                  {title}
+                </Text>
+
+                <Text variant="bodyMedium" style={styles.original}>
+                  {t.original}: {mergedDish.original_name || t.unknown}
+                </Text>
+
+                {!!price && (
+                  <Chip style={styles.priceChip} textStyle={styles.priceText}>
+                    {t.price}: {price}
+                  </Chip>
+                )}
+
+                {loadingDetail && (
+                  <View style={styles.loadingRow}>
+                    <ActivityIndicator size="small" />
+                    <Text style={styles.loadingText}>
+                      {targetLang === "zh" ? "正在加载详情..." : "Loading details..."}
+                    </Text>
+                  </View>
+                )}
+              </Card.Content>
+            </Card>
+
+            <Card mode="elevated" style={styles.detailCard}>
+              <Card.Content>
+                <InfoSection title={t.description}>
+                  <Text variant="bodyMedium" style={styles.text}>
+                    {description || t.unknown}
+                  </Text>
+                </InfoSection>
+
+                <Divider />
+
+                <InfoSection title={t.ingredients}>
+                  {ingredients.length > 0 ? (
+                    <View style={styles.chipRow}>
+                      {ingredients.map((item, index) => (
+                        <Chip key={`${item}-${index}`} style={styles.infoChip}>
+                          {item}
+                        </Chip>
+                      ))}
+                    </View>
+                  ) : (
+                    <Text style={styles.text}>{t.unknown}</Text>
+                  )}
+                </InfoSection>
+
+                <Divider />
+
+                <InfoSection title={t.allergens}>
+                  {allergens.length > 0 ? (
+                    <View style={styles.chipRow}>
+                      {allergens.map((item, index) => (
+                        <Chip key={`${item}-${index}`} style={styles.warningChip}>
+                          {item}
+                        </Chip>
+                      ))}
+                    </View>
+                  ) : (
+                    <Text style={styles.text}>{t.none}</Text>
+                  )}
+                </InfoSection>
+
+                <Divider />
+
+                <InfoSection title={t.spicyLevel}>
+                  <Chip style={styles.infoChip}>
+                    {mergedDish.spicy_level ?? 0} / 5
+                  </Chip>
+                </InfoSection>
+
+                <Divider />
+
+                <InfoSection title={t.imagePrompt}>
+                  <Text variant="bodyMedium" style={styles.text}>
+                    {mergedDish.image_prompt || t.none}
+                  </Text>
+                </InfoSection>
+              </Card.Content>
+            </Card>
+
+            <Button
+              mode="contained-tonal"
+              icon="cart-plus"
+              style={styles.addButton}
+              contentStyle={styles.closeButtonContent}
+              onPress={async () => {
+                await addDishToCart(mergedDish, menuInfo);
+                setSnackbarVisible(true);
+              }}
+            >
+              {targetLang === "zh" ? "加入待点列表" : "Add to Order List"}
+            </Button>
+
+            <Button
+              mode="contained"
+              icon="close"
+              style={styles.closeButton}
+              contentStyle={styles.closeButtonContent}
+              onPress={onClose}
+            >
+              {t.close}
+            </Button>
+          </ScrollView>
+
+          <Snackbar
+            visible={snackbarVisible}
+            onDismiss={() => setSnackbarVisible(false)}
+            duration={1600}
+          >
+            {targetLang === "zh" ? "已加入待点列表" : "Added to order list"}
+          </Snackbar>
+        </Surface>
+      </Modal>
+    </Portal>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#FDF8F3",
+  },
+  appbar: {
+    backgroundColor: "#FDF8F3",
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingBottom: 36,
+  },
+  heroCard: {
+    borderRadius: 28,
+    backgroundColor: "#FFFFFF",
+    marginTop: 10,
+    marginBottom: 16,
+    overflow: "hidden",
+  },
+  dishImage: {
+    width: "100%",
+    height: 220,
+    backgroundColor: "#EFE7DD",
+  },
+  detailCard: {
+    borderRadius: 28,
+    backgroundColor: "#FFFFFF",
+  },
+  title: {
+    fontWeight: "800",
+    color: "#1D1B20",
+    marginBottom: 8,
+  },
+  original: {
+    color: "#625B71",
+    marginBottom: 14,
+  },
+  priceChip: {
+    alignSelf: "flex-start",
+    backgroundColor: "#E8DEF8",
+  },
+  priceText: {
+    color: "#6750A4",
+    fontWeight: "700",
+  },
+  loadingRow: {
+    marginTop: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  loadingText: {
+    color: "#6750A4",
+  },
+  infoSection: {
+    paddingVertical: 18,
+  },
+  sectionTitle: {
+    fontWeight: "700",
+    color: "#1D1B20",
+    marginBottom: 10,
+  },
+  sectionContent: {
+    marginTop: 2,
+  },
+  text: {
+    color: "#625B71",
+    lineHeight: 22,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  infoChip: {
+    backgroundColor: "#F3EDF7",
+  },
+  warningChip: {
+    backgroundColor: "#FCEEEE",
+  },
+  addButton: {
+    borderRadius: 100,
+    marginTop: 22,
+  },
+  closeButton: {
+    borderRadius: 100,
+    marginTop: 22,
+  },
+  closeButtonContent: {
+    height: 54,
+  },
+});
