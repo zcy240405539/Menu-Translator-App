@@ -694,10 +694,10 @@ Very important rules:
 - For "LUNCH PRIX FIXE $36 per person", return menu_pricing label="LUNCH PRIX FIXE", price="36", unit="per person".
 
 HARD LIMIT:
-- Return at most 30 layout_lines total.
+- Return at most 25 layout_lines total.
 - Include menu_pricing first if visible.
-- Stop after 30 layout_lines and close the JSON immediately.
-- Never output more than 30 objects inside layout_lines.
+- Stop after 25 layout_lines and close the JSON immediately.
+- Never output more than 25 objects inside layout_lines.
 
 Important compact output rules:
 - Do NOT output separate price-only lines.
@@ -708,7 +708,6 @@ Important compact output rules:
   2. dish_name lines
 - If text is a description under a dish, put it into description_text of that dish.
 - If text is a price near a dish, put it into price_text of that dish.
-- Do not output more than 35 layout_lines total.
 - Return complete valid JSON. Stop early if needed.
 
 
