@@ -1,7 +1,12 @@
 // 如果你用手机 Expo Go 测试，要改成电脑局域网 IP：
 // const API_BASE_URL = "http://192.168.x.x:8000";
-const API_BASE_URL = "http://127.0.0.1:8000";
+//const API_BASE_URL = "http://127.0.0.1:8000";
 //const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+const API_BASE_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://127.0.0.1:8000"
+    : process.env.EXPO_PUBLIC_API_BASE_URL;
 
 
 function sleep(ms) {
