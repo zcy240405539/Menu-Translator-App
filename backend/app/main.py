@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
-
+from io import BytesIO
+from PIL import Image
 from fastapi import (
     BackgroundTasks,
     FastAPI,
@@ -12,14 +13,10 @@ from fastapi import (
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
 from sqlalchemy.orm import Session
-
 from app.database import get_db, engine, Base
 from app.models import DishCache, DishImage
-
 from app.schemas import AnalyzeTextRequest, DishDetailRequest
-
 from app.ocr_service import (
     extract_text_from_image,
 )
@@ -31,6 +28,8 @@ from app.openrouter_service import (
 )
 from app.dish_cache_service import normalize_dish_name
 from app.image_service import get_or_create_dish_image
+from app.menu_layout_service import build_menu_items_from_layout_lines
+from app.category_service import get_or_create_menu_category
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -300,7 +299,28 @@ def dish_detail(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# =========================
+# Compress pictures
+# =========================
 
+def compress_image_bytes(file_bytes: bytes, max_size: int = 1400, quality: int = 70) -> bytes:
+    try:
+        img = Image.open(BytesIO(file_bytes))
+
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+
+        img.thumbnail((max_size, max_size))
+
+        buffer = BytesIO()
+        img.save(buffer, format="JPEG", quality=quality, optimize=True)
+
+        return buffer.getvalue()
+
+    except Exception as e:
+        print("Image compression skipped:", e)
+        return file_bytes
+    
 # =========================
 # Async Tasks
 # =========================
@@ -365,18 +385,19 @@ def run_menu_parse_task(
                 target_lang=target_lang,
             )
 
-            ocr_blocks = [
-                {
-                    "text": item.get("original_name"),
-                    "description_original": item.get("description_original"),
-                    "price": item.get("price"),
-                    "section_heading_original": item.get("section_heading_original"),
-                    "source": "openrouter_vision",
-                }
-                for item in result.get("menu_items", [])
-            ]
+            layout_lines = result.get("layout_lines", [])
+            source_language = result.get("source_language")
 
-            menu_items = result.get("menu_items", [])
+            menu_items = build_menu_items_from_layout_lines(
+                layout_lines=layout_lines,
+                source_language=source_language,
+                target_lang=target_lang,
+                get_or_create_category_func=get_or_create_menu_category,
+                db=db,
+            )
+
+            result["menu_items"] = menu_items
+            result["ocr_blocks"] = layout_lines
             source_language = result.get("source_language")
 
             for item in menu_items:
@@ -423,7 +444,7 @@ def run_menu_parse_task(
                             )
 
             result["menu_items"] = enriched_items
-            result["ocr_blocks"] = ocr_blocks
+            result["ocr_blocks"] = layout_lines
             result["cache_summary"] = {
                 "menu_cache_hit": False,
                 "total_items": len(enriched_items),
@@ -436,7 +457,7 @@ def run_menu_parse_task(
                 image_hash=image_hash,
                 target_lang=target_lang,
                 result=result,
-                ocr_blocks=ocr_blocks,
+                ocr_blocks=layout_lines,
             )
 
         finally:
@@ -468,13 +489,19 @@ async def start_parse_menu(
 ):
     try:
         file_bytes = await file.read()
+        content_type = file.content_type or ""
+
+        if "image" in content_type:
+            file_bytes = compress_image_bytes(file_bytes)
+            content_type = "image/jpeg"
+
         task_id = str(uuid.uuid4())
 
         MENU_TASKS[task_id] = {
             "status": "queued",
             "result": None,
             "error": None,
-            "content_type": file.content_type or "",
+            "content_type": content_type,
         }
 
         background_tasks.add_task(
@@ -490,8 +517,9 @@ async def start_parse_menu(
         }
 
     except Exception as e:
+        print("Start parse failed:", e)
         raise HTTPException(status_code=500, detail=str(e))
-
+    
 # =========================
 # Task Status
 # =========================

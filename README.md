@@ -80,6 +80,8 @@ menu-translator-app/
 │  │	├─ image_service.py
 │  │	├─ dish_cache_service.py
 │  │	├─ menu_cache_service.py
+│  │	├─ category_service.py
+│  │	├─ menu_layout_service.py
 │  │	└─ openrouter_service.py
 │  ├─ static/
 │  │	├─ README/

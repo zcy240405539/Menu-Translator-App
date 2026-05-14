@@ -42,8 +42,9 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
 
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ["images"],
-      quality: 0.8,
+      quality: 0.4,
       allowsEditing: false,
+      base64: false,
     });
 
     if (!result.canceled) {

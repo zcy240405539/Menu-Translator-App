@@ -105,6 +105,9 @@ def _build_payload(system_prompt: str, user_prompt: str, max_tokens: int = 6000)
         ],
         "temperature": 0.1,
         "max_tokens": max_tokens,
+        "reasoning": {
+            "enabled": False
+        },
     }
 
     if OPENROUTER_MODEL and ":free" not in OPENROUTER_MODEL:
@@ -488,10 +491,9 @@ def call_openrouter_for_missing_dish_details(dishes, target_lang="zh"):
 You are a food translation and dish explanation assistant.
 
 Target language: {target_lang}
-Only enrich the dishes provided.
+Only enrich the dishes provided. 
 Return valid JSON array only.
 Use description_original as the main evidence. Do not invent details unrelated to the original menu text. 
-Also translate section_heading_original into target language and return section_heading_translated
 
 For each dish, return:
 - id
@@ -515,12 +517,10 @@ Rules:
 - Translate section_heading_original into target language and return section_heading_translated.
 - Do not change category.
 - Preserve price from input if present.
-- cuisine must be a standardized English cuisine label.
+- cuisine must be a standardized English cuisine label in Title Case. Do not translate cuisine into the target language. If unsure, use "Other".
 - Use labels like: American, French, Italian, Chinese, Japanese, Korean, Mexican, Mediterranean, European, Cafe, Seafood, Dessert, Drink, Other.
-- Do not translate cuisine into the target language.
 - section_heading_translated must translate section_heading_original into target language.
-- If section_heading_original is "SANDWICH COMBINATIONS", section_heading_translated should be "三明治组合" for zh as target language.
-- If section_heading_original is "STARTER", section_heading_translated should be "开胃菜" for zh as target language.
+
 
 Input dishes:
 {json.dumps(dishes, ensure_ascii=False)}
@@ -667,7 +667,8 @@ Return complete valid JSON even if not all items are extracted.
 Never include section headings such as APPETIZERS, SUSHI, SOUPS & SALADS, ENTREES, DESSERTS as menu_items. Use them only as section_heading_original.
 
 Your task:
-Extract ONLY real purchasable menu items from the image.
+Extract OCR layout lines from the image. Do not build final menu_items.
+Classify each output item only as section_heading or dish_name.
 
 Very important rules:
 - Do NOT translate dish names in this step.
@@ -693,6 +694,20 @@ Very important rules:
 - Do not copy set menu prices to every dish unless the price is visually attached to that specific dish.
 - For "LUNCH PRIX FIXE $36 per person", return menu_pricing label="LUNCH PRIX FIXE", price="36", unit="per person".
 
+Important compact output rules:
+- Do NOT output separate price-only lines.
+- Do NOT output separate description-only lines.
+- For each dish, combine dish name, nearby description, and nearby price into ONE layout_lines item.
+- layout_lines should contain only:
+  1. section_heading lines
+  2. dish_name lines
+- If text is a description under a dish, put it into description_text of that dish.
+- If text is a price near a dish, put it into price_text of that dish.
+- Do not output more than 35 layout_lines total.
+- Return complete valid JSON. Stop early if needed.
+
+
+
 Return JSON schema:
 {{
   "source_language": "",
@@ -706,15 +721,15 @@ Return JSON schema:
       "applies_to": ""
     }}
   ],
-  "menu_items": [
+  "layout_lines": [
     {{
-      "id": "dish_001",
-      "original_name": "",
-      "description_original": "",
-      "price": null,
-      "category": "",
-      "section_heading_original": "",
-      "section_heading_translated": ""
+      "text": "",
+      "line_role": "section_heading",
+      "price_text": null,
+      "description_text": "",
+      "font_size_hint": "medium",
+      "x_order": 0,
+      "y_order": 0
     }}
   ]
 }}
@@ -750,7 +765,10 @@ Output only JSON.
             }
         ],
         "temperature": 0.1,
-        "max_tokens": 3500,
+        "max_tokens": 5000,
+        "reasoning": {
+            "enabled": False
+        },
     }
 
     data = _post_openrouter(payload, timeout=180)

@@ -63,6 +63,22 @@ def apply_cache_to_items(db, menu_items, target_lang):
     return enriched_items, missing_items
 
 
+def contains_chinese(text: str) -> bool:
+    return bool(text and re.search(r"[\u4e00-\u9fff]", str(text)))
+
+
+def normalize_cuisine(cuisine: str) -> str:
+    if not cuisine:
+        return "Other"
+
+    cuisine = str(cuisine).strip()
+
+    if contains_chinese(cuisine):
+        return "Other"
+
+    return cuisine.title()
+
+
 def upsert_dish_cache(db, dish, target_lang):
     original_name = dish.get("original_name", "")
     normalized_name = normalize_dish_name(original_name)
@@ -100,8 +116,9 @@ def upsert_dish_cache(db, dish, target_lang):
                 allergens=dish.get("allergens") or [],
                 spicy_level=dish.get("spicy_level") or 0,
                 image_prompt=dish.get("image_prompt"),
-                cuisine=dish.get("cuisine"),
+                cuisine=normalize_cuisine(dish.get("cuisine")),
             )
         )
 
     db.commit()
+

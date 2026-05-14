@@ -73,3 +73,22 @@ class MenuParseCache(Base):
     __table_args__ = (
         UniqueConstraint("image_hash", "target_language"),
     )
+
+
+class MenuCategory(Base):
+    __tablename__ = "menu_categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    normalized_key = Column(Text, nullable=False)
+    original_label = Column(Text, nullable=False)
+    source_language = Column(Text)
+    target_language = Column(Text, nullable=False)
+    translated_label = Column(Text, nullable=False)
+
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        UniqueConstraint("normalized_key", "target_language"),
+    )
