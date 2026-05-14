@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+gunicorn
+python-multipart
+python-dotenv
+requests
+sqlalchemy
+psycopg2-binary
+pydantic
+pydantic-settings
+openai
+pillow
+paddleocr==2.7.0.3
+paddlepaddle
+opencv-python-headless
