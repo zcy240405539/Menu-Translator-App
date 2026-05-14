@@ -72,6 +72,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
     parsedResult?.items ||
     parsedResult?.dishes ||
     [];
+  const menuPricing = parsedResult?.menu_pricing || [];
 
   const sections = useMemo(() => {
     const groups = {};
@@ -109,6 +110,29 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   const sourceLanguage =
     parsedResult?.source_language || t.result.sourceFallback;
 
+  const openPricingDetail = (pricing) => {
+    const detailText = [
+      pricing.description,
+      pricing.applies_to,
+      pricing.details,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    setSelectedDish({
+      id: `pricing-${pricing.label}`,
+      original_name: pricing.label,
+      translated_name: pricing.label,
+      price: pricing.price,
+      description: detailText,
+      ingredients: [],
+      allergens: [],
+      spicy_level: 0,
+      cuisine: "Set Menu",
+      image_url: null,
+    });
+  };
+  
   const renderDish = ({ item }) => {
     const price = formatPrice(item.price);
     const displayName = getTranslatedName(item);
@@ -166,18 +190,20 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
-          <Card mode="elevated" style={styles.summaryCard}>
-            <Card.Content>
-              <Text variant="headlineSmall" style={styles.summaryTitle}>
-                {t.result.title}
-              </Text>
+          <>
+            <Card mode="elevated" style={styles.summaryCard}>
+              <Card.Content>
+                <Text variant="headlineSmall" style={styles.summaryTitle}>
+                  {t.result.title}
+                </Text>
 
-              <Text variant="bodyMedium" style={styles.summarySubtitle}>
-                {restaurantType} · {sourceLanguage} · {items.length} {t.result.items}
-              </Text>
-            </Card.Content>
-          </Card>
-        }
+                <Text variant="bodyMedium" style={styles.summarySubtitle}>
+                  {restaurantType} · {sourceLanguage} · {items.length} {t.result.items}
+                </Text>
+              </Card.Content>
+            </Card>
+          </>
+        }                           
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
             <Text variant="titleLarge" style={styles.sectionTitle}>
@@ -191,6 +217,40 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
               <Text style={styles.emptyText}>{t.result.empty}</Text>
             </Card.Content>
           </Card>
+        }
+        ListFooterComponent={
+          <>
+            {menuPricing.map((pricing, index) => (
+              <TouchableRipple
+                key={`pricing-${index}`}
+                borderless
+                style={styles.ripple}
+                onPress={() => openPricingDetail(pricing)}
+              >
+                <Card mode="elevated" style={styles.pricingCard}>
+                  <Card.Content>
+                    <View style={styles.pricingHeader}>
+                      <Text style={styles.pricingTitle}>{pricing.label}</Text>
+
+                      {!!pricing.price && (
+                        <Chip compact style={styles.priceChip} textStyle={styles.priceText}>
+                          ${pricing.price}
+                        </Chip>
+                      )}
+                    </View>
+
+                    {!!pricing.description && (
+                      <Text style={styles.pricingDescription}>{pricing.description}</Text>
+                    )}
+
+                    {!!pricing.applies_to && (
+                      <Text style={styles.pricingApplies}>{pricing.applies_to}</Text>
+                    )}
+                  </Card.Content>
+                </Card>
+              </TouchableRipple>
+            ))}
+          </>
         }
       />
 
@@ -287,5 +347,35 @@ const styles = StyleSheet.create({
   emptyText: {
     color: "#625B71",
     textAlign: "center",
+  },
+  pricingCard: {
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    marginBottom: 18,
+  },
+
+  pricingHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  pricingTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#1D1B20",
+    flex: 1,
+  },
+
+  pricingDescription: {
+    marginTop: 10,
+    color: "#625B71",
+    lineHeight: 20,
+  },
+
+  pricingApplies: {
+    marginTop: 8,
+    color: "#6750A4",
+    fontWeight: "600",
   },
 });

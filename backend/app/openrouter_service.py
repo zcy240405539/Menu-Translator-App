@@ -661,8 +661,6 @@ Target language name: {target_language_name}
 Return ONLY valid raw JSON.
 Do not use markdown.
 Do not include explanations.
-Extract at most 35 menu items. Prioritize the most visible items.
-If the menu is long, do not continue beyond 35 items.
 Return complete valid JSON even if not all items are extracted.
 Never include section headings such as APPETIZERS, SUSHI, SOUPS & SALADS, ENTREES, DESSERTS as menu_items. Use them only as section_heading_original.
 
@@ -681,11 +679,12 @@ Very important rules:
 - description_original should contain nearby description text only if it is clearly under that dish.
 - If a line is only a section heading, do not include it as a menu item.
 - If a line is only an instruction such as "Choice of", "Served with", "per person", "Prix Fixe", do not include it as a menu item.
-- If a section heading says "LUNCH PRIX FIXE", keep it as section_heading_original, not as a dish.
+- If a section heading says "LUNCH PRIX FIXE", do not include it in layout_lines. Put it only in menu_pricing.
 - Extract price only when it is visually attached to the same dish.
 - If price appears as "$26", return "26".
 - If price appears as "$36 per person", return "36".
-- If no price is visually attached to the dish, return null.
+- For boxed/list sections like SUSHI, prices may appear in a right-aligned column. Match each dish to the price on the same visual row, even if the price is far to the right.
+- If no price is visually attached to the dish, return null, do not leave price_text null if a number is visible on the same row as the dish.
 - Do not merge dish name with description.
 - Dish name is usually the bold/title line.
 - Description is usually smaller text below the dish name.
@@ -693,6 +692,12 @@ Very important rules:
 - If the menu has a prix fixe, set menu, tasting menu, combo, or per-person price, put it in menu_pricing.
 - Do not copy set menu prices to every dish unless the price is visually attached to that specific dish.
 - For "LUNCH PRIX FIXE $36 per person", return menu_pricing label="LUNCH PRIX FIXE", price="36", unit="per person".
+
+HARD LIMIT:
+- Return at most 30 layout_lines total.
+- Include menu_pricing first if visible.
+- Stop after 30 layout_lines and close the JSON immediately.
+- Never output more than 30 objects inside layout_lines.
 
 Important compact output rules:
 - Do NOT output separate price-only lines.
@@ -715,12 +720,16 @@ Return JSON schema:
   "restaurant_type": "",
   "menu_pricing": [
     {{
-      "label": "",
-      "price": "",
-      "unit": "",
-      "applies_to": ""
+        "label": "",
+        "price": "",
+        "unit": "",
+        "description": "",
+        "applies_to": "",
+        "details": ""
     }}
   ],
+
+
   "layout_lines": [
     {{
       "text": "",
@@ -742,6 +751,23 @@ Bad examples, do NOT extract as dishes:
 - "g/m"
 - footer notes
 - allergy notices
+
+
+If the menu contains prix fixe / set menu / set meal / combo pricing / omakase, return it in menu_pricing.
+Example:
+LUNCH PRIX FIXE
+Served with Fresh Baked Cookies. $36 per person
+For prix fixe / set menu, put all visible starter choices and entree choices into menu_pricing.details as readable plain text.
+
+Return:
+{{
+  "label": "LUNCH PRIX FIXE",
+  "price": "36",
+  "unit": "per person",
+  "description": "Served with Fresh Baked Cookies.",
+  "applies_to": "STARTER Choice of, ENTRÉE Choice of"
+}}
+Do not include LUNCH PRIX FIXE itself as a dish.
 
 Output only JSON.
 """

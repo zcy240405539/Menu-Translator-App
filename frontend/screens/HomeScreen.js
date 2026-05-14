@@ -238,8 +238,29 @@ const selectFromFile = async () => {
                   {t.home.selectedMenu}
                 </Text>
 
-                <Image source={{ uri: imageUri }} style={styles.preview} />
+                {selectedFile?.mimeType?.includes("pdf") ||
+                selectedFile?.name?.toLowerCase().endsWith(".pdf") ? (
+                  <View style={styles.pdfPreview}>
+                    <Text style={styles.pdfIcon}>📄</Text>
 
+                    <Text style={styles.pdfTitle}>
+                      PDF Menu
+                    </Text>
+
+                    <Text
+                      style={styles.pdfName}
+                      numberOfLines={2}
+                    >
+                      {selectedFile?.name || "menu.pdf"}
+                    </Text>
+                  </View>
+                ) : (
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={styles.preview}
+                  />
+                )}
+                
                 {loading ? (
                   <View style={styles.loadingBox}>
                     <ActivityIndicator size="large" />
@@ -342,4 +363,31 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: "#625B71",
   },
+  pdfPreview: {
+    width: "100%",
+    height: 280,
+    borderRadius: 18,
+    backgroundColor: "#E7E0EC",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+
+  pdfIcon: {
+    fontSize: 58,
+    marginBottom: 12,
+  },
+
+  pdfTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1D1B20",
+  },
+
+  pdfName: {
+    marginTop: 8,
+    fontSize: 13,
+    color: "#625B71",
+    textAlign: "center",
+  },  
 });

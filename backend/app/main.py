@@ -10,7 +10,7 @@ from fastapi import (
     HTTPException,
     Depends,
 )
-
+from app.pdf_service import pdf_bytes_to_images
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -491,9 +491,18 @@ async def start_parse_menu(
         file_bytes = await file.read()
         content_type = file.content_type or ""
 
-        if "image" in content_type:
-            file_bytes = compress_image_bytes(file_bytes)
+        if "pdf" in content_type:
+            images = pdf_bytes_to_images(file_bytes, max_pages=5)
+            if not images:
+                raise Exception("PDF pages not extracted")
+
+            # 先固定只解析第一页
+            file_bytes = compress_image_bytes(images[0], max_size=1800, quality=70)
             content_type = "image/jpeg"
+
+        elif "image" in content_type:
+            file_bytes = compress_image_bytes(file_bytes)
+            content_type = "image/jpeg"                                                                         
 
         task_id = str(uuid.uuid4())
 
@@ -535,3 +544,20 @@ async def get_parse_status(task_id: str):
         )
 
     return task
+
+def merge_images_vertically(image_bytes_list: list[bytes]) -> bytes:
+    images = [Image.open(BytesIO(b)).convert("RGB") for b in image_bytes_list]
+
+    width = max(img.width for img in images)
+    total_height = sum(img.height for img in images)
+
+    merged = Image.new("RGB", (width, total_height), "white")
+
+    y = 0
+    for img in images:
+        merged.paste(img, (0, y))
+        y += img.height
+
+    buffer = BytesIO()
+    merged.save(buffer, format="JPEG", quality=70, optimize=True)
+    return buffer.getvalue()

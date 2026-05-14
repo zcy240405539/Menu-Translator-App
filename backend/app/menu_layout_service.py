@@ -42,12 +42,18 @@ def split_dish_name_and_description(text: str) -> tuple[str, str]:
     if not text:
         return "", ""
 
-    # 去掉 g/m 这种标记
-    text = re.sub(r"\s+g/m\b", "", text, flags=re.IGNORECASE).strip()
+    # 去 OCR 垃圾
+    text = re.sub(r"\bg/m\b", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bMkt\b", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bMkr\b", "", text, flags=re.IGNORECASE)
+
+    text = re.sub(r"\s+", " ", text).strip()
+
+    # 去末尾价格
+    text = re.sub(r"\s+\d{1,3}$", "", text).strip()
 
     words = text.split()
 
-    # 找第一个明显不是菜名大写区的词
     split_idx = None
 
     for i, word in enumerate(words):
@@ -56,13 +62,14 @@ def split_dish_name_and_description(text: str) -> tuple[str, str]:
         if not clean:
             continue
 
-        # 小写/标题大小写词通常开始进入 description
-        if clean and not clean.isupper():
+        # description 开始
+        # 出现 Title Case / lowercase
+        if not clean.isupper():
             split_idx = i
             break
 
-    if split_idx is None or split_idx == 0:
-        return text, ""
+    if split_idx is None:
+        return text.strip(), ""
 
     dish_name = " ".join(words[:split_idx]).strip()
     description = " ".join(words[split_idx:]).strip()
@@ -87,6 +94,8 @@ def build_menu_items_from_layout_lines(
 
     for line in sorted_lines:
         if is_probable_section_heading(line):
+            clean_heading = re.sub(r"\bg/m\b", "", line.get("text", ""), flags=re.IGNORECASE)
+            clean_heading = clean_heading.strip()
             current_category = get_or_create_category_func(
                 db=db,
                 original_label=line.get("text", ""),
@@ -98,6 +107,16 @@ def build_menu_items_from_layout_lines(
         if not is_probable_dish(line):
             continue
 
+        raw_text = (line.get("text") or "").strip()
+
+        # 纯数字
+        if re.fullmatch(r"\d{1,3}", raw_text):
+            continue
+
+        # 太短
+        if len(raw_text) < 3:
+            continue
+
         category_key = current_category.normalized_key if current_category else "other"
         section_original = current_category.original_label if current_category else ""
         section_translated = current_category.translated_label if current_category else ""
@@ -107,11 +126,12 @@ def build_menu_items_from_layout_lines(
             raw_text
         )
 
-        description_original = (
-            line.get("description_text")
-            or parsed_description
-            or ""
-        )
+        description_original = parsed_description
+
+        if line.get("description_text"):
+            if len(line["description_text"]) > len(parsed_description):
+                description_original = line["description_text"]
+
         item = {
             "id": f"dish_{len(items) + 1:03d}",
             "original_name": dish_name,
