@@ -67,9 +67,12 @@ app.add_middleware(
 # =========================
 
 @app.get("/health")
-def health_check():
-    return {"status": "ok"}
-
+@app.head("/health")
+async def health():
+    return {
+        "status": "ok",
+        "service": "AI Menu Backend"
+    }
 # =========================
 # DB TEST
 # =========================
