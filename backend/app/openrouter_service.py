@@ -2,7 +2,7 @@ import json
 import re
 import requests
 
-from config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -380,7 +380,7 @@ def call_openrouter_for_menu_structure(ocr_blocks, target_lang="zh"):
 
     import json
     import requests
-    from config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+    from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
 
     prompt = f"""
 You are a menu layout reconstruction engine.
@@ -483,7 +483,7 @@ def call_openrouter_for_missing_dish_details(dishes, target_lang="zh"):
 
     import json
     import requests
-    from config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+    from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
 
     if not dishes:
         return []

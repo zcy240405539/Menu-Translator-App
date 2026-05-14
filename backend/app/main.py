@@ -18,18 +18,18 @@ from sqlalchemy.orm import Session
 from app.database import get_db, engine
 from app.models import DishCache, DishImage
 
-from schemas import AnalyzeTextRequest, DishDetailRequest
+from app.schemas import AnalyzeTextRequest, DishDetailRequest
 
-from ocr_service import (
+from app.ocr_service import (
     extract_text_from_image,
 )
 
-from openrouter_service import (
+from app.openrouter_service import (
     call_openrouter_for_menu,
     call_openrouter_for_dish_detail,
 )
-from dish_cache_service import normalize_dish_name
-from image_service import get_or_create_dish_image
+from app.dish_cache_service import normalize_dish_name
+from app.image_service import get_or_create_dish_image
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -112,7 +112,7 @@ async def menu_ocr(file: UploadFile = File(...)):
 @app.post("/menus/layout")
 async def menu_layout(file: UploadFile = File(...)):
     try:
-        from ocr_service import extract_layout_blocks_from_image
+        from app.ocr_service import extract_layout_blocks_from_image
 
         file_bytes = await file.read()
 
@@ -153,8 +153,8 @@ async def parse_menu(
     target_lang: str = "zh",
 ):
     try:
-        from ocr_service import extract_layout_blocks_from_image
-        from openrouter_service import (
+        from app.ocr_service import extract_layout_blocks_from_image
+        from app.openrouter_service import (
             call_openrouter_for_menu_layout,
         )
 
@@ -303,17 +303,17 @@ def run_menu_parse_task(
     target_lang: str,
 ):
     try:
-        from ocr_service import extract_layout_blocks_from_image
-        from openrouter_service import (
+        from app.ocr_service import extract_layout_blocks_from_image
+        from app.openrouter_service import (
             call_openrouter_for_menu_structure,
             call_openrouter_for_missing_dish_details,
         )
-        from database import SessionLocal
-        from dish_cache_service import (
+        from app.database import SessionLocal
+        from app.dish_cache_service import (
             apply_cache_to_items,
             upsert_dish_cache,
         )
-        from menu_cache_service import (
+        from app.menu_cache_service import (
             calculate_image_hash,
             get_menu_cache,
             upsert_menu_cache,
@@ -349,7 +349,7 @@ def run_menu_parse_task(
             all_ocr_blocks = []
 
             if "pdf" in content_type:
-                from pdf_service import pdf_bytes_to_images
+                from app.pdf_service import pdf_bytes_to_images
 
                 page_images = pdf_bytes_to_images(file_bytes, max_pages=5)
 
