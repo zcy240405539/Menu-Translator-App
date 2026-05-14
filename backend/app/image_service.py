@@ -4,7 +4,7 @@ import uuid
 import requests
 from supabase import create_client
 
-from models import DishImage
+from  app.models import DishImage
 
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")

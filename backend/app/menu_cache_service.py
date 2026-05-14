@@ -1,5 +1,5 @@
 import hashlib
-from models import MenuParseCache
+from  app.models import MenuParseCache
 
 
 def calculate_image_hash(file_bytes: bytes) -> str:

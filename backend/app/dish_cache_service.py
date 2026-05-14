@@ -1,6 +1,6 @@
 import re
 import unicodedata
-from models import DishCache, DishImage
+from  app.models import DishCache, DishImage
 
 
 def normalize_dish_name(name: str) -> str:

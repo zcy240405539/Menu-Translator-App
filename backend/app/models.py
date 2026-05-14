@@ -2,7 +2,7 @@ from sqlalchemy import Column, BigInteger, Text, Integer, DateTime, UniqueConstr
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 
-from database import Base
+from  app.database import Base
 
 
 class DishCache(Base):
