@@ -15,7 +15,7 @@ from fastapi.staticfiles import StaticFiles
 
 from sqlalchemy.orm import Session
 
-from app.database import get_db, engine
+from app.database import get_db, engine, Base
 from app.models import DishCache, DishImage
 
 from app.schemas import AnalyzeTextRequest, DishDetailRequest
