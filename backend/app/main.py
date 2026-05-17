@@ -19,12 +19,15 @@ from app.models import DishCache, DishImage
 from app.schemas import AnalyzeTextRequest, DishDetailRequest
 from app.ocr_service import (
     extract_text_from_image,
+    extract_layout_blocks_from_image,
 )
 
 from app.openrouter_service import (
-    call_openrouter_for_menu,
     call_openrouter_for_dish_detail,
-    call_openrouter_vision_for_menu,
+    call_openrouter_for_menu,
+    call_openrouter_for_menu_layout,
+    call_openrouter_for_missing_dish_details,
+    extract_dish_candidates_from_ocr_blocks,
 )
 from app.dish_cache_service import normalize_dish_name
 from app.image_service import get_or_create_dish_image
@@ -95,11 +98,13 @@ def db_test(db: Session = Depends(get_db)):
 # =========================
 
 @app.post("/menus/ocr")
-async def menu_ocr(file: UploadFile = File(...)):
+async def menu_ocr(
+    file: UploadFile = File(...),
+    source_lang: str = "auto",
+):
     try:
         file_bytes = await file.read()
-
-        ocr_text = extract_text_from_image(file_bytes)
+        ocr_text = extract_text_from_image(file_bytes, source_lang=source_lang)
 
         return {
             "ocr_text": ocr_text
@@ -113,13 +118,17 @@ async def menu_ocr(file: UploadFile = File(...)):
 # =========================
 
 @app.post("/menus/layout")
-async def menu_layout(file: UploadFile = File(...)):
+async def menu_layout(
+    file: UploadFile = File(...),
+    source_lang: str = "auto",
+):
     try:
-        from app.ocr_service import extract_layout_blocks_from_image
-
+        #from app.ocr_service import extract_layout_blocks_from_image
         file_bytes = await file.read()
-
-        blocks = extract_layout_blocks_from_image(file_bytes)
+        blocks = extract_layout_blocks_from_image(
+            file_bytes,
+            source_lang=source_lang,
+        )
 
         return {
             "count": len(blocks),
@@ -154,34 +163,46 @@ def analyze_menu(request: AnalyzeTextRequest):
 async def parse_menu(
     file: UploadFile = File(...),
     target_lang: str = "zh",
+    source_lang: str = "auto",
 ):
     try:
         file_bytes = await file.read()
         mime_type = file.content_type or "image/jpeg"
 
         if "pdf" in mime_type:
+            images = pdf_bytes_to_images(file_bytes, max_pages=5)
+            if not images:
+                raise HTTPException(status_code=400, detail="PDF pages not extracted")
+
+            file_bytes = merge_images_vertically(images)
+            mime_type = "image/jpeg"
+
+        ocr_blocks = extract_layout_blocks_from_image(
+            file_bytes,
+            source_lang=source_lang,
+        )
+
+        if not ocr_blocks:
             raise HTTPException(
-                status_code=400,
-                detail="PDF parsing is not enabled yet. Please upload an image file first.",
+                status_code=422,
+                detail="OCR did not detect readable text. Please retake the photo with better lighting.",
             )
 
-        result = call_openrouter_vision_for_menu(
-            image_bytes=file_bytes,
-            mime_type=mime_type,
+        result = call_openrouter_for_menu_layout(
+            ocr_blocks=ocr_blocks,
             target_lang=target_lang,
         )
 
-        result["ocr_blocks"] = []
-        result["parser"] = "openrouter_vision"
+        result["ocr_blocks"] = ocr_blocks
+        result["parser"] = "paddleocr_layout_openrouter"
+        result["source_lang_request"] = source_lang
 
         return result
 
     except HTTPException:
         raise
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 # =========================
 # Dish Detail
@@ -334,10 +355,6 @@ def run_menu_parse_task(
 ):
     try:
         from app.ocr_service import extract_layout_blocks_from_image
-        from app.openrouter_service import (
-            call_openrouter_vision_for_menu,
-            call_openrouter_for_missing_dish_details,
-        )
         from app.database import SessionLocal
         from app.dish_cache_service import (
             apply_cache_to_items,
@@ -379,27 +396,46 @@ def run_menu_parse_task(
             if "pdf" in content_type:
                 raise RuntimeError("PDF parsing is not enabled yet. Please upload an image file first.")
 
-            result = call_openrouter_vision_for_menu(
-                image_bytes=file_bytes,
-                mime_type=content_type,
-                target_lang=target_lang,
+            source_lang = MENU_TASKS[task_id].get("source_lang", "auto")
+
+            ocr_blocks = extract_layout_blocks_from_image(
+                file_bytes,
+                source_lang=source_lang,
             )
 
-            layout_lines = result.get("layout_lines", [])
-            source_language = result.get("source_language")
+            if not ocr_blocks:
+                raise RuntimeError("OCR did not detect readable text.")
 
-            menu_items = build_menu_items_from_layout_lines(
-                layout_lines=layout_lines,
-                source_language=source_language,
+            result = extract_dish_candidates_from_ocr_blocks(
+                ocr_blocks,
                 target_lang=target_lang,
-                get_or_create_category_func=get_or_create_menu_category,
-                db=db,
             )
+            result["ocr_blocks"] = ocr_blocks
+            result["parser"] = "paddleocr_candidates_cache_first"
 
+            if not isinstance(result, dict):
+                result = {}
+
+            if "menu_items" not in result:
+                result["menu_items"] = []
+
+            print("DEBUG OCR BLOCKS:", len(ocr_blocks))
+            print("DEBUG MENU ITEMS:", len(result.get("menu_items", [])))
+
+            layout_lines = result.get("menu_items", []) or []
+            source_language = result.get("source_language") or "auto"
+
+            # call_openrouter_for_menu_layout 已经返回 menu_items，不要再强制二次 build。
+            # 否则格式不匹配时会变成空。
+            menu_items = layout_lines
+
+            for item in menu_items:
+                if not item.get("source_language"):
+                    item["source_language"] = source_language
             result["menu_items"] = menu_items
-            result["ocr_blocks"] = layout_lines
-            source_language = result.get("source_language")
+            result["ocr_blocks"] = ocr_blocks
 
+            source_language = result.get("source_language")
             for item in menu_items:
                 if not item.get("source_language"):
                     item["source_language"] = source_language
@@ -412,38 +448,90 @@ def run_menu_parse_task(
 
             if missing_items:
                 missing_details = []
-                batch_size = 2
+                batch_size = 5
 
                 for i in range(0, len(missing_items), batch_size):
                     batch = missing_items[i:i + batch_size]
 
-                    batch_details = call_openrouter_for_missing_dish_details(
-                        dishes=batch,
+                    try:
+                        batch_details = call_openrouter_for_missing_dish_details(
+                            dishes=batch,
+                            target_lang=target_lang,
+                        )
+
+                        if isinstance(batch_details, list):
+                            missing_details.extend(batch_details)
+
+                    except Exception as e:
+                        print("Batch dish detail failed, retrying one by one:", e)
+
+                        for single_item in batch:
+                            try:
+                                single_details = call_openrouter_for_missing_dish_details(
+                                    dishes=[single_item],
+                                    target_lang=target_lang,
+                                )
+
+                                if isinstance(single_details, list):
+                                    missing_details.extend(single_details)
+
+                            except Exception as single_error:
+                                print("Single dish detail failed:", single_error)
+
+                                # 最差情况下也返回原文，不让前端空白
+                                missing_details.append({
+                                    "id": single_item.get("id"),
+                                    "original_name": single_item.get("original_name"),
+                                    "source_language": single_item.get("source_language") or "en",
+                                    "translated_name": single_item.get("original_name"),
+                                    "description": "",
+                                    "ingredients": [],
+                                    "allergens": [],
+                                    "spicy_level": 0,
+                                    "image_prompt": "",
+                                    "cuisine": "Other",
+                                    "section_heading_translated": single_item.get("section_heading_original"),
+                                })
+
+
+            # =========================
+            # Merge OpenRouter details back
+            # =========================
+
+            detail_map = {
+                x.get("id"): x
+                for x in missing_details
+                if x.get("id")
+            }
+
+            final_items = []
+
+            for item in enriched_items:
+                if item.get("cache_hit"):
+                    final_items.append(item)
+                    continue
+
+                detail = detail_map.get(item.get("id"))
+
+                if detail:
+                    item.update(detail)
+
+                # 不管 OpenRouter 成功失败，都写入数据库
+                try:
+                    upsert_dish_cache(
+                        db=db,
+                        dish=item,
                         target_lang=target_lang,
                     )
+                except Exception as cache_error:
+                    print("Dish cache upsert failed:", cache_error)
 
-                    if isinstance(batch_details, list):
-                        missing_details.extend(batch_details)   
+                final_items.append(item)
 
-                detail_map = {
-                    item.get("id"): item
-                    for item in missing_details
-                }
+            enriched_items = final_items
 
-                for item in enriched_items:
-                    if not item.get("cache_hit"):
-                        detail = detail_map.get(item.get("id"))
-
-                        if detail:
-                            item.update(detail)
-                            upsert_dish_cache(
-                                db=db,
-                                dish=item,
-                                target_lang=target_lang,
-                            )
-
-            result["menu_items"] = enriched_items
-            result["ocr_blocks"] = layout_lines
+            result["menu_items"] = enriched_items or menu_items
+            result["ocr_blocks"] = ocr_blocks
             result["cache_summary"] = {
                 "menu_cache_hit": False,
                 "total_items": len(enriched_items),
@@ -456,7 +544,7 @@ def run_menu_parse_task(
                 image_hash=image_hash,
                 target_lang=target_lang,
                 result=result,
-                ocr_blocks=layout_lines,
+                ocr_blocks=ocr_blocks,
             )
 
         finally:
@@ -485,6 +573,7 @@ async def start_parse_menu(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     target_lang: str = "zh",
+    source_lang: str = "auto",
 ):
     try:
         file_bytes = await file.read()
@@ -510,6 +599,7 @@ async def start_parse_menu(
             "result": None,
             "error": None,
             "content_type": content_type,
+            "source_lang": source_lang,
         }
 
         background_tasks.add_task(

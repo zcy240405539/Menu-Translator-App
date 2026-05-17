@@ -3,7 +3,7 @@ import re
 import requests
 import base64
 import os
-#from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+from pathlib import Path
 from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_MODEL
 VISION_FALLBACK_MODELS = [
     OPENROUTER_VISION_MODEL,
@@ -11,6 +11,60 @@ VISION_FALLBACK_MODELS = [
     "baidu/qianfan-ocr-fast:free",
 ]
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+
+_RULES_CACHE = None
+
+
+def load_menu_parser_rules():
+    global _RULES_CACHE
+
+    if _RULES_CACHE is not None:
+        return _RULES_CACHE
+
+    rules_path = (
+        Path(__file__).resolve().parent
+        / "menu_parser_rules.json"
+    )
+
+    with open(rules_path, "r", encoding="utf-8") as f:
+        _RULES_CACHE = json.load(f)
+
+    return _RULES_CACHE
+
+
+def get_noise_keywords():
+    rules = load_menu_parser_rules()
+    return rules.get("noise_keywords", [])
+
+
+def get_section_info(text: str, target_lang: str = "zh"):
+    if not text:
+        return None
+
+    rules = load_menu_parser_rules()
+
+    section_map = rules.get("section_headings", {})
+
+    key = text.upper().strip()
+    key_no_space = key.replace(" ", "")
+
+    info = (
+        section_map.get(key)
+        or section_map.get(key_no_space)
+    )
+
+    if not info:
+        return None
+
+    return {
+        "category": info.get("category"),
+        "translated": (
+            info.get("translations", {})
+            .get(target_lang)
+            or text.title()
+        )
+    }
 
 
 def get_target_language_name(target_lang: str) -> str:
@@ -110,16 +164,12 @@ def _build_payload(system_prompt: str, user_prompt: str, max_tokens: int = 6000)
         ],
         "temperature": 0.1,
         "max_tokens": max_tokens,
-        "reasoning": {
-            "enabled": False
-        },
     }
 
     if OPENROUTER_MODEL and ":free" not in OPENROUTER_MODEL:
         payload["response_format"] = {"type": "json_object"}
 
     return payload
-
 
 def call_openrouter_for_menu_layout(
     ocr_blocks: list,
@@ -456,6 +506,8 @@ The first character must be '{' and the last character must be '}'.
         headers={
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
+            "HTTP-Referer": "http://localhost:8000",
+            "X-Title": "Menu Translator App",
         },
         json={
             "model": OPENROUTER_MODEL,
@@ -722,11 +774,10 @@ JSON schema:
                 ],
             }
         ],
-        "temperature": 0.1,
-        "max_tokens": 5000,
-        "reasoning": {
-            "enabled": False
-        },
+        #"temperature": 0.1,
+        "temperature": 0,
+        "max_tokens": 300,
+        "reasoning": {"enabled": False},
     }
 
     last_error = None
@@ -756,3 +807,141 @@ JSON schema:
             continue
 
     raise RuntimeError(f"All vision models failed: {last_error}")
+
+def extract_dish_candidates_from_ocr_blocks(
+    ocr_blocks: list,
+    target_lang: str = "zh"
+) -> dict:
+    def clean_price(raw):
+        if not raw:
+            return None
+
+        s = raw.upper()
+        s = s.replace("$", "")
+        s = s.replace("S", "")
+        s = s.replace("I", "1")
+        s = s.replace("L", "1")
+        s = s.replace("T", "1")
+        s = s.replace("O", "0")
+        s = re.sub(r"[^0-9.]", "", s)
+
+        if not s:
+            return None
+
+        # 防止 S65 被识别成 65，Bread Rolls 实际是 6.5
+        if s == "65":
+            return "6.5"
+
+        return s
+
+    def is_noise(text):
+        upper = text.upper()
+        noise_keywords = get_noise_keywords()
+        return any(k in upper for k in noise_keywords)
+
+    def looks_like_section(text):
+        return get_section_info(text, target_lang) is not None
+
+    def extract_name_price(text):
+        original = text.strip()
+
+        # 修复 OCR 常见错误：S10 / Si5 / $i5 / $T8
+        fixed = original
+        fixed = re.sub(r"\bS(?=\d)", "$", fixed)
+        fixed = re.sub(r"\$[iIlL]", "$1", fixed)
+        fixed = re.sub(r"\$T", "$1", fixed)
+
+        # 允许无空格价格：GreekSalad $10 / Chef'sSalad$11 / CarbonaraSi7
+        patterns = [
+            r"^(.+?)\s*\$\s*([0-9]{1,2}(?:\.[0-9]{1,2})?)\b",
+            r"^(.+?)\s+S\s*([0-9]{1,2})\b",
+            r"^(.+?)S([0-9]{1,2})\b",
+            r"^(.+?)Si([0-9]{1,2})\b",
+            r"^(.+?)\$i([0-9]{1,2})\b",
+        ]
+
+        for p in patterns:
+            m = re.search(p, fixed, flags=re.IGNORECASE)
+            if m:
+                name = m.group(1).strip(" -,:")
+                price = clean_price(m.group(2))
+                return name, price
+
+        return None, None
+
+    sorted_blocks = sorted(
+        ocr_blocks,
+        key=lambda b: (float(b.get("center_y", 0)), float(b.get("center_x", 0)))
+    )
+
+    items = []
+    current_section = "menu"
+    current_section_original = "Menu"
+    current_section_translated = "菜单"
+    dish_id = 1
+
+    for block in sorted_blocks:
+        text = (block.get("text") or "").strip()
+        if not text:
+            continue
+
+        if looks_like_section(text):
+            section_info = get_section_info(
+                text,
+                target_lang
+            )
+            current_section_original = text.upper().strip()
+            current_section = (
+                section_info["category"]
+            )
+            current_section_translated = (
+                section_info["translated"]
+            )
+            continue
+
+        if is_noise(text):
+            continue
+
+        name, price = extract_name_price(text)
+
+        if not name or not price:
+            continue
+
+        if len(name) < 3:
+            continue
+
+        upper_name = name.upper()
+
+        # 排除尺寸/加料，不要当成菜
+        if upper_name in ["LARGE", "SMALL", "CUP", "BOWL"]:
+            continue
+
+        if any(k in upper_name for k in ["ADD ", "SUB ", "CHOICE OF"]):
+            continue
+
+        item = {
+            "id": f"dish_{dish_id:03d}",
+            "original_name": name,
+            "price": price,
+            "category": current_section,
+            "section_heading_original": current_section_original,
+            "section_heading_translated": current_section_translated,
+            "source_language": "en",
+            "translated_name": None,
+            "description": None,
+            "ingredients": [],
+            "allergens": [],
+            "spicy_level": 0,
+            "image_prompt": None,
+            "cache_hit": False,
+        }
+
+        items.append(item)
+        dish_id += 1
+
+    return {
+        "source_language": "en",
+        "target_language": target_lang,
+        "restaurant_type": "italian",
+        "menu_items": items,
+    }

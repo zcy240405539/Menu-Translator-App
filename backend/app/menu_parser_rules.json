@@ -1,0 +1,71 @@
+{
+  "section_headings": {
+    "APPETIZERS": {
+      "category": "appetizers",
+      "translations": {
+        "zh": "开胃菜",
+        "en": "Appetizers"
+      }
+    },
+
+    "SOUPS&SALADS": {
+      "category": "soups_salads",
+      "translations": {
+        "zh": "汤和沙拉",
+        "en": "Soups & Salads"
+      }
+    },
+
+    "SOUPS & SALADS": {
+      "category": "soups_salads",
+      "translations": {
+        "zh": "汤和沙拉",
+        "en": "Soups & Salads"
+      }
+    },
+
+    "PASTA": {
+      "category": "pasta",
+      "translations": {
+        "zh": "意面",
+        "en": "Pasta"
+      }
+    },
+
+    "CHEF SPECIAL": {
+      "category": "chef_special",
+      "translations": {
+        "zh": "厨师特选",
+        "en": "Chef Special"
+      }
+    },
+
+    "CHEF'S SPECIAL": {
+      "category": "chef_special",
+      "translations": {
+        "zh": "厨师特选",
+        "en": "Chef Special"
+      }
+    }
+  },
+
+  "noise_keywords": [
+    "HEDGCOXE",
+    "PLANO",
+    "TEXAS",
+    "GMAIL",
+    "ROMA",
+    "ITALIAN KITCHEN",
+    "AM-",
+    "PM",
+    "DRESSING",
+    "ADD CHICKEN",
+    "ADD SHRIMP",
+    "ADD SALMON",
+    "SUB SHRIMP",
+    "SPLIT",
+    "GRATUITY",
+    "EXTRA CHARGE",
+    "SUBSTITUTIONS"
+  ]
+}
