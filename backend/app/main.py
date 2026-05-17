@@ -28,6 +28,7 @@ from app.openrouter_service import (
     call_openrouter_for_missing_dish_details,
     extract_dish_candidates_from_ocr_blocks,
     call_openrouter_vision_for_menu,
+    call_openrouter_translate_category_labels,
 )
 from app.dish_cache_service import normalize_dish_name
 from app.image_service import get_or_create_dish_image
@@ -346,6 +347,97 @@ def compress_image_bytes(file_bytes: bytes, max_size: int = 1400, quality: int =
         print("Image compression skipped:", e)
         return file_bytes
     
+
+# =========================
+# Async Tasks
+# =========================
+
+def is_useful_category_translation(value, original, target_lang):
+    if not value:
+        return False
+
+    value = str(value).strip()
+    original = str(original or "").strip()
+
+    if not value:
+        return False
+
+    if value == original:
+        return False
+
+    if target_lang == "zh":
+        return any("\u4e00" <= ch <= "\u9fff" for ch in value)
+
+    return True
+
+
+def collect_category_translation_map(menu_items, target_lang):
+    category_map = {}
+
+    for item in menu_items:
+        section_original = (
+            item.get("section_heading_original")
+            or item.get("category")
+            or "Other"
+        )
+
+        section_translated = item.get("section_heading_translated")
+
+        if is_useful_category_translation(
+            section_translated,
+            section_original,
+            target_lang,
+        ):
+            category_map[section_original] = section_translated
+
+    return category_map
+
+
+# =========================
+# Translate category labels
+# =========================
+
+def is_useful_category_translation(value, original, target_lang):
+    if not value:
+        return False
+
+    value = str(value).strip()
+    original = str(original or "").strip()
+
+    if not value:
+        return False
+
+    if value == original:
+        return False
+
+    if target_lang == "zh":
+        return any("\u4e00" <= ch <= "\u9fff" for ch in value)
+
+    return True
+
+
+def collect_category_translation_map(menu_items, target_lang):
+    category_map = {}
+
+    for item in menu_items:
+        section_original = (
+            item.get("section_heading_original")
+            or item.get("category")
+            or "Other"
+        )
+
+        section_translated = item.get("section_heading_translated")
+
+        if is_useful_category_translation(
+            section_translated,
+            section_original,
+            target_lang,
+        ):
+            category_map[section_original] = section_translated
+
+    return category_map
+
+
 # =========================
 # Async Tasks
 # =========================
@@ -507,69 +599,10 @@ def run_menu_parse_task(
             # Menu Category Upsert
             # =========================
 
-            def is_useful_category_translation(value, original):
-                if not value:
-                    return False
-
-                value = str(value).strip()
-                original = str(original or "").strip()
-
-                if not value:
-                    return False
-
-                if value == original:
-                    return False
-
-                return True
-
-
-            category_translation_map = {}
-
-            for item in menu_items:
-                section_original = (
-                    item.get("section_heading_original")
-                    or item.get("category")
-                    or "Other"
-                )
-
-                section_translated = item.get("section_heading_translated")
-
-                if is_useful_category_translation(section_translated, section_original):
-                    category_translation_map[section_original] = section_translated
-
-
-            for item in menu_items:
-                section_original = (
-                    item.get("section_heading_original")
-                    or item.get("category")
-                    or "Other"
-                )
-
-                section_translated = (
-                    category_translation_map.get(section_original)
-                    or item.get("section_heading_translated")
-                    or section_original
-                )
-
-                try:
-                    category_record = get_or_create_menu_category(
-                        db=db,
-                        original_label=section_original,
-                        source_language=source_lang,
-                        target_language=target_lang,
-                        translate_func=lambda original, target, text=section_translated: text,
-                    )
-
-                    item["category_id"] = category_record.id
-                    item["category_key"] = category_record.normalized_key
-                    item["category_display_name"] = category_record.translated_label
-
-                    item["section_heading_original"] = category_record.original_label
-                    item["section_heading_translated"] = category_record.translated_label
-
-                except Exception as category_error:
-                    print("Menu category upsert failed:", category_error)
-
+            category_translation_map = collect_category_translation_map(
+                menu_items,
+                target_lang,
+            )
 
             enriched_items, missing_items = apply_cache_to_items(
                 db=db,
@@ -666,7 +699,13 @@ def run_menu_parse_task(
 
             enriched_items = final_items
 
-            # if old category is not targeted language, then change it
+            # =========================
+            # Final Category Sync
+            # Must run AFTER dish_cache merge
+            # =========================
+
+            all_category_originals = []
+
             for item in enriched_items:
                 section_original = (
                     item.get("section_heading_original")
@@ -674,15 +713,47 @@ def run_menu_parse_task(
                     or "Other"
                 )
 
-                section_translated = item.get("section_heading_translated")
+                if section_original not in all_category_originals:
+                    all_category_originals.append(section_original)
 
-                # 如果缓存里的分类没翻译，就不要用缓存的英文分类
-                if not section_translated or section_translated == section_original:
-                    section_translated = (
-                        item.get("category_display_name")
-                        if item.get("category_display_name") != section_original
-                        else section_original
+            missing_category_labels = [
+                label
+                for label in all_category_originals
+                if not is_useful_category_translation(
+                    category_translation_map.get(label),
+                    label,
+                    target_lang,
+                )
+            ]
+
+            if missing_category_labels:
+                try:
+                    translated_categories = call_openrouter_translate_category_labels(
+                        labels=missing_category_labels,
+                        target_lang=target_lang,
+                        source_lang=source_lang,
                     )
+
+                    for label, translated in translated_categories.items():
+                        if is_useful_category_translation(translated, label, target_lang):
+                            category_translation_map[label] = translated
+
+                except Exception as category_translate_error:
+                    print("Category translation failed:", category_translate_error)
+
+
+            for item in enriched_items:
+                section_original = (
+                    item.get("section_heading_original")
+                    or item.get("category")
+                    or "Other"
+                )
+
+                section_translated = (
+                    category_translation_map.get(section_original)
+                    or item.get("section_heading_translated")
+                    or section_original
+                )
 
                 try:
                     category_record = get_or_create_menu_category(
@@ -701,7 +772,6 @@ def run_menu_parse_task(
 
                 except Exception as category_error:
                     print("Final category upsert failed:", category_error)
-
 
             result["menu_items"] = enriched_items or menu_items
             result["ocr_blocks"] = result.get("ocr_blocks", ocr_blocks)

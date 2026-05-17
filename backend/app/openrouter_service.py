@@ -14,9 +14,58 @@ from app.i18n_service import get_language_name, normalize_lang
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
+# Translate category labels
+def call_openrouter_translate_category_labels(
+    labels: list[str],
+    target_lang: str = "zh",
+    source_lang: str = "en",
+) -> dict:
+    target_lang = normalize_lang(target_lang, "zh")
+    source_lang = normalize_lang(source_lang, "en")
+
+    target_language_name = get_language_name(target_lang)
+    source_language_name = get_language_name(source_lang)
+
+    system_prompt = f"""
+You are a professional menu section heading translator.
+
+Translate restaurant menu section headings from {source_language_name} to {target_language_name}.
+
+Rules:
+- Return raw JSON only.
+- Do not use markdown.
+- Do not explain.
+- Preserve proper nouns only when they are brand names.
+- Translate generic menu section words naturally.
+- Do not copy the original label unless source and target languages are the same.
+"""
+
+    user_prompt = json.dumps(
+        {
+            "source_language": source_lang,
+            "target_language": target_lang,
+            "labels": labels,
+            "output_schema": {
+                "translations": {
+                    "ORIGINAL_LABEL": "TRANSLATED_LABEL"
+                }
+            },
+        },
+        ensure_ascii=False,
+    )
+
+    payload = _build_payload(system_prompt, user_prompt, max_tokens=1500)
+    data = _post_openrouter(payload, timeout=60)
+
+    content = data["choices"][0]["message"].get("content")
+    parsed = _extract_json_from_text(content)
+
+    return parsed.get("translations", {})
+
+
+
+
 _RULES_CACHE = None
-
-
 def load_menu_parser_rules():
     global _RULES_CACHE
 

@@ -41,7 +41,8 @@ def get_or_create_menu_category(
     )
 
     if existing:
-        # 如果新结果有翻译，更新旧的未翻译分类
+        # 关键修复：
+        # 如果这次有真正翻译结果，就覆盖旧的英文分类
         if translated_label and translated_label != original_label:
             existing.translated_label = translated_label
             existing.source_language = source_language
