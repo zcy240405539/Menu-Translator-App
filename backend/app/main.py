@@ -507,6 +507,37 @@ def run_menu_parse_task(
             # Menu Category Upsert
             # =========================
 
+            def is_useful_category_translation(value, original):
+                if not value:
+                    return False
+
+                value = str(value).strip()
+                original = str(original or "").strip()
+
+                if not value:
+                    return False
+
+                if value == original:
+                    return False
+
+                return True
+
+
+            category_translation_map = {}
+
+            for item in menu_items:
+                section_original = (
+                    item.get("section_heading_original")
+                    or item.get("category")
+                    or "Other"
+                )
+
+                section_translated = item.get("section_heading_translated")
+
+                if is_useful_category_translation(section_translated, section_original):
+                    category_translation_map[section_original] = section_translated
+
+
             for item in menu_items:
                 section_original = (
                     item.get("section_heading_original")
@@ -515,7 +546,8 @@ def run_menu_parse_task(
                 )
 
                 section_translated = (
-                    item.get("section_heading_translated")
+                    category_translation_map.get(section_original)
+                    or item.get("section_heading_translated")
                     or section_original
                 )
 
@@ -525,7 +557,7 @@ def run_menu_parse_task(
                         original_label=section_original,
                         source_language=source_lang,
                         target_language=target_lang,
-                        translate_func=lambda original, target: section_translated,
+                        translate_func=lambda original, target, text=section_translated: text,
                     )
 
                     item["category_id"] = category_record.id
@@ -537,6 +569,7 @@ def run_menu_parse_task(
 
                 except Exception as category_error:
                     print("Menu category upsert failed:", category_error)
+
 
             enriched_items, missing_items = apply_cache_to_items(
                 db=db,
@@ -632,6 +665,43 @@ def run_menu_parse_task(
                 final_items.append(item)
 
             enriched_items = final_items
+
+            # if old category is not targeted language, then change it
+            for item in enriched_items:
+                section_original = (
+                    item.get("section_heading_original")
+                    or item.get("category")
+                    or "Other"
+                )
+
+                section_translated = item.get("section_heading_translated")
+
+                # 如果缓存里的分类没翻译，就不要用缓存的英文分类
+                if not section_translated or section_translated == section_original:
+                    section_translated = (
+                        item.get("category_display_name")
+                        if item.get("category_display_name") != section_original
+                        else section_original
+                    )
+
+                try:
+                    category_record = get_or_create_menu_category(
+                        db=db,
+                        original_label=section_original,
+                        source_language=source_lang,
+                        target_language=target_lang,
+                        translate_func=lambda original, target, text=section_translated: text,
+                    )
+
+                    item["category_id"] = category_record.id
+                    item["category_key"] = category_record.normalized_key
+                    item["category_display_name"] = category_record.translated_label
+                    item["section_heading_original"] = category_record.original_label
+                    item["section_heading_translated"] = category_record.translated_label
+
+                except Exception as category_error:
+                    print("Final category upsert failed:", category_error)
+
 
             result["menu_items"] = enriched_items or menu_items
             result["ocr_blocks"] = result.get("ocr_blocks", ocr_blocks)

@@ -40,17 +40,58 @@ function getTranslatedDescription(item) {
   );
 }
 
-function getSectionTitle(category, categoryItems) {
-  const firstItem = categoryItems?.find(
-    (item) =>
-      item.section_heading_translated ||
-      item.section_heading_original ||
-      item.category_display_name
+
+function hasCjk(text) {
+  return /[\u4e00-\u9fff]/.test(String(text || ""));
+}
+
+function isUsefulSectionTranslation(value, original, category, targetLang) {
+  if (!value) return false;
+
+  const v = String(value).trim();
+  const o = String(original || "").trim();
+  const c = String(category || "").trim();
+
+  if (!v) return false;
+  if (v === o || v === c) return false;
+
+  if (targetLang === "zh") {
+    return hasCjk(v);
+  }
+
+  return true;
+}
+
+function getSectionTitle(category, categoryItems, targetLang) {
+  const bestTranslatedItem = categoryItems?.find((item) =>
+    isUsefulSectionTranslation(
+      item.section_heading_translated,
+      item.section_heading_original,
+      category,
+      targetLang
+    )
   );
 
+  if (bestTranslatedItem?.section_heading_translated) {
+    return bestTranslatedItem.section_heading_translated;
+  }
+
+  const bestDisplayItem = categoryItems?.find((item) =>
+    isUsefulSectionTranslation(
+      item.category_display_name,
+      item.section_heading_original,
+      category,
+      targetLang
+    )
+  );
+
+  if (bestDisplayItem?.category_display_name) {
+    return bestDisplayItem.category_display_name;
+  }
+
+  const firstItem = categoryItems?.[0];
+
   return (
-    firstItem?.category_display_name ||
-    firstItem?.section_heading_translated ||
     firstItem?.section_heading_original ||
     category ||
     "Other"
@@ -105,7 +146,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
 
       return {
         key: category,
-        title: getSectionTitle(category, categoryItems),
+        title: getSectionTitle(category, categoryItems, targetLang),
         data: categoryItems,
       };
     });
