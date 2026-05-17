@@ -22,6 +22,15 @@ def get_or_create_menu_category(
 ):
     key = normalize_category_key(original_label)
 
+    translated_label = (
+        translate_func(original_label, target_language)
+        if translate_func
+        else translate_category_label(original_label, target_language)
+    )
+
+    if not translated_label:
+        translated_label = original_label
+
     existing = (
         db.query(MenuCategory)
         .filter(
@@ -32,13 +41,14 @@ def get_or_create_menu_category(
     )
 
     if existing:
-        return existing
+        # 如果新结果有翻译，更新旧的未翻译分类
+        if translated_label and translated_label != original_label:
+            existing.translated_label = translated_label
+            existing.source_language = source_language
+            db.commit()
+            db.refresh(existing)
 
-    translated_label = (
-        translate_func(original_label, target_language)
-        if translate_func
-        else translate_category_label(original_label, target_language)
-    )
+        return existing
 
     category = MenuCategory(
         normalized_key=key,

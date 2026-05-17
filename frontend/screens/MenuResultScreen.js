@@ -41,9 +41,15 @@ function getTranslatedDescription(item) {
 }
 
 function getSectionTitle(category, categoryItems) {
-  const firstItem = categoryItems?.[0];
+  const firstItem = categoryItems?.find(
+    (item) =>
+      item.section_heading_translated ||
+      item.section_heading_original ||
+      item.category_display_name
+  );
 
   return (
+    firstItem?.category_display_name ||
     firstItem?.section_heading_translated ||
     firstItem?.section_heading_original ||
     category ||
@@ -79,8 +85,9 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
 
     items.forEach((item) => {
       const category =
-        item.category ||
         item.section_heading_original ||
+        item.category ||
+        item.category_key ||
         "other";
 
       if (!groups[category]) {

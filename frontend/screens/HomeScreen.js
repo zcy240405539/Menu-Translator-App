@@ -21,15 +21,23 @@ import {
 } from "react-native-paper";
 
 import { parseMenuFile } from "../api";
-import { getText } from "../i18n";
+import {
+  getText,
+  saveLanguage,
+  LANGUAGES,
+  SOURCE_LANGUAGES,
+} from "../i18n";
+
 
 export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory }) {
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [langMenuVisible, setLangMenuVisible] = useState(false);
+  const [sourceLang, setSourceLang] = useState("auto");
+  const [sourceLangMenuVisible, setSourceLangMenuVisible] = useState(false);
+  const [targetLangMenuVisible, setTargetLangMenuVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const lang = targetLang === "zh" ? "zh" : "en";
+const lang = targetLang;
   const t = getText(lang);
 
   const takePicture = async () => {
@@ -64,7 +72,7 @@ const compressImage = async (uri) => {
         },
       ],
       {
-        compress: 0.55,
+        compress: 0.85,
         format: ImageManipulator.SaveFormat.JPEG,
       }
     );
@@ -129,7 +137,7 @@ const selectFromFile = async () => {
         };
       }
 
-      const data = await parseMenuFile(fileToUpload, targetLang);
+      const data = await parseMenuFile(fileToUpload, targetLang, sourceLang);
 
       await saveMenuHistory(data, imageUri, targetLang);
       onMenuParsed(data);
@@ -152,40 +160,13 @@ const selectFromFile = async () => {
     console.log("Login pressed");
   };
 
-  const currentLangLabel =
-    targetLang === "zh" ? "🇨🇳 中文" : "🇺🇸 English";
+  const currentLanguage =
+    LANGUAGES.find((item) => item.code === targetLang) || LANGUAGES[0];
 
   return (
     <Surface style={styles.screen}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         <Appbar.Content title={t.appTitle} />
-
-        <Menu
-          visible={langMenuVisible}
-          onDismiss={() => setLangMenuVisible(false)}
-          anchor={
-            <Appbar.Action
-              icon="translate"
-              onPress={() => setLangMenuVisible(true)}
-            />
-          }
-        >
-          <Menu.Item
-            title={`🇺🇸 ${t.home.english}`}
-            onPress={() => {
-              setTargetLang("en");
-              setLangMenuVisible(false);
-            }}
-          />
-          <Menu.Item
-            title={`🇨🇳 ${t.home.chinese}`}
-            onPress={() => {
-              setTargetLang("zh");
-              setLangMenuVisible(false);
-            }}
-          />
-        </Menu>
-
         <Appbar.Action icon="share-variant" onPress={handleShare} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
@@ -206,9 +187,68 @@ const selectFromFile = async () => {
               {t.home.heroSubtitle}
             </Text>
 
-            <Text style={styles.langText}>
-              {t.home.targetLanguage}: {currentLangLabel}
-            </Text>
+            <View style={styles.languageRow}>
+              <View style={styles.languageBox}>
+                <Text style={styles.languageLabel}>{t.home.sourceLanguage}</Text>
+
+                <Menu
+                  visible={sourceLangMenuVisible}
+                  onDismiss={() => setSourceLangMenuVisible(false)}
+                  anchor={
+                    <Button
+                      mode="outlined"
+                      onPress={() => setSourceLangMenuVisible(true)}
+                      style={styles.languageButton}
+                    >
+                      {SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.flag}{" "}
+                      {SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.label}
+                    </Button>
+                  }
+                >
+                  {SOURCE_LANGUAGES.map((item) => (
+                    <Menu.Item
+                      key={item.code}
+                      title={`${item.flag} ${item.label}`}
+                      onPress={() => {
+                        setSourceLang(item.code);
+                        setSourceLangMenuVisible(false);
+                      }}
+                    />
+                  ))}
+                </Menu>
+              </View>
+
+              <View style={styles.languageBox}>
+                <Text style={styles.languageLabel}>{t.home.targetLanguage}</Text>
+
+                <Menu
+                  visible={targetLangMenuVisible}
+                  onDismiss={() => setTargetLangMenuVisible(false)}
+                  anchor={
+                    <Button
+                      mode="outlined"
+                      onPress={() => setTargetLangMenuVisible(true)}
+                      style={styles.languageButton}
+                    >
+                      {LANGUAGES.find((item) => item.code === targetLang)?.flag}{" "}
+                      {LANGUAGES.find((item) => item.code === targetLang)?.label}
+                    </Button>
+                  }
+                >
+                  {LANGUAGES.map((item) => (
+                    <Menu.Item
+                      key={item.code}
+                      title={`${item.flag} ${item.label}`}
+                      onPress={() => {
+                        setTargetLang(item.code);
+                        saveLanguage(item.code);
+                        setTargetLangMenuVisible(false);
+                      }}
+                    />
+                  ))}
+                </Menu>
+              </View>
+            </View>
 
             <Button
               mode="contained"
@@ -319,12 +359,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 16,
   },
-  langText: {
-    textAlign: "center",
-    color: "#6750A4",
-    marginBottom: 24,
-    fontWeight: "600",
-  },
   button: {
     borderRadius: 100,
     marginBottom: 14,
@@ -390,4 +424,25 @@ const styles = StyleSheet.create({
     color: "#625B71",
     textAlign: "center",
   },  
+
+  languageRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 22,
+  },
+
+  languageBox: {
+    flex: 1,
+  },
+
+  languageLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#625B71",
+    marginBottom: 6,
+  },
+
+  languageButton: {
+    borderRadius: 14,
+  },
 });

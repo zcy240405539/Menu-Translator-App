@@ -10,6 +10,7 @@ VISION_FALLBACK_MODELS = [
     "google/gemini-2.5-flash-lite",
     "baidu/qianfan-ocr-fast:free",
 ]
+from app.i18n_service import get_language_name, normalize_lang
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
@@ -66,22 +67,11 @@ def get_section_info(text: str, target_lang: str = "zh"):
         )
     }
 
-
 def get_target_language_name(target_lang: str) -> str:
-    language_map = {
-        "zh": "Simplified Chinese",
-        "en": "English",
-        "ja": "Japanese",
-        "ko": "Korean",
-        "fr": "French",
-        "es": "Spanish",
-        "de": "German",
-        "it": "Italian",
-        "pt": "Portuguese",
-    }
+    return get_language_name(target_lang)
 
-    return language_map.get(target_lang, target_lang)
-
+def get_source_language_name(source_lang: str) -> str:
+    return get_language_name(source_lang)
 
 def _extract_json_from_text(content: str) -> dict:
     if not content:
@@ -171,11 +161,11 @@ def _build_payload(system_prompt: str, user_prompt: str, max_tokens: int = 6000)
 
     return payload
 
-def call_openrouter_for_menu_layout(
-    ocr_blocks: list,
-    target_lang: str = "zh"
-) -> dict:
-    target_language_name = get_target_language_name(target_lang)
+def call_openrouter_for_menu_layout(ocr_blocks: list, target_lang: str = "zh", source_lang: str = "en") -> dict:
+    target_lang = normalize_lang(target_lang, "zh")
+    source_lang = normalize_lang(source_lang, "en")
+    target_language_name = get_language_name(target_lang)
+    source_language_name = get_language_name(source_lang)
 
     system_prompt = """
 You are a professional restaurant menu parser, food translator, and menu layout reconstruction expert.
@@ -214,9 +204,13 @@ OCR blocks with coordinates:
 
 Reconstruct the menu layout first, then extract menu items.
 
-Source language:
-- Detect automatically.
-- Do not require the user to specify source language.
+Source language code: {source_lang}
+Source language name: {source_language_name}
+
+Rules:
+- If source_lang is not "auto", treat the menu source language as {source_language_name}.
+- If OCR contains mixed languages, preserve original_name exactly as printed.
+- source_language in output must use the detected or requested language code.
 
 Translation rules:
 - original_name must stay in the original menu language.
@@ -266,7 +260,7 @@ The first character must be {{ and the last character must be }}.
 
 JSON schema:
 {{
-  "source_language": "",
+  "source_language": "{source_lang}",
   "target_language": "{target_lang}",
   "restaurant_type": "",
   "menu_items": [
@@ -303,11 +297,11 @@ Output requirements:
     return _extract_json_from_text(content)
 
 
-def call_openrouter_for_menu(
-    ocr_text: str,
-    target_lang: str = "zh"
-) -> dict:
-    target_language_name = get_target_language_name(target_lang)
+def call_openrouter_for_menu(ocr_text: str, target_lang: str = "zh", source_lang: str = "en") -> dict:
+    target_lang = normalize_lang(target_lang, "zh")
+    source_lang = normalize_lang(source_lang, "en")
+    target_language_name = get_language_name(target_lang)
+    source_language_name = get_language_name(source_lang)
 
     system_prompt = """
 You are a professional restaurant menu parser and food translator.
@@ -323,14 +317,26 @@ Translate content into the requested target language.
 Target language code: {target_lang}
 Target language name: {target_language_name}
 
-OCR text:
-{ocr_text}
+OCR text: {ocr_text}
 
-Source language:
-- Detect automatically.
-- Do not require the user to specify source language.
+Source language code: {source_lang}
+Source language name: {source_language_name}
+
+
+Dish name extraction rules:
+- original_name must contain only the bold/menu item name, not ingredients or modifiers after commas.
+- Text after the first comma is usually description_original or ingredients, not part of original_name.
+- For example:
+  "ZED’S STRAIGHT UP, L, T, O, P, M" =>
+  original_name: "ZED’S STRAIGHT UP"
+  description_original: "L, T, O, P, M"
+- section_heading_translated must be translated into target_language.
+- category_display_name must equal section_heading_translated.
 
 Rules:
+- If source_lang is not "auto", treat the menu source language as {source_language_name}.
+- If OCR contains mixed languages, preserve original_name exactly as printed.
+- source_language in output must use the detected or requested language code.
 - original_name must stay in the original menu language.
 - translated_name must be translated into {target_language_name}.
 - description must be translated into {target_language_name}.
@@ -338,8 +344,11 @@ Rules:
 - allergens must be translated into {target_language_name}.
 - category must stay as a standardized English key.
 
-Allowed categories:
-breakfast, pastries, savory, fromage, cafe, sides, additions, snacks, appetizers, mains, dinner, dessert, drinks, other.
+Category rules:
+- category must be a stable snake_case key generated from section_heading_original.
+- category must be translated into {target_language_name}.
+- Do not use a fixed hardcoded category list.
+- If section_heading_original is missing, create a general snake_case category based on the item group.
 
 Return valid JSON only:
 {{
@@ -365,11 +374,7 @@ Return valid JSON only:
 }}
 """
 
-    payload = _build_payload(
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        max_tokens=5000,
-    )
+    payload = _build_payload(system_prompt=system_prompt, user_prompt=user_prompt, max_tokens=5000)
 
     data = _post_openrouter(payload, timeout=150)
     content = data["choices"][0]["message"]["content"]
@@ -377,11 +382,11 @@ Return valid JSON only:
     return _extract_json_from_text(content)
 
 
-def call_openrouter_for_dish_detail(
-    dish_name: str,
-    target_lang: str = "zh"
-) -> dict:
-    target_language_name = get_target_language_name(target_lang)
+def call_openrouter_for_dish_detail(dish_name: str, target_lang: str = "zh", source_lang: str = "en") -> dict:
+    target_lang = normalize_lang(target_lang, "zh")
+    source_lang = normalize_lang(source_lang, "en")
+    target_language_name = get_language_name(target_lang)
+    source_language_name = get_language_name(source_lang)
 
     system_prompt = """
 You are a food expert.
@@ -532,7 +537,11 @@ The first character must be '{' and the last character must be '}'.
     return extract_json_from_llm(content)
 
 
-def call_openrouter_for_missing_dish_details(dishes, target_lang="zh"):
+def call_openrouter_for_missing_dish_details(dishes, target_lang="zh", source_lang="en"):
+    target_lang = normalize_lang(target_lang, "zh")
+    source_lang = normalize_lang(source_lang, "en")
+    target_language_name = get_language_name(target_lang)
+    source_language_name = get_language_name(source_lang)
     """
     Enrich only dishes missing from cache.
     """
@@ -810,7 +819,8 @@ JSON schema:
 
 def extract_dish_candidates_from_ocr_blocks(
     ocr_blocks: list,
-    target_lang: str = "zh"
+    target_lang: str = "zh",
+    source_lang: str = "auto",
 ) -> dict:
     def clean_price(raw):
         if not raw:
@@ -940,8 +950,8 @@ def extract_dish_candidates_from_ocr_blocks(
         dish_id += 1
 
     return {
-        "source_language": "en",
+        "source_language": source_lang,
         "target_language": target_lang,
-        "restaurant_type": "italian",
+        "restaurant_type": None,
         "menu_items": items,
     }

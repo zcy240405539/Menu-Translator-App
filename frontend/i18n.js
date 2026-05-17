@@ -1,3 +1,24 @@
+const STORAGE_KEY = "menu_app_language";
+
+export const DEFAULT_LANGUAGE = "zh";
+export const DEFAULT_SOURCE_LANGUAGE = "en";
+
+export const LANGUAGES = [
+  { code: "zh", label: "中文", flag: "🇨🇳" },
+  { code: "en", label: "English", flag: "🇺🇸" },
+  { code: "ja", label: "日本語", flag: "🇯🇵" },
+  { code: "ko", label: "한국어", flag: "🇰🇷" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "es", label: "Español", flag: "🇪🇸" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "it", label: "Italiano", flag: "🇮🇹" },
+];
+
+export const SOURCE_LANGUAGES = [
+  { code: "auto", label: "Auto Detect", flag: "🌐" },
+  ...LANGUAGES,
+];
+
 export const translations = {
   en: {
     appTitle: "Menu Translator",
@@ -7,6 +28,8 @@ export const translations = {
       heroSubtitle:
         "Take a photo or upload a menu image. We’ll translate it and explain every dish.",
       targetLanguage: "Target language",
+      sourceLanguage: "Source language",
+      autoDetect: "Auto Detect",
       english: "English",
       chinese: "中文",
       takePicture: "Take Picture",
@@ -43,6 +66,7 @@ export const translations = {
       close: "Close",
       unknown: "Unknown",
       none: "None",
+      close: "Close",
     },
 
     categories: {
@@ -70,6 +94,8 @@ export const translations = {
       heroTitle: "看懂任何菜单",
       heroSubtitle: "拍照或上传菜单图片，我们会帮你翻译菜单并解释每一道菜。",
       targetLanguage: "目标语言",
+      sourceLanguage: "菜单原语言",
+      autoDetect: "自动识别",
       english: "English",
       chinese: "中文",
       takePicture: "拍照识别",
@@ -106,6 +132,7 @@ export const translations = {
       close: "关闭",
       unknown: "未知",
       none: "无",
+      close: "关闭",
     },
 
     categories: {
@@ -129,4 +156,42 @@ export const translations = {
 
 export function getText(lang) {
   return translations[lang] || translations.en;
+}
+
+export function getInitialLanguage() {
+  if (typeof localStorage !== "undefined") {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return saved;
+  }
+
+  const browserLang =
+    typeof navigator !== "undefined"
+      ? navigator.language?.slice(0, 2)
+      : null;
+
+  return translations[browserLang] ? browserLang : DEFAULT_LANGUAGE;
+}
+
+export function saveLanguage(lang) {
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, lang);
+  }
+}
+
+export function t(lang, key) {
+  const keys = key.split(".");
+  let value = translations[lang];
+
+  for (const k of keys) {
+    value = value?.[k];
+  }
+
+  if (value) return value;
+
+  let fallback = translations.en;
+  for (const k of keys) {
+    fallback = fallback?.[k];
+  }
+
+  return fallback || key;
 }

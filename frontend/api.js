@@ -13,7 +13,7 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function parseMenuFile(file, targetLang = "zh") {
+export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto") {
   const formData = new FormData();
 
   const fileName =
@@ -49,7 +49,7 @@ export async function parseMenuFile(file, targetLang = "zh") {
   }
 
   const startRes = await fetch(
-    `${API_BASE_URL}/menus/parse/start?target_lang=${targetLang}`,
+    `${API_BASE_URL}/menus/parse/start?target_lang=${targetLang}&source_lang=${sourceLang}`,
     {
       method: "POST",
       body: formData,
@@ -85,7 +85,7 @@ export async function parseMenuFile(file, targetLang = "zh") {
 }
 
 
-export async function getDishDetail(dishName, targetLang = "zh") {
+export async function getDishDetail(dishName, targetLang = "zh", sourceLang = "auto") {
   const res = await fetch(`${API_BASE_URL}/dish/detail`, {
     method: "POST",
     headers: {
@@ -94,6 +94,7 @@ export async function getDishDetail(dishName, targetLang = "zh") {
     body: JSON.stringify({
       dish_name: dishName,
       target_lang: targetLang,
+      source_lang: sourceLang,
     }),
   });
 

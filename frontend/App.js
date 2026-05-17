@@ -6,11 +6,12 @@ import HomeScreen from "./screens/HomeScreen";
 import MenuResultScreen from "./screens/MenuResultScreen";
 import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
+import { getInitialLanguage } from "./i18n";
 
 function AppContent() {
   const [screen, setScreen] = useState("home");
   const [menuResult, setMenuResult] = useState(null);
-  const [targetLang, setTargetLang] = useState("zh");
+  const [targetLang, setTargetLang] = useState(getInitialLanguage());
   const [languageInitialized, setLanguageInitialized] = useState(false);
 
   useEffect(() => {

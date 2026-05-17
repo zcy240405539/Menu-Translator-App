@@ -21,18 +21,20 @@ from app.ocr_service import (
     extract_text_from_image,
     extract_layout_blocks_from_image,
 )
-
 from app.openrouter_service import (
     call_openrouter_for_dish_detail,
     call_openrouter_for_menu,
     call_openrouter_for_menu_layout,
     call_openrouter_for_missing_dish_details,
     extract_dish_candidates_from_ocr_blocks,
+    call_openrouter_vision_for_menu,
 )
 from app.dish_cache_service import normalize_dish_name
 from app.image_service import get_or_create_dish_image
 from app.menu_layout_service import build_menu_items_from_layout_lines
 from app.category_service import get_or_create_menu_category
+from app.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
+from app.pdf_text_service import extract_text_from_pdf_bytes
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -148,6 +150,7 @@ def analyze_menu(request: AnalyzeTextRequest):
         result = call_openrouter_for_menu(
             ocr_text=request.ocr_text,
             target_lang=request.target_lang,
+            source_lang=getattr(request, "source_lang", "en"),
         )
 
         return result
@@ -163,7 +166,7 @@ def analyze_menu(request: AnalyzeTextRequest):
 async def parse_menu(
     file: UploadFile = File(...),
     target_lang: str = "zh",
-    source_lang: str = "auto",
+    source_lang: str = "en",
 ):
     try:
         file_bytes = await file.read()
@@ -191,6 +194,7 @@ async def parse_menu(
         result = call_openrouter_for_menu_layout(
             ocr_blocks=ocr_blocks,
             target_lang=target_lang,
+            source_lang=source_lang,
         )
 
         result["ocr_blocks"] = ocr_blocks
@@ -352,6 +356,7 @@ def run_menu_parse_task(
     task_id: str,
     file_bytes: bytes,
     target_lang: str,
+    source_lang: str = "en",
 ):
     try:
         from app.ocr_service import extract_layout_blocks_from_image
@@ -390,55 +395,148 @@ def run_menu_parse_task(
                 }
                 return
 
+
+            # =========================
             # 没命中菜单缓存，才做 OCR + 第一轮 OpenRouter
+            # =========================
             content_type = MENU_TASKS[task_id].get("content_type", "") or "image/jpeg"
+            source_lang = MENU_TASKS[task_id].get("source_lang", source_lang) or "en"
+
+            ocr_blocks = []
 
             if "pdf" in content_type:
-                raise RuntimeError("PDF parsing is not enabled yet. Please upload an image file first.")
+                print("PDF detected. Extracting embedded text...")
 
-            source_lang = MENU_TASKS[task_id].get("source_lang", "auto")
+                pdf_text = MENU_TASKS[task_id].get("pdf_text", "")
+                if not pdf_text:
+                    pdf_text = extract_text_from_pdf_bytes(file_bytes, max_pages=5)
 
-            ocr_blocks = extract_layout_blocks_from_image(
-                file_bytes,
-                source_lang=source_lang,
-            )
+                if pdf_text:
+                    print("PDF text extracted:", len(pdf_text))
 
-            if not ocr_blocks:
-                raise RuntimeError("OCR did not detect readable text.")
+                    result = call_openrouter_for_menu(
+                        ocr_text=pdf_text,
+                        target_lang=target_lang,
+                        source_lang=source_lang,
+                    )
 
-            result = extract_dish_candidates_from_ocr_blocks(
-                ocr_blocks,
-                target_lang=target_lang,
-            )
-            result["ocr_blocks"] = ocr_blocks
-            result["parser"] = "paddleocr_candidates_cache_first"
+                    if not isinstance(result, dict):
+                        result = {}
 
-            if not isinstance(result, dict):
-                result = {}
+                    result["parser"] = "pdf_text_openrouter"
+                    result["ocr_blocks"] = [
+                        {
+                            "type": "pdf_text",
+                            "text": pdf_text,
+                        }
+                    ]
+
+                else:
+                    print("No embedded PDF text found. Falling back to OCR...")
+
+                    ocr_blocks = extract_layout_blocks_from_image(
+                        file_bytes,
+                        source_lang=source_lang,
+                    )
+
+                    result = call_openrouter_for_menu_layout(
+                        ocr_blocks=ocr_blocks,
+                        target_lang=target_lang,
+                        source_lang=source_lang,
+                    )
+
+                    if not isinstance(result, dict):
+                        result = {}
+
+                    result["parser"] = "pdf_image_ocr_openrouter"
+                    result["ocr_blocks"] = ocr_blocks
+
+            else:
+                ocr_blocks = extract_layout_blocks_from_image(
+                    file_bytes,
+                    source_lang=source_lang,
+                )
+
+                if not ocr_blocks:
+                    print("OCR returned empty blocks. Falling back to OpenRouter Vision.")
+
+                    result = call_openrouter_vision_for_menu(
+                        image_bytes=file_bytes,
+                        target_lang=target_lang,
+                        source_lang=source_lang,
+                    )
+
+                    if not isinstance(result, dict):
+                        result = {}
+
+                    result["parser"] = "openrouter_vision"
+                    result["ocr_blocks"] = []
+
+                else:
+                    result = call_openrouter_for_menu_layout(
+                        ocr_blocks=ocr_blocks,
+                        target_lang=target_lang,
+                        source_lang=source_lang,
+                    )
+
+                    if not isinstance(result, dict):
+                        result = {}
+
+                    result["parser"] = "paddleocr_layout_openrouter"
+                    result["ocr_blocks"] = ocr_blocks
 
             if "menu_items" not in result:
                 result["menu_items"] = []
 
-            print("DEBUG OCR BLOCKS:", len(ocr_blocks))
+            print("DEBUG OCR BLOCKS:", len(result.get("ocr_blocks", [])))
             print("DEBUG MENU ITEMS:", len(result.get("menu_items", [])))
 
             layout_lines = result.get("menu_items", []) or []
-            source_language = result.get("source_language") or "auto"
-
-            # call_openrouter_for_menu_layout 已经返回 menu_items，不要再强制二次 build。
-            # 否则格式不匹配时会变成空。
+            source_language = result.get("source_language") or source_lang
             menu_items = layout_lines
 
             for item in menu_items:
                 if not item.get("source_language"):
                     item["source_language"] = source_language
-            result["menu_items"] = menu_items
-            result["ocr_blocks"] = ocr_blocks
 
-            source_language = result.get("source_language")
+            result["menu_items"] = menu_items
+            result["ocr_blocks"] = result.get("ocr_blocks", ocr_blocks)
+
+
+            # =========================
+            # Menu Category Upsert
+            # =========================
+
             for item in menu_items:
-                if not item.get("source_language"):
-                    item["source_language"] = source_language
+                section_original = (
+                    item.get("section_heading_original")
+                    or item.get("category")
+                    or "Other"
+                )
+
+                section_translated = (
+                    item.get("section_heading_translated")
+                    or section_original
+                )
+
+                try:
+                    category_record = get_or_create_menu_category(
+                        db=db,
+                        original_label=section_original,
+                        source_language=source_lang,
+                        target_language=target_lang,
+                        translate_func=lambda original, target: section_translated,
+                    )
+
+                    item["category_id"] = category_record.id
+                    item["category_key"] = category_record.normalized_key
+                    item["category_display_name"] = category_record.translated_label
+
+                    item["section_heading_original"] = category_record.original_label
+                    item["section_heading_translated"] = category_record.translated_label
+
+                except Exception as category_error:
+                    print("Menu category upsert failed:", category_error)
 
             enriched_items, missing_items = apply_cache_to_items(
                 db=db,
@@ -446,8 +544,9 @@ def run_menu_parse_task(
                 target_lang=target_lang,
             )
 
+            missing_details = []
             if missing_items:
-                missing_details = []
+                
                 batch_size = 5
 
                 for i in range(0, len(missing_items), batch_size):
@@ -457,6 +556,7 @@ def run_menu_parse_task(
                         batch_details = call_openrouter_for_missing_dish_details(
                             dishes=batch,
                             target_lang=target_lang,
+                            source_lang=source_lang,
                         )
 
                         if isinstance(batch_details, list):
@@ -470,6 +570,7 @@ def run_menu_parse_task(
                                 single_details = call_openrouter_for_missing_dish_details(
                                     dishes=[single_item],
                                     target_lang=target_lang,
+                                    source_lang=source_lang,
                                 )
 
                                 if isinstance(single_details, list):
@@ -482,7 +583,7 @@ def run_menu_parse_task(
                                 missing_details.append({
                                     "id": single_item.get("id"),
                                     "original_name": single_item.get("original_name"),
-                                    "source_language": single_item.get("source_language") or "en",
+                                    "source_language": single_item.get("source_language") or source_lang,
                                     "translated_name": single_item.get("original_name"),
                                     "description": "",
                                     "ingredients": [],
@@ -506,6 +607,8 @@ def run_menu_parse_task(
 
             final_items = []
 
+            if not enriched_items:
+                enriched_items = menu_items
             for item in enriched_items:
                 if item.get("cache_hit"):
                     final_items.append(item)
@@ -531,7 +634,7 @@ def run_menu_parse_task(
             enriched_items = final_items
 
             result["menu_items"] = enriched_items or menu_items
-            result["ocr_blocks"] = ocr_blocks
+            result["ocr_blocks"] = result.get("ocr_blocks", ocr_blocks)
             result["cache_summary"] = {
                 "menu_cache_hit": False,
                 "total_items": len(enriched_items),
@@ -544,7 +647,7 @@ def run_menu_parse_task(
                 image_hash=image_hash,
                 target_lang=target_lang,
                 result=result,
-                ocr_blocks=ocr_blocks,
+                ocr_blocks=result.get("ocr_blocks", ocr_blocks),
             )
 
         finally:
@@ -573,19 +676,45 @@ async def start_parse_menu(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     target_lang: str = "zh",
-    source_lang: str = "auto",
+    source_lang: str = "en",
 ):
     try:
         file_bytes = await file.read()
         content_type = file.content_type or ""
 
         if "pdf" in content_type:
+            pdf_text = extract_text_from_pdf_bytes(file_bytes, max_pages=5)
+
+            if pdf_text:
+                task_id = str(uuid.uuid4())
+
+                MENU_TASKS[task_id] = {
+                    "status": "queued",
+                    "result": None,
+                    "error": None,
+                    "content_type": "application/pdf_text",
+                    "source_lang": source_lang,
+                    "pdf_text": pdf_text,
+                }
+
+                background_tasks.add_task(
+                    run_menu_parse_task,
+                    task_id,
+                    file_bytes,
+                    target_lang,
+                    source_lang,
+                )
+
+                return {
+                    "task_id": task_id,
+                    "status": "queued",
+                }
+
             images = pdf_bytes_to_images(file_bytes, max_pages=5)
             if not images:
                 raise Exception("PDF pages not extracted")
 
-            # 先固定只解析第一页
-            file_bytes = compress_image_bytes(images[0], max_size=1800, quality=70)
+            file_bytes = compress_image_bytes(images[0], max_size=2200, quality=85)
             content_type = "image/jpeg"
 
         elif "image" in content_type:
@@ -607,6 +736,7 @@ async def start_parse_menu(
             task_id,
             file_bytes,
             target_lang,
+            source_lang,
         )
 
         return {
@@ -633,6 +763,19 @@ async def get_parse_status(task_id: str):
         )
 
     return task
+
+# =========================
+# Multi-language Support
+# =========================
+
+@app.get("/i18n/languages")
+def languages():
+    return {
+        "default_source_language": DEFAULT_SOURCE_LANGUAGE,
+        "default_target_language": DEFAULT_TARGET_LANGUAGE,
+        "languages": get_language_options(),
+    }
+
 
 def merge_images_vertically(image_bytes_list: list[bytes]) -> bytes:
     images = [Image.open(BytesIO(b)).convert("RGB") for b in image_bytes_list]
