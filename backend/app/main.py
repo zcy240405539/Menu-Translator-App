@@ -26,13 +26,11 @@ from app.openrouter_service import (
     call_openrouter_for_menu,
     call_openrouter_for_menu_layout,
     call_openrouter_for_missing_dish_details,
-    extract_dish_candidates_from_ocr_blocks,
     call_openrouter_vision_for_menu,
     call_openrouter_translate_category_labels,
 )
 from app.dish_cache_service import normalize_dish_name
 from app.image_service import get_or_create_dish_image
-from app.menu_layout_service import build_menu_items_from_layout_lines
 from app.category_service import get_or_create_menu_category
 from app.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
 from app.pdf_text_service import extract_text_from_pdf_bytes
@@ -349,51 +347,6 @@ def compress_image_bytes(file_bytes: bytes, max_size: int = 1400, quality: int =
     
 
 # =========================
-# Async Tasks
-# =========================
-
-def is_useful_category_translation(value, original, target_lang):
-    if not value:
-        return False
-
-    value = str(value).strip()
-    original = str(original or "").strip()
-
-    if not value:
-        return False
-
-    if value == original:
-        return False
-
-    if target_lang == "zh":
-        return any("\u4e00" <= ch <= "\u9fff" for ch in value)
-
-    return True
-
-
-def collect_category_translation_map(menu_items, target_lang):
-    category_map = {}
-
-    for item in menu_items:
-        section_original = (
-            item.get("section_heading_original")
-            or item.get("category")
-            or "Other"
-        )
-
-        section_translated = item.get("section_heading_translated")
-
-        if is_useful_category_translation(
-            section_translated,
-            section_original,
-            target_lang,
-        ):
-            category_map[section_original] = section_translated
-
-    return category_map
-
-
-# =========================
 # Translate category labels
 # =========================
 
@@ -596,7 +549,7 @@ def run_menu_parse_task(
 
 
             # =========================
-            # Menu Category Upsert
+            # Collect category translations before dish_cache merge
             # =========================
 
             category_translation_map = collect_category_translation_map(
@@ -698,6 +651,15 @@ def run_menu_parse_task(
                 final_items.append(item)
 
             enriched_items = final_items
+            original_category_by_id = {
+                item.get("id"): {
+                    "section_heading_original": item.get("section_heading_original"),
+                    "section_heading_translated": item.get("section_heading_translated"),
+                    "category": item.get("category"),
+                }
+                for item in menu_items
+                if item.get("id")
+            }
 
             # =========================
             # Final Category Sync
@@ -707,8 +669,11 @@ def run_menu_parse_task(
             all_category_originals = []
 
             for item in enriched_items:
+                original_category = original_category_by_id.get(item.get("id"), {})
                 section_original = (
-                    item.get("section_heading_original")
+                    original_category.get("section_heading_original")
+                    or item.get("section_heading_original")
+                    or original_category.get("category")
                     or item.get("category")
                     or "Other"
                 )
@@ -751,6 +716,7 @@ def run_menu_parse_task(
 
                 section_translated = (
                     category_translation_map.get(section_original)
+                    or original_category.get("section_heading_translated")
                     or item.get("section_heading_translated")
                     or section_original
                 )
@@ -772,6 +738,7 @@ def run_menu_parse_task(
 
                 except Exception as category_error:
                     print("Final category upsert failed:", category_error)
+
 
             result["menu_items"] = enriched_items or menu_items
             result["ocr_blocks"] = result.get("ocr_blocks", ocr_blocks)

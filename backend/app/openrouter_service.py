@@ -733,8 +733,12 @@ def call_openrouter_vision_for_menu(
     image_bytes: bytes,
     mime_type: str = "image/jpeg",
     target_lang: str = "zh",
+    source_lang: str = "auto",
 ) -> dict:
-    target_language_name = get_target_language_name(target_lang)
+    target_lang = normalize_lang(target_lang, "zh")
+    source_lang = normalize_lang(source_lang, "auto")
+    target_language_name = get_language_name(target_lang)
+    source_language_name = get_language_name(source_lang)
 
     vision_model = OPENROUTER_VISION_MODEL
 
@@ -744,6 +748,8 @@ def call_openrouter_vision_for_menu(
     prompt = f"""
 You are a strict restaurant menu OCR and layout parser.
 
+Source language code: {source_lang}
+Source language name: {source_language_name}
 Target language code: {target_lang}
 Target language name: {target_language_name}
 
