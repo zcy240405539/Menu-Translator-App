@@ -428,11 +428,12 @@ def run_menu_parse_task(
                 result = cached_menu.structure_result or {}
                 result["menu_items"] = cached_menu.menu_items or []
                 result["ocr_blocks"] = cached_menu.ocr_blocks or []
+                result["business_name"] = cached_menu.business_name
+                result["business_description"] = cached_menu.business_description or {}
                 result["cache_summary"] = {
                     "menu_cache_hit": True,
                     "total_items": len(result.get("menu_items", [])),
                 }
-
                 MENU_TASKS[task_id] = {
                     "status": "done",
                     "result": result,
@@ -532,6 +533,12 @@ def run_menu_parse_task(
 
             if "menu_items" not in result:
                 result["menu_items"] = []
+
+            if "business_name" not in result:
+                result["business_name"] = None
+
+            if "business_description" not in result or result["business_description"] is None:
+                result["business_description"] = {}
 
             print("DEBUG OCR BLOCKS:", len(result.get("ocr_blocks", [])))
             print("DEBUG MENU ITEMS:", len(result.get("menu_items", [])))

@@ -294,7 +294,15 @@ Important:
 - Do not ignore "CAFÉ ET THÉ", coffee, tea, latte, espresso, cappuccino, matcha, chai, hot chocolate, iced tea, or cold brew.
 - If a section has no individual dishes but is sold as a set, include it as one menu item.
 
-Exclude:
+Business information extraction:
+- Extract restaurant/business name if visible. Put it in business_name.
+- Extract non-menu business information into business_description.
+- business_description should include visible opening hours, address, phone number, website, social media, service notes, allergy notices, footer notes, restaurant introduction, and other non-menu information.
+- Do not create menu_items from business information.
+- If business name is not visible, use null.
+- If no business description is visible, use {{}}.
+
+Do not treat these as menu items:
 - Restaurant name or logo text.
 - Opening hours.
 - Footer notes.
@@ -312,6 +320,16 @@ JSON schema:
   "source_language": "{source_lang}",
   "target_language": "{target_lang}",
   "restaurant_type": "",
+  "business_name": null,
+  "business_description": {
+    "opening_hours": "",
+    "address": "",
+    "phone": "",
+    "website": "",
+    "social_media": [],
+    "notes": [],
+    "description": ""
+  },
   "menu_items": [
     {{
       "id": "dish_001",
@@ -399,11 +417,30 @@ Category rules:
 - Do not use a fixed hardcoded category list.
 - If section_heading_original is missing, create a general snake_case category based on the item group.
 
+Business information extraction:
+- Extract restaurant/business name if visible. Put it in business_name.
+- Extract non-menu business information into business_description.
+- business_description should include opening hours, address, phone number, website, social media, service notes, allergy notices, footer notes, restaurant introduction, and other non-menu text.
+- Do not create menu_items from business information.
+- If business name is not visible, use null.
+- If no business description is visible, use {{}}.
+
+
 Return valid JSON only:
 {{
   "source_language": "",
   "target_language": "{target_lang}",
   "restaurant_type": "",
+  "business_name": null,
+  "business_description": {
+    "opening_hours": "",
+    "address": "",
+    "phone": "",
+    "website": "",
+    "social_media": [],
+    "notes": [],
+    "description": ""
+  },
   "menu_items": [
     {{
       "id": "dish_001",

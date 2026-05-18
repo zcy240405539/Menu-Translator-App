@@ -1,7 +1,6 @@
-from sqlalchemy import Column, BigInteger, Text, Integer, DateTime, UniqueConstraint
+from sqlalchemy import Column, BigInteger, Text, Integer, DateTime, UniqueConstraint, JSON
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
-
 from  app.database import Base
 
 
@@ -62,6 +61,9 @@ class MenuParseCache(Base):
 
     source_language = Column(Text)
     restaurant_type = Column(Text)
+
+    business_name = Column(Text, nullable=True)
+    business_description = Column(JSON, nullable=True)
 
     ocr_blocks = Column(JSONB)
     structure_result = Column(JSONB)
