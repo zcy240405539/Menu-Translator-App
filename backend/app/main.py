@@ -635,8 +635,27 @@ def run_menu_parse_task(
 
                 detail = detail_map.get(item.get("id"))
 
+                 # Define picture search variables
                 if detail:
                     item.update(detail)
+
+                cuisine = (
+                    item.get("cuisine")
+                    or result.get("restaurant_type")
+                    or ""
+                )
+
+                dish_name = (
+                    item.get("original_name")
+                    or item.get("translated_name")
+                    or ""
+                )
+
+                restaurant_type = result.get("restaurant_type") or ""
+                item["image_prompt"] = (
+                    f"{cuisine} {restaurant_type} dish for {dish_name}"
+                ).strip()
+                print("Searched for image:", ["image_prompt"])
 
                 # 不管 OpenRouter 成功失败，都写入数据库
                 try:

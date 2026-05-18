@@ -465,7 +465,8 @@ Return valid JSON only:
 
 Rules:
 - Translate all user-facing fields into {target_language_name}.
-- Keep image_prompt in English for image generation.
+- image_prompt must be exactly: "{{cuisine}} dish for {dish_name}"
+- Do not describe ingredients, plating, background, restaurant, or style in image_prompt.
 """
 
     payload = _build_payload(
@@ -619,7 +620,8 @@ Rules:
 - ingredients: max 5 items, translated.
 - allergens: max 5 common allergens, translated.
 - spicy_level: integer 0-5.
-- image_prompt: English only, under 20 words.
+- image_prompt must be exactly: "{{cuisine}} dish for {{original_name}}"
+- Do not describe ingredients, plating, background, restaurant, or style in image_prompt.
 - cuisine: English Title Case only. If unsure, use "Other".
 - section_heading_translated: translate section_heading_original.
 

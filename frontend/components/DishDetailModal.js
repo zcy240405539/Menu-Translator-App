@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  Animated,
 } from "react-native";
 import {
   ActivityIndicator,
@@ -164,14 +165,27 @@ export default function DishDetailModal({
 
           <ScrollView contentContainerStyle={styles.content}>
             <Card mode="elevated" style={styles.heroCard}>
-              {imageUrl ? (
-                <Image
-                  source={{ uri: imageUrl }}
-                  style={styles.dishImage}
-                  resizeMode="cover"
-                />
-              ) : null}
+              <View style={styles.imagePlaceholder}>
+                {imageUrl ? (
+                  <Image source={{ uri: imageUrl }} style={styles.dishImage} />
+                ) : (
+                  <View style={styles.defaultImageBox}>
+                    <Text style={styles.defaultImageIcon}>🍽️</Text>
+                    <Text style={styles.defaultImageText}>
+                      {targetLang === "zh" ? "正在准备图片" : "Preparing image"}
+                    </Text>
+                  </View>
+                )}
 
+                {loadingDetail && (
+                  <View style={styles.imageLoadingOverlay}>
+                    <ActivityIndicator animating size="small" />
+                    <Text style={styles.imageLoadingText}>
+                      {targetLang === "zh" ? "正在加载详情..." : "Loading details..."}
+                    </Text>
+                  </View>
+                )}
+              </View>
               <Card.Content>
                 <Text variant="headlineSmall" style={styles.title}>
                   {title}
@@ -185,15 +199,6 @@ export default function DishDetailModal({
                   <Chip style={styles.priceChip} textStyle={styles.priceText}>
                     {t.price}: {price}
                   </Chip>
-                )}
-
-                {loadingDetail && (
-                  <View style={styles.loadingRow}>
-                    <ActivityIndicator size="small" />
-                    <Text style={styles.loadingText}>
-                      {targetLang === "zh" ? "正在加载详情..." : "Loading details..."}
-                    </Text>
-                  </View>
                 )}
               </Card.Content>
             </Card>
@@ -247,12 +252,6 @@ export default function DishDetailModal({
                 </InfoSection>
 
                 <Divider />
-
-                <InfoSection title={t.imagePrompt}>
-                  <Text variant="bodyMedium" style={styles.text}>
-                    {mergedDish.image_prompt || t.none}
-                  </Text>
-                </InfoSection>
               </Card.Content>
             </Card>
 
@@ -383,5 +382,46 @@ const styles = StyleSheet.create({
   },
   closeButtonContent: {
     height: 54,
+  },
+  imagePlaceholder: {
+    width: "100%",
+    height: 220,
+    backgroundColor: "#EFE7DD",
+    position: "relative",
+    overflow: "hidden",
+  },
+
+  defaultImageBox: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  defaultImageIcon: {
+    fontSize: 42,
+    marginBottom: 8,
+  },
+
+  defaultImageText: {
+    color: "#625B71",
+    fontWeight: "600",
+  },
+
+  imageLoadingOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingVertical: 10,
+    backgroundColor: "rgba(255,255,255,0.88)",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  imageLoadingText: {
+    color: "#6750A4",
+    fontWeight: "700",
   },
 });

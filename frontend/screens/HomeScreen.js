@@ -37,8 +37,49 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [targetLangMenuVisible, setTargetLangMenuVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
-const lang = targetLang;
+  const lang = targetLang;
   const t = getText(lang);
+
+  // source and target languages should not be the same
+  const getSafeTargetLang = (langCode) => {
+    if (!langCode || langCode === "auto") {
+      return "en";
+    }
+
+    return langCode;
+  };
+
+  const handleSourceLanguageChange = (newSourceLang) => {
+    if (newSourceLang === targetLang) {
+      const previousSourceLang = sourceLang;
+
+      setSourceLang(newSourceLang);
+
+      const newTargetLang = getSafeTargetLang(previousSourceLang);
+      setTargetLang(newTargetLang);
+      saveLanguage(newTargetLang);
+
+      return;
+    }
+
+    setSourceLang(newSourceLang);
+  };
+
+  const handleTargetLanguageChange = (newTargetLang) => {
+    if (newTargetLang === sourceLang) {
+      const previousTargetLang = targetLang;
+
+      setTargetLang(newTargetLang);
+      saveLanguage(newTargetLang);
+
+      setSourceLang(previousTargetLang);
+
+      return;
+    }
+
+    setTargetLang(newTargetLang);
+    saveLanguage(newTargetLang);
+  };  
 
   const takePicture = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -210,7 +251,7 @@ const selectFromFile = async () => {
                       key={item.code}
                       title={`${item.flag} ${item.label}`}
                       onPress={() => {
-                        setSourceLang(item.code);
+                        handleSourceLanguageChange(item.code);
                         setSourceLangMenuVisible(false);
                       }}
                     />
@@ -240,8 +281,7 @@ const selectFromFile = async () => {
                       key={item.code}
                       title={`${item.flag} ${item.label}`}
                       onPress={() => {
-                        setTargetLang(item.code);
-                        saveLanguage(item.code);
+                        handleTargetLanguageChange(item.code);
                         setTargetLangMenuVisible(false);
                       }}
                     />
