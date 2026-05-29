@@ -1,4 +1,5 @@
 import uuid
+import re
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
@@ -369,6 +370,32 @@ def is_useful_category_translation(value, original, target_lang):
     return True
 
 
+def has_cjk_text(value) -> bool:
+    return any("\u4e00" <= ch <= "\u9fff" for ch in str(value or ""))
+
+
+def has_latin_text(value) -> bool:
+    return bool(re.search(r"[A-Za-z]", str(value or "")))
+
+
+def needs_dish_language_enrichment(item, target_lang: str) -> bool:
+    translated_name = item.get("translated_name")
+    description = item.get("description")
+    ingredients = item.get("ingredients") or []
+    ingredient_text = " ".join(str(x) for x in ingredients) if isinstance(ingredients, list) else str(ingredients)
+
+    if target_lang == "zh":
+        if not has_cjk_text(translated_name):
+            return True
+        if not description or (has_latin_text(description) and not has_cjk_text(description)):
+            return True
+        if ingredient_text and has_latin_text(ingredient_text) and not has_cjk_text(ingredient_text):
+            return True
+        return False
+
+    return not translated_name or not description
+
+
 def collect_category_translation_map(menu_items, target_lang):
     category_map = {}
 
@@ -430,17 +457,20 @@ def run_menu_parse_task(
                 result["ocr_blocks"] = cached_menu.ocr_blocks or []
                 result["business_name"] = cached_menu.business_name
                 result["business_description"] = cached_menu.business_description or {}
-                result["cache_summary"] = {
-                    "menu_cache_hit": True,
-                    "total_items": len(result.get("menu_items", [])),
-                }
-                MENU_TASKS[task_id] = {
-                    "status": "done",
-                    "result": result,
-                    "error": None,
-                }
-                return
 
+                if any(needs_dish_language_enrichment(item, target_lang) for item in result["menu_items"]):
+                    print("Menu cache skipped because translated fields need refresh.")
+                else:
+                    result["cache_summary"] = {
+                        "menu_cache_hit": True,
+                        "total_items": len(result.get("menu_items", [])),
+                    }
+                    MENU_TASKS[task_id] = {
+                        "status": "done",
+                        "result": result,
+                        "error": None,
+                    }
+                    return
 
             # =========================
             # 没命中菜单缓存，才做 OCR + 第一轮 OpenRouter
@@ -570,6 +600,23 @@ def run_menu_parse_task(
                 target_lang=target_lang,
             )
 
+            stale_cached_items = [
+                item
+                for item in enriched_items
+                if item.get("cache_hit") and needs_dish_language_enrichment(item, target_lang)
+            ]
+
+            for item in stale_cached_items:
+                item["cache_hit"] = False
+                missing_items.append(item)
+
+            missing_items = [
+                item
+                for item in missing_items
+                if needs_dish_language_enrichment(item, target_lang)
+            ]
+
+            print("DEBUG MISSING DETAIL ITEMS:", len(missing_items))
             missing_details = []
             if missing_items:
                 
@@ -587,6 +634,7 @@ def run_menu_parse_task(
 
                         if isinstance(batch_details, list):
                             missing_details.extend(batch_details)
+                            print("DEBUG DETAIL BATCH DONE:", len(missing_details))
 
                     except Exception as e:
                         print("Batch dish detail failed, retrying one by one:", e)

@@ -3,12 +3,19 @@ import re
 import requests
 import base64
 import os
+import time
 from pathlib import Path
 from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_MODEL
+OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash-lite")
 VISION_FALLBACK_MODELS = [
-    OPENROUTER_VISION_MODEL,
-    "google/gemini-2.5-flash-lite",
-    "baidu/qianfan-ocr-fast:free",
+    model.strip()
+    for model in (
+        os.getenv(
+            "OPENROUTER_VISION_FALLBACK_MODELS",
+            f"{OPENROUTER_VISION_MODEL},google/gemini-2.5-flash-lite",
+        )
+    ).split(",")
+    if model.strip()
 ]
 from app.i18n_service import get_language_name, normalize_lang
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -162,6 +169,17 @@ def _extract_json_from_text(content: str) -> dict:
         )
 
 
+def _is_transient_openrouter_error(data: dict, status_code: int) -> bool:
+    if status_code in {408, 409, 425, 429, 500, 502, 503, 504}:
+        return True
+
+    error = data.get("error") if isinstance(data, dict) else None
+    if isinstance(error, dict):
+        return error.get("code") in {408, 409, 425, 429, 500, 502, 503, 504}
+
+    return False
+
+
 def _post_openrouter(payload: dict, timeout: int = 120) -> dict:
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -170,33 +188,56 @@ def _post_openrouter(payload: dict, timeout: int = 120) -> dict:
         "X-Title": "Menu Translator App",
     }
 
-    response = requests.post(
-        OPENROUTER_URL,
-        headers=headers,
-        json=payload,
-        timeout=timeout,
-    )
+    last_error = None
 
-    try:
-        data = response.json()
-    except Exception:
-        raise RuntimeError(
-            f"OpenRouter returned non-JSON response "
-            f"{response.status_code}: {response.text}"
+    for attempt in range(3):
+        response = requests.post(
+            OPENROUTER_URL,
+            headers=headers,
+            json=payload,
+            timeout=timeout,
         )
 
-    if response.status_code != 200:
-        raise RuntimeError(f"OpenRouter error {response.status_code}: {data}")
+        try:
+            data = response.json()
+        except Exception:
+            last_error = RuntimeError(
+                f"OpenRouter returned non-JSON response "
+                f"{response.status_code}: {response.text}"
+            )
+            if response.status_code >= 500 and attempt < 2:
+                time.sleep(1.5 * (attempt + 1))
+                continue
+            raise last_error
 
-    if "choices" not in data:
-        raise RuntimeError(f"OpenRouter response missing choices: {data}")
+        if response.status_code != 200:
+            last_error = RuntimeError(f"OpenRouter error {response.status_code}: {data}")
+            if _is_transient_openrouter_error(data, response.status_code) and attempt < 2:
+                time.sleep(1.5 * (attempt + 1))
+                continue
+            raise last_error
 
-    return data
+        if "choices" not in data:
+            last_error = RuntimeError(f"OpenRouter response missing choices: {data}")
+            if _is_transient_openrouter_error(data, response.status_code) and attempt < 2:
+                time.sleep(1.5 * (attempt + 1))
+                continue
+            raise last_error
+
+        return data
+
+    raise last_error or RuntimeError("OpenRouter request failed")
 
 
-def _build_payload(system_prompt: str, user_prompt: str, max_tokens: int = 6000) -> dict:
+def _build_payload(
+    system_prompt: str,
+    user_prompt: str,
+    max_tokens: int = 6000,
+    model: str | None = None,
+) -> dict:
+    selected_model = model or OPENROUTER_MODEL
     payload = {
-        "model": OPENROUTER_MODEL,
+        "model": selected_model,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -205,10 +246,38 @@ def _build_payload(system_prompt: str, user_prompt: str, max_tokens: int = 6000)
         "max_tokens": max_tokens,
     }
 
-    if OPENROUTER_MODEL and ":free" not in OPENROUTER_MODEL:
+    if selected_model and ":free" not in selected_model:
         payload["response_format"] = {"type": "json_object"}
 
     return payload
+
+
+def _compact_ocr_blocks(ocr_blocks: list) -> list:
+    compacted = []
+    for block in ocr_blocks:
+        text = (block.get("text") or "").strip()
+        if not text:
+            continue
+
+        def rounded(key: str):
+            value = block.get(key)
+            return round(value) if isinstance(value, (int, float)) else value
+
+        compacted.append(
+            {
+                "text": text,
+                "page": block.get("page", block.get("page_num", 1)),
+                "x": rounded("center_x"),
+                "y": rounded("center_y"),
+                "x0": rounded("x_min"),
+                "y0": rounded("y_min"),
+                "x1": rounded("x_max"),
+                "y1": rounded("y_max"),
+            }
+        )
+
+    return compacted
+
 
 def call_openrouter_for_menu_layout(ocr_blocks: list, target_lang: str = "zh", source_lang: str = "en") -> dict:
     target_lang = normalize_lang(target_lang, "zh")
@@ -235,10 +304,16 @@ Critical layout rules:
 - Items below a section heading and in the same visual column belong to that section.
 - Items inside the same visual box or bordered area belong to the nearest heading inside that box.
 - Do not merge left-column and right-column sections.
+- If a section heading is split into adjacent OCR blocks or lines, merge the fragments before assigning dishes.
+- For example, "STARTERS +" followed by "SNACKS" is one heading: "STARTERS + SNACKS".
+- A heading fragment ending with "+", "&", "AND", "/", or "-" usually belongs with the nearest heading fragment beside or below it.
 - If OCR reading order mixes columns, ignore OCR order and use coordinates.
 - Do not classify only by dish type.
 - Use actual menu section headings whenever possible.
 - Preserve the visual order of dishes.
+- If one dish row has multiple size or option price columns, keep it as one menu item.
+- For multiple price columns, combine them into one price string, for example "12in: 13 / 14in: 14 / 16in: 16".
+- Do not duplicate the same dish once per size column unless the menu explicitly lists them as separate dishes.
 - Do not stop early. Extract the whole menu, including drinks, cafe, tea, pastry, dessert, cheese, and side sections.
 - Return raw JSON only.
 - Do not use markdown.
@@ -249,7 +324,7 @@ Target language code: {target_lang}
 Target language name: {target_language_name}
 
 OCR blocks with coordinates:
-{json.dumps(ocr_blocks, ensure_ascii=False)}
+{json.dumps(_compact_ocr_blocks(ocr_blocks), ensure_ascii=False)}
 
 Reconstruct the menu layout first, then extract menu items.
 
@@ -268,6 +343,9 @@ Translation rules:
 - ingredients must be translated into {target_language_name}.
 - allergens must be translated into {target_language_name}.
 - category must stay as a standardized English key from the allowed list.
+- If target_lang is "zh", translated_name, description, ingredients, and allergens must use Chinese.
+- For target_lang "zh", do not copy English ingredient phrases into description or ingredients.
+- image_prompt and cuisine may stay in English because they are internal search/model fields.
 
 Category rules:
 - Do not force categories into a predefined food taxonomy.
@@ -286,6 +364,7 @@ Category rules:
 - section_heading_original must contain the exact original section heading text from the menu.
 - section_heading_translated must contain the section heading translated into target language.
 - Do not infer category from dish type if visual heading is available.
+- translated_name, description, ingredients, allergens, spicy_level, image_prompt, and confidence are required for every item.
 
 Important:
 - Do not put breakfast items into additions unless the visible heading is actually ADDITIONS.
@@ -321,7 +400,7 @@ JSON schema:
   "target_language": "{target_lang}",
   "restaurant_type": "",
   "business_name": null,
-  "business_description": {
+  "business_description": {{
     "opening_hours": "",
     "address": "",
     "phone": "",
@@ -329,15 +408,22 @@ JSON schema:
     "social_media": [],
     "notes": [],
     "description": ""
-  },
+  }},
   "menu_items": [
     {{
       "id": "dish_001",
       "original_name": "",
+      "translated_name": "",
       "price": "",
       "category": "",
       "section_heading_original": "",
-      "section_heading_translated": ""
+      "section_heading_translated": "",
+      "description": "",
+      "ingredients": [],
+      "allergens": [],
+      "spicy_level": 0,
+      "image_prompt": "",
+      "confidence": 0.0
     }}
   ]
 }}
@@ -356,6 +442,7 @@ Output requirements:
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         max_tokens=6000,
+        model=OPENROUTER_LAYOUT_MODEL,
     )
 
     data = _post_openrouter(payload, timeout=180)
@@ -432,7 +519,7 @@ Return valid JSON only:
   "target_language": "{target_lang}",
   "restaurant_type": "",
   "business_name": null,
-  "business_description": {
+  "business_description": {{
     "opening_hours": "",
     "address": "",
     "phone": "",
@@ -440,7 +527,7 @@ Return valid JSON only:
     "social_media": [],
     "notes": [],
     "description": ""
-  },
+  }},
   "menu_items": [
     {{
       "id": "dish_001",
@@ -526,7 +613,7 @@ def call_openrouter_for_menu_structure(ocr_blocks, target_lang="zh"):
 
     import json
     import requests
-    from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+    from app.config import OPENROUTER_API_KEY
 
     prompt = f"""
 You are a menu layout reconstruction engine.
@@ -602,7 +689,7 @@ The first character must be '{' and the last character must be '}'.
             "X-Title": "Menu Translator App",
         },
         json={
-            "model": OPENROUTER_MODEL,
+            "model": OPENROUTER_LAYOUT_MODEL,
             "messages": [
                 {"role": "user", "content": prompt}
             ],
@@ -683,26 +770,16 @@ Return schema:
 ]
 """
     
-    response = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": OPENROUTER_MODEL,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ],
-            "temperature": 0.2,
-            "max_tokens": 1200,
-        },
-        timeout=180,
-    )
+    payload = {
+        "model": OPENROUTER_LAYOUT_MODEL,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.2,
+        "max_tokens": 2500,
+    }
 
-    response.raise_for_status()
-
-    data = response.json()
+    data = _post_openrouter(payload, timeout=90)
     content = data["choices"][0]["message"].get("content")
 
     if not content:

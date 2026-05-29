@@ -1,5 +1,6 @@
 # Python
 backend/.venv/
+backend/.venv311/
 backend/venv/
 __pycache__/
 *.pyc
@@ -14,3 +15,12 @@ frontend/node_modules/
 frontend/.expo/
 frontend/dist/
 frontend/web-build/
+
+# Local runtime/test artifacts
+backend/*.log
+backend/*-result*.json
+backend/*-parse-*.json
+backend/*-status*.json
+backend/*-start*.json
+backend/test-*-layout.json
+frontend/*.log

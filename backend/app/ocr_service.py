@@ -3,11 +3,12 @@ import tempfile
 from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
 os.environ["FLAGS_use_mkldnn"] = "0"
 os.environ["FLAGS_enable_mkldnn"] = "0"
 os.environ["FLAGS_cpu_deterministic"] = "1"
+os.environ.setdefault("DISABLE_MODEL_SOURCE_CHECK", "True")
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -50,13 +51,26 @@ def get_ocr_engine(lang: str = "ch"):
     if PaddleOCR is None:
         return None
 
-    return PaddleOCR(
-        use_angle_cls=True,
-        lang=lang,
-        use_gpu=False,
-        enable_mkldnn=False,
-        show_log=False,
-    )
+    # PaddleOCR 3.x removed several 2.x constructor flags. Prefer the new
+    # pipeline arguments, then fall back to the older API for existing setups.
+    try:
+        return PaddleOCR(
+            lang=lang,
+            use_doc_orientation_classify=False,
+            use_doc_unwarping=False,
+            use_textline_orientation=True,
+            text_det_limit_side_len=2200,
+            text_det_limit_type="max",
+            text_rec_score_thresh=0.2,
+        )
+    except (TypeError, ValueError):
+        return PaddleOCR(
+            use_angle_cls=True,
+            lang=lang,
+            use_gpu=False,
+            enable_mkldnn=False,
+            show_log=False,
+        )
 
 
 def save_preprocessed_image(file_bytes: bytes) -> str:
@@ -66,17 +80,23 @@ def save_preprocessed_image(file_bytes: bytes) -> str:
 
     image = Image.open(original_path).convert("RGB")
 
-    max_width = 1800
-    max_height = 2600
+    max_width = 2200
+    max_height = 3200
     w, h = image.size
-    ratio = min(max_width / w, max_height / h, 1)
 
-    if ratio < 1:
+    upscale_ratio = 1
+    if max(w, h) < 1400:
+        upscale_ratio = min(2.2, max_width / w, max_height / h)
+
+    ratio = min(max_width / w, max_height / h, upscale_ratio)
+
+    if ratio != 1:
         image = image.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
 
-    image = ImageEnhance.Contrast(image).enhance(1.25)
-    image = ImageEnhance.Sharpness(image).enhance(1.15)
-    image = image.filter(ImageFilter.SHARPEN)
+    image = ImageOps.autocontrast(image, cutoff=1)
+    image = ImageEnhance.Contrast(image).enhance(1.35)
+    image = ImageEnhance.Sharpness(image).enhance(1.25)
+    image = image.filter(ImageFilter.UnsharpMask(radius=1.2, percent=140, threshold=3))
 
     processed_path = original_path.replace(".jpg", "_processed.jpg")
     image.save(processed_path, "JPEG", quality=92)
@@ -89,35 +109,75 @@ def _run_paddle_ocr(image_path: str, lang: str) -> List[dict]:
     if engine is None:
         return []
 
-    result = engine.ocr(image_path, cls=True)
+    if hasattr(engine, "predict"):
+        result = engine.predict(image_path)
+    else:
+        result = engine.ocr(image_path, cls=True)
+
     blocks = []
 
-    for page in result or []:
+    def add_block(text, confidence, box):
+        if not text or float(confidence or 0) < 0.2 or not box:
+            return
+
+        points = [[float(p[0]), float(p[1])] for p in box]
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+
+        blocks.append({
+            "text": str(text).strip(),
+            "x_min": min(xs),
+            "y_min": min(ys),
+            "x_max": max(xs),
+            "y_max": max(ys),
+            "center_x": sum(xs) / len(xs),
+            "center_y": sum(ys) / len(ys),
+            "confidence": round(float(confidence or 0), 4),
+            "ocr_lang": lang,
+        })
+
+    def parse_page(page):
         if not page:
-            continue
+            return
 
+        if hasattr(page, "json"):
+            try:
+                page = page.json
+            except Exception:
+                pass
+
+        if isinstance(page, dict):
+            if isinstance(page.get("res"), dict):
+                page = page["res"]
+
+            texts = page.get("rec_texts") or page.get("texts") or []
+            scores = page.get("rec_scores") or page.get("scores") or []
+            boxes = (
+                page.get("rec_polys")
+                or page.get("dt_polys")
+                or page.get("text_det_polys")
+                or page.get("boxes")
+                or []
+            )
+
+            for text, score, box in zip(texts, scores, boxes):
+                add_block(text, score, box)
+            return
+
+        # PaddleOCR 2.x shape: [[box, (text, score)], ...]
         for item in page:
-            box = item[0]
-            text = item[1][0]
-            confidence = float(item[1][1])
-
-            if not text or confidence < 0.25:
+            if not item or len(item) < 2:
                 continue
 
-            xs = [p[0] for p in box]
-            ys = [p[1] for p in box]
+            box = item[0]
+            text_info = item[1]
+            if not isinstance(text_info, (list, tuple)) or len(text_info) < 2:
+                continue
 
-            blocks.append({
-                "text": text.strip(),
-                "x_min": min(xs),
-                "y_min": min(ys),
-                "x_max": max(xs),
-                "y_max": max(ys),
-                "center_x": sum(xs) / len(xs),
-                "center_y": sum(ys) / len(ys),
-                "confidence": round(confidence, 4),
-                "ocr_lang": lang,
-            })
+            add_block(text_info[0], text_info[1], box)
+
+    for page in result or []:
+        parse_page(page)
 
     return sorted(blocks, key=lambda b: (b["center_y"], b["center_x"]))
 

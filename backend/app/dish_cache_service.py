@@ -67,6 +67,16 @@ def contains_chinese(text: str) -> bool:
     return bool(text and re.search(r"[\u4e00-\u9fff]", str(text)))
 
 
+def ensure_list(value):
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str):
+        return [x.strip() for x in re.split(r"[,;，；]", value) if x.strip()]
+    return [value]
+
+
 def normalize_cuisine(cuisine: str) -> str:
     if not cuisine:
         return "Other"
@@ -98,8 +108,8 @@ def upsert_dish_cache(db, dish, target_lang):
     if existing:
         existing.translated_name = dish.get("translated_name")
         existing.description = dish.get("description")
-        existing.ingredients = dish.get("ingredients") or []
-        existing.allergens = dish.get("allergens") or []
+        existing.ingredients = ensure_list(dish.get("ingredients"))
+        existing.allergens = ensure_list(dish.get("allergens"))
         existing.spicy_level = dish.get("spicy_level") or 0
         existing.image_prompt = dish.get("image_prompt")
         existing.cuisine = dish.get("cuisine")
@@ -112,8 +122,8 @@ def upsert_dish_cache(db, dish, target_lang):
                 target_language=target_lang,
                 translated_name=dish.get("translated_name"),
                 description=dish.get("description"),
-                ingredients=dish.get("ingredients") or [],
-                allergens=dish.get("allergens") or [],
+                ingredients=ensure_list(dish.get("ingredients")),
+                allergens=ensure_list(dish.get("allergens")),
                 spicy_level=dish.get("spicy_level") or 0,
                 image_prompt=dish.get("image_prompt"),
                 cuisine=normalize_cuisine(dish.get("cuisine")),
