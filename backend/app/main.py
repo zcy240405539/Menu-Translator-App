@@ -1,5 +1,6 @@
 import uuid
 import re
+import time
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
@@ -444,6 +445,8 @@ def run_menu_parse_task(
         )
 
         MENU_TASKS[task_id]["status"] = "processing"
+        task_started_at = time.perf_counter()
+        timings = {}
 
         image_hash = calculate_image_hash(file_bytes)
         db = SessionLocal()
@@ -464,6 +467,10 @@ def run_menu_parse_task(
                     result["cache_summary"] = {
                         "menu_cache_hit": True,
                         "total_items": len(result.get("menu_items", [])),
+                    }
+                    result["timings"] = {
+                        "total_seconds": round(time.perf_counter() - task_started_at, 3),
+                        "cache_hit": True,
                     }
                     MENU_TASKS[task_id] = {
                         "status": "done",
@@ -528,19 +535,23 @@ def run_menu_parse_task(
                     result["ocr_blocks"] = ocr_blocks
 
             else:
+                ocr_started_at = time.perf_counter()
                 ocr_blocks = extract_layout_blocks_from_image(
                     file_bytes,
                     source_lang=source_lang,
                 )
+                timings["ocr_seconds"] = round(time.perf_counter() - ocr_started_at, 3)
 
                 if not ocr_blocks:
                     print("OCR returned empty blocks. Falling back to OpenRouter Vision.")
 
+                    analysis_started_at = time.perf_counter()
                     result = call_openrouter_vision_for_menu(
                         image_bytes=file_bytes,
                         target_lang=target_lang,
                         source_lang=source_lang,
                     )
+                    timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
 
                     if not isinstance(result, dict):
                         result = {}
@@ -549,11 +560,13 @@ def run_menu_parse_task(
                     result["ocr_blocks"] = []
 
                 else:
+                    analysis_started_at = time.perf_counter()
                     result = call_openrouter_for_menu_layout(
                         ocr_blocks=ocr_blocks,
                         target_lang=target_lang,
                         source_lang=source_lang,
                     )
+                    timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
 
                     if not isinstance(result, dict):
                         result = {}
@@ -619,7 +632,7 @@ def run_menu_parse_task(
             print("DEBUG MISSING DETAIL ITEMS:", len(missing_items))
             missing_details = []
             if missing_items:
-                
+                detail_started_at = time.perf_counter()
                 batch_size = 5
 
                 for i in range(0, len(missing_items), batch_size):
@@ -668,6 +681,9 @@ def run_menu_parse_task(
                                     "section_heading_translated": single_item.get("section_heading_original"),
                                 })
 
+                timings["detail_seconds"] = round(time.perf_counter() - detail_started_at, 3)
+            else:
+                timings["detail_seconds"] = 0
 
             # =========================
             # Merge OpenRouter details back
@@ -822,6 +838,8 @@ def run_menu_parse_task(
                 "dish_cache_hits": len([x for x in enriched_items if x.get("cache_hit")]),
                 "dish_cache_misses": len([x for x in enriched_items if not x.get("cache_hit")]),
             }
+            timings["total_seconds"] = round(time.perf_counter() - task_started_at, 3)
+            result["timings"] = timings
 
             upsert_menu_cache(
                 db=db,

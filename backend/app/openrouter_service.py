@@ -7,6 +7,13 @@ import time
 from pathlib import Path
 from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_MODEL
 OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash-lite")
+OPENROUTER_DETAIL_MODEL = os.getenv("OPENROUTER_DETAIL_MODEL", OPENROUTER_LAYOUT_MODEL)
+OPENROUTER_LAYOUT_MAX_TOKENS = int(os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "4500"))
+USE_FAST_MENU_PROMPT = os.getenv("OPENROUTER_USE_FAST_MENU_PROMPT", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 VISION_FALLBACK_MODELS = [
     model.strip()
     for model in (
@@ -279,7 +286,112 @@ def _compact_ocr_blocks(ocr_blocks: list) -> list:
     return compacted
 
 
-def call_openrouter_for_menu_layout(ocr_blocks: list, target_lang: str = "zh", source_lang: str = "en") -> dict:
+def _call_openrouter_for_menu_layout_fast(
+    ocr_blocks: list,
+    target_lang: str,
+    source_lang: str,
+    model: str | None = None,
+) -> dict:
+    target_lang = normalize_lang(target_lang, "zh")
+    source_lang = normalize_lang(source_lang, "en")
+    target_language_name = get_language_name(target_lang)
+    source_language_name = get_language_name(source_lang)
+    selected_model = model or OPENROUTER_LAYOUT_MODEL
+
+    system_prompt = """
+You are a fast, accurate restaurant menu OCR parser.
+Return exactly one valid JSON object and no markdown.
+"""
+
+    user_prompt = f"""
+Task: reconstruct a restaurant menu from OCR blocks and translate user-facing fields.
+Source language: {source_lang} ({source_language_name})
+Target language: {target_lang} ({target_language_name})
+
+OCR blocks:
+{json.dumps(_compact_ocr_blocks(ocr_blocks), ensure_ascii=False)}
+
+Rules:
+- Use coordinates to preserve columns, visual groups, section headings, and item order.
+- Process the entire OCR list. Do not stop after the first section.
+- Merge split headings before assigning dishes, e.g. "STARTERS +" + "SNACKS" => "STARTERS + SNACKS".
+- Assign dishes to the closest heading above them in the same column/group/box.
+- Do not infer categories from food type when a visible heading exists.
+- Never output a section heading as a menu item unless the menu sells that heading as a set.
+- For one dish with several size prices, return one item with a combined price string such as "12in: 13 / 14in: 14 / 16in: 16".
+- Extract real menu items only. Exclude restaurant name, hours, address, phone, social media, notes, taxes, and decorative text.
+- original_name stays exactly in source language.
+- translated_name, description, ingredients, allergens, and section_heading_translated must be in {target_language_name}.
+- For target_lang "zh", every translated_name and description must contain Chinese characters.
+- For target_lang "zh", translate English ingredient lists instead of copying them into description, ingredients, or allergens.
+- If the menu gives no description, write a short translated customer-friendly dish explanation from the dish name and section.
+- Keep description concise and customer-friendly. Use null for missing prices. Do not invent prices.
+- image_prompt and cuisine may stay in English for internal image search.
+
+JSON schema:
+{{
+  "source_language": "{source_lang}",
+  "target_language": "{target_lang}",
+  "restaurant_type": "",
+  "business_name": null,
+  "business_description": {{
+    "opening_hours": "",
+    "address": "",
+    "phone": "",
+    "website": "",
+    "social_media": [],
+    "notes": [],
+    "description": ""
+  }},
+  "menu_items": [
+    {{
+      "id": "dish_001",
+      "original_name": "",
+      "translated_name": "",
+      "price": null,
+      "category": "",
+      "section_heading_original": "",
+      "section_heading_translated": "",
+      "description": "",
+      "ingredients": [],
+      "allergens": [],
+      "spicy_level": 0,
+      "image_prompt": "",
+      "confidence": 0.0
+    }}
+  ]
+}}
+"""
+
+    payload = _build_payload(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        max_tokens=OPENROUTER_LAYOUT_MAX_TOKENS,
+        model=selected_model,
+    )
+
+    data = _post_openrouter(payload, timeout=120)
+    content = data["choices"][0]["message"]["content"]
+    result = _extract_json_from_text(content)
+    result["analysis_model"] = selected_model
+    result["analysis_prompt"] = "fast"
+    return result
+
+
+def call_openrouter_for_menu_layout(
+    ocr_blocks: list,
+    target_lang: str = "zh",
+    source_lang: str = "en",
+    model: str | None = None,
+) -> dict:
+    if USE_FAST_MENU_PROMPT:
+        return _call_openrouter_for_menu_layout_fast(
+            ocr_blocks=ocr_blocks,
+            target_lang=target_lang,
+            source_lang=source_lang,
+            model=model,
+        )
+
     target_lang = normalize_lang(target_lang, "zh")
     source_lang = normalize_lang(source_lang, "en")
     target_language_name = get_language_name(target_lang)
@@ -442,13 +554,16 @@ Output requirements:
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         max_tokens=6000,
-        model=OPENROUTER_LAYOUT_MODEL,
+        model=model or OPENROUTER_LAYOUT_MODEL,
     )
 
     data = _post_openrouter(payload, timeout=180)
     content = data["choices"][0]["message"]["content"]
 
-    return _extract_json_from_text(content)
+    result = _extract_json_from_text(content)
+    result["analysis_model"] = model or OPENROUTER_LAYOUT_MODEL
+    result["analysis_prompt"] = "full"
+    return result
 
 
 def call_openrouter_for_menu(ocr_text: str, target_lang: str = "zh", source_lang: str = "en") -> dict:
@@ -771,7 +886,7 @@ Return schema:
 """
     
     payload = {
-        "model": OPENROUTER_LAYOUT_MODEL,
+        "model": OPENROUTER_DETAIL_MODEL,
         "messages": [
             {"role": "user", "content": prompt}
         ],

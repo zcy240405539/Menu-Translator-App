@@ -36,6 +36,11 @@ SUPPORTED_OCR_LANGS = {
 }
 
 AUTO_OCR_LANG_ORDER = ["en", "ch", "fr", "german", "japan", "korean"]
+ENABLE_TEXTLINE_ORIENTATION = os.getenv("OCR_TEXTLINE_ORIENTATION", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 
 
 def normalize_ocr_lang(source_lang: Optional[str]) -> str:
@@ -58,7 +63,7 @@ def get_ocr_engine(lang: str = "ch"):
             lang=lang,
             use_doc_orientation_classify=False,
             use_doc_unwarping=False,
-            use_textline_orientation=True,
+            use_textline_orientation=ENABLE_TEXTLINE_ORIENTATION,
             text_det_limit_side_len=2200,
             text_det_limit_type="max",
             text_rec_score_thresh=0.2,
