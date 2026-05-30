@@ -137,7 +137,7 @@ def normalize_dish_name(name: str) -> str:
     text = unicodedata.normalize("NFKD", text)
     text = "".join(c for c in text if not unicodedata.combining(c))
 
-    text = re.sub(r"[^a-z0-9\u4e00-\u9fff\s&+\-]", " ", text)
+    text = re.sub(r"[^a-z0-9\s&+\-]", " ", text)
     text = re.sub(r"\s+", " ", text)
 
     normalized = text.strip()
@@ -152,17 +152,27 @@ def is_cacheable_normalized_name(normalized_name: str) -> bool:
     return bool(
         normalized_name
         and normalized_name not in NON_CACHEABLE_NORMALIZED_NAMES
-        and re.search(r"[a-z0-9\u4e00-\u9fff]", normalized_name)
+        and re.search(r"[a-z]", normalized_name)
+        and not contains_chinese(normalized_name)
     )
 
 
 def build_normalized_dish_key(*names: str) -> str:
+    normalized_candidates = []
+
     for name in names:
         normalized_name = normalize_dish_name(name)
         if is_cacheable_normalized_name(normalized_name):
+            normalized_candidates.append(normalized_name)
+
+    if not normalized_candidates:
+        return ""
+
+    for normalized_name in normalized_candidates:
+        if not contains_chinese(normalized_name) and re.search(r"[a-z]", normalized_name):
             return normalized_name
 
-    return ""
+    return normalized_candidates[0]
 
 
 def apply_cache_to_items(db, menu_items, target_lang):

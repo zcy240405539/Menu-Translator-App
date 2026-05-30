@@ -6,6 +6,8 @@ import requests
 from supabase import create_client
 
 from app.dish_cache_service import (
+    build_normalized_dish_key,
+    contains_chinese,
     is_cacheable_normalized_name,
     normalize_dish_name,
     resolve_dish_cuisine,
@@ -18,6 +20,10 @@ SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "Dish_Images")
 PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
 UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
+WIKIMEDIA_USER_AGENT = os.getenv(
+    "WIKIMEDIA_USER_AGENT",
+    "MenuTranslatorApp/1.0 (image-search)",
+)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1-mini")
 ENABLE_GENERATED_IMAGE_FALLBACK = os.getenv(
@@ -39,16 +45,18 @@ def slugify(text: str) -> str:
 def build_image_search_query(dish: dict) -> str:
     original = dish.get("original_name") or dish.get("name") or ""
     translated = dish.get("translated_name") or ""
+    normalized = dish.get("normalized_name") or build_normalized_dish_key(
+        translated,
+        original,
+        dish.get("name"),
+    )
     cuisine = resolve_dish_cuisine(dish)
     section = dish.get("section_heading_original") or dish.get("category") or ""
     ingredients = ", ".join(dish.get("ingredients") or [])
 
-    if re.search(r"[\u4e00-\u9fff]", original) and translated:
-        search_name = translated
-    else:
-        search_name = original or translated
+    search_name = original or translated or normalized
 
-    dish_style = "Chinese dish" if re.search(r"[\u4e00-\u9fff]", original) else ""
+    dish_style = "Chinese dish" if contains_chinese(original) else ""
 
     parts = [
         search_name,
@@ -64,18 +72,21 @@ def build_image_search_query(dish: dict) -> str:
 def build_image_search_queries(dish: dict) -> list[str]:
     original = dish.get("original_name") or dish.get("name") or ""
     translated = dish.get("translated_name") or ""
+    normalized = dish.get("normalized_name") or build_normalized_dish_key(
+        translated,
+        original,
+        dish.get("name"),
+    )
     cuisine = resolve_dish_cuisine(dish)
     section = dish.get("section_heading_original") or dish.get("category") or ""
 
     names = []
-    for name in [original, translated]:
+    for name in [original, normalized, translated]:
         if name and name not in names:
             names.append(name)
 
     queries = []
     for name in names:
-        if re.search(r"[\u4e00-\u9fff]", name) and translated and translated != name:
-            continue
         queries.append(f"{name} {cuisine} restaurant dish")
         queries.append(f"{name} food close up")
 
@@ -162,6 +173,52 @@ def search_unsplash_image(query: str):
     }
 
 
+def search_wikimedia_image(query: str):
+    res = requests.get(
+        "https://commons.wikimedia.org/w/api.php",
+        headers={"User-Agent": WIKIMEDIA_USER_AGENT},
+        params={
+            "action": "query",
+            "format": "json",
+            "origin": "*",
+            "generator": "search",
+            "gsrsearch": f'{query} filetype:bitmap',
+            "gsrnamespace": 6,
+            "gsrlimit": 5,
+            "prop": "imageinfo",
+            "iiprop": "url|mime",
+            "iiurlwidth": 1024,
+        },
+        timeout=20,
+    )
+
+    if not res.ok:
+        print("Wikimedia error:", res.status_code, res.text[:300])
+        return None
+
+    pages = (res.json().get("query") or {}).get("pages") or {}
+    for page in pages.values():
+        image_info = (page.get("imageinfo") or [{}])[0]
+        mime = image_info.get("mime") or ""
+        if mime and not mime.startswith("image/"):
+            continue
+
+        image_url = (
+            image_info.get("thumburl")
+            or image_info.get("url")
+        )
+        if not image_url:
+            continue
+
+        return {
+            "image_url": image_url,
+            "local_image_path": image_info.get("descriptionurl"),
+            "source_type": "wikimedia_found",
+        }
+
+    return None
+
+
 def upload_remote_image_to_supabase(image_url: str, dish_name: str, source_folder="generated"):
     image_res = requests.get(image_url, timeout=30)
 
@@ -229,12 +286,19 @@ def upload_image_bytes_to_supabase(
 
 
 def build_generated_image_prompt(dish: dict) -> str:
-    dish_name = dish.get("original_name") or dish.get("translated_name") or dish.get("name") or "restaurant dish"
+    source_name = dish.get("original_name") or dish.get("name") or ""
+    english_name = dish.get("normalized_name") or build_normalized_dish_key(
+        dish.get("translated_name"),
+        dish.get("original_name"),
+        dish.get("name"),
+    )
+    dish_name = source_name or english_name or dish.get("translated_name") or "restaurant dish"
     cuisine = resolve_dish_cuisine(dish)
     ingredients = ", ".join(dish.get("ingredients") or [])
 
     parts = [
-        f"A realistic restaurant food photograph of {dish_name}",
+        f"A realistic restaurant food photograph of the source-language dish {dish_name}",
+        f"English reference name: {english_name}" if english_name and english_name != dish_name else "",
         f"{cuisine} cuisine" if cuisine != "Other" else "",
         f"visible ingredients: {ingredients}" if ingredients else "",
         "single plated dish, natural light, appetizing, no text, no menu, no people",
@@ -297,6 +361,8 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
     if not is_cacheable_normalized_name(normalized_name):
         return None
 
+    dish = {**dish, "normalized_name": normalized_name}
+
     existing = (
         db.query(DishImage)
         .filter(DishImage.normalized_name == normalized_name)
@@ -336,6 +402,14 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
                 source_type = uploaded.get("source_type") or "unsplash_found"
                 break
 
+        if not uploaded:
+            for candidate_query in queries:
+                uploaded = search_wikimedia_image(candidate_query)
+                if uploaded and uploaded.get("image_url"):
+                    matched_query = candidate_query
+                    source_type = uploaded.get("source_type") or "wikimedia_found"
+                    break
+
         if not uploaded and existing and existing.image_url and existing.image_prompt in queries:
             existing.cuisine = resolve_dish_cuisine(dish)
             db.commit()
@@ -361,10 +435,10 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
     if uploaded is None:
         return None
 
-    if source_type != "unsplash_found" and not uploaded.get("local_image_path"):
+    if source_type not in {"unsplash_found", "wikimedia_found"} and not uploaded.get("local_image_path"):
         uploaded["local_image_path"] = ""
 
-    # Unsplash API guidelines require using the hotlinked photo.urls value.
+    # Unsplash and Wikimedia API results should keep their source image URLs.
     uploaded["thumbnail_url"] = uploaded["image_url"]
 
     if existing:

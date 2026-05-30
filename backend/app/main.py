@@ -497,6 +497,15 @@ def dish_detail(
             source_lang=request.source_lang,
         )
 
+        normalized_name = build_normalized_dish_key(
+            result.get("translated_name"),
+            result.get("original_name"),
+            request.translated_name,
+            request.dish_name,
+            request.original_name,
+        )
+        is_cacheable = is_cacheable_normalized_name(normalized_name)
+
         if is_cacheable:
             result["cuisine"] = resolve_dish_cuisine(
                 {
@@ -543,11 +552,13 @@ def dish_detail(
             **{key: value for key, value in request_context.items() if value},
         }
 
-        image_url = get_or_create_dish_image(
-            db=db,
-            dish=dish_payload,
-            normalized_name=normalized_name,
-        )
+        image_url = None
+        if is_cacheable:
+            image_url = get_or_create_dish_image(
+                db=db,
+                dish=dish_payload,
+                normalized_name=normalized_name,
+            )
 
         return {
             **result,
