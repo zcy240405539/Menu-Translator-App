@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, Text, Integer, DateTime, UniqueConstraint, JSON
+from sqlalchemy import Column, BigInteger, Text, Integer, DateTime, UniqueConstraint, JSON, CheckConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from  app.database import Base
@@ -28,6 +28,12 @@ class DishCache(Base):
 
     __table_args__ = (
         UniqueConstraint("normalized_name", "target_language"),
+        CheckConstraint(
+            "btrim(normalized_name) <> '' "
+            "and lower(btrim(normalized_name)) not in "
+            "('empty', 'unknown', 'none', 'null', 'undefined', 'n/a', 'na')",
+            name="dish_cache_normalized_name_not_blank",
+        ),
     )
 
 
@@ -49,6 +55,15 @@ class DishImage(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        CheckConstraint(
+            "btrim(normalized_name) <> '' "
+            "and lower(btrim(normalized_name)) not in "
+            "('empty', 'unknown', 'none', 'null', 'undefined', 'n/a', 'na')",
+            name="dish_images_normalized_name_not_blank",
+        ),
+    )
 
 
 class MenuParseCache(Base):
