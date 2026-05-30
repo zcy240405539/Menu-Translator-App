@@ -31,7 +31,10 @@ from app.openrouter_service import (
     call_openrouter_vision_for_menu,
     call_openrouter_translate_category_labels,
 )
-from app.dish_cache_service import is_cacheable_normalized_name, normalize_dish_name
+from app.dish_cache_service import (
+    build_normalized_dish_key,
+    is_cacheable_normalized_name,
+)
 from app.image_service import get_or_create_dish_image
 from app.category_service import get_or_create_menu_category
 from app.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
@@ -219,7 +222,11 @@ def dish_detail(
     db: Session = Depends(get_db),
 ):
     try:
-        normalized_name = normalize_dish_name(request.dish_name)
+        normalized_name = build_normalized_dish_key(
+            request.dish_name,
+            request.original_name,
+            request.translated_name,
+        )
         is_cacheable = is_cacheable_normalized_name(normalized_name)
         request_ingredients = request.ingredients or []
         request_context = {
@@ -291,8 +298,15 @@ def dish_detail(
                 "source": "cache",
             }
 
+        detail_name = (
+            request.dish_name
+            or request.original_name
+            or request.translated_name
+            or ""
+        )
+
         result = call_openrouter_for_dish_detail(
-            dish_name=request.dish_name,
+            dish_name=detail_name,
             target_lang=request.target_lang,
             source_lang=request.source_lang,
         )
@@ -300,7 +314,7 @@ def dish_detail(
         if is_cacheable:
             new_cache = DishCache(
                 normalized_name=normalized_name,
-                original_name=request.dish_name,
+                original_name=request.original_name or detail_name,
                 translated_name=result.get("translated_name"),
                 target_language=request.target_lang,
                 description=result.get("description"),
@@ -448,6 +462,7 @@ def collect_category_translation_map(menu_items, target_lang):
 # =========================
 
 MENU_TASKS = {}
+MENU_CACHE_SCHEMA_VERSION = 2
 
 def run_menu_parse_task(
     task_id: str,
@@ -485,7 +500,9 @@ def run_menu_parse_task(
                 result["business_name"] = cached_menu.business_name
                 result["business_description"] = cached_menu.business_description or {}
 
-                if any(needs_dish_language_enrichment(item, target_lang) for item in result["menu_items"]):
+                if result.get("cache_schema_version") != MENU_CACHE_SCHEMA_VERSION:
+                    print("Menu cache skipped because cache schema version changed.")
+                elif any(needs_dish_language_enrichment(item, target_lang) for item in result["menu_items"]):
                     print("Menu cache skipped because translated fields need refresh.")
                 else:
                     result["cache_summary"] = {
@@ -862,6 +879,7 @@ def run_menu_parse_task(
                 "dish_cache_hits": len([x for x in enriched_items if x.get("cache_hit")]),
                 "dish_cache_misses": len([x for x in enriched_items if not x.get("cache_hit")]),
             }
+            result["cache_schema_version"] = MENU_CACHE_SCHEMA_VERSION
             timings["total_seconds"] = round(time.perf_counter() - task_started_at, 3)
             result["timings"] = timings
 

@@ -4,7 +4,10 @@ import uuid
 import requests
 from supabase import create_client
 
-from app.dish_cache_service import is_cacheable_normalized_name
+from app.dish_cache_service import (
+    is_cacheable_normalized_name,
+    normalize_dish_name,
+)
 from  app.models import DishImage
 
 
@@ -36,8 +39,11 @@ def build_image_search_query(dish: dict) -> str:
     else:
         search_name = original or translated
 
+    dish_style = "Chinese dish" if re.search(r"[\u4e00-\u9fff]", original) else ""
+
     parts = [
         search_name,
+        dish_style,
         cuisine,
         section,
         ingredients,
@@ -109,6 +115,8 @@ def upload_remote_image_to_supabase(image_url: str, dish_name: str, source_folde
 
 
 def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh: bool = False):
+    normalized_name = normalize_dish_name(normalized_name)
+
     if not is_cacheable_normalized_name(normalized_name):
         return None
 
@@ -126,7 +134,9 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
     found_url = search_pexels_image(query)
 
     if not found_url:
-        return existing.image_url if existing and existing.image_url else None
+        if existing and existing.image_url and existing.image_prompt == query:
+            return existing.image_url
+        return None
 
     uploaded = upload_remote_image_to_supabase(
         image_url=found_url,

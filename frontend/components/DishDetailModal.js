@@ -91,7 +91,7 @@ export default function DishDetailModal({
     const sourceLang = dish.source_language || menuInfo?.source_language || "auto";
     const translatedName = dish.translated_name || dish.name || "";
     const section = dish.section_heading_original || dish.category || "";
-    return `dish_detail_v3_${sourceLang}_${targetLang}_${normalizeKey(name)}_${normalizeKey(translatedName)}_${normalizeKey(section)}`;
+    return `dish_detail_v4_${sourceLang}_${targetLang}_${normalizeKey(name)}_${normalizeKey(translatedName)}_${normalizeKey(section)}`;
   }, [dish, menuInfo?.source_language, targetLang]);
 
   useEffect(() => {

@@ -3,25 +3,55 @@ import unicodedata
 from  app.models import DishCache, DishImage
 
 
+NON_CACHEABLE_NORMALIZED_NAMES = {
+    "",
+    "empty",
+    "null",
+    "none",
+    "unknown",
+    "undefined",
+    "n/a",
+    "na",
+    "dish",
+    "item",
+    "menu item",
+}
+
+
 def normalize_dish_name(name: str) -> str:
     if not name:
         return ""
 
-    text = unicodedata.normalize("NFKC", name).lower().strip()
+    text = unicodedata.normalize("NFKC", str(name)).lower().strip()
     text = unicodedata.normalize("NFKD", text)
     text = "".join(c for c in text if not unicodedata.combining(c))
 
     text = re.sub(r"[^a-z0-9\u4e00-\u9fff\s&+\-]", " ", text)
     text = re.sub(r"\s+", " ", text)
 
-    return text.strip()
+    normalized = text.strip()
+    if normalized in NON_CACHEABLE_NORMALIZED_NAMES:
+        return ""
+
+    return normalized
 
 
 def is_cacheable_normalized_name(normalized_name: str) -> bool:
+    normalized_name = normalize_dish_name(normalized_name)
     return bool(
         normalized_name
+        and normalized_name not in NON_CACHEABLE_NORMALIZED_NAMES
         and re.search(r"[a-z0-9\u4e00-\u9fff]", normalized_name)
     )
+
+
+def build_normalized_dish_key(*names: str) -> str:
+    for name in names:
+        normalized_name = normalize_dish_name(name)
+        if is_cacheable_normalized_name(normalized_name):
+            return normalized_name
+
+    return ""
 
 
 def apply_cache_to_items(db, menu_items, target_lang):
@@ -30,7 +60,11 @@ def apply_cache_to_items(db, menu_items, target_lang):
 
     for item in menu_items:
         original_name = item.get("original_name", "")
-        normalized_name = normalize_dish_name(original_name)
+        normalized_name = build_normalized_dish_key(
+            original_name,
+            item.get("translated_name"),
+            item.get("name"),
+        )
         is_cacheable = is_cacheable_normalized_name(normalized_name)
 
         cached_dish = None
@@ -103,7 +137,11 @@ def normalize_cuisine(cuisine: str) -> str:
 
 def upsert_dish_cache(db, dish, target_lang):
     original_name = dish.get("original_name", "")
-    normalized_name = normalize_dish_name(original_name)
+    normalized_name = build_normalized_dish_key(
+        original_name,
+        dish.get("translated_name"),
+        dish.get("name"),
+    )
 
     if not is_cacheable_normalized_name(normalized_name):
         return
