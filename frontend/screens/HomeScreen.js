@@ -5,6 +5,8 @@ import {
   StyleSheet,
   Alert,
   Linking,
+  Platform,
+  Share,
   ScrollView,
 } from "react-native";
 import { saveMenuHistory } from "../storage/menuStorage";
@@ -210,6 +212,48 @@ const selectFromFile = async () => {
     return "https://ai-menu-app.onrender.com";
   };
 
+  const getShareMessage = () => `${t.home.shareMessage}\n${getCurrentShareUrl()}`;
+
+  const isMobileWebBrowser = () => {
+    if (typeof navigator === "undefined") {
+      return false;
+    }
+
+    return /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+  };
+
+  const shouldUseSystemShare = () => {
+    if (Platform.OS === "ios" || Platform.OS === "android") {
+      return true;
+    }
+
+    return (
+      Platform.OS === "web" &&
+      isMobileWebBrowser() &&
+      typeof navigator !== "undefined" &&
+      typeof navigator.share === "function"
+    );
+  };
+
+  const shareWithSystem = async () => {
+    const currentUrl = getCurrentShareUrl();
+
+    if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.share) {
+      await navigator.share({
+        title: t.home.shareTitle,
+        text: t.home.shareMessage,
+        url: currentUrl,
+      });
+      return;
+    }
+
+    await Share.share({
+      title: t.home.shareTitle,
+      message: getShareMessage(),
+      url: currentUrl,
+    });
+  };
+
   const getShareTargets = () => {
     const currentUrl = getCurrentShareUrl();
     const encodedUrl = encodeURIComponent(currentUrl);
@@ -218,6 +262,25 @@ const selectFromFile = async () => {
     const emailBody = encodeURIComponent(`${t.home.shareMessage}\n${currentUrl}`);
 
     return [
+      {
+        key: "wechat",
+        label: "微信",
+        icon: "wechat",
+        url: `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodedUrl}`,
+      },
+      {
+        key: "xiaohongshu",
+        label: "小红书",
+        icon: "book-open-variant",
+        url: `https://www.xiaohongshu.com/search_result?keyword=${encodedText}`,
+        copyBeforeOpen: true,
+      },
+      {
+        key: "weibo",
+        label: "微博",
+        icon: "sina-weibo",
+        url: `https://service.weibo.com/share/share.php?url=${encodedUrl}&title=${encodedText}`,
+      },
       {
         key: "facebook",
         label: "Facebook",
@@ -237,12 +300,6 @@ const selectFromFile = async () => {
         url: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
       },
       {
-        key: "linkedin",
-        label: "LinkedIn",
-        icon: "linkedin",
-        url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-      },
-      {
         key: "email",
         label: "Email",
         icon: "email-outline",
@@ -251,20 +308,52 @@ const selectFromFile = async () => {
     ];
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
+    if (shouldUseSystemShare()) {
+      try {
+        await shareWithSystem();
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          Alert.alert(t.home.shareFailed, error.message || t.home.unknownError);
+        }
+      }
+      return;
+    }
+
     setShareDialogVisible(true);
   };
 
-  const handleShareTargetPress = async (url) => {
-    setShareDialogVisible(false);
+  const copyShareTextToClipboard = async () => {
+    if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+      return;
+    }
 
-    if (typeof window !== "undefined" && window.open) {
+    await navigator.clipboard.writeText(getShareMessage());
+  };
+
+  const openShareUrl = async (url, targetKey) => {
+    if (typeof window !== "undefined") {
+      if (targetKey === "email") {
+        window.location.href = url;
+        return;
+      }
+
       window.open(url, "_blank", "noopener,noreferrer");
       return;
     }
 
+    await Linking.openURL(url);
+  };
+
+  const handleShareTargetPress = async (target) => {
+    setShareDialogVisible(false);
+
     try {
-      await Linking.openURL(url);
+      if (target.copyBeforeOpen) {
+        await copyShareTextToClipboard();
+      }
+
+      await openShareUrl(target.url, target.key);
     } catch (error) {
       Alert.alert(t.home.shareFailed, error.message || t.home.unknownError);
     }
@@ -456,7 +545,7 @@ const selectFromFile = async () => {
                   icon={target.icon}
                   style={styles.shareButton}
                   contentStyle={styles.shareButtonContent}
-                  onPress={() => handleShareTargetPress(target.url)}
+                  onPress={() => handleShareTargetPress(target)}
                 >
                   {target.label}
                 </Button>
