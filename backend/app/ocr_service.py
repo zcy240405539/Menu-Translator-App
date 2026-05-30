@@ -12,10 +12,8 @@ os.environ.setdefault("DISABLE_MODEL_SOURCE_CHECK", "True")
 
 Image.MAX_IMAGE_PIXELS = None
 
-try:
-    from paddleocr import PaddleOCR
-except ImportError:
-    PaddleOCR = None
+PaddleOCR = None
+PADDLE_IMPORT_ERROR = None
 
 
 SUPPORTED_OCR_LANGS = {
@@ -35,12 +33,33 @@ SUPPORTED_OCR_LANGS = {
     "korean": "korean",
 }
 
-AUTO_OCR_LANG_ORDER = ["en", "ch", "fr", "german", "japan", "korean"]
+AUTO_OCR_LANG_ORDER = [
+    lang.strip()
+    for lang in os.getenv("OCR_AUTO_LANG_ORDER", "en,ch").split(",")
+    if lang.strip()
+]
+OCR_ENGINE_CACHE_SIZE = int(os.getenv("OCR_ENGINE_CACHE_SIZE", "2"))
 ENABLE_TEXTLINE_ORIENTATION = os.getenv("OCR_TEXTLINE_ORIENTATION", "false").lower() in {
     "1",
     "true",
     "yes",
 }
+
+
+def load_paddle_ocr_class():
+    global PaddleOCR, PADDLE_IMPORT_ERROR
+
+    if PaddleOCR is not None:
+        return PaddleOCR
+
+    try:
+        from paddleocr import PaddleOCR as PaddleOCRClass
+    except ImportError as exc:
+        PADDLE_IMPORT_ERROR = exc
+        return None
+
+    PaddleOCR = PaddleOCRClass
+    return PaddleOCR
 
 
 def normalize_ocr_lang(source_lang: Optional[str]) -> str:
@@ -51,25 +70,28 @@ def normalize_ocr_lang(source_lang: Optional[str]) -> str:
     return SUPPORTED_OCR_LANGS.get(key, "auto")
 
 
-@lru_cache(maxsize=8)
+@lru_cache(maxsize=OCR_ENGINE_CACHE_SIZE)
 def get_ocr_engine(lang: str = "ch"):
-    if PaddleOCR is None:
+    paddle_ocr_class = load_paddle_ocr_class()
+    if paddle_ocr_class is None:
+        if PADDLE_IMPORT_ERROR:
+            print(f"PaddleOCR import failed: {PADDLE_IMPORT_ERROR}")
         return None
 
     # PaddleOCR 3.x removed several 2.x constructor flags. Prefer the new
     # pipeline arguments, then fall back to the older API for existing setups.
     try:
-        return PaddleOCR(
+        return paddle_ocr_class(
             lang=lang,
             use_doc_orientation_classify=False,
             use_doc_unwarping=False,
             use_textline_orientation=ENABLE_TEXTLINE_ORIENTATION,
-            text_det_limit_side_len=2200,
+            text_det_limit_side_len=int(os.getenv("OCR_DET_LIMIT_SIDE_LEN", "1800")),
             text_det_limit_type="max",
             text_rec_score_thresh=0.2,
         )
     except (TypeError, ValueError):
-        return PaddleOCR(
+        return paddle_ocr_class(
             use_angle_cls=True,
             lang=lang,
             use_gpu=False,
@@ -85,8 +107,8 @@ def save_preprocessed_image(file_bytes: bytes) -> str:
 
     image = Image.open(original_path).convert("RGB")
 
-    max_width = 2200
-    max_height = 3200
+    max_width = int(os.getenv("OCR_MAX_IMAGE_WIDTH", "1800"))
+    max_height = int(os.getenv("OCR_MAX_IMAGE_HEIGHT", "2600"))
     w, h = image.size
 
     upscale_ratio = 1

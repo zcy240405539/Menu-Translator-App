@@ -9,6 +9,7 @@ from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_M
 OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash-lite")
 OPENROUTER_DETAIL_MODEL = os.getenv("OPENROUTER_DETAIL_MODEL", OPENROUTER_LAYOUT_MODEL)
 OPENROUTER_LAYOUT_MAX_TOKENS = int(os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "4500"))
+OPENROUTER_VISION_MAX_TOKENS = int(os.getenv("OPENROUTER_VISION_MAX_TOKENS", "1200"))
 USE_FAST_MENU_PROMPT = os.getenv("OPENROUTER_USE_FAST_MENU_PROMPT", "false").lower() in {
     "1",
     "true",
@@ -1078,7 +1079,7 @@ JSON schema:
         ],
         #"temperature": 0.1,
         "temperature": 0,
-        "max_tokens": 300,
+        "max_tokens": OPENROUTER_VISION_MAX_TOKENS,
         "reasoning": {"enabled": False},
     }
 

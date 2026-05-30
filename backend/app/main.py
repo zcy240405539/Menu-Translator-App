@@ -1,6 +1,7 @@
 import uuid
 import re
 import time
+import os
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
@@ -19,10 +20,6 @@ from sqlalchemy.orm import Session
 from app.database import get_db, engine, Base
 from app.models import DishCache, DishImage
 from app.schemas import AnalyzeTextRequest, DishDetailRequest
-from app.ocr_service import (
-    extract_text_from_image,
-    extract_layout_blocks_from_image,
-)
 from app.openrouter_service import (
     call_openrouter_for_dish_detail,
     call_openrouter_for_menu,
@@ -70,6 +67,126 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+def is_render_runtime() -> bool:
+    return bool(
+        os.getenv("RENDER")
+        or os.getenv("RENDER_SERVICE_ID")
+        or os.getenv("RENDER_EXTERNAL_URL")
+    )
+
+
+def should_use_vision_ocr() -> bool:
+    provider = os.getenv("OCR_PROVIDER", "").strip().lower()
+
+    if provider in {"vision", "openrouter", "cloud"}:
+        return True
+
+    if provider in {"paddle", "local", "paddleocr"}:
+        return False
+
+    return is_render_runtime()
+
+
+def load_local_ocr_functions():
+    from app.ocr_service import extract_layout_blocks_from_image, extract_text_from_image
+
+    return extract_layout_blocks_from_image, extract_text_from_image
+
+
+def vision_layout_to_ocr_blocks(vision_result: dict) -> list[dict]:
+    lines = vision_result.get("layout_lines") or []
+    blocks = []
+
+    for index, line in enumerate(lines):
+        if not isinstance(line, dict):
+            continue
+
+        text = str(line.get("text") or "").strip()
+        description = str(line.get("description_text") or "").strip()
+        price = line.get("price_text")
+        role = str(line.get("line_role") or "").strip()
+
+        if not text:
+            continue
+
+        parts = [text]
+        if description:
+            parts.append(description)
+        if price:
+            parts.append(str(price).strip())
+
+        y_order = line.get("y_order")
+        x_order = line.get("x_order")
+        try:
+            y = float(y_order)
+        except (TypeError, ValueError):
+            y = float(index)
+        try:
+            x = float(x_order)
+        except (TypeError, ValueError):
+            x = 0.0
+
+        combined_text = " | ".join(part for part in parts if part)
+
+        blocks.append({
+            "text": combined_text,
+            "line_role": role,
+            "x_min": x * 100,
+            "y_min": y * 40,
+            "x_max": x * 100 + 100,
+            "y_max": y * 40 + 20,
+            "center_x": x * 100 + 50,
+            "center_y": y * 40 + 10,
+            "confidence": 0.9,
+            "ocr_lang": "openrouter_vision",
+        })
+
+    return blocks
+
+
+def parse_image_with_vision(
+    file_bytes: bytes,
+    target_lang: str,
+    source_lang: str,
+    mime_type: str = "image/jpeg",
+) -> tuple[dict, list[dict]]:
+    vision_result = call_openrouter_vision_for_menu(
+        image_bytes=file_bytes,
+        mime_type=mime_type,
+        target_lang=target_lang,
+        source_lang=source_lang,
+    )
+    ocr_blocks = vision_layout_to_ocr_blocks(vision_result)
+
+    if not ocr_blocks:
+        return {
+            "source_language": vision_result.get("source_language") or source_lang,
+            "target_language": target_lang,
+            "restaurant_type": vision_result.get("restaurant_type"),
+            "menu_items": [],
+            "menu_pricing": vision_result.get("menu_pricing") or [],
+            "parser": "openrouter_vision_empty",
+            "ocr_blocks": [],
+        }, []
+
+    result = call_openrouter_for_menu_layout(
+        ocr_blocks=ocr_blocks,
+        target_lang=target_lang,
+        source_lang=source_lang,
+    )
+
+    if not isinstance(result, dict):
+        result = {}
+
+    if vision_result.get("menu_pricing"):
+        result["menu_pricing"] = vision_result.get("menu_pricing")
+
+    result["parser"] = "openrouter_vision_layout_openrouter"
+    result["ocr_blocks"] = ocr_blocks
+
+    return result, ocr_blocks
+
 # =========================
 # Health
 # =========================
@@ -110,7 +227,18 @@ async def menu_ocr(
 ):
     try:
         file_bytes = await file.read()
-        ocr_text = extract_text_from_image(file_bytes, source_lang=source_lang)
+        if should_use_vision_ocr():
+            vision_result = call_openrouter_vision_for_menu(
+                image_bytes=file_bytes,
+                mime_type=file.content_type or "image/jpeg",
+                target_lang="zh",
+                source_lang=source_lang,
+            )
+            blocks = vision_layout_to_ocr_blocks(vision_result)
+            ocr_text = "\n".join(b["text"] for b in blocks if b.get("text"))
+        else:
+            _, extract_text_from_image = load_local_ocr_functions()
+            ocr_text = extract_text_from_image(file_bytes, source_lang=source_lang)
 
         return {
             "ocr_text": ocr_text
@@ -129,12 +257,21 @@ async def menu_layout(
     source_lang: str = "auto",
 ):
     try:
-        #from app.ocr_service import extract_layout_blocks_from_image
         file_bytes = await file.read()
-        blocks = extract_layout_blocks_from_image(
-            file_bytes,
-            source_lang=source_lang,
-        )
+        if should_use_vision_ocr():
+            vision_result = call_openrouter_vision_for_menu(
+                image_bytes=file_bytes,
+                mime_type=file.content_type or "image/jpeg",
+                target_lang="zh",
+                source_lang=source_lang,
+            )
+            blocks = vision_layout_to_ocr_blocks(vision_result)
+        else:
+            extract_layout_blocks_from_image, _ = load_local_ocr_functions()
+            blocks = extract_layout_blocks_from_image(
+                file_bytes,
+                source_lang=source_lang,
+            )
 
         return {
             "count": len(blocks),
@@ -184,25 +321,35 @@ async def parse_menu(
             file_bytes = merge_images_vertically(images)
             mime_type = "image/jpeg"
 
-        ocr_blocks = extract_layout_blocks_from_image(
-            file_bytes,
-            source_lang=source_lang,
-        )
-
-        if not ocr_blocks:
-            raise HTTPException(
-                status_code=422,
-                detail="OCR did not detect readable text. Please retake the photo with better lighting.",
+        if should_use_vision_ocr():
+            result, ocr_blocks = parse_image_with_vision(
+                file_bytes=file_bytes,
+                target_lang=target_lang,
+                source_lang=source_lang,
+                mime_type=mime_type,
+            )
+        else:
+            extract_layout_blocks_from_image, _ = load_local_ocr_functions()
+            ocr_blocks = extract_layout_blocks_from_image(
+                file_bytes,
+                source_lang=source_lang,
             )
 
-        result = call_openrouter_for_menu_layout(
-            ocr_blocks=ocr_blocks,
-            target_lang=target_lang,
-            source_lang=source_lang,
-        )
+            if not ocr_blocks:
+                raise HTTPException(
+                    status_code=422,
+                    detail="OCR did not detect readable text. Please retake the photo with better lighting.",
+                )
 
-        result["ocr_blocks"] = ocr_blocks
-        result["parser"] = "paddleocr_layout_openrouter"
+            result = call_openrouter_for_menu_layout(
+                ocr_blocks=ocr_blocks,
+                target_lang=target_lang,
+                source_lang=source_lang,
+            )
+
+            result["ocr_blocks"] = ocr_blocks
+            result["parser"] = "paddleocr_layout_openrouter"
+
         result["source_lang_request"] = source_lang
 
         return result
@@ -471,7 +618,6 @@ def run_menu_parse_task(
     source_lang: str = "en",
 ):
     try:
-        from app.ocr_service import extract_layout_blocks_from_image
         from app.database import SessionLocal
         from app.dish_cache_service import (
             apply_cache_to_items,
@@ -558,62 +704,75 @@ def run_menu_parse_task(
                 else:
                     print("No embedded PDF text found. Falling back to OCR...")
 
+                    if should_use_vision_ocr():
+                        result, ocr_blocks = parse_image_with_vision(
+                            file_bytes=file_bytes,
+                            target_lang=target_lang,
+                            source_lang=source_lang,
+                            mime_type="image/jpeg",
+                        )
+                        result["parser"] = "pdf_image_openrouter_vision"
+                    else:
+                        extract_layout_blocks_from_image, _ = load_local_ocr_functions()
+                        ocr_blocks = extract_layout_blocks_from_image(
+                            file_bytes,
+                            source_lang=source_lang,
+                        )
+
+                        result = call_openrouter_for_menu_layout(
+                            ocr_blocks=ocr_blocks,
+                            target_lang=target_lang,
+                            source_lang=source_lang,
+                        )
+
+                        if not isinstance(result, dict):
+                            result = {}
+
+                        result["parser"] = "pdf_image_ocr_openrouter"
+                        result["ocr_blocks"] = ocr_blocks
+
+            else:
+                ocr_started_at = time.perf_counter()
+                if should_use_vision_ocr():
+                    result, ocr_blocks = parse_image_with_vision(
+                        file_bytes=file_bytes,
+                        target_lang=target_lang,
+                        source_lang=source_lang,
+                        mime_type=content_type or "image/jpeg",
+                    )
+                    timings["vision_ocr_seconds"] = round(time.perf_counter() - ocr_started_at, 3)
+
+                else:
+                    extract_layout_blocks_from_image, _ = load_local_ocr_functions()
                     ocr_blocks = extract_layout_blocks_from_image(
                         file_bytes,
                         source_lang=source_lang,
                     )
+                    timings["ocr_seconds"] = round(time.perf_counter() - ocr_started_at, 3)
 
-                    result = call_openrouter_for_menu_layout(
-                        ocr_blocks=ocr_blocks,
-                        target_lang=target_lang,
-                        source_lang=source_lang,
-                    )
+                    if not ocr_blocks:
+                        print("OCR returned empty blocks. Falling back to OpenRouter Vision.")
 
-                    if not isinstance(result, dict):
-                        result = {}
+                        result, ocr_blocks = parse_image_with_vision(
+                            file_bytes=file_bytes,
+                            target_lang=target_lang,
+                            source_lang=source_lang,
+                            mime_type=content_type or "image/jpeg",
+                        )
+                    else:
+                        analysis_started_at = time.perf_counter()
+                        result = call_openrouter_for_menu_layout(
+                            ocr_blocks=ocr_blocks,
+                            target_lang=target_lang,
+                            source_lang=source_lang,
+                        )
+                        timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
 
-                    result["parser"] = "pdf_image_ocr_openrouter"
-                    result["ocr_blocks"] = ocr_blocks
+                        if not isinstance(result, dict):
+                            result = {}
 
-            else:
-                ocr_started_at = time.perf_counter()
-                ocr_blocks = extract_layout_blocks_from_image(
-                    file_bytes,
-                    source_lang=source_lang,
-                )
-                timings["ocr_seconds"] = round(time.perf_counter() - ocr_started_at, 3)
-
-                if not ocr_blocks:
-                    print("OCR returned empty blocks. Falling back to OpenRouter Vision.")
-
-                    analysis_started_at = time.perf_counter()
-                    result = call_openrouter_vision_for_menu(
-                        image_bytes=file_bytes,
-                        target_lang=target_lang,
-                        source_lang=source_lang,
-                    )
-                    timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
-
-                    if not isinstance(result, dict):
-                        result = {}
-
-                    result["parser"] = "openrouter_vision"
-                    result["ocr_blocks"] = []
-
-                else:
-                    analysis_started_at = time.perf_counter()
-                    result = call_openrouter_for_menu_layout(
-                        ocr_blocks=ocr_blocks,
-                        target_lang=target_lang,
-                        source_lang=source_lang,
-                    )
-                    timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
-
-                    if not isinstance(result, dict):
-                        result = {}
-
-                    result["parser"] = "paddleocr_layout_openrouter"
-                    result["ocr_blocks"] = ocr_blocks
+                        result["parser"] = "paddleocr_layout_openrouter"
+                        result["ocr_blocks"] = ocr_blocks
 
             if "menu_items" not in result:
                 result["menu_items"] = []
