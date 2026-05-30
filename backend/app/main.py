@@ -27,6 +27,7 @@ from app.openrouter_service import (
     call_openrouter_for_missing_dish_details,
     call_openrouter_vision_for_menu,
     call_openrouter_translate_category_labels,
+    extract_dish_candidates_from_ocr_blocks,
 )
 from app.dish_cache_service import (
     build_normalized_dish_key,
@@ -96,6 +97,12 @@ def load_local_ocr_functions():
 
 def vision_layout_to_ocr_blocks(vision_result: dict) -> list[dict]:
     lines = vision_result.get("layout_lines") or []
+    if not lines:
+        lines = [
+            {"text": line, "line_role": "ocr_line", "y_order": index}
+            for index, line in enumerate(vision_result.get("ocr_lines") or [])
+        ]
+
     blocks = []
 
     for index, line in enumerate(lines):
@@ -170,19 +177,29 @@ def parse_image_with_vision(
             "ocr_blocks": [],
         }, []
 
-    result = call_openrouter_for_menu_layout(
-        ocr_blocks=ocr_blocks,
-        target_lang=target_lang,
-        source_lang=source_lang,
-    )
+    try:
+        result = call_openrouter_for_menu_layout(
+            ocr_blocks=ocr_blocks,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
 
-    if not isinstance(result, dict):
-        result = {}
+        if not isinstance(result, dict):
+            result = {}
+
+    except Exception as layout_error:
+        print(f"Vision layout parser failed, using rule fallback: {layout_error}")
+        result = extract_dish_candidates_from_ocr_blocks(
+            ocr_blocks=ocr_blocks,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+        result["parser"] = "openrouter_vision_rule_fallback"
 
     if vision_result.get("menu_pricing"):
         result["menu_pricing"] = vision_result.get("menu_pricing")
 
-    result["parser"] = "openrouter_vision_layout_openrouter"
+    result["parser"] = result.get("parser") or "openrouter_vision_layout_openrouter"
     result["ocr_blocks"] = ocr_blocks
 
     return result, ocr_blocks

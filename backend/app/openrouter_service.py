@@ -9,7 +9,7 @@ from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_M
 OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash-lite")
 OPENROUTER_DETAIL_MODEL = os.getenv("OPENROUTER_DETAIL_MODEL", OPENROUTER_LAYOUT_MODEL)
 OPENROUTER_LAYOUT_MAX_TOKENS = int(os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "4500"))
-OPENROUTER_VISION_MAX_TOKENS = int(os.getenv("OPENROUTER_VISION_MAX_TOKENS", "1200"))
+OPENROUTER_VISION_MAX_TOKENS = int(os.getenv("OPENROUTER_VISION_MAX_TOKENS", "2500"))
 USE_FAST_MENU_PROMPT = os.getenv("OPENROUTER_USE_FAST_MENU_PROMPT", "false").lower() in {
     "1",
     "true",
@@ -177,6 +177,113 @@ def _extract_json_from_text(content: str) -> dict:
         )
 
 
+def normalize_vision_json(parsed, target_lang: str, source_lang: str) -> dict:
+    if isinstance(parsed, list):
+        parsed = {"ocr_lines": parsed}
+
+    if not isinstance(parsed, dict):
+        raise ValueError("Vision JSON must be an object or array")
+
+    lines = parsed.get("layout_lines") or []
+    ocr_lines = parsed.get("ocr_lines") or parsed.get("lines") or []
+
+    if not isinstance(lines, list):
+        lines = []
+    if ocr_lines and not isinstance(ocr_lines, list):
+        ocr_lines = [ocr_lines]
+
+    if not lines and ocr_lines:
+        for index, line in enumerate(ocr_lines[:45]):
+            if isinstance(line, dict):
+                text = (
+                    line.get("text")
+                    or line.get("line")
+                    or line.get("content")
+                    or ""
+                )
+                role = line.get("line_role") or line.get("role") or ""
+            else:
+                text = str(line or "")
+                role = ""
+
+            text = re.sub(r"\s+", " ", str(text)).strip()
+            if not text:
+                continue
+
+            lines.append({
+                "text": text[:220],
+                "line_role": role or "ocr_line",
+                "price_text": None,
+                "description_text": "",
+                "x_order": 0,
+                "y_order": index,
+            })
+
+    parsed["source_language"] = parsed.get("source_language") or source_lang
+    parsed["target_language"] = parsed.get("target_language") or target_lang
+    parsed["restaurant_type"] = parsed.get("restaurant_type") or ""
+    parsed["menu_pricing"] = parsed.get("menu_pricing") or []
+    parsed["layout_lines"] = lines[:45]
+
+    return parsed
+
+
+def repair_vision_json_content(
+    raw_content: str,
+    error: Exception,
+    target_lang: str,
+    source_lang: str,
+) -> dict:
+    repair_prompt = f"""
+Repair this malformed menu OCR JSON into valid compact JSON.
+
+Rules:
+- Return only valid raw JSON. No markdown. No explanation.
+- Preserve only complete readable menu lines from the input.
+- Drop any incomplete trailing object/string.
+- Prefer this schema:
+{{
+  "source_language": "{source_lang}",
+  "target_language": "{target_lang}",
+  "restaurant_type": "",
+  "ocr_lines": ["SECTION", "DISH NAME | DESCRIPTION | $12.00"]
+}}
+- ocr_lines must be an array of strings, not objects.
+- Keep at most 45 lines.
+- Keep each line under 220 characters.
+
+Parser error:
+{str(error)[:500]}
+
+Malformed content:
+{raw_content[:12000]}
+"""
+
+    payload = {
+        "model": OPENROUTER_LAYOUT_MODEL,
+        "messages": [
+            {
+                "role": "user",
+                "content": repair_prompt,
+            }
+        ],
+        "temperature": 0,
+        "max_tokens": min(OPENROUTER_VISION_MAX_TOKENS, 1800),
+        "reasoning": {"enabled": False},
+    }
+
+    data = _post_openrouter(payload, timeout=90)
+    content = data["choices"][0]["message"].get("content")
+    if not content:
+        raise ValueError("Vision JSON repair returned empty content")
+
+    return normalize_vision_json(
+        extract_json_from_llm(content),
+        target_lang=target_lang,
+        source_lang=source_lang,
+    )
+
+
 def _is_transient_openrouter_error(data: dict, status_code: int) -> bool:
     if status_code in {408, 409, 425, 429, 500, 502, 503, 504}:
         return True
@@ -320,6 +427,7 @@ Rules:
 - Do not infer categories from food type when a visible heading exists.
 - Never output a section heading as a menu item unless the menu sells that heading as a set.
 - For one dish with several size prices, return one item with a combined price string such as "12in: 13 / 14in: 14 / 16in: 16".
+- If an OCR block uses " | " separators, treat the first segment as original_name, middle segments as description, and price-like segments as price. Do not include prices in original_name or translated_name.
 - Extract real menu items only. Exclude restaurant name, hours, address, phone, social media, notes, taxes, and decorative text.
 - original_name stays exactly in source language.
 - translated_name, description, ingredients, allergens, and section_heading_translated must be in {target_language_name}.
@@ -427,6 +535,7 @@ Critical layout rules:
 - Preserve the visual order of dishes.
 - If one dish row has multiple size or option price columns, keep it as one menu item.
 - For multiple price columns, combine them into one price string, for example "12in: 13 / 14in: 14 / 16in: 16".
+- If an OCR block uses " | " separators, treat the first segment as original_name, middle segments as description, and price-like segments as price. Do not include prices in original_name or translated_name.
 - Do not duplicate the same dish once per size column unless the menu explicitly lists them as separate dishes.
 - Do not stop early. Extract the whole menu, including drinks, cafe, tea, pastry, dessert, cheese, and side sections.
 - Return raw JSON only.
@@ -985,7 +1094,7 @@ def call_openrouter_vision_for_menu(
     image_data_url = f"data:{mime_type};base64,{image_base64}"
 
     prompt = f"""
-You are a strict restaurant menu OCR and layout parser.
+You are a strict restaurant menu OCR reader.
 
 Source language code: {source_lang}
 Source language name: {source_language_name}
@@ -996,63 +1105,34 @@ Return only valid raw JSON. No markdown. No explanation.
 If reaching the limit, stop early and close the JSON correctly.
 
 Task:
-Extract compact menu layout lines from the image.
+Read the visible menu text from the image and return compact OCR-like lines.
 Do not build final translated menu_items.
-Classify each output line only as:
-- section_heading
-- dish_name
 
 Rules:
 - Do not translate in this step.
-- Do not generate ingredients, allergens, cuisine, or final descriptions.
+- Do not infer ingredients, allergens, or cuisine from memory.
 - Do not invent dishes or prices.
-- Use exact visible dish names.
-- Use section headings only for grouping.
-- Never include section headings as dishes.
+- Use exact visible section headings and dish names.
 - Exclude logos, footers, allergy notes, tax notes, service charges, social media, and decorative text.
-- For each dish, combine dish name, nearby description, and same-row price into one layout_lines item.
-- Put nearby description into description_text.
-- Set price_text to the same-row right-aligned price if visible. Otherwise set price_text to null.
-- For boxed/list sections like SUSHI, prices may appear far right; match by the same visual row.
+- Each ocr_lines entry must be a plain string.
+- For a dish row, combine the dish name, nearby description, and same-row price into one string.
+- Use " | " between name, description, and price when helpful.
 - Do not output separate price-only or description-only lines.
-- Remove noise such as g/m.
-
-Prix fixe / set menu rules:
-- Do not include prix fixe headings as layout_lines.
-- Put prix fixe / set menu / combo pricing into menu_pricing.
-- Include label, price, unit, description, applies_to, and details.
-- details should list visible starter and entrée choices as readable plain text.
+- Remove decorative dot leaders and OCR noise such as g/m.
 
 Hard limit:
-- Return at most 25 layout_lines.
-- Include menu_pricing first if visible.
-- Never output more than 25 objects inside layout_lines.
+- Return at most 45 ocr_lines.
+- Keep each line under 220 characters.
+- If the menu is long, include headings and dish rows first, desserts second, omit decorative text.
 
 JSON schema:
 {{
-  "source_language": "",
+  "source_language": "{source_lang}",
   "target_language": "{target_lang}",
   "restaurant_type": "",
-  "menu_pricing": [
-    {{
-      "label": "",
-      "price": "",
-      "unit": "",
-      "description": "",
-      "applies_to": "",
-      "details": ""
-    }}
-  ],
-  "layout_lines": [
-    {{
-      "text": "",
-      "line_role": "section_heading",
-      "price_text": null,
-      "description_text": "",
-      "font_size_hint": "medium",
-      "x_order": 0,
-      "y_order": 0
-    }}
+  "ocr_lines": [
+    "SECTION HEADING",
+    "DISH NAME | visible description | $12.00"
   ]
 }}
 """
@@ -1102,7 +1182,22 @@ JSON schema:
                 print(last_error)
                 continue
 
-            return _extract_json_from_text(content)
+            try:
+                parsed = _extract_json_from_text(content)
+            except Exception as parse_error:
+                print(f"Vision JSON parse failed for {model_name}, trying repair: {parse_error}")
+                parsed = repair_vision_json_content(
+                    raw_content=content,
+                    error=parse_error,
+                    target_lang=target_lang,
+                    source_lang=source_lang,
+                )
+
+            return normalize_vision_json(
+                parsed,
+                target_lang=target_lang,
+                source_lang=source_lang,
+            )
 
         except Exception as e:
             last_error = e
