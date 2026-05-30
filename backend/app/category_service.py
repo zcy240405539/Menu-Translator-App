@@ -1,4 +1,5 @@
 import re
+from sqlalchemy.exc import IntegrityError
 from app.models import MenuCategory
 
 
@@ -41,8 +42,6 @@ def get_or_create_menu_category(
     )
 
     if existing:
-        # 关键修复：
-        # 如果这次有真正翻译结果，就覆盖旧的英文分类
         if translated_label and translated_label != original_label:
             existing.translated_label = translated_label
             existing.source_language = source_language
@@ -60,7 +59,29 @@ def get_or_create_menu_category(
     )
 
     db.add(category)
-    db.commit()
-    db.refresh(category)
+    try:
+        db.commit()
+        db.refresh(category)
+    except IntegrityError:
+        db.rollback()
+
+        existing = (
+            db.query(MenuCategory)
+            .filter(MenuCategory.normalized_key == key)
+            .first()
+        )
+
+        if not existing:
+            raise
+
+        existing.original_label = original_label or existing.original_label
+        existing.source_language = source_language
+        existing.target_language = target_language
+        if translated_label:
+            existing.translated_label = translated_label
+
+        db.commit()
+        db.refresh(existing)
+        return existing
 
     return category
