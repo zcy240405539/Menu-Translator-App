@@ -611,7 +611,7 @@ def is_useful_category_translation(value, original, target_lang):
     if value == original:
         return False
 
-    if target_lang == "zh":
+    if str(target_lang or "").lower().startswith("zh"):
         return any("\u4e00" <= ch <= "\u9fff" for ch in value)
 
     return True
@@ -631,7 +631,7 @@ def needs_dish_language_enrichment(item, target_lang: str) -> bool:
     ingredients = item.get("ingredients") or []
     ingredient_text = " ".join(str(x) for x in ingredients) if isinstance(ingredients, list) else str(ingredients)
 
-    if target_lang == "zh":
+    if str(target_lang or "").lower().startswith("zh"):
         if not has_cjk_text(translated_name):
             return True
         if not description or (has_latin_text(description) and not has_cjk_text(description)):

@@ -81,6 +81,11 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
     saveLanguage(newTargetLang);
   };  
 
+  const getSourceLanguageLabel = (item) => {
+    if (!item) return "";
+    return item.code === "auto" ? t.home.autoDetect : item.label;
+  };
+
   const takePicture = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -146,7 +151,7 @@ const selectFromFile = async () => {
 
     setImageUri(file.uri);
   } catch (error) {
-    Alert.alert("File selection failed", error.message || "Unknown error");
+    Alert.alert(t.home.fileSelectionFailed, error.message || t.home.unknownError);
   }
 };
 
@@ -242,14 +247,14 @@ const selectFromFile = async () => {
                       style={styles.languageButton}
                     >
                       {SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.flag}{" "}
-                      {SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.label}
+                      {getSourceLanguageLabel(SOURCE_LANGUAGES.find((item) => item.code === sourceLang))}
                     </Button>
                   }
                 >
                   {SOURCE_LANGUAGES.map((item) => (
                     <Menu.Item
                       key={item.code}
-                      title={`${item.flag} ${item.label}`}
+                      title={`${item.flag} ${getSourceLanguageLabel(item)}`}
                       onPress={() => {
                         handleSourceLanguageChange(item.code);
                         setSourceLangMenuVisible(false);
@@ -324,7 +329,7 @@ const selectFromFile = async () => {
                     <Text style={styles.pdfIcon}>📄</Text>
 
                     <Text style={styles.pdfTitle}>
-                      PDF Menu
+                      {t.home.pdfMenu}
                     </Text>
 
                     <Text

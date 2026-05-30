@@ -49,7 +49,7 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
   }
 
   const startRes = await fetch(
-    `${API_BASE_URL}/menus/parse/start?target_lang=${targetLang}&source_lang=${sourceLang}`,
+    `${API_BASE_URL}/menus/parse/start?target_lang=${encodeURIComponent(targetLang)}&source_lang=${encodeURIComponent(sourceLang)}`,
     {
       method: "POST",
       body: formData,

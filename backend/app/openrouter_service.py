@@ -431,8 +431,10 @@ Rules:
 - Extract real menu items only. Exclude restaurant name, hours, address, phone, social media, notes, taxes, and decorative text.
 - original_name stays exactly in source language.
 - translated_name, description, ingredients, allergens, and section_heading_translated must be in {target_language_name}.
-- For target_lang "zh", every translated_name and description must contain Chinese characters.
-- For target_lang "zh", translate English ingredient lists instead of copying them into description, ingredients, or allergens.
+- For target_lang "zh" or "zh-Hant", every translated_name and description must contain Chinese characters.
+- For target_lang "zh-Hant", use Traditional Chinese characters for all user-facing text.
+- For target_lang "zh", use Simplified Chinese characters for all user-facing text.
+- For target_lang "zh" or "zh-Hant", translate English ingredient lists instead of copying them into description, ingredients, or allergens.
 - If the menu gives no description, write a short translated customer-friendly dish explanation from the dish name and section.
 - Keep description concise and customer-friendly. Use null for missing prices. Do not invent prices.
 - Preserve visible price currency symbols and units, such as "$", "￥", "¥", "元", "/份", or size labels. Do not convert currencies.
@@ -568,8 +570,10 @@ Translation rules:
 - ingredients must be translated into {target_language_name}.
 - allergens must be translated into {target_language_name}.
 - category must stay as a standardized English key from the allowed list.
-- If target_lang is "zh", translated_name, description, ingredients, and allergens must use Chinese.
-- For target_lang "zh", do not copy English ingredient phrases into description or ingredients.
+- If target_lang is "zh" or "zh-Hant", translated_name, description, ingredients, and allergens must use Chinese.
+- For target_lang "zh-Hant", use Traditional Chinese characters for all user-facing text.
+- For target_lang "zh", use Simplified Chinese characters for all user-facing text.
+- For target_lang "zh" or "zh-Hant", do not copy English ingredient phrases into description or ingredients.
 - image_prompt and cuisine may stay in English because they are internal search/model fields.
 - cuisine must be the dish/restaurant cuisine in English Title Case, such as Mexican, Italian, Chinese, Japanese, Korean, Thai, Indian, Vietnamese, American, or Other.
 - Use menu-wide evidence for cuisine. For example, fajita, quesadilla, nachos, taco, tostada, burrito, carnitas, carne asada, sopapilla, guacamole, pico de gallo, and jalapeno are Mexican.
@@ -976,7 +980,9 @@ Return only valid raw JSON array. No markdown. No explanation.
 Rules:
 - translated_name: translate original_name into target language.
 - description: one short customer-friendly sentence.
-- If target language is zh, description must be under 35 Chinese characters.
+- If target language is zh or zh-Hant, description must be under 35 Chinese characters.
+- If target language is zh-Hant, use Traditional Chinese characters for all user-facing text.
+- If target language is zh, use Simplified Chinese characters for all user-facing text.
 - ingredients: max 5 items, translated.
 - allergens: max 5 common allergens, translated.
 - spicy_level: integer 0-5.

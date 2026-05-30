@@ -10,7 +10,7 @@ import {
 } from "react-native-paper";
 
 import DishDetailModal from "../components/DishDetailModal";
-import { getText } from "../i18n";
+import { getText, isChineseLanguage } from "../i18n";
 import { formatPrice } from "../utils/price";
 
 function getTranslatedName(item) {
@@ -46,7 +46,7 @@ function isUsefulSectionTranslation(value, original, category, targetLang) {
   if (!v) return false;
   if (v === o || v === c) return false;
 
-  if (targetLang === "zh") {
+  if (isChineseLanguage(targetLang)) {
     return hasCjk(v);
   }
 
@@ -92,7 +92,7 @@ function getSectionTitle(category, categoryItems, targetLang) {
 export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart }) {
   const [selectedDish, setSelectedDish] = useState(null);
 
-  const lang = targetLang === "zh" ? "zh" : "en";
+  const lang = isChineseLanguage(targetLang) ? targetLang : "en";
   const t = getText(lang);
 
   let parsedResult = menuResult;

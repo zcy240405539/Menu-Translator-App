@@ -22,7 +22,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { addDishToCart } from "../storage/cartStorage";
-import { getText } from "../i18n";
+import { getText, isChineseLanguage } from "../i18n";
 import { getDishDetail } from "../api";
 import { formatPrice } from "../utils/price";
 
@@ -82,7 +82,7 @@ export default function DishDetailModal({
   const [detailKey, setDetailKey] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  const lang = targetLang === "zh" ? "zh" : "en";
+  const lang = isChineseLanguage(targetLang) ? targetLang : "en";
   const t = getText(lang).detail;
 
   const cacheKey = useMemo(() => {
@@ -188,7 +188,7 @@ export default function DishDetailModal({
                   <View style={styles.defaultImageBox}>
                     <Text style={styles.defaultImageIcon}>🍽️</Text>
                     <Text style={styles.defaultImageText}>
-                      {targetLang === "zh" ? "正在准备图片" : "Preparing image"}
+                      {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
                     </Text>
                   </View>
                 )}
@@ -197,7 +197,7 @@ export default function DishDetailModal({
                   <View style={styles.imageLoadingOverlay}>
                     <ActivityIndicator animating size="small" />
                     <Text style={styles.imageLoadingText}>
-                      {targetLang === "zh" ? "正在加载详情..." : "Loading details..."}
+                      {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在載入詳情..." : "正在加载详情...") : "Loading details..."}
                     </Text>
                   </View>
                 )}
@@ -281,7 +281,7 @@ export default function DishDetailModal({
                 setSnackbarVisible(true);
               }}
             >
-              {targetLang === "zh" ? "加入待点列表" : "Add to Order List"}
+              {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "加入待點列表" : "加入待点列表") : "Add to Order List"}
             </Button>
 
             <Button
@@ -300,7 +300,7 @@ export default function DishDetailModal({
             onDismiss={() => setSnackbarVisible(false)}
             duration={1600}
           >
-            {targetLang === "zh" ? "已加入待点列表" : "Added to order list"}
+            {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "已加入待點列表" : "已加入待点列表") : "Added to order list"}
           </Snackbar>
         </Surface>
       </Modal>

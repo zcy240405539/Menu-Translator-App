@@ -16,6 +16,7 @@ import {
   updateCartItemQuantity,
 } from "../storage/cartStorage";
 import { extractPriceNumber, formatPrice, getCurrencySymbol } from "../utils/price";
+import { isChineseLanguage } from "../i18n";
 
 function getDishName(dish) {
   return dish.translated_name || dish.original_name || "Dish";
@@ -23,6 +24,8 @@ function getDishName(dish) {
 
 export default function CartScreen({ onBack, targetLang }) {
   const [items, setItems] = useState([]);
+  const isChinese = isChineseLanguage(targetLang);
+  const isTraditional = targetLang === "zh-Hant";
 
   const loadCart = async () => {
     const data = await getCartItems();
@@ -48,7 +51,7 @@ export default function CartScreen({ onBack, targetLang }) {
     <Surface style={styles.screen}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         <Appbar.BackAction onPress={onBack} />
-        <Appbar.Content title={targetLang === "zh" ? "待点列表" : "Order List"} />
+        <Appbar.Content title={isChinese ? (isTraditional ? "待點列表" : "待点列表") : "Order List"} />
         <Appbar.Action
           icon="delete-outline"
           onPress={async () => {
@@ -62,10 +65,10 @@ export default function CartScreen({ onBack, targetLang }) {
         <Card mode="elevated" style={styles.summaryCard}>
           <Card.Content>
             <Text variant="headlineSmall" style={styles.title}>
-              {targetLang === "zh" ? "我的待点列表" : "My Order List"}
+              {isChinese ? (isTraditional ? "我的待點列表" : "我的待点列表") : "My Order List"}
             </Text>
             <Text style={styles.subtitle}>
-              {items.length} {targetLang === "zh" ? "道菜" : "items"} · Total: {getCurrencySymbol(cartSourceLanguage)}{total.toFixed(2)}
+              {items.length} {isChinese ? "道菜" : "items"} · {isChinese ? (isTraditional ? "總計" : "总计") : "Total"}: {getCurrencySymbol(cartSourceLanguage)}{total.toFixed(2)}
             </Text>
           </Card.Content>
         </Card>
@@ -142,14 +145,14 @@ export default function CartScreen({ onBack, targetLang }) {
                     setItems(updated);
                   }}
                 >
-                  {targetLang === "zh" ? "删除" : "Remove"}
+                  {isChinese ? (isTraditional ? "刪除" : "删除") : "Remove"}
                 </Button>
               </Card.Content>
             </Card>
           )}
           ListEmptyComponent={
             <Text style={styles.empty}>
-              {targetLang === "zh" ? "还没有加入任何菜品" : "No dishes added yet"}
+              {isChinese ? (isTraditional ? "還沒有加入任何菜品" : "还没有加入任何菜品") : "No dishes added yet"}
             </Text>
           }
         />

@@ -14,6 +14,7 @@ import {
   getMenuHistory,
   clearMenuHistory,
 } from "../storage/menuStorage";
+import { isChineseLanguage } from "../i18n";
 
 
 const pickFile = async () => {
@@ -35,6 +36,8 @@ const pickFile = async () => {
 
 export default function HistoryScreen({ onBack, onOpenMenu, targetLang }) {
   const [history, setHistory] = useState([]);
+  const isChinese = isChineseLanguage(targetLang);
+  const isTraditional = targetLang === "zh-Hant";
 
   const loadHistory = async () => {
     const data = await getMenuHistory();
@@ -49,7 +52,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang }) {
     <Surface style={styles.screen}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         <Appbar.BackAction onPress={onBack} />
-        <Appbar.Content title={targetLang === "zh" ? "历史菜单" : "Menu History"} />
+        <Appbar.Content title={isChinese ? (isTraditional ? "歷史菜單" : "历史菜单") : "Menu History"} />
         <Appbar.Action
           icon="delete-outline"
           onPress={async () => {
@@ -76,7 +79,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang }) {
 
               <Text style={styles.subtitle}>
                 {item.source_language} · {item.menu_items?.length || 0}{" "}
-                {targetLang === "zh" ? "道菜" : "items"}
+                {isChinese ? "道菜" : "items"}
               </Text>
 
               <Text style={styles.date}>
@@ -84,14 +87,14 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang }) {
               </Text>
 
               <Chip style={styles.chip}>
-                {targetLang === "zh" ? "点击打开" : "Tap to open"}
+                {isChinese ? (isTraditional ? "點擊開啟" : "点击打开") : "Tap to open"}
               </Chip>
             </Card.Content>
           </Card>
         )}
         ListEmptyComponent={
           <Text style={styles.empty}>
-            {targetLang === "zh" ? "暂无历史菜单" : "No menu history yet"}
+            {isChinese ? (isTraditional ? "暫無歷史菜單" : "暂无历史菜单") : "No menu history yet"}
           </Text>
         }
       />

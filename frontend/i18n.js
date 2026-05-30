@@ -4,14 +4,15 @@ export const DEFAULT_LANGUAGE = "zh";
 export const DEFAULT_SOURCE_LANGUAGE = "en";
 
 export const LANGUAGES = [
-  { code: "zh", label: "中文", flag: "🇨🇳" },
   { code: "en", label: "English", flag: "🇺🇸" },
-  { code: "ja", label: "日本語", flag: "🇯🇵" },
-  { code: "ko", label: "한국어", flag: "🇰🇷" },
-  { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "es", label: "Español", flag: "🇪🇸" },
-  { code: "de", label: "Deutsch", flag: "🇩🇪" },
-  { code: "it", label: "Italiano", flag: "🇮🇹" },
+  { code: "zh", label: "简体中文", flag: "🇨🇳" },
+  { code: "zh-Hant", label: "繁體中文", flag: "🇹🇼" },
+  // { code: "ja", label: "日本語", flag: "🇯🇵" },
+  // { code: "ko", label: "한국어", flag: "🇰🇷" },
+  // { code: "fr", label: "Français", flag: "🇫🇷" },
+  // { code: "es", label: "Español", flag: "🇪🇸" },
+  // { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  // { code: "it", label: "Italiano", flag: "🇮🇹" },
 ];
 
 export const SOURCE_LANGUAGES = [
@@ -31,10 +32,13 @@ export const translations = {
       sourceLanguage: "Source language",
       autoDetect: "Auto Detect",
       english: "English",
-      chinese: "中文",
+      chinese: "Simplified Chinese",
+      traditionalChinese: "Traditional Chinese",
       takePicture: "Take Picture",
       selectFromFile: "Select from File",
       selectedMenu: "Selected Menu",
+      pdfMenu: "PDF Menu",
+      fileSelectionFailed: "File selection failed",
       analyzeMenu: "Analyze Menu",
       analyzingMenu: "Analyzing menu...",
       noImageTitle: "No Image",
@@ -97,10 +101,13 @@ export const translations = {
       sourceLanguage: "菜单原语言",
       autoDetect: "自动识别",
       english: "English",
-      chinese: "中文",
+      chinese: "简体中文",
+      traditionalChinese: "繁体中文",
       takePicture: "拍照识别",
       selectFromFile: "从文件选择",
       selectedMenu: "已选择菜单",
+      pdfMenu: "PDF 菜单",
+      fileSelectionFailed: "文件选择失败",
       analyzeMenu: "分析菜单",
       analyzingMenu: "正在分析菜单...",
       noImageTitle: "未选择图片",
@@ -152,10 +159,82 @@ export const translations = {
       other: "其他",
     },
   },
+
+  "zh-Hant": {
+    appTitle: "菜單翻譯助手",
+
+    home: {
+      heroTitle: "看懂任何菜單",
+      heroSubtitle: "拍照或上傳菜單圖片，我們會幫你翻譯菜單並解釋每一道菜。",
+      targetLanguage: "目標語言",
+      sourceLanguage: "菜單原語言",
+      autoDetect: "自動識別",
+      english: "English",
+      chinese: "簡體中文",
+      traditionalChinese: "繁體中文",
+      takePicture: "拍照識別",
+      selectFromFile: "從檔案選擇",
+      selectedMenu: "已選擇菜單",
+      pdfMenu: "PDF 菜單",
+      fileSelectionFailed: "檔案選擇失敗",
+      analyzeMenu: "分析菜單",
+      analyzingMenu: "正在分析菜單...",
+      noImageTitle: "未選擇圖片",
+      noImageMessage: "請先拍攝或選擇一張菜單圖片。",
+      permissionRequired: "需要權限",
+      cameraPermission: "需要相機權限才能拍照。",
+      photoPermission: "需要相簿權限才能選擇圖片。",
+      analysisFailed: "菜單分析失敗",
+      unknownError: "未知錯誤",
+    },
+
+    result: {
+      title: "菜單分析結果",
+      items: "道菜",
+      empty: "沒有解析到菜品",
+      originalUnavailable: "暫無原文名稱",
+      restaurantFallback: "餐廳",
+      sourceFallback: "未知語言",
+    },
+
+    detail: {
+      original: "原文",
+      price: "價格",
+      description: "介紹",
+      ingredients: "主要食材",
+      allergens: "過敏原",
+      spicyLevel: "辣度",
+      imagePrompt: "圖片提示詞",
+      close: "關閉",
+      unknown: "未知",
+      none: "無",
+    },
+
+    categories: {
+      breakfast: "早餐",
+      pastries: "糕點",
+      savory: "鹹點",
+      fromage: "起司",
+      cafe: "咖啡與茶",
+      sides: "配菜",
+      additions: "加點",
+      snacks: "小吃",
+      appetizers: "前菜",
+      mains: "主菜",
+      dinner: "晚餐",
+      dessert: "甜點",
+      drinks: "飲品",
+      other: "其他",
+    },
+  },
 };
 
 export function getText(lang) {
   return translations[lang] || translations.en;
+}
+
+export function isChineseLanguage(lang) {
+  return lang === "zh" || lang === "zh-Hant" || String(lang || "").startsWith("zh-");
 }
 
 export function getInitialLanguage() {
@@ -166,10 +245,23 @@ export function getInitialLanguage() {
 
   const browserLang =
     typeof navigator !== "undefined"
-      ? navigator.language?.slice(0, 2)
+      ? navigator.language
       : null;
 
-  return translations[browserLang] ? browserLang : DEFAULT_LANGUAGE;
+  const normalizedBrowserLang = String(browserLang || "").toLowerCase();
+  if (normalizedBrowserLang === "zh-tw" || normalizedBrowserLang === "zh-hk" || normalizedBrowserLang === "zh-hant") {
+    return "zh-Hant";
+  }
+  if (normalizedBrowserLang.startsWith("zh")) {
+    return "zh";
+  }
+
+  const shortBrowserLang = normalizedBrowserLang.slice(0, 2);
+  return translations[shortBrowserLang] ? shortBrowserLang : DEFAULT_LANGUAGE;
+}
+
+export function hasSavedLanguage() {
+  return typeof localStorage !== "undefined" && !!localStorage.getItem(STORAGE_KEY);
 }
 
 export function saveLanguage(lang) {

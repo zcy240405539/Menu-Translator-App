@@ -6,7 +6,7 @@ import HomeScreen from "./screens/HomeScreen";
 import MenuResultScreen from "./screens/MenuResultScreen";
 import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
-import { getInitialLanguage } from "./i18n";
+import { getInitialLanguage, hasSavedLanguage } from "./i18n";
 
 function AppContent() {
   const [screen, setScreen] = useState("home");
@@ -15,12 +15,23 @@ function AppContent() {
   const [languageInitialized, setLanguageInitialized] = useState(false);
 
   useEffect(() => {
-    if (languageInitialized) return;
+    if (languageInitialized || hasSavedLanguage()) {
+      setLanguageInitialized(true);
+      return;
+    }
 
     const locales = Localization.getLocales?.();
-    const deviceLang = locales?.[0]?.languageCode || Localization.locale || "en";
+    const locale = locales?.[0];
+    const deviceLang = (
+      locale?.languageTag ||
+      Localization.locale ||
+      locale?.languageCode ||
+      "en"
+    ).toLowerCase();
 
-    if (deviceLang.toLowerCase().startsWith("zh")) {
+    if (deviceLang === "zh-tw" || deviceLang === "zh-hk" || deviceLang === "zh-hant") {
+      setTargetLang("zh-Hant");
+    } else if (deviceLang.startsWith("zh")) {
       setTargetLang("zh");
     } else {
       setTargetLang("en");
