@@ -48,6 +48,10 @@ export const translations = {
       photoPermission: "Photo library permission is required.",
       analysisFailed: "Menu Analysis Failed",
       unknownError: "Unknown error",
+      shareTitle: "Share Menu Translator",
+      shareSubtitle: "Choose where to share the current page.",
+      shareMessage: "Translate and understand menus with Menu Translator.",
+      shareFailed: "Unable to open share link",
     },
 
     result: {
@@ -117,6 +121,10 @@ export const translations = {
       photoPermission: "需要相册权限才能选择图片。",
       analysisFailed: "菜单分析失败",
       unknownError: "未知错误",
+      shareTitle: "分享菜单翻译助手",
+      shareSubtitle: "选择要分享到的平台。",
+      shareMessage: "用菜单翻译助手翻译并看懂菜单。",
+      shareFailed: "无法打开分享链接",
     },
 
     result: {
@@ -186,6 +194,10 @@ export const translations = {
       photoPermission: "需要相簿權限才能選擇圖片。",
       analysisFailed: "菜單分析失敗",
       unknownError: "未知錯誤",
+      shareTitle: "分享菜單翻譯助手",
+      shareSubtitle: "選擇要分享到的平台。",
+      shareMessage: "用菜單翻譯助手翻譯並看懂菜單。",
+      shareFailed: "無法開啟分享連結",
     },
 
     result: {

@@ -4,6 +4,7 @@ import {
   Image,
   StyleSheet,
   Alert,
+  Linking,
   ScrollView,
 } from "react-native";
 import { saveMenuHistory } from "../storage/menuStorage";
@@ -18,6 +19,8 @@ import {
   Surface,
   Menu,
   ActivityIndicator,
+  Portal,
+  Dialog,
 } from "react-native-paper";
 
 import { parseMenuFile } from "../api";
@@ -35,6 +38,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [sourceLang, setSourceLang] = useState("auto");
   const [sourceLangMenuVisible, setSourceLangMenuVisible] = useState(false);
   const [targetLangMenuVisible, setTargetLangMenuVisible] = useState(false);
+  const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
   const lang = targetLang;
@@ -198,8 +202,72 @@ const selectFromFile = async () => {
     }
   };
 
+  const getCurrentShareUrl = () => {
+    if (typeof window !== "undefined" && window.location?.href) {
+      return window.location.href;
+    }
+
+    return "https://ai-menu-app.onrender.com";
+  };
+
+  const getShareTargets = () => {
+    const currentUrl = getCurrentShareUrl();
+    const encodedUrl = encodeURIComponent(currentUrl);
+    const encodedText = encodeURIComponent(t.home.shareMessage);
+    const emailSubject = encodeURIComponent(t.home.shareTitle);
+    const emailBody = encodeURIComponent(`${t.home.shareMessage}\n${currentUrl}`);
+
+    return [
+      {
+        key: "facebook",
+        label: "Facebook",
+        icon: "facebook",
+        url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      },
+      {
+        key: "x",
+        label: "X / Twitter",
+        icon: "twitter",
+        url: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`,
+      },
+      {
+        key: "whatsapp",
+        label: "WhatsApp",
+        icon: "whatsapp",
+        url: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
+      },
+      {
+        key: "linkedin",
+        label: "LinkedIn",
+        icon: "linkedin",
+        url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+      },
+      {
+        key: "email",
+        label: "Email",
+        icon: "email-outline",
+        url: `mailto:?subject=${emailSubject}&body=${emailBody}`,
+      },
+    ];
+  };
+
   const handleShare = () => {
-    console.log("Share pressed");
+    setShareDialogVisible(true);
+  };
+
+  const handleShareTargetPress = async (url) => {
+    setShareDialogVisible(false);
+
+    if (typeof window !== "undefined" && window.open) {
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    try {
+      await Linking.openURL(url);
+    } catch (error) {
+      Alert.alert(t.home.shareFailed, error.message || t.home.unknownError);
+    }
   };
 
   const handleLogin = () => {
@@ -369,6 +437,39 @@ const selectFromFile = async () => {
           </Card.Content>
         </Card>
       </ScrollView>
+
+      <Portal>
+        <Dialog
+          visible={shareDialogVisible}
+          onDismiss={() => setShareDialogVisible(false)}
+          style={styles.shareDialog}
+        >
+          <Dialog.Title>{t.home.shareTitle}</Dialog.Title>
+          <Dialog.Content>
+            <Text style={styles.shareSubtitle}>{t.home.shareSubtitle}</Text>
+
+            <View style={styles.shareButtonList}>
+              {getShareTargets().map((target) => (
+                <Button
+                  key={target.key}
+                  mode="outlined"
+                  icon={target.icon}
+                  style={styles.shareButton}
+                  contentStyle={styles.shareButtonContent}
+                  onPress={() => handleShareTargetPress(target.url)}
+                >
+                  {target.label}
+                </Button>
+              ))}
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShareDialogVisible(false)}>
+              {t.detail.close}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </Surface>
   );
 }
@@ -489,5 +590,28 @@ const styles = StyleSheet.create({
 
   languageButton: {
     borderRadius: 14,
+  },
+
+  shareDialog: {
+    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+  },
+
+  shareSubtitle: {
+    color: "#625B71",
+    marginBottom: 14,
+  },
+
+  shareButtonList: {
+    gap: 10,
+  },
+
+  shareButton: {
+    borderRadius: 14,
+  },
+
+  shareButtonContent: {
+    height: 46,
+    justifyContent: "flex-start",
   },
 });
