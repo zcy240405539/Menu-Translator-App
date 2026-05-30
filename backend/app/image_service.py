@@ -17,6 +17,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "Dish_Images")
 PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1-mini")
 ENABLE_GENERATED_IMAGE_FALLBACK = os.getenv(
@@ -120,6 +121,45 @@ def search_pexels_image(query: str):
         return None
 
     return photos[0]["src"].get("large") or photos[0]["src"].get("original")
+
+
+def search_unsplash_image(query: str):
+    if not UNSPLASH_ACCESS_KEY:
+        return None
+
+    res = requests.get(
+        "https://api.unsplash.com/search/photos",
+        headers={
+            "Authorization": f"Client-ID {UNSPLASH_ACCESS_KEY}",
+            "Accept-Version": "v1",
+        },
+        params={
+            "query": query,
+            "per_page": 1,
+            "orientation": "landscape",
+            "content_filter": "high",
+            "order_by": "relevant",
+        },
+        timeout=20,
+    )
+
+    if not res.ok:
+        print("Unsplash error:", res.status_code, res.text[:300])
+        return None
+
+    data = res.json()
+    results = data.get("results") or []
+
+    if not results:
+        return None
+
+    photo = results[0]
+    urls = photo.get("urls") or {}
+    return {
+        "image_url": urls.get("regular") or urls.get("full") or urls.get("raw"),
+        "local_image_path": photo.get("links", {}).get("html"),
+        "source_type": "unsplash_found",
+    }
 
 
 def upload_remote_image_to_supabase(image_url: str, dish_name: str, source_folder="generated"):
@@ -273,6 +313,7 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
 
     found_url = None
     matched_query = query
+    source_type = "web_found"
     for candidate_query in queries:
         found_url = search_pexels_image(candidate_query)
         if found_url:
@@ -280,7 +321,6 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
             break
 
     uploaded = None
-    source_type = "web_found"
 
     if found_url:
         uploaded = upload_remote_image_to_supabase(
@@ -289,26 +329,43 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
             source_folder="web_found",
         )
     else:
-        if existing and existing.image_url and existing.image_prompt in queries:
+        for candidate_query in queries:
+            uploaded = search_unsplash_image(candidate_query)
+            if uploaded and uploaded.get("image_url"):
+                matched_query = candidate_query
+                source_type = uploaded.get("source_type") or "unsplash_found"
+                break
+
+        if not uploaded and existing and existing.image_url and existing.image_prompt in queries:
             existing.cuisine = resolve_dish_cuisine(dish)
             db.commit()
             return existing.image_url
-        generated = generate_dish_image_with_openai(dish)
-        if not generated:
-            return None
+        elif not uploaded:
+            generated = generate_dish_image_with_openai(dish)
+            if not generated:
+                return None
 
-        if generated.get("bytes"):
-            uploaded = upload_image_bytes_to_supabase(
-                image_bytes=generated["bytes"],
-                dish_name=dish.get("original_name") or normalized_name,
-                content_type=generated.get("content_type") or "image/png",
-                source_folder="generated",
-            )
-        else:
-            uploaded = generated
+            if generated.get("bytes"):
+                uploaded = upload_image_bytes_to_supabase(
+                    image_bytes=generated["bytes"],
+                    dish_name=dish.get("original_name") or normalized_name,
+                    content_type=generated.get("content_type") or "image/png",
+                    source_folder="generated",
+                )
+            else:
+                uploaded = generated
 
-        matched_query = generated.get("prompt") or query
-        source_type = "generated_ai"
+            matched_query = generated.get("prompt") or query
+            source_type = "generated_ai"
+
+    if uploaded is None:
+        return None
+
+    if source_type != "unsplash_found" and not uploaded.get("local_image_path"):
+        uploaded["local_image_path"] = ""
+
+    # Unsplash API guidelines require using the hotlinked photo.urls value.
+    uploaded["thumbnail_url"] = uploaded["image_url"]
 
     if existing:
         existing.original_name = dish.get("original_name")
