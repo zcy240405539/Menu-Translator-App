@@ -4,6 +4,7 @@ import uuid
 import requests
 from supabase import create_client
 
+from app.dish_cache_service import is_cacheable_normalized_name
 from  app.models import DishImage
 
 
@@ -25,10 +26,24 @@ def slugify(text: str) -> str:
 
 def build_image_search_query(dish: dict) -> str:
     original = dish.get("original_name") or dish.get("name") or ""
+    translated = dish.get("translated_name") or ""
     cuisine = dish.get("cuisine") or ""
+    section = dish.get("section_heading_original") or dish.get("category") or ""
     ingredients = ", ".join(dish.get("ingredients") or [])
 
-    return f"real restaurant food photo {original} {cuisine} {ingredients}".strip()
+    if re.search(r"[\u4e00-\u9fff]", original) and translated:
+        search_name = translated
+    else:
+        search_name = original or translated
+
+    parts = [
+        search_name,
+        cuisine,
+        section,
+        ingredients,
+        "restaurant dish close-up",
+    ]
+    return " ".join(str(part).strip() for part in parts if part).strip()
 
 
 def search_pexels_image(query: str):
@@ -93,21 +108,25 @@ def upload_remote_image_to_supabase(image_url: str, dish_name: str, source_folde
     }
 
 
-def get_or_create_dish_image(db, dish: dict, normalized_name: str):
+def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh: bool = False):
+    if not is_cacheable_normalized_name(normalized_name):
+        return None
+
     existing = (
         db.query(DishImage)
         .filter(DishImage.normalized_name == normalized_name)
         .first()
     )
 
-    if existing and existing.image_url:
+    query = build_image_search_query(dish)
+
+    if existing and existing.image_url and not force_refresh and existing.image_prompt == query:
         return existing.image_url
 
-    query = build_image_search_query(dish)
     found_url = search_pexels_image(query)
 
     if not found_url:
-        return None
+        return existing.image_url if existing and existing.image_url else None
 
     uploaded = upload_remote_image_to_supabase(
         image_url=found_url,
@@ -115,18 +134,28 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str):
         source_folder="generated",
     )
 
-    record = DishImage(
-        normalized_name=normalized_name,
-        original_name=dish.get("original_name"),
-        cuisine=dish.get("cuisine"),
-        image_url=uploaded["image_url"],
-        local_image_path=uploaded["local_image_path"],
-        thumbnail_url=uploaded["image_url"],
-        image_prompt=dish.get("image_prompt") or query,
-        source_type="web_found",
-    )
+    if existing:
+        existing.original_name = dish.get("original_name")
+        existing.cuisine = dish.get("cuisine")
+        existing.image_url = uploaded["image_url"]
+        existing.local_image_path = uploaded["local_image_path"]
+        existing.thumbnail_url = uploaded["image_url"]
+        existing.image_prompt = query
+        existing.source_type = "web_found"
+        record = existing
+    else:
+        record = DishImage(
+            normalized_name=normalized_name,
+            original_name=dish.get("original_name"),
+            cuisine=dish.get("cuisine"),
+            image_url=uploaded["image_url"],
+            local_image_path=uploaded["local_image_path"],
+            thumbnail_url=uploaded["image_url"],
+            image_prompt=query,
+            source_type="web_found",
+        )
+        db.add(record)
 
-    db.add(record)
     db.commit()
     db.refresh(record)
 

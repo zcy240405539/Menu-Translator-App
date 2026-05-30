@@ -15,12 +15,7 @@ import {
   clearCart,
   updateCartItemQuantity,
 } from "../storage/cartStorage";
-
-function formatPrice(price) {
-  if (!price) return "";
-  const text = String(price).trim();
-  return text.startsWith("$") ? text : `$${text}`;
-}
+import { extractPriceNumber, formatPrice, getCurrencySymbol } from "../utils/price";
 
 function getDishName(dish) {
   return dish.translated_name || dish.original_name || "Dish";
@@ -38,12 +33,15 @@ export default function CartScreen({ onBack, targetLang }) {
     loadCart();
   }, []);
 
+  const cartSourceLanguage =
+    items.find((item) => item.menuInfo?.source_language)?.menuInfo?.source_language ||
+    targetLang;
+
   const total = items.reduce((sum, item) => {
-    const raw = String(item.dish?.price || "").replace("$", "");
-    const num = Number(raw);
+    const num = extractPriceNumber(item.dish?.price);
     const quantity = item.quantity || 1;
   
-    return Number.isFinite(num) ? sum + num * quantity : sum;
+    return num !== null ? sum + num * quantity : sum;
   }, 0);
 
   return (
@@ -67,7 +65,7 @@ export default function CartScreen({ onBack, targetLang }) {
               {targetLang === "zh" ? "我的待点列表" : "My Order List"}
             </Text>
             <Text style={styles.subtitle}>
-              {items.length} {targetLang === "zh" ? "道菜" : "items"} · Total: ${total.toFixed(2)}
+              {items.length} {targetLang === "zh" ? "道菜" : "items"} · Total: {getCurrencySymbol(cartSourceLanguage)}{total.toFixed(2)}
             </Text>
           </Card.Content>
         </Card>
@@ -97,7 +95,9 @@ export default function CartScreen({ onBack, targetLang }) {
 
                   {!!item.dish?.price && (
                     <Chip style={styles.priceChip}>
-                      {formatPrice(item.dish.price)}
+                      {formatPrice(item.dish.price, {
+                        sourceLanguage: item.menuInfo?.source_language || cartSourceLanguage,
+                      })}
                     </Chip>
                   )}
                 </View>

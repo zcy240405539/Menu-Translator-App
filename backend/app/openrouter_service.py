@@ -326,6 +326,7 @@ Rules:
 - For target_lang "zh", translate English ingredient lists instead of copying them into description, ingredients, or allergens.
 - If the menu gives no description, write a short translated customer-friendly dish explanation from the dish name and section.
 - Keep description concise and customer-friendly. Use null for missing prices. Do not invent prices.
+- Preserve visible price currency symbols and units, such as "$", "￥", "¥", "元", "/份", or size labels. Do not convert currencies.
 - image_prompt and cuisine may stay in English for internal image search.
 
 JSON schema:
@@ -543,7 +544,8 @@ JSON schema:
 Output requirements:
 - Extract all real menu items.
 - Preserve original dish names as accurately as possible.
-- Keep price as a string without currency symbol, for example "9.00".
+- Preserve visible price currency symbols and units, for example "$9.00", "￥10/份", or "10元/份".
+- Do not convert RMB prices to USD or prefix Chinese menu prices with "$".
 - Do not invent missing prices. Use null if missing.
 - Keep descriptions short and customer-friendly.
 - spicy_level must be 0 to 5.
@@ -686,23 +688,28 @@ Do not use markdown.
 Explain this restaurant dish for a customer.
 
 Dish name: {dish_name}
+Source language code: {source_lang}
+Source language name: {source_language_name}
 Target language code: {target_lang}
 Target language name: {target_language_name}
 
 Return valid JSON only:
 {{
-  "dish_name": "{dish_name}",
+  "original_name": "{dish_name}",
+  "source_language": "{source_lang}",
   "translated_name": "",
   "description": "",
   "taste_profile": "",
-  "main_ingredients": [],
+  "ingredients": [],
   "allergens": [],
   "spicy_level": 0,
   "recommended_for": "",
+  "cuisine": "",
   "image_prompt": ""
 }}
 
 Rules:
+- Treat dish_name as written in {source_language_name}; translate it into {target_language_name}.
 - Translate all user-facing fields into {target_language_name}.
 - image_prompt must be exactly: "{{cuisine}} dish for {dish_name}"
 - Do not describe ingredients, plating, background, restaurant, or style in image_prompt.

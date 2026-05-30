@@ -7,14 +7,21 @@ def normalize_dish_name(name: str) -> str:
     if not name:
         return ""
 
-    text = name.lower().strip()
+    text = unicodedata.normalize("NFKC", name).lower().strip()
     text = unicodedata.normalize("NFKD", text)
     text = "".join(c for c in text if not unicodedata.combining(c))
 
-    text = re.sub(r"[^a-z0-9\s&+\-]", " ", text)
+    text = re.sub(r"[^a-z0-9\u4e00-\u9fff\s&+\-]", " ", text)
     text = re.sub(r"\s+", " ", text)
 
     return text.strip()
+
+
+def is_cacheable_normalized_name(normalized_name: str) -> bool:
+    return bool(
+        normalized_name
+        and re.search(r"[a-z0-9\u4e00-\u9fff]", normalized_name)
+    )
 
 
 def apply_cache_to_items(db, menu_items, target_lang):
@@ -24,21 +31,26 @@ def apply_cache_to_items(db, menu_items, target_lang):
     for item in menu_items:
         original_name = item.get("original_name", "")
         normalized_name = normalize_dish_name(original_name)
+        is_cacheable = is_cacheable_normalized_name(normalized_name)
 
-        cached_dish = (
-            db.query(DishCache)
-            .filter(
-                DishCache.normalized_name == normalized_name,
-                DishCache.target_language == target_lang,
+        cached_dish = None
+        cached_image = None
+
+        if is_cacheable:
+            cached_dish = (
+                db.query(DishCache)
+                .filter(
+                    DishCache.normalized_name == normalized_name,
+                    DishCache.target_language == target_lang,
+                )
+                .first()
             )
-            .first()
-        )
 
-        cached_image = (
-            db.query(DishImage)
-            .filter(DishImage.normalized_name == normalized_name)
-            .first()
-        )
+            cached_image = (
+                db.query(DishImage)
+                .filter(DishImage.normalized_name == normalized_name)
+                .first()
+            )
 
         if cached_dish:
             item["translated_name"] = cached_dish.translated_name
@@ -93,7 +105,7 @@ def upsert_dish_cache(db, dish, target_lang):
     original_name = dish.get("original_name", "")
     normalized_name = normalize_dish_name(original_name)
 
-    if not normalized_name:
+    if not is_cacheable_normalized_name(normalized_name):
         return
 
     existing = (

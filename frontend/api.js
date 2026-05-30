@@ -85,7 +85,12 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
 }
 
 
-export async function getDishDetail(dishName, targetLang = "zh", sourceLang = "auto") {
+export async function getDishDetail(
+  dishName,
+  targetLang = "zh",
+  sourceLang = "auto",
+  dishContext = {}
+) {
   const res = await fetch(`${API_BASE_URL}/dish/detail`, {
     method: "POST",
     headers: {
@@ -95,6 +100,13 @@ export async function getDishDetail(dishName, targetLang = "zh", sourceLang = "a
       dish_name: dishName,
       target_lang: targetLang,
       source_lang: sourceLang,
+      original_name: dishContext.original_name,
+      translated_name: dishContext.translated_name || dishContext.name,
+      description: dishContext.description,
+      ingredients: dishContext.ingredients,
+      cuisine: dishContext.cuisine,
+      image_prompt: dishContext.image_prompt,
+      section_heading_original: dishContext.section_heading_original,
     }),
   });
 

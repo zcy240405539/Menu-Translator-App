@@ -36,3 +36,11 @@ class AnalyzeTextRequest(BaseModel):
 class DishDetailRequest(BaseModel):
     dish_name: str
     target_lang: str = "zh"
+    source_lang: str = "auto"
+    original_name: Optional[str] = None
+    translated_name: Optional[str] = None
+    description: Optional[str] = None
+    ingredients: Optional[List[str]] = None
+    cuisine: Optional[str] = None
+    image_prompt: Optional[str] = None
+    section_heading_original: Optional[str] = None

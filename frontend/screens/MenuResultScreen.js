@@ -11,16 +11,7 @@ import {
 
 import DishDetailModal from "../components/DishDetailModal";
 import { getText } from "../i18n";
-
-function formatPrice(price) {
-  if (price === null || price === undefined || price === "") return "";
-
-  const text = String(price).trim();
-
-  if (text.startsWith("$")) return text;
-
-  return `$${text}`;
-}
+import { formatPrice } from "../utils/price";
 
 function getTranslatedName(item) {
   return (
@@ -178,11 +169,14 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
       spicy_level: 0,
       cuisine: "Set Menu",
       image_url: null,
+      source_language: sourceLanguage,
     });
   };
   
   const renderDish = ({ item }) => {
-    const price = formatPrice(item.price);
+    const price = formatPrice(item.price, {
+      sourceLanguage: item.source_language || sourceLanguage,
+    });
     const displayName = getTranslatedName(item);
     const displayDescription = getTranslatedDescription(item);
 
@@ -282,7 +276,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
 
                       {!!pricing.price && (
                         <Chip compact style={styles.priceChip} textStyle={styles.priceText}>
-                          ${pricing.price}
+                          {formatPrice(pricing.price, { sourceLanguage })}
                         </Chip>
                       )}
                     </View>

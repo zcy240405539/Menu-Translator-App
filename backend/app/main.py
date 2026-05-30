@@ -31,7 +31,7 @@ from app.openrouter_service import (
     call_openrouter_vision_for_menu,
     call_openrouter_translate_category_labels,
 )
-from app.dish_cache_service import normalize_dish_name
+from app.dish_cache_service import is_cacheable_normalized_name, normalize_dish_name
 from app.image_service import get_or_create_dish_image
 from app.category_service import get_or_create_menu_category
 from app.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
@@ -220,32 +220,48 @@ def dish_detail(
 ):
     try:
         normalized_name = normalize_dish_name(request.dish_name)
+        is_cacheable = is_cacheable_normalized_name(normalized_name)
+        request_ingredients = request.ingredients or []
+        request_context = {
+            "original_name": request.original_name or request.dish_name,
+            "translated_name": request.translated_name,
+            "description": request.description,
+            "ingredients": request_ingredients,
+            "image_prompt": request.image_prompt,
+            "cuisine": request.cuisine,
+            "section_heading_original": request.section_heading_original,
+        }
 
-        cached = (
-            db.query(DishCache)
-            .filter(
-                DishCache.normalized_name == normalized_name,
-                DishCache.target_language == request.target_lang,
+        cached = None
+        cached_image = None
+
+        if is_cacheable:
+            cached = (
+                db.query(DishCache)
+                .filter(
+                    DishCache.normalized_name == normalized_name,
+                    DishCache.target_language == request.target_lang,
+                )
+                .first()
             )
-            .first()
-        )
 
-        cached_image = (
-            db.query(DishImage)
-            .filter(DishImage.normalized_name == normalized_name)
-            .first()
-        )
+            cached_image = (
+                db.query(DishImage)
+                .filter(DishImage.normalized_name == normalized_name)
+                .first()
+            )
 
         if cached:
             dish_payload = {
                 "original_name": cached.original_name or request.dish_name,
-                "translated_name": cached.translated_name,
-                "description": cached.description,
-                "ingredients": cached.ingredients or [],
+                "translated_name": request.translated_name or cached.translated_name,
+                "description": request.description or cached.description,
+                "ingredients": request_ingredients or cached.ingredients or [],
                 "allergens": cached.allergens or [],
                 "spicy_level": cached.spicy_level or 0,
-                "image_prompt": cached.image_prompt,
-                "cuisine": cached.cuisine,
+                "image_prompt": request.image_prompt or cached.image_prompt,
+                "cuisine": request.cuisine or cached.cuisine,
+                "section_heading_original": request.section_heading_original,
             }
 
             image_url = cached_image.image_url if cached_image else None
@@ -277,28 +293,30 @@ def dish_detail(
 
         result = call_openrouter_for_dish_detail(
             dish_name=request.dish_name,
-            target_lang=request.target_lang, 
+            target_lang=request.target_lang,
+            source_lang=request.source_lang,
         )
 
-        new_cache = DishCache(
-            normalized_name=normalized_name,
-            original_name=request.dish_name,
-            translated_name=result.get("translated_name"),
-            target_language=request.target_lang,
-            description=result.get("description"),
-            ingredients=result.get("ingredients") or [],
-            allergens=result.get("allergens") or [],
-            spicy_level=result.get("spicy_level") or 0,
-            image_prompt=result.get("image_prompt"),
-            cuisine=result.get("cuisine"),
-            source_language=result.get("source_language"),
-        )
+        if is_cacheable:
+            new_cache = DishCache(
+                normalized_name=normalized_name,
+                original_name=request.dish_name,
+                translated_name=result.get("translated_name"),
+                target_language=request.target_lang,
+                description=result.get("description"),
+                ingredients=result.get("ingredients") or [],
+                allergens=result.get("allergens") or [],
+                spicy_level=result.get("spicy_level") or 0,
+                image_prompt=result.get("image_prompt"),
+                cuisine=result.get("cuisine"),
+                source_language=result.get("source_language") or request.source_lang,
+            )
 
-        db.add(new_cache)
-        db.commit()
+            db.add(new_cache)
+            db.commit()
 
         dish_payload = {
-            "original_name": request.dish_name,
+            "original_name": request.original_name or request.dish_name,
             "translated_name": result.get("translated_name") or result.get("name"),
             "description": result.get("description"),
             "ingredients": result.get("ingredients") or [],
@@ -306,6 +324,12 @@ def dish_detail(
             "spicy_level": result.get("spicy_level") or 0,
             "image_prompt": result.get("image_prompt"),
             "cuisine": result.get("cuisine"),
+            "section_heading_original": request.section_heading_original,
+        }
+
+        dish_payload = {
+            **dish_payload,
+            **{key: value for key, value in request_context.items() if value},
         }
 
         image_url = get_or_create_dish_image(

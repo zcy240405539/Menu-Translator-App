@@ -24,13 +24,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { addDishToCart } from "../storage/cartStorage";
 import { getText } from "../i18n";
 import { getDishDetail } from "../api";
-
-function formatPrice(price) {
-  if (price === null || price === undefined || price === "") return "";
-  const text = String(price).trim();
-  if (text.startsWith("$")) return text;
-  return `$${text}`;
-}
+import { formatPrice } from "../utils/price";
 
 function getTranslatedName(dish) {
   return (
@@ -85,6 +79,7 @@ export default function DishDetailModal({
 }) {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [detail, setDetail] = useState(null);
+  const [detailKey, setDetailKey] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   const lang = targetLang === "zh" ? "zh" : "en";
@@ -93,14 +88,20 @@ export default function DishDetailModal({
   const cacheKey = useMemo(() => {
     if (!dish) return null;
     const name = dish.original_name || dish.translated_name || dish.name || "";
-    return `dish_detail_${targetLang}_${normalizeKey(name)}`;
-  }, [dish, targetLang]);
+    const sourceLang = dish.source_language || menuInfo?.source_language || "auto";
+    const translatedName = dish.translated_name || dish.name || "";
+    const section = dish.section_heading_original || dish.category || "";
+    return `dish_detail_v3_${sourceLang}_${targetLang}_${normalizeKey(name)}_${normalizeKey(translatedName)}_${normalizeKey(section)}`;
+  }, [dish, menuInfo?.source_language, targetLang]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadDetail() {
       if (!visible || !dish || !cacheKey) return;
+
+      setDetail(null);
+      setDetailKey(cacheKey);
 
       const baseName =
         dish.original_name ||
@@ -114,14 +115,21 @@ export default function DishDetailModal({
         const cachedText = await AsyncStorage.getItem(cacheKey);
         if (cachedText && !cancelled) {
           setDetail(JSON.parse(cachedText));
+          setDetailKey(cacheKey);
           setLoadingDetail(false);
           return;
         }
 
-        const remoteDetail = await getDishDetail(baseName, targetLang);
+        const remoteDetail = await getDishDetail(
+          baseName,
+          targetLang,
+          dish.source_language || menuInfo?.source_language || "auto",
+          dish
+        );
 
         if (!cancelled) {
           setDetail(remoteDetail);
+          setDetailKey(cacheKey);
           await AsyncStorage.setItem(cacheKey, JSON.stringify(remoteDetail));
         }
       } catch (err) {
@@ -142,16 +150,24 @@ export default function DishDetailModal({
 
   if (!dish) return null;
 
+  const activeDetail = detailKey === cacheKey ? detail : null;
   const mergedDish = {
     ...dish,
-    ...(detail || {}),
+    ...(activeDetail || {}),
+    image_url: activeDetail?.image_url || dish.image_url,
+    thumbnail_url: activeDetail?.thumbnail_url || dish.thumbnail_url,
   };
 
   const title = getTranslatedName(mergedDish);
   const description = getTranslatedDescription(mergedDish);
   const ingredients = normalizeArray(mergedDish.ingredients);
   const allergens = normalizeArray(mergedDish.allergens);
-  const price = formatPrice(mergedDish.price || dish.price);
+  const price = formatPrice(mergedDish.price || dish.price, {
+    sourceLanguage:
+      mergedDish.source_language ||
+      dish.source_language ||
+      menuInfo?.source_language,
+  });
   const imageUrl = mergedDish.image_url || mergedDish.thumbnail_url;
 
   return (
