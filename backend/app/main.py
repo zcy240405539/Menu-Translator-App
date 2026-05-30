@@ -31,7 +31,9 @@ from app.openrouter_service import (
 )
 from app.dish_cache_service import (
     build_normalized_dish_key,
+    infer_menu_cuisine,
     is_cacheable_normalized_name,
+    resolve_dish_cuisine,
 )
 from app.image_service import get_or_create_dish_image
 from app.category_service import get_or_create_menu_category
@@ -399,7 +401,17 @@ def dish_detail(
             "description": request.description,
             "ingredients": request_ingredients,
             "image_prompt": request.image_prompt,
-            "cuisine": request.cuisine,
+            "cuisine": resolve_dish_cuisine(
+                {
+                    "original_name": request.original_name or request.dish_name,
+                    "translated_name": request.translated_name,
+                    "description": request.description,
+                    "ingredients": request_ingredients,
+                    "image_prompt": request.image_prompt,
+                    "cuisine": request.cuisine,
+                    "section_heading_original": request.section_heading_original,
+                }
+            ),
             "section_heading_original": request.section_heading_original,
         }
 
@@ -431,7 +443,17 @@ def dish_detail(
                 "allergens": cached.allergens or [],
                 "spicy_level": cached.spicy_level or 0,
                 "image_prompt": request.image_prompt or cached.image_prompt,
-                "cuisine": request.cuisine or cached.cuisine,
+                "cuisine": resolve_dish_cuisine(
+                    {
+                        "original_name": cached.original_name or request.dish_name,
+                        "translated_name": request.translated_name or cached.translated_name,
+                        "description": request.description or cached.description,
+                        "ingredients": request_ingredients or cached.ingredients or [],
+                        "image_prompt": request.image_prompt or cached.image_prompt,
+                        "cuisine": request.cuisine or cached.cuisine,
+                        "section_heading_original": request.section_heading_original,
+                    }
+                ),
                 "section_heading_original": request.section_heading_original,
             }
 
@@ -476,6 +498,17 @@ def dish_detail(
         )
 
         if is_cacheable:
+            result["cuisine"] = resolve_dish_cuisine(
+                {
+                    "original_name": request.original_name or detail_name,
+                    "translated_name": result.get("translated_name"),
+                    "description": result.get("description"),
+                    "ingredients": result.get("ingredients") or [],
+                    "image_prompt": result.get("image_prompt"),
+                    "cuisine": result.get("cuisine"),
+                    "section_heading_original": request.section_heading_original,
+                }
+            )
             new_cache = DishCache(
                 normalized_name=normalized_name,
                 original_name=request.original_name or detail_name,
@@ -638,6 +671,8 @@ def run_menu_parse_task(
         from app.database import SessionLocal
         from app.dish_cache_service import (
             apply_cache_to_items,
+            infer_menu_cuisine,
+            resolve_dish_cuisine,
             upsert_dish_cache,
         )
         from app.menu_cache_service import (
@@ -814,6 +849,17 @@ def run_menu_parse_task(
             result["menu_items"] = menu_items
             result["ocr_blocks"] = result.get("ocr_blocks", ocr_blocks)
 
+            menu_cuisine = infer_menu_cuisine(
+                menu_items=menu_items,
+                restaurant_type=result.get("restaurant_type") or "",
+                business_name=result.get("business_name") or "",
+            )
+            if menu_cuisine != "Other":
+                result["restaurant_type"] = menu_cuisine
+
+            for item in menu_items:
+                item["cuisine"] = resolve_dish_cuisine(item, menu_cuisine)
+
 
             # =========================
             # Collect category translations before dish_cache merge
@@ -829,6 +875,9 @@ def run_menu_parse_task(
                 menu_items=menu_items,
                 target_lang=target_lang,
             )
+
+            for item in enriched_items:
+                item["cuisine"] = resolve_dish_cuisine(item, menu_cuisine)
 
             stale_cached_items = [
                 item
@@ -918,6 +967,15 @@ def run_menu_parse_task(
                 enriched_items = menu_items
             for item in enriched_items:
                 if item.get("cache_hit"):
+                    item["cuisine"] = resolve_dish_cuisine(item, menu_cuisine)
+                    try:
+                        upsert_dish_cache(
+                            db=db,
+                            dish=item,
+                            target_lang=target_lang,
+                        )
+                    except Exception as cache_error:
+                        print("Cached dish cuisine refresh failed:", cache_error)
                     final_items.append(item)
                     continue
 
@@ -927,11 +985,8 @@ def run_menu_parse_task(
                 if detail:
                     item.update(detail)
 
-                cuisine = (
-                    item.get("cuisine")
-                    or result.get("restaurant_type")
-                    or ""
-                )
+                cuisine = resolve_dish_cuisine(item, menu_cuisine)
+                item["cuisine"] = cuisine
 
                 dish_name = (
                     item.get("original_name")

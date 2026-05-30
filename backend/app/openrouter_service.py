@@ -437,6 +437,8 @@ Rules:
 - Keep description concise and customer-friendly. Use null for missing prices. Do not invent prices.
 - Preserve visible price currency symbols and units, such as "$", "￥", "¥", "元", "/份", or size labels. Do not convert currencies.
 - image_prompt and cuisine may stay in English for internal image search.
+- cuisine must be the dish/restaurant cuisine in English Title Case, such as Mexican, Italian, Chinese, Japanese, Korean, Thai, Indian, Vietnamese, American, or Other.
+- Use menu-wide evidence for cuisine. For example, fajita, quesadilla, nachos, taco, tostada, burrito, carnitas, carne asada, sopapilla, guacamole, pico de gallo, and jalapeno are Mexican.
 
 JSON schema:
 {{
@@ -569,6 +571,8 @@ Translation rules:
 - If target_lang is "zh", translated_name, description, ingredients, and allergens must use Chinese.
 - For target_lang "zh", do not copy English ingredient phrases into description or ingredients.
 - image_prompt and cuisine may stay in English because they are internal search/model fields.
+- cuisine must be the dish/restaurant cuisine in English Title Case, such as Mexican, Italian, Chinese, Japanese, Korean, Thai, Indian, Vietnamese, American, or Other.
+- Use menu-wide evidence for cuisine. For example, fajita, quesadilla, nachos, taco, tostada, burrito, carnitas, carne asada, sopapilla, guacamole, pico de gallo, and jalapeno are Mexican.
 
 Category rules:
 - Do not force categories into a predefined food taxonomy.
@@ -978,7 +982,8 @@ Rules:
 - spicy_level: integer 0-5.
 - image_prompt must be exactly: "{{cuisine}} dish for {{original_name}}"
 - Do not describe ingredients, plating, background, restaurant, or style in image_prompt.
-- cuisine: English Title Case only. If unsure, use "Other".
+- cuisine: English Title Case only. Use menu-wide context and section names; if the menu is clearly Mexican, use "Mexican" instead of "Other" for dishes from that menu.
+- Mexican examples: fajita, quesadilla, nachos, taco, tostada, burrito, carnitas, carne asada, sopapilla, guacamole, pico de gallo, and jalapeno.
 - section_heading_translated: translate section_heading_original.
 
 Input dishes:

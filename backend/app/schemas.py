@@ -18,6 +18,7 @@ class DishItem(BaseModel):
 
     spicy_level: Optional[int] = 0
     image_prompt: Optional[str] = None
+    cuisine: Optional[str] = None
     confidence: Optional[float] = None
 
 
