@@ -24,3 +24,4 @@ backend/*-status*.json
 backend/*-start*.json
 backend/test-*-layout.json
 frontend/*.log
+AGENTS.md
