@@ -80,6 +80,8 @@ class GoogleLoginRequest(BaseModel):
     name: str
     avatar_url: Optional[str] = None
 
+class PasswordResetRequest(BaseModel):
+    email: str
 
 class UserProfileUpdate(BaseModel):
     phone: Optional[str] = None
@@ -90,19 +92,6 @@ class UserProfileUpdate(BaseModel):
     preferred_language: Optional[str] = None
 
 
-class UserResponse(BaseModel):
-    id: str
-    username: str
-    email: str
-    role: str
-    phone: Optional[str] = None
-    avatar_url: Optional[str] = None
-    diets: List[str] = []
-    allergies: List[str] = []
-    budget: Optional[str] = None
-    taste: Optional[str] = None
-    preferred_language: str
-    subscription_plan: Optional[str] = "free"
 
 
 class SubscriptionResponse(BaseModel):
@@ -121,4 +110,16 @@ class SubscriptionResponse(BaseModel):
         from_attributes = True
 
 
-
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    role: str
+    phone: Optional[str] = None
+    avatar_url: Optional[str] = None
+    diets: List[str] = []
+    allergies: List[str] = []
+    budget: Optional[str] = None
+    taste: Optional[str] = None
+    preferred_language: str
+    subscription_plan: Optional[str] = "free"

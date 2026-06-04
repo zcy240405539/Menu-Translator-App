@@ -28,6 +28,7 @@ from app.core.schemas import (
     UserRegisterRequest,
     UserLoginRequest,
     GoogleLoginRequest,
+    PasswordResetRequest,
     UserProfileUpdate,
     UserResponse,
 )
@@ -36,6 +37,7 @@ from app.services.auth_service import (
     login_user as sb_login_user,
     get_user_from_token as sb_get_user_from_token,
     google_login_or_register as sb_google_login_or_register,
+    reset_password as sb_reset_password,
 )
 from fastapi import Header
 from typing import Optional
@@ -190,6 +192,15 @@ def update_profile(request: UserProfileUpdate, current_user: User = Depends(get_
 def logout_user():
     return {"status": "success"}
 
+@app.post("/auth/password-reset")
+def password_reset(request: PasswordResetRequest):
+    try:
+        sb_reset_password(request.email)
+        return {"status": "email sent"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/auth/avatar")
 def upload_avatar(file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
