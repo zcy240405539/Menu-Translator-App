@@ -250,6 +250,18 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    from fastapi.responses import JSONResponse
+    import logging
+    logger = logging.getLogger("uvicorn.error")
+    logger.exception("Unhandled exception in API request: %s", str(exc))
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal Server Error: {str(exc)}"},
+    )
+
+
 def is_render_runtime() -> bool:
     return bool(
         os.getenv("RENDER")

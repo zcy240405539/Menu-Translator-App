@@ -26,6 +26,7 @@ def ensure_user_subscription(db: Session, user_id: str) -> None:
         sub = UserSubscription(
             user_id=user_id,
             plan="free",
+            membership_level="free",
             status="active",
             is_expired=False
         )
@@ -37,9 +38,11 @@ def reset_password(email: str) -> None:
     """Send password reset email using Supabase built-in functionality."""
     client = get_supabase_client()
     try:
-        client.auth.api.reset_password_for_email(email)
+        client.auth.reset_password_for_email(email)
     except Exception as e:
         raise ValueError(f"Failed to send password reset email: {str(e)}")
+
+
 def register_user(
     db: Session,
     username: str,
@@ -95,6 +98,7 @@ def register_user(
         sub = UserSubscription(
             user_id=supabase_uid,
             plan="free",
+            membership_level="free",
             status="active",
             is_expired=False
         )
@@ -131,33 +135,6 @@ def register_user(
 
 
 def login_user(db: Session, email: str, password: str) -> dict:
-    """Authenticate via Supabase Auth, ensure profile and subscription, return JWT and profile."""
-    client = get_supabase_client()
-    try:
-        login_res = client.auth.sign_in_with_password({"email": email, "password": password})
-    except Exception:
-        raise ValueError("Invalid email or password")
-    supabase_uid = login_res.user.id
-    access_token = login_res.session.access_token
-    user_profile = db.query(User).filter(User.id == supabase_uid).first()
-    if not user_profile:
-        # Create profile from metadata
-        user_metadata = login_res.user.user_metadata or {}
-        username = user_metadata.get("username") or email.split("@")[0]
-        user_profile = User(
-            id=supabase_uid,
-            username=username,
-            email=email,
-            phone=user_metadata.get("phone"),
-            diets=[],
-            allergies=[],
-            preferred_language="zh",
-        )
-        db.add(user_profile)
-        db.commit()
-        db.refresh(user_profile)
-    ensure_user_subscription(db, user_profile.id)
-    return {"token": access_token, "user": user_profile}
     """Authenticate email/password against Supabase Auth and return profile info with JWT token."""
     client = get_supabase_client()
 
@@ -178,6 +155,13 @@ def login_user(db: Session, email: str, password: str) -> dict:
         # Self-healing profile registration
         user_metadata = login_res.user.user_metadata or {}
         username = user_metadata.get("username") or email.split("@")[0]
+        # Ensure unique username
+        base_username = username
+        suffix = 1
+        while db.query(User).filter(User.username == username).first():
+            username = f"{base_username}{suffix}"
+            suffix += 1
+
         user_profile = User(
             id=supabase_uid,
             username=username,
@@ -200,39 +184,6 @@ def login_user(db: Session, email: str, password: str) -> dict:
 
 
 def get_user_from_token(db: Session, token: str) -> User | None:
-    """Retrieve and verify Supabase Auth user via JWT token, then fetch local profile.
-    Returns None if token invalid or user not found."""
-    if not token:
-        return None
-    client = get_supabase_client()
-    try:
-        auth_user_res = client.auth.get_user(token)
-    except Exception:
-        return None
-    supabase_user = auth_user_res.user
-    user_profile = db.query(User).filter(User.id == supabase_user.id).first()
-    if not user_profile:
-        # Auto-create profile if missing (e.g., OAuth login)
-        user_metadata = supabase_user.user_metadata or {}
-        username = user_metadata.get("username") or user_metadata.get("name") or supabase_user.email.split("@")[0]
-        # Ensure unique username
-        base = username
-        suffix = 1
-        while db.query(User).filter(User.username == username).first():
-            username = f"{base}{suffix}"
-            suffix += 1
-        user_profile = User(
-            id=supabase_user.id,
-            username=username,
-            email=supabase_user.email,
-            phone=supabase_user.phone or user_metadata.get("phone"),
-            avatar_url=user_metadata.get("avatar_url"),
-        )
-        db.add(user_profile)
-        db.commit()
-        db.refresh(user_profile)
-    ensure_user_subscription(db, user_profile.id)
-    return user_profile
     """Retrieve and verify Supabase Auth user via JWT token, then fetch local profile."""
     if not token:
         return None

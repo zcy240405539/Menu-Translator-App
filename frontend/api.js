@@ -65,23 +65,43 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
   const startData = await startRes.json();
   const taskId = startData.task_id;
 
-  while (true) {
+  let consecutiveErrors = 0;
+  let attempts = 0;
+  const maxAttempts = 150; // 5 minutes max
+
+  while (attempts < maxAttempts) {
+    attempts++;
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const statusRes = await fetch(
-      `${API_BASE_URL}/menus/parse/status/${taskId}`
-    );
+    try {
+      const statusRes = await fetch(
+        `${API_BASE_URL}/menus/parse/status/${taskId}`
+      );
 
-    const statusData = await statusRes.json();
+      if (!statusRes.ok) {
+        throw new Error(`HTTP error ${statusRes.status}`);
+      }
 
-    if (statusData.status === "done") {
-      return statusData.result;
-    }
+      const statusData = await statusRes.json();
+      consecutiveErrors = 0;
 
-    if (statusData.status === "error") {
-      throw new Error(statusData.error || "Menu analysis failed");
+      if (statusData.status === "done") {
+        return statusData.result;
+      }
+
+      if (statusData.status === "error") {
+        throw new Error(statusData.error || "Menu analysis failed");
+      }
+    } catch (err) {
+      console.warn(`Error checking parsing status (attempt ${attempts}):`, err);
+      consecutiveErrors++;
+      if (consecutiveErrors >= 5) {
+        throw new Error(`Failed to retrieve analysis status: ${err.message}`);
+      }
     }
   }
+
+  throw new Error("Menu analysis timed out after 5 minutes.");
 }
 
 
@@ -163,6 +183,20 @@ export async function getCachedMenu(imageHash, targetLang = "zh") {
   return await res.json();
 }
 
+async function getErrorMessage(res) {
+  try {
+    const data = await res.json();
+    return data?.detail || data?.message || null;
+  } catch (e) {
+    try {
+      const text = await res.text();
+      return text || null;
+    } catch (err) {
+      return null;
+    }
+  }
+}
+
 export async function register(username, email, password, phone, diets, allergies, budget, taste, preferredLanguage) {
   const res = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
@@ -180,8 +214,8 @@ export async function register(username, email, password, phone, diets, allergie
     }),
   });
   if (!res.ok) {
-    const errorText = await res.json();
-    throw new Error(errorText?.detail || "Failed to register");
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to register");
   }
   const data = await res.json();
   if (data.token) {
@@ -197,8 +231,8 @@ export async function login(email, password) {
     body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
-    const errorText = await res.json();
-    throw new Error(errorText?.detail || "Failed to login");
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to login");
   }
   const data = await res.json();
   if (data.token) {
@@ -214,8 +248,8 @@ export async function loginWithGoogle(email, name, avatarUrl) {
     body: JSON.stringify({ email, name, avatar_url: avatarUrl }),
   });
   if (!res.ok) {
-    const errorText = await res.json();
-    throw new Error(errorText?.detail || "Failed to login with Google");
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to login with Google");
   }
   const data = await res.json();
   if (data.token) {
@@ -230,7 +264,8 @@ export async function getProfile() {
     headers: getHeaders(),
   });
   if (!res.ok) {
-    throw new Error("Failed to fetch user profile");
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to fetch user profile");
   }
   return await res.json();
 }
@@ -242,8 +277,8 @@ export async function updateProfile(profileData) {
     body: JSON.stringify(profileData),
   });
   if (!res.ok) {
-    const errorText = await res.json();
-    throw new Error(errorText?.detail || "Failed to update profile");
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to update profile");
   }
   return await res.json();
 }
@@ -272,8 +307,8 @@ export async function uploadAvatar(file) {
   });
 
   if (!res.ok) {
-    const errorText = await res.json();
-    throw new Error(errorText?.detail || "Failed to upload avatar");
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to upload avatar");
   }
   return await res.json();
 }
@@ -288,5 +323,18 @@ export async function logout() {
     console.warn("Logout request failed:", err);
   }
   setAuthToken(null);
+}
+
+export async function passwordReset(email) {
+  const res = await fetch(`${API_BASE_URL}/auth/password-reset`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to send password reset email");
+  }
+  return await res.json();
 }
 

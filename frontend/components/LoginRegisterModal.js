@@ -20,7 +20,7 @@ import {
   TextInput,
   IconButton,
 } from "react-native-paper";
-import { login, register, loginWithGoogle } from "../api";
+import { login, register, loginWithGoogle, passwordReset } from "../api";
 import { isChineseLanguage } from "../i18n";
 
 const DIET_OPTIONS = [
@@ -33,6 +33,7 @@ const DIET_OPTIONS = [
 
 export default function LoginRegisterModal({ visible, targetLang, onClose, onLoginSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
@@ -48,6 +49,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   const [showPreferences, setShowPreferences] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   
   // Mock Google Account Selector State
   const [showGoogleMock, setShowGoogleMock] = useState(false);
@@ -55,7 +57,9 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   const isZh = isChineseLanguage(targetLang);
   
   const t = {
-    title: isZh ? (isLogin ? "登录账户" : "注册新账号") : (isLogin ? "Sign In" : "Create Account"),
+    title: isZh 
+      ? (isForgotPassword ? "重置密码" : (isLogin ? "登录账户" : "注册新账号")) 
+      : (isForgotPassword ? "Reset Password" : (isLogin ? "Sign In" : "Create Account")),
     email: isZh ? "电子邮箱" : "Email",
     password: isZh ? "密码" : "Password",
     confirmPassword: isZh ? "确认密码" : "Confirm Password",
@@ -76,6 +80,11 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
     tastePlaceholder: isZh ? "如：清淡、少油" : "e.g., spicy, light",
     errorMatch: isZh ? "两次密码不一致" : "Passwords do not match",
     requiredFields: isZh ? "请填写所有必填项" : "Please fill in all required fields",
+    forgotPasswordLink: isZh ? "忘记密码？" : "Forgot Password?",
+    resetBtn: isZh ? "发送重置邮件" : "Send Reset Email",
+    resetSuccess: isZh ? "重置邮件已发送，请检查您的邮箱" : "Password reset email sent, please check your inbox",
+    backToLogin: isZh ? "返回登录" : "Back to Sign In",
+    resetInstruction: isZh ? "请输入您的注册邮箱接收密码重置链接" : "Enter your email to receive a password reset link",
   };
 
   const handleDietToggle = (dietKey) => {
@@ -83,6 +92,24 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
       setSelectedDiets(selectedDiets.filter((k) => k !== dietKey));
     } else {
       setSelectedDiets([...selectedDiets, dietKey]);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setError("");
+    setSuccessMessage("");
+    if (!email) {
+      setError(t.requiredFields);
+      return;
+    }
+    setLoading(true);
+    try {
+      await passwordReset(email);
+      setSuccessMessage(t.resetSuccess);
+    } catch (err) {
+      setError(err.message || "Failed to send reset email");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -186,158 +213,230 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                     </Text>
                   )}
 
-                  {/* Register username field */}
-                  {!isLogin && (
-                    <TextInput
-                      label={t.username}
-                      mode="outlined"
-                      value={username}
-                      onChangeText={setUsername}
-                      style={styles.input}
-                      left={<TextInput.Icon icon="account" />}
-                    />
+                  {/* Success messages */}
+                  {!!successMessage && (
+                    <Text style={styles.successText} variant="bodyMedium">
+                      ✅ {successMessage}
+                    </Text>
                   )}
 
-                  {/* Email */}
-                  <TextInput
-                    label={t.email}
-                    mode="outlined"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    style={styles.input}
-                    left={<TextInput.Icon icon="email" />}
-                  />
-
-                  {/* Password */}
-                  <TextInput
-                    label={t.password}
-                    mode="outlined"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    style={styles.input}
-                    left={<TextInput.Icon icon="lock" />}
-                  />
-
-                  {/* Confirm Password */}
-                  {!isLogin && (
+                  {isForgotPassword ? (
                     <>
+                      <Text style={styles.instructionText} variant="bodyMedium">
+                        {t.resetInstruction}
+                      </Text>
+
+                      {/* Email */}
                       <TextInput
-                        label={t.confirmPassword}
+                        label={t.email}
                         mode="outlined"
-                        value={confirmPassword}
-                        onChangeText={setConfirmPassword}
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        style={styles.input}
+                        left={<TextInput.Icon icon="email" />}
+                      />
+
+                      {/* Reset Password Button */}
+                      <Button
+                        mode="contained"
+                        onPress={handleResetPassword}
+                        loading={loading}
+                        disabled={loading}
+                        style={styles.submitBtn}
+                        contentStyle={styles.btnContent}
+                      >
+                        {t.resetBtn}
+                      </Button>
+
+                      {/* Return to Login Link */}
+                      <TouchableOpacity
+                        style={styles.switchLink}
+                        onPress={() => {
+                          setIsForgotPassword(false);
+                          setIsLogin(true);
+                          setError("");
+                          setSuccessMessage("");
+                        }}
+                      >
+                        <Text variant="bodyMedium" style={styles.switchLinkText}>
+                          {t.backToLogin}
+                        </Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <>
+                      {/* Register username field */}
+                      {!isLogin && (
+                        <TextInput
+                          label={t.username}
+                          mode="outlined"
+                          value={username}
+                          onChangeText={setUsername}
+                          style={styles.input}
+                          left={<TextInput.Icon icon="account" />}
+                        />
+                      )}
+
+                      {/* Email */}
+                      <TextInput
+                        label={t.email}
+                        mode="outlined"
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        style={styles.input}
+                        left={<TextInput.Icon icon="email" />}
+                      />
+
+                      {/* Password */}
+                      <TextInput
+                        label={t.password}
+                        mode="outlined"
+                        value={password}
+                        onChangeText={setPassword}
                         secureTextEntry
                         style={styles.input}
-                        left={<TextInput.Icon icon="lock-check" />}
-                      />
-                      <TextInput
-                        label={t.phone}
-                        mode="outlined"
-                        value={phone}
-                        onChangeText={setPhone}
-                        keyboardType="phone-pad"
-                        style={styles.input}
-                        left={<TextInput.Icon icon="phone" />}
+                        left={<TextInput.Icon icon="lock" />}
                       />
 
-                      {/* Expandable preferences */}
-                      <TouchableOpacity
-                        style={styles.preferencesToggle}
-                        onPress={() => setShowPreferences(!showPreferences)}
-                        activeOpacity={0.8}
-                      >
-                        <Text variant="titleSmall" style={styles.prefToggleText}>
-                          {t.prefTitle}
-                        </Text>
-                        <IconButton
-                          icon={showPreferences ? "chevron-up" : "chevron-down"}
-                          size={20}
-                          iconColor="#6750A4"
-                        />
-                      </TouchableOpacity>
-
-                      {showPreferences && (
-                        <View style={styles.preferencesBox}>
-                          <Text style={styles.prefLabel}>{t.diets}</Text>
-                          <View style={styles.chipRow}>
-                            {DIET_OPTIONS.map((diet) => {
-                              const isSelected = selectedDiets.includes(diet.key);
-                              return (
-                                <Chip
-                                  key={diet.key}
-                                  selected={isSelected}
-                                  onPress={() => handleDietToggle(diet.key)}
-                                  style={[
-                                    styles.dietChip,
-                                    isSelected && styles.dietChipSelected,
-                                  ]}
-                                  selectedColor={isSelected ? "#FFFFFF" : "#625B71"}
-                                  showSelectedOverlay
-                                >
-                                  {isZh ? diet.labelZh : diet.labelEn}
-                                </Chip>
-                              );
-                            })}
-                          </View>
-
-                          <Text style={styles.prefLabel}>{t.allergies}</Text>
-                          <TextInput
-                            mode="outlined"
-                            placeholder={t.allergiesPlaceholder}
-                            value={allergiesText}
-                            onChangeText={setAllergiesText}
-                            style={styles.prefInput}
-                          />
-
-                          <Text style={styles.prefLabel}>{t.budget}</Text>
-                          <TextInput
-                            mode="outlined"
-                            placeholder={t.budgetPlaceholder}
-                            value={budget}
-                            onChangeText={setBudget}
-                            style={styles.prefInput}
-                          />
-
-                          <Text style={styles.prefLabel}>{t.taste}</Text>
-                          <TextInput
-                            mode="outlined"
-                            placeholder={t.tastePlaceholder}
-                            value={taste}
-                            onChangeText={setTaste}
-                            style={styles.prefInput}
-                          />
-                        </View>
+                      {/* Forgot Password Link for Login Mode */}
+                      {isLogin && (
+                        <TouchableOpacity
+                          style={styles.forgotPasswordLink}
+                          onPress={() => {
+                            setIsForgotPassword(true);
+                            setError("");
+                            setSuccessMessage("");
+                          }}
+                        >
+                          <Text style={styles.forgotPasswordLinkText}>
+                            {t.forgotPasswordLink}
+                          </Text>
+                        </TouchableOpacity>
                       )}
+
+                      {/* Confirm Password */}
+                      {!isLogin && (
+                        <>
+                          <TextInput
+                            label={t.confirmPassword}
+                            mode="outlined"
+                            value={confirmPassword}
+                            onChangeText={setConfirmPassword}
+                            secureTextEntry
+                            style={styles.input}
+                            left={<TextInput.Icon icon="lock-check" />}
+                          />
+                          <TextInput
+                            label={t.phone}
+                            mode="outlined"
+                            value={phone}
+                            onChangeText={setPhone}
+                            keyboardType="phone-pad"
+                            style={styles.input}
+                            left={<TextInput.Icon icon="phone" />}
+                          />
+
+                          {/* Expandable preferences */}
+                          <TouchableOpacity
+                            style={styles.preferencesToggle}
+                            onPress={() => setShowPreferences(!showPreferences)}
+                            activeOpacity={0.8}
+                          >
+                            <Text variant="titleSmall" style={styles.prefToggleText}>
+                              {t.prefTitle}
+                            </Text>
+                            <IconButton
+                              icon={showPreferences ? "chevron-up" : "chevron-down"}
+                              size={20}
+                              iconColor="#6750A4"
+                            />
+                          </TouchableOpacity>
+
+                          {showPreferences && (
+                            <View style={styles.preferencesBox}>
+                              <Text style={styles.prefLabel}>{t.diets}</Text>
+                              <View style={styles.chipRow}>
+                                {DIET_OPTIONS.map((diet) => {
+                                  const isSelected = selectedDiets.includes(diet.key);
+                                  return (
+                                    <Chip
+                                      key={diet.key}
+                                      selected={isSelected}
+                                      onPress={() => handleDietToggle(diet.key)}
+                                      style={[
+                                        styles.dietChip,
+                                        isSelected && styles.dietChipSelected,
+                                      ]}
+                                      selectedColor={isSelected ? "#FFFFFF" : "#625B71"}
+                                      showSelectedOverlay
+                                    >
+                                      {isZh ? diet.labelZh : diet.labelEn}
+                                    </Chip>
+                                  );
+                                })}
+                              </View>
+
+                              <Text style={styles.prefLabel}>{t.allergies}</Text>
+                              <TextInput
+                                mode="outlined"
+                                placeholder={t.allergiesPlaceholder}
+                                value={allergiesText}
+                                onChangeText={setAllergiesText}
+                                style={styles.prefInput}
+                              />
+
+                              <Text style={styles.prefLabel}>{t.budget}</Text>
+                              <TextInput
+                                mode="outlined"
+                                placeholder={t.budgetPlaceholder}
+                                value={budget}
+                                onChangeText={setBudget}
+                                style={styles.prefInput}
+                              />
+
+                              <Text style={styles.prefLabel}>{t.taste}</Text>
+                              <TextInput
+                                mode="outlined"
+                                placeholder={t.tastePlaceholder}
+                                value={taste}
+                                onChangeText={setTaste}
+                                style={styles.prefInput}
+                              />
+                            </View>
+                          )}
+                        </>
+                      )}
+
+                      {/* Submit Button */}
+                      <Button
+                        mode="contained"
+                        onPress={handleAuth}
+                        loading={loading}
+                        disabled={loading}
+                        style={styles.submitBtn}
+                        contentStyle={styles.btnContent}
+                      >
+                        {isLogin ? t.loginBtn : t.registerBtn}
+                      </Button>
+
+                      {/* Switch Mode Link */}
+                      <TouchableOpacity
+                        style={styles.switchLink}
+                        onPress={() => {
+                          setIsLogin(!isLogin);
+                          setError("");
+                        }}
+                      >
+                        <Text variant="bodyMedium" style={styles.switchLinkText}>
+                          {isLogin ? t.switchRegister : t.switchLogin}
+                        </Text>
+                      </TouchableOpacity>
                     </>
                   )}
-
-                  {/* Submit Button */}
-                  <Button
-                    mode="contained"
-                    onPress={handleAuth}
-                    loading={loading}
-                    disabled={loading}
-                    style={styles.submitBtn}
-                    contentStyle={styles.btnContent}
-                  >
-                    {isLogin ? t.loginBtn : t.registerBtn}
-                  </Button>
-
-                  {/* Switch Mode Link */}
-                  <TouchableOpacity
-                    style={styles.switchLink}
-                    onPress={() => {
-                      setIsLogin(!isLogin);
-                      setError("");
-                    }}
-                  >
-                    <Text variant="bodyMedium" style={styles.switchLinkText}>
-                      {isLogin ? t.switchRegister : t.switchLogin}
-                    </Text>
-                  </TouchableOpacity>
 
                   <Divider style={styles.divider} />
 
@@ -550,6 +649,32 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontWeight: "600",
     textAlign: "center",
+  },
+  successText: {
+    color: "#146C43",
+    backgroundColor: "#D1E7DD",
+    padding: 10,
+    borderRadius: 12,
+    marginBottom: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  forgotPasswordLink: {
+    alignSelf: "flex-end",
+    marginTop: 4,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  forgotPasswordLinkText: {
+    color: "#6750A4",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  instructionText: {
+    color: "#49454F",
+    textAlign: "center",
+    marginBottom: 16,
+    lineHeight: 20,
   },
   modalOverlay: {
     flex: 1,
