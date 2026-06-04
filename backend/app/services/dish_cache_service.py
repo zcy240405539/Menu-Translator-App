@@ -179,33 +179,50 @@ def apply_cache_to_items(db, menu_items, target_lang):
     enriched_items = []
     missing_items = []
 
-    for item in menu_items:
+    # 1. Build keys and identify cacheable names
+    item_normalized_names = []
+    keys_map = {} # item index -> normalized_name
+    
+    for idx, item in enumerate(menu_items):
         original_name = item.get("original_name", "")
         normalized_name = build_normalized_dish_key(
             original_name,
             item.get("translated_name"),
             item.get("name"),
         )
-        is_cacheable = is_cacheable_normalized_name(normalized_name)
+        if is_cacheable_normalized_name(normalized_name):
+            item_normalized_names.append(normalized_name)
+            keys_map[idx] = normalized_name
 
-        cached_dish = None
-        cached_image = None
-
-        if is_cacheable:
-            cached_dish = (
-                db.query(DishCache)
-                .filter(
-                    DishCache.normalized_name == normalized_name,
-                    DishCache.target_language == target_lang,
-                )
-                .first()
+    # 2. Fetch cache in bulk if there are candidates
+    dish_cache_map = {}
+    image_cache_map = {}
+    
+    if item_normalized_names:
+        unique_names = list(set(item_normalized_names))
+        
+        cached_dishes = (
+            db.query(DishCache)
+            .filter(
+                DishCache.normalized_name.in_(unique_names),
+                DishCache.target_language == target_lang,
             )
+            .all()
+        )
+        dish_cache_map = {d.normalized_name: d for d in cached_dishes}
 
-            cached_image = (
-                db.query(DishImage)
-                .filter(DishImage.normalized_name == normalized_name)
-                .first()
-            )
+        cached_images = (
+            db.query(DishImage)
+            .filter(DishImage.normalized_name.in_(unique_names))
+            .all()
+        )
+        image_cache_map = {img.normalized_name: img for img in cached_images}
+
+    # 3. Enrich menu items using pre-fetched cache
+    for idx, item in enumerate(menu_items):
+        normalized_name = keys_map.get(idx)
+        cached_dish = dish_cache_map.get(normalized_name) if normalized_name else None
+        cached_image = image_cache_map.get(normalized_name) if normalized_name else None
 
         if cached_dish:
             item["translated_name"] = cached_dish.translated_name
