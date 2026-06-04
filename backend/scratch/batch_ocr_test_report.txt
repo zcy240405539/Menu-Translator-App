@@ -9,7 +9,7 @@
 File: bella-italia-ristorante-2.jpg
  - Blocks detected: 118
  - Average confidence: 0.9881
- - Time elapsed: 18.96 seconds
+ - Time elapsed: 20.31 seconds
  - Characters length: 2062
  - Top 10 recognized lines:
    [01] (Conf: 0.9667) -> BELLA ITALIA
@@ -148,7 +148,7 @@ $18
 File: bella-italia-ristorante.jpg
  - Blocks detected: 123
  - Average confidence: 0.9926
- - Time elapsed: 9.88 seconds
+ - Time elapsed: 9.56 seconds
  - Characters length: 1446
  - Top 10 recognized lines:
    [01] (Conf: 0.9998) -> BELLA ITALIA
@@ -292,7 +292,7 @@ Corkage Fee Per Bottle
 File: Bistro-Wharf_All-Day-Final-1_01.jpg
  - Blocks detected: 126
  - Average confidence: 0.9570
- - Time elapsed: 16.11 seconds
+ - Time elapsed: 16.00 seconds
  - Characters length: 3462
  - Top 10 recognized lines:
    [01] (Conf: 0.9912) -> TOUTE LA JOURNEE
@@ -439,7 +439,7 @@ Please, no more than 4 credit cards per table.
 File: Bistro-Wharf_All-Day-Final-1_02.jpg
  - Blocks detected: 103
  - Average confidence: 0.9615
- - Time elapsed: 13.22 seconds
+ - Time elapsed: 13.68 seconds
  - Characters length: 2336
  - Top 10 recognized lines:
    [01] (Conf: 0.7044) -> ®
@@ -563,7 +563,7 @@ Please, no more than 4 credit cards per table.
 File: bulla-gastrobar-plano.jpg
  - Blocks detected: 148
  - Average confidence: 0.9482
- - Time elapsed: 11.70 seconds
+ - Time elapsed: 12.60 seconds
  - Characters length: 3160
  - Top 10 recognized lines:
    [01] (Conf: 0.9998) -> DINNER
@@ -732,7 +732,7 @@ eeargwbedddparsormoreBullGtroborroentherhytotpervingacoholinnydncewithstedcompan
 File: EddiesDiner.png
  - Blocks detected: 173
  - Average confidence: 0.9883
- - Time elapsed: 18.34 seconds
+ - Time elapsed: 19.78 seconds
  - Characters length: 6176
  - Top 10 recognized lines:
    [01] (Conf: 0.9987) -> GRIDDLE WORKS
@@ -926,7 +926,7 @@ Thank You For Chooing To Support Your Locally Owned And Operated Eddie's Diner!
 File: el-pueblito-mexican-cocina-1.jpg
  - Blocks detected: 54
  - Average confidence: 0.9825
- - Time elapsed: 8.30 seconds
+ - Time elapsed: 8.83 seconds
  - Characters length: 1699
  - Top 10 recognized lines:
    [01] (Conf: 0.9995) -> EL PUEBLITO SPECIALTIES
@@ -1001,7 +1001,7 @@ $5.00
 File: el-pueblito-mexican-cocina-2.jpg
  - Blocks detected: 93
  - Average confidence: 0.9809
- - Time elapsed: 8.42 seconds
+ - Time elapsed: 8.61 seconds
  - Characters length: 1549
  - Top 10 recognized lines:
    [01] (Conf: 0.9996) -> NACHOS
@@ -1115,7 +1115,7 @@ Fish soup
 File: english_menu_unsplash_01.jpg
  - Blocks detected: 49
  - Average confidence: 0.6417
- - Time elapsed: 6.82 seconds
+ - Time elapsed: 6.87 seconds
  - Characters length: 857
  - Top 10 recognized lines:
    [01] (Conf: 0.6047) -> FS-1
@@ -1185,7 +1185,7 @@ KIDS MENU -DJECJI MENU - PER RANBM
 File: english_menu_unsplash_02.jpg
  - Blocks detected: 3
  - Average confidence: 0.8447
- - Time elapsed: 3.93 seconds
+ - Time elapsed: 3.69 seconds
  - Characters length: 34
  - Top 10 recognized lines:
    [01] (Conf: 0.8996) -> MON COI
@@ -1202,7 +1202,7 @@ BOSAITAPCNAO
 File: Ocean-Prime-WashingtonDC-Lunch-050326pdf_01.jpg
  - Blocks detected: 78
  - Average confidence: 0.9837
- - Time elapsed: 9.60 seconds
+ - Time elapsed: 10.32 seconds
  - Characters length: 2329
  - Top 10 recognized lines:
    [01] (Conf: 0.8745) -> ON ICE gfm
@@ -1301,7 +1301,7 @@ major FDA allergens (peanuts, tree nuts, eggs, fish, shellfish, milk, soy & whea
 File: Ocean-Prime-WashingtonDC-Lunch-050326pdf_02.jpg
  - Blocks detected: 72
  - Average confidence: 0.9807
- - Time elapsed: 8.75 seconds
+ - Time elapsed: 9.88 seconds
  - Characters length: 2098
  - Top 10 recognized lines:
    [01] (Conf: 0.3875) -> P
@@ -1394,7 +1394,7 @@ To offset increasing labor costs associated with the restaurant we have added a 
 File: RomaMenu.jpg
  - Blocks detected: 134
  - Average confidence: 0.9578
- - Time elapsed: 13.72 seconds
+ - Time elapsed: 13.94 seconds
  - Characters length: 4147
  - Top 10 recognized lines:
    [01] (Conf: 0.9963) -> 4637 Hedgcoxe Road, Suite 116
@@ -1549,7 +1549,7 @@ Split/Share Plate +$2 | Extra Charge for Substitutions/Additions | 20% gratulity
 File: Sample_menu_eng.jpg
  - Blocks detected: 64
  - Average confidence: 0.9808
- - Time elapsed: 8.78 seconds
+ - Time elapsed: 10.99 seconds
  - Characters length: 2029
  - Top 10 recognized lines:
    [01] (Conf: 0.9846) -> STARTERS +
@@ -1638,7 +1638,7 @@ parties of six or more (unless otherwise contracted) and applies automatically t
 File: chinese_menu_unsplash_01.jpg
  - Blocks detected: 3
  - Average confidence: 0.7472
- - Time elapsed: 9.45 seconds
+ - Time elapsed: 11.23 seconds
  - Characters length: 33
  - Top 10 recognized lines:
    [01] (Conf: 0.8376) -> MONCOI
@@ -1655,7 +1655,7 @@ BO SA fArCA
 File: chinese_menu_unsplash_02.jpg
  - Blocks detected: 43
  - Average confidence: 0.9849
- - Time elapsed: 17.89 seconds
+ - Time elapsed: 18.51 seconds
  - Characters length: 378
  - Top 10 recognized lines:
    [01] (Conf: 0.9989) -> ESPRESSO
@@ -1719,7 +1719,7 @@ Heritage Cococa 經典可可
 File: Sample_Menu_3.jpg
  - Blocks detected: 40
  - Average confidence: 0.9772
- - Time elapsed: 16.22 seconds
+ - Time elapsed: 17.13 seconds
  - Characters length: 190
  - Top 10 recognized lines:
    [01] (Conf: 0.9961) -> 现炒快餐

@@ -5,14 +5,14 @@ import base64
 import requests
 from supabase import create_client
 
-from app.dish_cache_service import (
+from app.services.dish_cache_service import (
     build_normalized_dish_key,
     contains_chinese,
     is_cacheable_normalized_name,
     normalize_dish_name,
     resolve_dish_cuisine,
 )
-from  app.models import DishImage
+from app.core.models import DishImage
 
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")

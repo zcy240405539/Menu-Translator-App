@@ -9,7 +9,7 @@ sys.path.append(str(backend_dir))
 
 load_dotenv(dotenv_path=backend_dir / ".env")
 
-from app.ocr_service import extract_layout_blocks_from_image
+from app.services.ocr_service import extract_layout_blocks_from_image
 
 ENGLISH_MENU_PATH = r"C:\Users\zcy24\Documents\Docs\APP_Develop\English_Menu\Sample_menu_eng.jpg"
 CHINESE_MENU_PATH = r"C:\Users\zcy24\Documents\Docs\APP_Develop\Chinese_Menu\Sample_Menu_3.jpg"

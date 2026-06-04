@@ -251,7 +251,7 @@ Implementation steps:
 7. Gate ads and premium features based on membership status returned by the backend.
 
 ## Later Enhancements
-- Favorites
+- User manage system
 - More language pairs beyond Chinese and English
 - Restaurant recommendation engine
 - Subscription payments

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, BigInteger, Text, Integer, DateTime, UniqueConstraint, JSON, CheckConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
-from  app.database import Base
+from app.core.database import Base
 
 
 class DishCache(Base):

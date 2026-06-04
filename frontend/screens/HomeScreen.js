@@ -264,20 +264,20 @@ const selectFromFile = async () => {
     return [
       {
         key: "wechat",
-        label: "微信",
+        label: "Wechat 微信",
         icon: "wechat",
         url: `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodedUrl}`,
       },
       {
         key: "xiaohongshu",
-        label: "小红书",
+        label: "Rednote 小红书",
         icon: "book-open-variant",
         url: `https://www.xiaohongshu.com/search_result?keyword=${encodedText}`,
         copyBeforeOpen: true,
       },
       {
         key: "weibo",
-        label: "微博",
+        label: "Weibo 微博",
         icon: "sina-weibo",
         url: `https://service.weibo.com/share/share.php?url=${encodedUrl}&title=${encodedText}`,
       },

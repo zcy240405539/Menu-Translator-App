@@ -13,14 +13,14 @@ from fastapi import (
     HTTPException,
     Depends,
 )
-from app.pdf_service import pdf_bytes_to_images
+from app.services.pdf_service import pdf_bytes_to_images
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
-from app.database import get_db, engine, Base
-from app.models import DishCache, DishImage
-from app.schemas import AnalyzeTextRequest, DishDetailRequest
-from app.openrouter_service import (
+from app.core.database import get_db, engine, Base
+from app.core.models import DishCache, DishImage
+from app.core.schemas import AnalyzeTextRequest, DishDetailRequest
+from app.services.openrouter_service import (
     call_openrouter_for_dish_detail,
     call_openrouter_for_menu,
     call_openrouter_for_menu_layout,
@@ -29,16 +29,16 @@ from app.openrouter_service import (
     call_openrouter_translate_category_labels,
     extract_dish_candidates_from_ocr_blocks,
 )
-from app.dish_cache_service import (
+from app.services.dish_cache_service import (
     build_normalized_dish_key,
     infer_menu_cuisine,
     is_cacheable_normalized_name,
     resolve_dish_cuisine,
 )
-from app.image_service import get_or_create_dish_image
-from app.category_service import get_or_create_menu_category
-from app.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
-from app.pdf_text_service import extract_text_from_pdf_bytes
+from app.services.image_service import get_or_create_dish_image
+from app.services.category_service import get_or_create_menu_category
+from app.core.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
+from app.services.pdf_text_service import extract_text_from_pdf_bytes
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -92,7 +92,7 @@ def should_use_vision_ocr() -> bool:
 
 
 def load_local_ocr_functions():
-    from app.ocr_service import extract_layout_blocks_from_image, extract_text_from_image
+    from app.services.ocr_service import extract_layout_blocks_from_image, extract_text_from_image
 
     return extract_layout_blocks_from_image, extract_text_from_image
 
@@ -679,14 +679,14 @@ def run_menu_parse_task(
     source_lang: str = "en",
 ):
     try:
-        from app.database import SessionLocal
-        from app.dish_cache_service import (
+        from app.core.database import SessionLocal
+        from app.services.dish_cache_service import (
             apply_cache_to_items,
             infer_menu_cuisine,
             resolve_dish_cuisine,
             upsert_dish_cache,
         )
-        from app.menu_cache_service import (
+        from app.services.menu_cache_service import (
             calculate_image_hash,
             get_menu_cache,
             upsert_menu_cache,

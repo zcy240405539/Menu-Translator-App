@@ -8,8 +8,8 @@ from pathlib import Path
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND_DIR))
 
-from app import openrouter_service
-from app.ocr_service import extract_layout_blocks_from_image
+from app.services import openrouter_service
+from app.services.ocr_service import extract_layout_blocks_from_image
 
 
 FREE_MODELS = [

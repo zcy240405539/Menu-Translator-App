@@ -5,7 +5,7 @@ import base64
 import os
 import time
 from pathlib import Path
-from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_MODEL
+from app.core.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_MODEL
 OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash-lite")
 OPENROUTER_DETAIL_MODEL = os.getenv("OPENROUTER_DETAIL_MODEL", OPENROUTER_LAYOUT_MODEL)
 OPENROUTER_LAYOUT_MAX_TOKENS = int(os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "4500"))
@@ -25,7 +25,7 @@ VISION_FALLBACK_MODELS = [
     ).split(",")
     if model.strip()
 ]
-from app.i18n_service import get_language_name, normalize_lang
+from app.core.i18n_service import get_language_name, normalize_lang
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
@@ -853,7 +853,7 @@ def call_openrouter_for_menu_structure(ocr_blocks, target_lang="zh"):
 
     import json
     import requests
-    from app.config import OPENROUTER_API_KEY
+    from app.core.config import OPENROUTER_API_KEY
 
     prompt = f"""
 You are a menu layout reconstruction engine.
@@ -962,7 +962,7 @@ def call_openrouter_for_missing_dish_details(dishes, target_lang="zh", source_la
 
     import json
     import requests
-    from app.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
+    from app.core.config import OPENROUTER_API_KEY, OPENROUTER_MODEL
 
     if not dishes:
         return []

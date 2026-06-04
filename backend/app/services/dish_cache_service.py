@@ -1,6 +1,6 @@
 import re
 import unicodedata
-from  app.models import DishCache, DishImage
+from app.core.models import DishCache, DishImage
 
 
 KNOWN_CUISINES = {

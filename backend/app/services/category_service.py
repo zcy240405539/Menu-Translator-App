@@ -1,6 +1,6 @@
 import re
 from sqlalchemy.exc import IntegrityError
-from app.models import MenuCategory
+from app.core.models import MenuCategory
 
 
 def normalize_category_key(label: str) -> str:
