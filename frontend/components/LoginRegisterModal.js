@@ -21,7 +21,7 @@ import {
   IconButton,
 } from "react-native-paper";
 import { login, register, loginWithGoogle, passwordReset, getGoogleAuthUrl } from "../api";
-import { isChineseLanguage } from "../i18n";
+import { isChineseLanguage, getText } from "../i18n";
 
 const DIET_OPTIONS = [
   { key: "Vegetarian", labelEn: "Vegetarian", labelZh: "素食", labelEs: "Vegetariano" },
@@ -213,7 +213,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                       🍽️
                     </Text>
                     <Text variant="titleMedium" style={styles.brandName}>
-                      AI 菜单助手
+                      {getText(targetLang).appTitle}
                     </Text>
                   </View>
 
