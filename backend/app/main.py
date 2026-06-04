@@ -5,21 +5,41 @@ import os
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
+from typing import List
 from fastapi import (
     BackgroundTasks,
     FastAPI,
     UploadFile,
     File,
     HTTPException,
-    Depends,
+    Depends, Body,
 )
 from app.services.pdf_service import pdf_bytes_to_images
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.core.database import get_db, engine, Base
-from app.core.models import DishCache, DishImage
-from app.core.schemas import AnalyzeTextRequest, DishDetailRequest, RecommendRequest
+from app.core.models import DishCache, DishImage, User, UserSubscription
+from app.core.schemas import (
+    SubscriptionResponse,
+    AnalyzeTextRequest,
+    DishDetailRequest,
+    RecommendRequest,
+    UserRegisterRequest,
+    UserLoginRequest,
+    GoogleLoginRequest,
+    UserProfileUpdate,
+    UserResponse,
+)
+from app.services.auth_service import (
+    register_user as sb_register_user,
+    login_user as sb_login_user,
+    get_user_from_token as sb_get_user_from_token,
+    google_login_or_register as sb_google_login_or_register,
+)
+from fastapi import Header
+from typing import Optional
+from app.services.image_service import supabase
 from app.services.openrouter_service import (
     call_openrouter_for_dish_detail,
     call_openrouter_for_menu,
@@ -58,6 +78,153 @@ app.mount(
     StaticFiles(directory=str(STATIC_DIR)),
     name="static",
 )
+
+
+# =========================
+# Auth API Endpoints
+# =========================
+
+def to_user_response(user: User) -> UserResponse:
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        phone=user.phone,
+        avatar_url=user.avatar_url,
+        diets=user.diets or [],
+        allergies=user.allergies or [],
+        budget=user.budget,
+        taste=user.taste,
+        preferred_language=user.preferred_language or "zh"
+    )
+
+def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)) -> User:
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization Header")
+    try:
+        token = authorization.split(" ")[1]
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid Authorization Header Format")
+    
+    user = sb_get_user_from_token(db, token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid Session Token")
+    return user
+
+
+@app.post("/auth/register")
+def register_user(request: UserRegisterRequest, db: Session = Depends(get_db)):
+    try:
+        res = sb_register_user(
+            db=db,
+            username=request.username,
+            email=request.email,
+            password=request.password,
+            phone=request.phone,
+            diets=request.diets,
+            allergies=request.allergies,
+            budget=request.budget,
+            taste=request.taste,
+            preferred_language=request.preferred_language,
+        )
+        return {"token": res["token"], "user": to_user_response(res["user"])}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/auth/login")
+def login_user(request: UserLoginRequest, db: Session = Depends(get_db)):
+    try:
+        res = sb_login_user(db, request.email, request.password)
+        return {"token": res["token"], "user": to_user_response(res["user"])}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/auth/google")
+def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
+    try:
+        res = sb_google_login_or_register(
+            db=db,
+            email=request.email,
+            name=request.name,
+            avatar_url=request.avatar_url,
+        )
+        return {"token": res["token"], "user": to_user_response(res["user"])}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/auth/me", response_model=UserResponse)
+def get_me(current_user: User = Depends(get_current_user)):
+    return to_user_response(current_user)
+
+
+@app.post("/auth/profile", response_model=UserResponse)
+def update_profile(request: UserProfileUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if request.phone is not None:
+        current_user.phone = request.phone
+    if request.diets is not None:
+        current_user.diets = request.diets
+    if request.allergies is not None:
+        current_user.allergies = request.allergies
+    if request.budget is not None:
+        current_user.budget = request.budget
+    if request.taste is not None:
+        current_user.taste = request.taste
+    if request.preferred_language is not None:
+        current_user.preferred_language = request.preferred_language
+        
+    db.commit()
+    db.refresh(current_user)
+    return to_user_response(current_user)
+
+
+@app.post("/auth/logout")
+def logout_user():
+    return {"status": "success"}
+
+
+@app.post("/auth/avatar")
+def upload_avatar(file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="File must be an image")
+            
+        contents = file.file.read()
+        ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+        filename = f"user-{current_user.id}-{uuid.uuid4().hex[:8]}.{ext}"
+        storage_path = f"avatars/{filename}"
+        
+        try:
+            supabase.storage.create_bucket("avatars", {"public": True})
+        except Exception:
+            pass
+            
+        supabase.storage.from_("avatars").upload(
+            storage_path,
+            contents,
+            {
+                "content-type": file.content_type,
+                "upsert": "true",
+            },
+        )
+        
+        public_url = supabase.storage.from_("avatars").get_public_url(storage_path)
+        
+        current_user.avatar_url = public_url
+        db.commit()
+        db.refresh(current_user)
+        
+        return {"avatar_url": public_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload avatar: {str(e)}")
 
 # =========================
 # CORS
@@ -410,6 +577,7 @@ def recommend_menu(request: RecommendRequest):
             menu_items=request.menu_items,
             people=request.people,
             diets=request.diets,
+            allergies=request.allergies,
             budget=request.budget,
             taste=request.taste,
             target_lang=request.target_lang
