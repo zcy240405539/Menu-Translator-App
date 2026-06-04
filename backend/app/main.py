@@ -91,6 +91,7 @@ def to_user_response(user: User) -> UserResponse:
         id=user.id,
         username=user.username,
         email=user.email,
+        role=user.role or "normal",
         phone=user.phone,
         avatar_url=user.avatar_url,
         diets=user.diets or [],
