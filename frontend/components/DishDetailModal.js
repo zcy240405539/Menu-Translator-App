@@ -80,6 +80,9 @@ export default function DishDetailModal({
   onOpenCart,
   onShare,
   menuHash,
+  currentUser,
+  onOpenLogin,
+  onOpenProfile,
 }) {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [detail, setDetail] = useState(null);
@@ -190,6 +193,29 @@ export default function DishDetailModal({
   });
   const imageUrl = mergedDish.image_url || mergedDish.thumbnail_url;
 
+  const matchedUserAllergens = useMemo(() => {
+    if (!currentUser || !currentUser.allergies || currentUser.allergies.length === 0) {
+      return [];
+    }
+    const userAllergyTerms = currentUser.allergies.map((a) => String(a).toLowerCase().trim()).filter(Boolean);
+    const dishAllergenTerms = allergens.map((a) => String(a).toLowerCase().trim()).filter(Boolean);
+    const dishIngredientTerms = ingredients.map((i) => String(i).toLowerCase().trim()).filter(Boolean);
+    const dishNameLower = (String(title) + " " + String(mergedDish.original_name || "")).toLowerCase();
+
+    return userAllergyTerms.filter((term) => {
+      if (dishAllergenTerms.some((da) => da.includes(term) || term.includes(da))) {
+        return true;
+      }
+      if (dishIngredientTerms.some((ing) => ing.includes(term))) {
+        return true;
+      }
+      if (dishNameLower.includes(term)) {
+        return true;
+      }
+      return false;
+    });
+  }, [currentUser, allergens, ingredients, title, mergedDish.original_name]);
+
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -200,10 +226,32 @@ export default function DishDetailModal({
             <Appbar.Action icon="share-variant" onPress={handleShare} />
             <Appbar.Action icon="history" onPress={handleOpenHistory} />
             <Appbar.Action icon="cart-outline" onPress={handleOpenCart} />
-            <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
+            <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => {
+              onClose();
+              if (currentUser) {
+                if (onOpenProfile) onOpenProfile();
+              } else {
+                if (onOpenLogin) onOpenLogin();
+              }
+            }} />
           </Appbar.Header>
 
           <ScrollView contentContainerStyle={styles.content}>
+            {matchedUserAllergens.length > 0 && (
+              <Card style={styles.warningAlertCard} mode="contained">
+                <Card.Content style={styles.warningAlertContent}>
+                  <Text variant="titleMedium" style={styles.warningAlertTitle}>
+                    ⚠️ {isChineseLanguage(targetLang) ? "过敏风险警示" : "Allergy Risk Warning"}
+                  </Text>
+                  <Text variant="bodyMedium" style={styles.warningAlertText}>
+                    {isChineseLanguage(targetLang)
+                      ? `该菜品可能包含您过敏的食材：${matchedUserAllergens.join("、")}！请谨慎点餐并向店员确认。`
+                      : `This dish may contain ingredients you are allergic to: ${matchedUserAllergens.join(", ")}! Please order with caution and confirm with staff.`}
+                  </Text>
+                </Card.Content>
+              </Card>
+            )}
+
             <Card mode="elevated" style={styles.heroCard}>
               <View style={styles.imagePlaceholder}>
                 {imageUrl ? (
@@ -463,5 +511,27 @@ const styles = StyleSheet.create({
   imageLoadingText: {
     color: "#6750A4",
     fontWeight: "700",
+  },
+  warningAlertCard: {
+    borderRadius: 24,
+    backgroundColor: "#FCEEEE",
+    borderWidth: 1.5,
+    borderColor: "#B3261E",
+    marginTop: 10,
+    marginBottom: 16,
+    overflow: "hidden",
+  },
+  warningAlertContent: {
+    paddingVertical: 14,
+  },
+  warningAlertTitle: {
+    color: "#B3261E",
+    fontWeight: "800",
+    marginBottom: 4,
+  },
+  warningAlertText: {
+    color: "#B3261E",
+    fontWeight: "600",
+    lineHeight: 20,
   },
 });

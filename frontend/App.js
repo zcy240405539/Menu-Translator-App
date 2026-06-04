@@ -2,20 +2,66 @@ import React, { useEffect, useState } from "react";
 import * as Localization from "expo-localization";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { MD3LightTheme, PaperProvider } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import HomeScreen from "./screens/HomeScreen";
 import MenuResultScreen from "./screens/MenuResultScreen";
 import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
-import { getCachedMenu } from "./api";
+import { getCachedMenu, setAuthToken, getProfile } from "./api";
 import { Platform, Share, Alert } from "react-native";
 import ShareDialog from "./components/ShareDialog";
+import LoginRegisterModal from "./components/LoginRegisterModal";
+import AccountProfileModal from "./components/AccountProfileModal";
 
 function AppContent() {
   const [screen, setScreen] = useState("home");
   const [menuResult, setMenuResult] = useState(null);
   const [targetLang, setTargetLang] = useState(getInitialLanguage());
   const [languageInitialized, setLanguageInitialized] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  useEffect(() => {
+    async function loadSession() {
+      try {
+        const token = await AsyncStorage.getItem("menu_app_token");
+        if (token) {
+          setAuthToken(token);
+          const user = await getProfile();
+          setCurrentUser(user);
+        }
+      } catch (err) {
+        console.log("Auto-login failed:", err);
+      }
+    }
+    loadSession();
+  }, []);
+
+  const handleLoginSuccess = async (token, user) => {
+    try {
+      await AsyncStorage.setItem("menu_app_token", token);
+      setAuthToken(token);
+      setCurrentUser(user);
+    } catch (e) {
+      console.warn("Save token failed", e);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("menu_app_token");
+      setAuthToken(null);
+      setCurrentUser(null);
+    } catch (e) {
+      console.warn("Remove token failed", e);
+    }
+  };
+
+  const handleUpdateUser = (updatedUser) => {
+    setCurrentUser(updatedUser);
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.location?.search) {
@@ -158,6 +204,9 @@ function AppContent() {
 
   let screenComponent;
 
+  const onOpenLogin = () => setShowLoginModal(true);
+  const onOpenProfile = () => setShowProfileModal(true);
+
   if (screen === "cart") {
     screenComponent = (
       <CartScreen
@@ -166,6 +215,9 @@ function AppContent() {
         onOpenHistory={() => setScreen("history")}
         onOpenCart={() => setScreen("cart")}
         onShare={handleShareGlobal}
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onOpenProfile={onOpenProfile}
       />
     );
   } else if (screen === "history") {
@@ -181,6 +233,9 @@ function AppContent() {
           setScreen("result");
         }}
         onShare={handleShareGlobal}
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onOpenProfile={onOpenProfile}
       />
     );
   } else if (screen === "result" && menuResult) {
@@ -192,6 +247,9 @@ function AppContent() {
         onOpenCart={() => setScreen("cart")}
         onOpenHistory={() => setScreen("history")}
         onShare={handleShareGlobal}
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onOpenProfile={onOpenProfile}
       />
     );
   } else {
@@ -206,6 +264,9 @@ function AppContent() {
         onOpenCart={() => setScreen("cart")}
         onOpenHistory={() => setScreen("history")}
         onShare={handleShareGlobal}
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onOpenProfile={onOpenProfile}
       />
     );
   }
@@ -219,6 +280,20 @@ function AppContent() {
         shareUrl={shareUrl}
         shareMessage={shareMessage}
         targetLang={targetLang}
+      />
+      <LoginRegisterModal
+        visible={showLoginModal}
+        targetLang={targetLang}
+        onClose={() => setShowLoginModal(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+      <AccountProfileModal
+        visible={showProfileModal}
+        currentUser={currentUser}
+        targetLang={targetLang}
+        onClose={() => setShowProfileModal(false)}
+        onUpdateUser={handleUpdateUser}
+        onLogout={handleLogout}
       />
     </>
   );

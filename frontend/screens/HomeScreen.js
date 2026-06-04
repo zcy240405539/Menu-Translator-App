@@ -34,7 +34,7 @@ import {
 } from "../i18n";
 
 
-export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory, onShare }) {
+export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile }) {
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sourceLang, setSourceLang] = useState("auto");
@@ -315,7 +315,11 @@ const selectFromFile = async () => {
   };
 
   const handleLogin = () => {
-    console.log("Login pressed");
+    if (currentUser) {
+      if (onOpenProfile) onOpenProfile();
+    } else {
+      if (onOpenLogin) onOpenLogin();
+    }
   };
 
   const currentLanguage =
@@ -328,7 +332,7 @@ const selectFromFile = async () => {
         <Appbar.Action icon="share-variant" onPress={handleShare} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
-        <Appbar.Action icon="account-circle-outline" onPress={handleLogin} />
+        <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={handleLogin} />
       </Appbar.Header>
 
       <ScrollView

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -45,11 +45,15 @@ export default function AIRecommendModal({
   onOpenCart,
   onShare,
   menuHash,
+  currentUser,
+  onOpenLogin,
+  onOpenProfile,
 }) {
   const [people, setPeople] = useState("");
   const [selectedDiets, setSelectedDiets] = useState([]);
   const [budget, setBudget] = useState("");
   const [taste, setTaste] = useState("");
+  const [allergiesText, setAllergiesText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -57,6 +61,26 @@ export default function AIRecommendModal({
   const [recommendedItems, setRecommendedItems] = useState([]);
   const [addedItemIds, setAddedItemIds] = useState({});
   const [snackbarVisible, setSnackbarVisible] = useState(false);
+
+  // Populate guest/user preferences when modal is opened
+  useEffect(() => {
+    if (visible) {
+      if (currentUser) {
+        setSelectedDiets(currentUser.diets || []);
+        setAllergiesText(currentUser.allergies ? currentUser.allergies.join(", ") : "");
+        setBudget(currentUser.budget || "");
+        setTaste(currentUser.taste || "");
+      } else {
+        setPeople("");
+        setSelectedDiets([]);
+        setAllergiesText("");
+        setBudget("");
+        setTaste("");
+      }
+      setRecommendationText("");
+      setRecommendedItems([]);
+    }
+  }, [visible, currentUser]);
 
   const lang = isChineseLanguage(targetLang) ? targetLang : "en";
   const isTraditional = targetLang === "zh-Hant";
@@ -91,13 +115,18 @@ export default function AIRecommendModal({
       setLoading(true);
       setError("");
       
+      const allergies = allergiesText
+        ? allergiesText.split(/[,，]/).map((s) => s.trim()).filter(Boolean)
+        : [];
+
       const res = await getAIRecommendations(
         menuItems,
         people,
         selectedDiets,
         budget,
         taste,
-        targetLang
+        targetLang,
+        allergies
       );
 
       setRecommendationText(res.recommendation || "");
@@ -152,7 +181,14 @@ export default function AIRecommendModal({
             <Appbar.Action icon="share-variant" onPress={handleShare} />
             <Appbar.Action icon="history" onPress={handleOpenHistory} />
             <Appbar.Action icon="cart-outline" onPress={handleOpenCart} />
-            <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
+            <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => {
+              onClose();
+              if (currentUser) {
+                if (onOpenProfile) onOpenProfile();
+              } else {
+                if (onOpenLogin) onOpenLogin();
+              }
+            }} />
           </Appbar.Header>
 
           <KeyboardAvoidingView
@@ -313,6 +349,23 @@ export default function AIRecommendModal({
                       value={budget}
                       onChangeText={setBudget}
                       placeholder={t.recommend.budgetPlaceholder}
+                      style={styles.input}
+                    />
+
+
+                    {/* 食物过敏原 */}
+                    <Text variant="titleSmall" style={styles.label}>
+                      {t.detail.allergens}
+                    </Text>
+                    <TextInput
+                      mode="outlined"
+                      value={allergiesText}
+                      onChangeText={setAllergiesText}
+                      placeholder={
+                        isChineseLanguage(targetLang)
+                          ? (targetLang === "zh-Hant" ? "例如：花生、海鮮（逗號分隔）" : "例如：花生、海鲜（逗号分隔）")
+                          : "e.g., peanut, seafood (comma separated)"
+                      }
                       style={styles.input}
                     />
 

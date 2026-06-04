@@ -1361,6 +1361,7 @@ def call_openrouter_for_recommendation(
     menu_items: list[dict],
     people: int | None = None,
     diets: list[str] | None = None,
+    allergies: list[str] | None = None,
     budget: str | None = None,
     taste: str | None = None,
     target_lang: str = "zh"
@@ -1370,7 +1371,7 @@ def call_openrouter_for_recommendation(
 
     system_prompt = f"""
 You are a professional restaurant ordering advisor.
-Your job is to analyze the menu items and recommend a selection of dishes for the user based on their preferences (such as number of people, diet constraints, budget, taste/lightness preferences).
+Your job is to analyze the menu items and recommend a selection of dishes for the user based on their preferences (such as number of people, diet constraints, food allergies, budget, taste/lightness preferences).
 
 You must return a raw JSON object matching this schema:
 {{
@@ -1387,6 +1388,7 @@ Rules:
 - Provide the recommendation text and reasons in {target_language_name}.
 - Only recommend dish IDs that exist in the menu items list.
 - Ensure the selected dishes respect all specified diet constraints (e.g. Vegetarian, Halal, Kosher, Keto, Gluten-Free).
+- CRITICAL: DO NOT recommend any dish that contains any of the user's food allergies! Filter them out.
 - Make sure the total estimated cost fits the budget if specified.
 - Do not use markdown code blocks (e.g. no ```json). Return raw JSON only.
 """
@@ -1412,6 +1414,7 @@ Rules:
             "preferences": {
                 "people": people,
                 "diet_constraints": diets or [],
+                "food_allergies": allergies or [],
                 "budget": budget,
                 "taste_preferences": taste
             }

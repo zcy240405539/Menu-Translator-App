@@ -34,7 +34,7 @@ const pickFile = async () => {
   }
 };
 
-export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare }) {
+export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile }) {
   const [history, setHistory] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
@@ -63,7 +63,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
             setHistory([]);
           }}
         />
-        <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
+        <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
       </Appbar.Header>
 
       <FlatList

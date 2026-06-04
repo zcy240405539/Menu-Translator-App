@@ -91,7 +91,7 @@ function getSectionTitle(category, categoryItems, targetLang) {
   );
 }
 
-export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart, onOpenHistory, onShare }) {
+export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile }) {
   const [selectedDish, setSelectedDish] = useState(null);
   const [showRecommend, setShowRecommend] = useState(false);
   const [cameFromRecommend, setCameFromRecommend] = useState(false);
@@ -306,7 +306,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         <Appbar.Action icon="share-variant" onPress={handleShare} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
-        <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
+        <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
       </Appbar.Header>
 
       <SectionList
@@ -407,6 +407,9 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
           restaurant_type: restaurantType,
           source_language: sourceLanguage,
         }}
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onOpenProfile={onOpenProfile}
       />
 
       <DishDetailModal
@@ -428,6 +431,9 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
           restaurant_type: restaurantType,
           source_language: sourceLanguage,
         }}
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onOpenProfile={onOpenProfile}
       />
     </Surface>
   );

@@ -22,7 +22,7 @@ function getDishName(dish) {
   return dish.translated_name || dish.original_name || "Dish";
 }
 
-export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare }) {
+export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile }) {
   const [items, setItems] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
@@ -62,7 +62,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
             setItems([]);
           }}
         />
-        <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
+        <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
       </Appbar.Header>
 
       <View style={styles.content}>

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime
 
 
 class DishItem(BaseModel):
@@ -51,7 +52,73 @@ class RecommendRequest(BaseModel):
     menu_items: List[dict]
     people: Optional[int] = None
     diets: Optional[List[str]] = None
+    allergies: Optional[List[str]] = None
     budget: Optional[str] = None
     taste: Optional[str] = None
     target_lang: str = "zh"
+
+
+class UserRegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+    phone: Optional[str] = None
+    diets: List[str] = []
+    allergies: List[str] = []
+    budget: Optional[str] = None
+    taste: Optional[str] = None
+    preferred_language: str = "zh"
+
+
+class UserLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class GoogleLoginRequest(BaseModel):
+    email: str
+    name: str
+    avatar_url: Optional[str] = None
+
+
+class UserProfileUpdate(BaseModel):
+    phone: Optional[str] = None
+    diets: Optional[List[str]] = None
+    allergies: Optional[List[str]] = None
+    budget: Optional[str] = None
+    taste: Optional[str] = None
+    preferred_language: Optional[str] = None
+
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    role: str
+    phone: Optional[str] = None
+    avatar_url: Optional[str] = None
+    diets: List[str] = []
+    allergies: List[str] = []
+    budget: Optional[str] = None
+    taste: Optional[str] = None
+    preferred_language: str
+    subscription_plan: Optional[str] = "free"
+
+
+class SubscriptionResponse(BaseModel):
+    id: int
+    user_id: str
+    plan: str
+    status: str
+    is_expired: bool
+    expired_at: Optional[datetime] = None
+    stripe_customer_id: Optional[str] = None
+    stripe_subscription_id: Optional[str] = None
+    purchase_token: Optional[str] = None
+    original_transaction_id: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
 

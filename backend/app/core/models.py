@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, Text, Integer, DateTime, UniqueConstraint, JSON, CheckConstraint
+from sqlalchemy import Column, BigInteger, Text, Integer, DateTime, UniqueConstraint, JSON, CheckConstraint, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -109,3 +109,55 @@ class MenuCategory(Base):
     __table_args__ = (
         UniqueConstraint("normalized_key", "target_language"),
     )
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Text, primary_key=True, index=True)  # Supabase Auth User UUID
+    username = Column(Text, nullable=False, unique=True)
+    email = Column(Text, nullable=False, unique=True)
+    role = Column(Text, default="normal", nullable=False)
+    phone = Column(Text, nullable=True)
+    avatar_url = Column(Text, nullable=True)
+
+    # Preferences
+    diets = Column(JSONB, default=list)  # e.g. ["Vegetarian", "Gluten-Free"]
+    allergies = Column(JSONB, default=list)  # e.g. ["nuts", "seafood"]
+    budget = Column(Text, nullable=True)
+    taste = Column(Text, nullable=True)
+    preferred_language = Column(Text, default="zh")
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        CheckConstraint(
+            "role IN ('super user', 'admin', 'normal')",
+            name="chk_user_role"
+        ),
+    )
+
+
+class UserSubscription(Base):
+    __tablename__ = "user_subscriptions"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    user_id = Column(Text, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
+    plan = Column(Text, nullable=False, default="free")  # e.g. "free", "premium", "pro"
+    status = Column(Text, nullable=False, default="active")  # e.g. "active", "canceled", "incomplete"
+    is_expired = Column(Boolean, default=False, nullable=False)
+    expired_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Stripe fields
+    stripe_customer_id = Column(Text, nullable=True)
+    stripe_subscription_id = Column(Text, nullable=True)
+
+    # Google Play / App Store purchase fields
+    purchase_token = Column(Text, nullable=True)
+    original_transaction_id = Column(Text, nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+

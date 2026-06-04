@@ -85,6 +85,23 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
 }
 
 
+let authToken = null;
+
+export function setAuthToken(token) {
+  authToken = token;
+}
+
+function getHeaders(isFormData = false) {
+  const headers = {};
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+  return headers;
+}
+
 export async function getDishDetail(
   dishName,
   targetLang = "zh",
@@ -93,9 +110,7 @@ export async function getDishDetail(
 ) {
   const res = await fetch(`${API_BASE_URL}/dish/detail`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders(),
     body: JSON.stringify({
       dish_name: dishName,
       target_lang: targetLang,
@@ -117,12 +132,10 @@ export async function getDishDetail(
   return await res.json();
 }
 
-export async function getAIRecommendations(menuItems, people, diets, budget, taste, targetLang = "zh") {
+export async function getAIRecommendations(menuItems, people, diets, budget, taste, targetLang = "zh", allergies = null) {
   const res = await fetch(`${API_BASE_URL}/menus/recommend`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders(),
     body: JSON.stringify({
       menu_items: menuItems,
       people: people ? parseInt(people, 10) : null,
@@ -130,6 +143,7 @@ export async function getAIRecommendations(menuItems, people, diets, budget, tas
       budget: budget || null,
       taste: taste || null,
       target_lang: targetLang,
+      allergies: allergies && allergies.length > 0 ? allergies : null,
     }),
   });
 
@@ -140,6 +154,7 @@ export async function getAIRecommendations(menuItems, people, diets, budget, tas
 
   return await res.json();
 }
+
 export async function getCachedMenu(imageHash, targetLang = "zh") {
   const res = await fetch(`${API_BASE_URL}/menus/cache/${imageHash}?target_lang=${encodeURIComponent(targetLang)}`);
   if (!res.ok) {
@@ -147,3 +162,131 @@ export async function getCachedMenu(imageHash, targetLang = "zh") {
   }
   return await res.json();
 }
+
+export async function register(username, email, password, phone, diets, allergies, budget, taste, preferredLanguage) {
+  const res = await fetch(`${API_BASE_URL}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+      phone,
+      diets,
+      allergies,
+      budget,
+      taste,
+      preferred_language: preferredLanguage,
+    }),
+  });
+  if (!res.ok) {
+    const errorText = await res.json();
+    throw new Error(errorText?.detail || "Failed to register");
+  }
+  const data = await res.json();
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  return data;
+}
+
+export async function login(email, password) {
+  const res = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const errorText = await res.json();
+    throw new Error(errorText?.detail || "Failed to login");
+  }
+  const data = await res.json();
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  return data;
+}
+
+export async function loginWithGoogle(email, name, avatarUrl) {
+  const res = await fetch(`${API_BASE_URL}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, name, avatar_url: avatarUrl }),
+  });
+  if (!res.ok) {
+    const errorText = await res.json();
+    throw new Error(errorText?.detail || "Failed to login with Google");
+  }
+  const data = await res.json();
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  return data;
+}
+
+export async function getProfile() {
+  const res = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch user profile");
+  }
+  return await res.json();
+}
+
+export async function updateProfile(profileData) {
+  const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(profileData),
+  });
+  if (!res.ok) {
+    const errorText = await res.json();
+    throw new Error(errorText?.detail || "Failed to update profile");
+  }
+  return await res.json();
+}
+
+export async function uploadAvatar(file) {
+  const formData = new FormData();
+  const fileName = file.name || "avatar.jpg";
+  const mimeType = file.mimeType || file.type || "image/jpeg";
+
+  if (typeof window !== "undefined") {
+    const fileResponse = await fetch(file.uri);
+    const blob = await fileResponse.blob();
+    formData.append("file", new File([blob], fileName, { type: mimeType }));
+  } else {
+    formData.append("file", {
+      uri: file.uri,
+      name: fileName,
+      type: mimeType,
+    });
+  }
+
+  const res = await fetch(`${API_BASE_URL}/auth/avatar`, {
+    method: "POST",
+    headers: getHeaders(true),
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.json();
+    throw new Error(errorText?.detail || "Failed to upload avatar");
+  }
+  return await res.json();
+}
+
+export async function logout() {
+  try {
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+  } catch (err) {
+    console.warn("Logout request failed:", err);
+  }
+  setAuthToken(null);
+}
+
