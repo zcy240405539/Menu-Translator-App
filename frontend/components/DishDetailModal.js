@@ -25,6 +25,7 @@ import { addDishToCart } from "../storage/cartStorage";
 import { getText, isChineseLanguage } from "../i18n";
 import { getDishDetail } from "../api";
 import { formatPrice } from "../utils/price";
+import { BannerAd, BannerAdSize, AD_UNIT_IDS } from "../utils/ads";
 
 function getTranslatedName(dish) {
   return (
@@ -343,6 +344,15 @@ export default function DishDetailModal({
               </Card.Content>
             </Card>
 
+            {BannerAd && (
+              <View style={styles.adContainer}>
+                <BannerAd
+                  unitId={AD_UNIT_IDS.itemBanner}
+                  size={BannerAdSize.BANNER}
+                />
+              </View>
+            )}
+
             <Button
               mode="contained-tonal"
               icon="cart-plus"
@@ -533,5 +543,10 @@ const styles = StyleSheet.create({
     color: "#B3261E",
     fontWeight: "600",
     lineHeight: 20,
+  },
+  adContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 14,
   },
 });

@@ -14,6 +14,7 @@ import DishDetailModal from "../components/DishDetailModal";
 import AIRecommendModal from "../components/AIRecommendModal";
 import { getText, isChineseLanguage, getUrlLangParam } from "../i18n";
 import { formatPrice } from "../utils/price";
+import { BannerAd, BannerAdSize, AD_UNIT_IDS } from "../utils/ads";
 
 function getTranslatedName(item) {
   return (
@@ -435,6 +436,14 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
       />
+      {BannerAd && (
+        <View style={styles.adContainer}>
+          <BannerAd
+            unitId={AD_UNIT_IDS.bottomBanner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          />
+        </View>
+      )}
     </Surface>
   );
 }
@@ -552,5 +561,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     color: "#6750A4",
     fontWeight: "600",
+  },
+  adContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    backgroundColor: "#FDF8F3",
   },
 });

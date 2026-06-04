@@ -26,6 +26,7 @@ import {
 } from "react-native-paper";
 
 import { parseMenuFile } from "../api";
+import { InterstitialAd, AdEventType, AD_UNIT_IDS } from "../utils/ads";
 import {
   getText,
   saveLanguage,
@@ -167,6 +168,11 @@ const selectFromFile = async () => {
       return;
     }
 
+    let adShown = false;
+    let parseResult = null;
+    let parseError = null;
+    let adClosed = false;
+
     try {
       setLoading(true);
 
@@ -189,17 +195,103 @@ const selectFromFile = async () => {
         };
       }
 
-      const data = await parseMenuFile(fileToUpload, targetLang, sourceLang);
+      const navigateToResult = async (data) => {
+        try {
+          await saveMenuHistory(data, imageUri, targetLang);
+          onMenuParsed(data);
+        } catch (err) {
+          console.warn("Save history failed:", err);
+          onMenuParsed(data);
+        }
+      };
 
-      await saveMenuHistory(data, imageUri, targetLang);
-      onMenuParsed(data);
+      // 1. Start Menu Parsing in background
+      const parsePromise = parseMenuFile(fileToUpload, targetLang, sourceLang)
+        .then((data) => {
+          parseResult = data;
+          if (!adShown || adClosed) {
+            navigateToResult(data);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          parseError = err;
+          if (!adShown || adClosed) {
+            console.warn("Menu analysis failed:", err);
+            Alert.alert(t.home.analysisFailed, err.message || JSON.stringify(err));
+            setLoading(false);
+          }
+        });
+
+      // 2. Start Loading Ad (if on native platform and InterstitialAd is available)
+      if (Platform.OS !== "web" && InterstitialAd) {
+        const interstitial = InterstitialAd.createForAdRequest(AD_UNIT_IDS.interstitial);
+        
+        let adTimeout = setTimeout(() => {
+          if (!adShown) {
+            adClosed = true;
+            if (parseResult) {
+              navigateToResult(parseResult);
+              setLoading(false);
+            } else if (parseError) {
+              console.warn("Menu analysis failed:", parseError);
+              Alert.alert(t.home.analysisFailed, parseError.message || JSON.stringify(parseError));
+              setLoading(false);
+            }
+          }
+        }, 3500); // Wait up to 3.5 seconds for ad to load
+
+        interstitial.addAdEventListener(AdEventType.LOADED, () => {
+          clearTimeout(adTimeout);
+          adShown = true;
+          interstitial.show().catch((err) => {
+            console.warn("Failed to show interstitial ad:", err);
+            adClosed = true;
+            if (parseResult) {
+              navigateToResult(parseResult);
+              setLoading(false);
+            } else if (parseError) {
+              Alert.alert(t.home.analysisFailed, parseError.message || JSON.stringify(parseError));
+              setLoading(false);
+            }
+          });
+        });
+
+        interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+          adClosed = true;
+          if (parseResult) {
+            navigateToResult(parseResult);
+            setLoading(false);
+          } else if (parseError) {
+            Alert.alert(t.home.analysisFailed, parseError.message || JSON.stringify(parseError));
+            setLoading(false);
+          }
+        });
+
+        interstitial.addAdEventListener(AdEventType.ERROR, (err) => {
+          console.warn("Interstitial ad error:", err);
+          clearTimeout(adTimeout);
+          adClosed = true;
+          if (parseResult) {
+            navigateToResult(parseResult);
+            setLoading(false);
+          } else if (parseError) {
+            Alert.alert(t.home.analysisFailed, parseError.message || JSON.stringify(parseError));
+            setLoading(false);
+          }
+        });
+
+        interstitial.load();
+      } else {
+        adClosed = true;
+      }
+
     } catch (error) {
-      console.warn("Menu analysis failed:", error);
+      console.warn("Menu analysis initialization failed:", error);
       Alert.alert(
         t.home.analysisFailed,
         error.message || JSON.stringify(error)
       );
-    } finally {
       setLoading(false);
     }
   };
