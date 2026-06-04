@@ -218,6 +218,26 @@ async def health():
         "status": "ok",
         "service": "AI Menu Backend"
     }
+
+
+# =========================
+# GET Cached Menu
+# =========================
+
+@app.get("/menus/cache/{image_hash}")
+def get_cached_menu(image_hash: str, target_lang: str = "zh", db: Session = Depends(get_db)):
+    from app.services.menu_cache_service import get_menu_cache
+    record = get_menu_cache(db, image_hash, target_lang)
+    if not record:
+        raise HTTPException(status_code=404, detail="Menu cache not found")
+    
+    result = record.structure_result or {}
+    result["menu_items"] = record.menu_items or []
+    result["ocr_blocks"] = record.ocr_blocks or []
+    result["business_name"] = record.business_name
+    result["business_description"] = record.business_description or {}
+    result["image_hash"] = record.image_hash
+    return result
 # =========================
 # DB TEST
 # =========================
@@ -729,6 +749,7 @@ def run_menu_parse_task(
                 result["ocr_blocks"] = cached_menu.ocr_blocks or []
                 result["business_name"] = cached_menu.business_name
                 result["business_description"] = cached_menu.business_description or {}
+                result["image_hash"] = image_hash
 
                 if result.get("cache_schema_version") != MENU_CACHE_SCHEMA_VERSION:
                     print("Menu cache skipped because cache schema version changed.")
@@ -1136,6 +1157,7 @@ def run_menu_parse_task(
 
             result["menu_items"] = enriched_items or menu_items
             result["ocr_blocks"] = result.get("ocr_blocks", ocr_blocks)
+            result["image_hash"] = image_hash
             result["cache_summary"] = {
                 "menu_cache_hit": False,
                 "total_items": len(enriched_items),

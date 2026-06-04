@@ -40,6 +40,11 @@ export default function AIRecommendModal({
   targetLang,
   onClose,
   menuInfo,
+  onPressDish,
+  onOpenHistory,
+  onOpenCart,
+  onShare,
+  menuHash,
 }) {
   const [people, setPeople] = useState("");
   const [selectedDiets, setSelectedDiets] = useState([]);
@@ -56,6 +61,22 @@ export default function AIRecommendModal({
   const lang = isChineseLanguage(targetLang) ? targetLang : "en";
   const isTraditional = targetLang === "zh-Hant";
   const t = getText(lang);
+
+  const handleOpenHistory = () => {
+    onClose();
+    if (onOpenHistory) onOpenHistory();
+  };
+
+  const handleOpenCart = () => {
+    onClose();
+    if (onOpenCart) onOpenCart();
+  };
+
+  const handleShare = () => {
+    if (onShare) {
+      onShare();
+    }
+  };
 
   const handleDietToggle = (dietKey) => {
     if (selectedDiets.includes(dietKey)) {
@@ -127,6 +148,10 @@ export default function AIRecommendModal({
           <Appbar.Header mode="center-aligned" style={styles.appbar}>
             <Appbar.BackAction onPress={onClose} />
             <Appbar.Content title={t.recommend.title} />
+            <Appbar.Action icon="share-variant" onPress={handleShare} />
+            <Appbar.Action icon="history" onPress={handleOpenHistory} />
+            <Appbar.Action icon="cart-outline" onPress={handleOpenCart} />
+            <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
           </Appbar.Header>
 
           <KeyboardAvoidingView
@@ -167,7 +192,12 @@ export default function AIRecommendModal({
                       const isAdded = !!addedItemIds[dish.id];
 
                       return (
-                        <Card key={dish.id} mode="elevated" style={styles.dishCard}>
+                        <Card
+                          key={dish.id}
+                          mode="elevated"
+                          style={styles.dishCard}
+                          onPress={() => onPressDish && onPressDish(dish)}
+                        >
                           <Card.Content>
                             <View style={styles.dishHeader}>
                               <View style={styles.dishNameBox}>

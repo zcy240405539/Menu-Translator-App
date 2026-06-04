@@ -34,7 +34,7 @@ import {
 } from "../i18n";
 
 
-export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory }) {
+export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory, onShare }) {
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sourceLang, setSourceLang] = useState("auto");
@@ -309,53 +309,8 @@ const selectFromFile = async () => {
   };
 
   const handleShare = async () => {
-    if (shouldUseSystemShare()) {
-      try {
-        await shareWithSystem();
-      } catch (error) {
-        if (error?.name !== "AbortError") {
-          Alert.alert(t.home.shareFailed, error.message || t.home.unknownError);
-        }
-      }
-      return;
-    }
-
-    setShareDialogVisible(true);
-  };
-
-  const copyShareTextToClipboard = async () => {
-    if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(getShareMessage());
-  };
-
-  const openShareUrl = async (url, targetKey) => {
-    if (typeof window !== "undefined") {
-      if (targetKey === "email") {
-        window.location.href = url;
-        return;
-      }
-
-      window.open(url, "_blank", "noopener,noreferrer");
-      return;
-    }
-
-    await Linking.openURL(url);
-  };
-
-  const handleShareTargetPress = async (target) => {
-    setShareDialogVisible(false);
-
-    try {
-      if (target.copyBeforeOpen) {
-        await copyShareTextToClipboard();
-      }
-
-      await openShareUrl(target.url, target.key);
-    } catch (error) {
-      Alert.alert(t.home.shareFailed, error.message || t.home.unknownError);
+    if (onShare) {
+      onShare(getCurrentShareUrl(), t.home.shareMessage);
     }
   };
 
@@ -527,38 +482,7 @@ const selectFromFile = async () => {
         </Card>
       </ScrollView>
 
-      <Portal>
-        <Dialog
-          visible={shareDialogVisible}
-          onDismiss={() => setShareDialogVisible(false)}
-          style={styles.shareDialog}
-        >
-          <Dialog.Title>{t.home.shareTitle}</Dialog.Title>
-          <Dialog.Content>
-            <Text style={styles.shareSubtitle}>{t.home.shareSubtitle}</Text>
 
-            <View style={styles.shareButtonList}>
-              {getShareTargets().map((target) => (
-                <Button
-                  key={target.key}
-                  mode="outlined"
-                  icon={target.icon}
-                  style={styles.shareButton}
-                  contentStyle={styles.shareButtonContent}
-                  onPress={() => handleShareTargetPress(target)}
-                >
-                  {target.label}
-                </Button>
-              ))}
-            </View>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => setShareDialogVisible(false)}>
-              {t.detail.close}
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
     </Surface>
   );
 }

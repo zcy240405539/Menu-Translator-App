@@ -140,4 +140,10 @@ export async function getAIRecommendations(menuItems, people, diets, budget, tas
 
   return await res.json();
 }
-
+export async function getCachedMenu(imageHash, targetLang = "zh") {
+  const res = await fetch(`${API_BASE_URL}/menus/cache/${imageHash}?target_lang=${encodeURIComponent(targetLang)}`);
+  if (!res.ok) {
+    throw new Error("Failed to load cached menu");
+  }
+  return await res.json();
+}

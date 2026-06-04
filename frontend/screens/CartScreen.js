@@ -22,7 +22,7 @@ function getDishName(dish) {
   return dish.translated_name || dish.original_name || "Dish";
 }
 
-export default function CartScreen({ onBack, targetLang }) {
+export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare }) {
   const [items, setItems] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
@@ -52,6 +52,9 @@ export default function CartScreen({ onBack, targetLang }) {
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         <Appbar.BackAction onPress={onBack} />
         <Appbar.Content title={isChinese ? (isTraditional ? "待點列表" : "待点列表") : "Order List"} />
+        <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, isChinese ? "分享我的待点列表并体验菜单翻译助手！" : "Check out my order list and Menu Translator!")} />
+        <Appbar.Action icon="history" onPress={onOpenHistory} />
+        <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
         <Appbar.Action
           icon="delete-outline"
           onPress={async () => {
@@ -59,6 +62,7 @@ export default function CartScreen({ onBack, targetLang }) {
             setItems([]);
           }}
         />
+        <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
       </Appbar.Header>
 
       <View style={styles.content}>

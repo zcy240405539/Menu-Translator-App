@@ -312,6 +312,20 @@ export function isChineseLanguage(lang) {
   return lang === "zh" || lang === "zh-Hant" || String(lang || "").startsWith("zh-");
 }
 
+export function getUrlLangParam(langCode) {
+  if (langCode === "zh") return "zh-cn";
+  if (langCode === "zh-Hant") return "zh-tw";
+  return "en";
+}
+
+export function mapUrlLangToInternal(langParam) {
+  if (!langParam) return null;
+  const normalized = String(langParam).toLowerCase();
+  if (normalized === "zh-cn" || normalized === "zh") return "zh";
+  if (normalized === "zh-tw" || normalized === "zh-hk" || normalized === "zh-hant") return "zh-Hant";
+  return "en";
+}
+
 export function getInitialLanguage() {
   if (typeof localStorage !== "undefined") {
     const saved = localStorage.getItem(STORAGE_KEY);

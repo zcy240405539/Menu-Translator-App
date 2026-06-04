@@ -76,11 +76,31 @@ export default function DishDetailModal({
   targetLang,
   onClose,
   menuInfo,
+  onOpenHistory,
+  onOpenCart,
+  onShare,
+  menuHash,
 }) {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [detail, setDetail] = useState(null);
   const [detailKey, setDetailKey] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+
+  const handleOpenHistory = () => {
+    onClose();
+    if (onOpenHistory) onOpenHistory();
+  };
+
+  const handleOpenCart = () => {
+    onClose();
+    if (onOpenCart) onOpenCart();
+  };
+
+  const handleShare = () => {
+    if (onShare) {
+      onShare();
+    }
+  };
 
   const lang = isChineseLanguage(targetLang) ? targetLang : "en";
   const t = getText(lang).detail;
@@ -177,6 +197,10 @@ export default function DishDetailModal({
           <Appbar.Header mode="center-aligned" style={styles.appbar}>
             <Appbar.BackAction onPress={onClose} />
             <Appbar.Content title={title || t.description} />
+            <Appbar.Action icon="share-variant" onPress={handleShare} />
+            <Appbar.Action icon="history" onPress={handleOpenHistory} />
+            <Appbar.Action icon="cart-outline" onPress={handleOpenCart} />
+            <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
           </Appbar.Header>
 
           <ScrollView contentContainerStyle={styles.content}>

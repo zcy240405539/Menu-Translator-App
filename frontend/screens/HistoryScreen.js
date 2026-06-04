@@ -34,7 +34,7 @@ const pickFile = async () => {
   }
 };
 
-export default function HistoryScreen({ onBack, onOpenMenu, targetLang }) {
+export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare }) {
   const [history, setHistory] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
@@ -53,6 +53,9 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang }) {
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         <Appbar.BackAction onPress={onBack} />
         <Appbar.Content title={isChinese ? (isTraditional ? "歷史菜單" : "历史菜单") : "Menu History"} />
+        <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, isChinese ? "分享菜单翻译助手历史记录并体验翻译！" : "Check out Menu Translator menu history!")} />
+        <Appbar.Action icon="history" onPress={onOpenHistory} />
+        <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
         <Appbar.Action
           icon="delete-outline"
           onPress={async () => {
@@ -60,6 +63,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang }) {
             setHistory([]);
           }}
         />
+        <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
       </Appbar.Header>
 
       <FlatList

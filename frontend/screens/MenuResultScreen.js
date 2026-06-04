@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { View, StyleSheet, SectionList } from "react-native";
 import {
   Appbar,
@@ -12,7 +12,7 @@ import {
 
 import DishDetailModal from "../components/DishDetailModal";
 import AIRecommendModal from "../components/AIRecommendModal";
-import { getText, isChineseLanguage } from "../i18n";
+import { getText, isChineseLanguage, getUrlLangParam } from "../i18n";
 import { formatPrice } from "../utils/price";
 
 function getTranslatedName(item) {
@@ -91,9 +91,30 @@ function getSectionTitle(category, categoryItems, targetLang) {
   );
 }
 
-export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart }) {
+export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart, onOpenHistory, onShare }) {
   const [selectedDish, setSelectedDish] = useState(null);
   const [showRecommend, setShowRecommend] = useState(false);
+  const [cameFromRecommend, setCameFromRecommend] = useState(false);
+
+  const handleShare = () => {
+    if (onShare) {
+      const hash = parsedResult?.image_hash || "";
+      const baseUrl = "https://ai-menu-app.onrender.com";
+      const langParam = getUrlLangParam(targetLang);
+      let shareUrl = hash ? `${baseUrl}/?menu_hash=${hash}&lang=${langParam}` : baseUrl;
+      
+      if (selectedDish) {
+        shareUrl += `&dish_name=${encodeURIComponent(selectedDish.original_name || selectedDish.translated_name || selectedDish.name)}`;
+        if (cameFromRecommend) {
+          shareUrl += `&show_recommend=1`;
+        }
+      } else if (showRecommend) {
+        shareUrl += `&show_recommend=1`;
+      }
+      
+      onShare(shareUrl, t.home?.shareMessage || "Check out this menu translator result!");
+    }
+  };
 
   const lang = isChineseLanguage(targetLang) ? targetLang : "en";
   const t = getText(lang);
@@ -114,6 +135,63 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
     parsedResult?.dishes ||
     [];
   const menuPricing = parsedResult?.menu_pricing || [];
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location?.search) {
+      const params = new URLSearchParams(window.location.search);
+      const isRecommend = params.get("show_recommend") === "1";
+      const dishName = params.get("dish_name");
+
+      if (isRecommend) {
+        if (dishName) {
+          setCameFromRecommend(true);
+        } else {
+          setShowRecommend(true);
+        }
+      }
+
+      if (dishName) {
+        const decodedName = decodeURIComponent(dishName);
+        const found = items.find(
+          (x) =>
+            x.original_name === decodedName ||
+            x.translated_name === decodedName ||
+            x.name === decodedName
+        );
+        if (found) {
+          setSelectedDish(found);
+        }
+      }
+    }
+  }, [items]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.history?.replaceState) return;
+
+    const url = new URL(window.location.href);
+
+    if (url.searchParams.has("menu_hash")) {
+      if (selectedDish) {
+        const dishName = selectedDish.original_name || selectedDish.translated_name || selectedDish.name || "";
+        url.searchParams.set("dish_name", dishName);
+        if (cameFromRecommend) {
+          url.searchParams.set("show_recommend", "1");
+        } else {
+          url.searchParams.delete("show_recommend");
+        }
+      } else if (showRecommend) {
+        url.searchParams.set("show_recommend", "1");
+        url.searchParams.delete("dish_name");
+      } else {
+        url.searchParams.delete("show_recommend");
+        url.searchParams.delete("dish_name");
+      }
+
+      url.searchParams.set("lang", getUrlLangParam(targetLang));
+
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+  }, [showRecommend, selectedDish, targetLang, cameFromRecommend]);
 
   const sections = useMemo(() => {
     const groups = {};
@@ -225,7 +303,10 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         <Appbar.BackAction onPress={onBack} />
         <Appbar.Content title={t.result.title} />
+        <Appbar.Action icon="share-variant" onPress={handleShare} />
+        <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
+        <Appbar.Action icon="account-circle-outline" onPress={() => console.log("Login pressed")} />
       </Appbar.Header>
 
       <SectionList
@@ -308,22 +389,41 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         }
       />
 
-      <DishDetailModal
-        visible={!!selectedDish}
-        dish={selectedDish}
+      <AIRecommendModal
+        visible={showRecommend}
+        menuItems={items}
         targetLang={targetLang}
-        onClose={() => setSelectedDish(null)}
+        onClose={() => setShowRecommend(false)}
+        onPressDish={(dish) => {
+          setCameFromRecommend(true);
+          setShowRecommend(false);
+          setSelectedDish(dish);
+        }}
+        onOpenHistory={onOpenHistory}
+        onOpenCart={onOpenCart}
+        onShare={handleShare}
+        menuHash={parsedResult?.image_hash || ""}
         menuInfo={{
           restaurant_type: restaurantType,
           source_language: sourceLanguage,
         }}
       />
 
-      <AIRecommendModal
-        visible={showRecommend}
-        menuItems={items}
+      <DishDetailModal
+        visible={!!selectedDish}
+        dish={selectedDish}
         targetLang={targetLang}
-        onClose={() => setShowRecommend(false)}
+        onClose={() => {
+          setSelectedDish(null);
+          if (cameFromRecommend) {
+            setShowRecommend(true);
+            setCameFromRecommend(false);
+          }
+        }}
+        onOpenHistory={onOpenHistory}
+        onOpenCart={onOpenCart}
+        onShare={handleShare}
+        menuHash={parsedResult?.image_hash || ""}
         menuInfo={{
           restaurant_type: restaurantType,
           source_language: sourceLanguage,
