@@ -24,19 +24,74 @@ function AppContent() {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
-    async function loadSession() {
-      try {
-        const token = await AsyncStorage.getItem("menu_app_token");
-        if (token) {
-          setAuthToken(token);
-          const user = await getProfile();
-          setCurrentUser(user);
+    async function initializeApp() {
+      let oauthToken = null;
+      
+      // 1. Check for OAuth hash tokens
+      if (typeof window !== "undefined" && window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const hashParams = new URLSearchParams(hash);
+        oauthToken = hashParams.get("access_token");
+        if (oauthToken) {
+          try {
+            setAuthToken(oauthToken);
+            await handleLoginSuccess(oauthToken, null);
+            const user = await getProfile();
+            setCurrentUser(user);
+          } catch (err) {
+            console.log("Failed to load profile from OAuth token:", err);
+          }
         }
-      } catch (err) {
-        console.log("Auto-login failed:", err);
+      }
+
+      // 2. Load session from AsyncStorage only if not logged in via OAuth hash
+      if (!oauthToken) {
+        try {
+          const token = await AsyncStorage.getItem("menu_app_token");
+          if (token) {
+            setAuthToken(token);
+            const user = await getProfile();
+            setCurrentUser(user);
+          }
+        } catch (err) {
+          console.log("Auto-login failed:", err);
+          // Clean up invalid/expired token so we don't try to use it again
+          try {
+            await AsyncStorage.removeItem("menu_app_token");
+            setAuthToken(null);
+          } catch (e) {
+            console.warn("Failed to clear invalid token:", e);
+          }
+        }
+      }
+
+      // 3. Check for menu query params
+      if (typeof window !== "undefined" && window.location.search) {
+        const params = new URLSearchParams(window.location.search);
+        const menuHash = params.get("menu_hash");
+        const langParam = params.get("lang") || params.get("target_lang");
+        const mappedLang = mapUrlLangToInternal(langParam);
+
+        if (menuHash) {
+          const fetchLang = mappedLang || targetLang || "zh";
+          try {
+            const data = await getCachedMenu(menuHash, fetchLang);
+            setMenuResult(data);
+            if (mappedLang) {
+              setTargetLang(mappedLang);
+            } else {
+              setTargetLang(fetchLang);
+            }
+            setScreen("result");
+          } catch (err) {
+            console.log("Failed to load shared menu:", err);
+          }
+        } else if (mappedLang) {
+          setTargetLang(mappedLang);
+        }
       }
     }
-    loadSession();
+    initializeApp();
   }, []);
 
   const handleLoginSuccess = async (token, user) => {
@@ -63,54 +118,7 @@ function AppContent() {
     setCurrentUser(updatedUser);
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // 1. Check for OAuth hash tokens
-      let oauthToken = null;
-      if (window.location.hash) {
-        const hash = window.location.hash.substring(1);
-        const hashParams = new URLSearchParams(hash);
-        oauthToken = hashParams.get("access_token");
-        if (oauthToken) {
-          handleLoginSuccess(oauthToken, null);
-          getProfile()
-            .then((user) => {
-              setCurrentUser(user);
-            })
-            .catch((err) => {
-              console.log("Failed to load profile from OAuth token:", err);
-            });
-        }
-      }
-
-      // 2. Check for menu query params
-      if (window.location.search) {
-        const params = new URLSearchParams(window.location.search);
-        const menuHash = params.get("menu_hash");
-        const langParam = params.get("lang") || params.get("target_lang");
-        const mappedLang = mapUrlLangToInternal(langParam);
-
-        if (menuHash) {
-          const fetchLang = mappedLang || targetLang || "zh";
-          getCachedMenu(menuHash, fetchLang)
-            .then((data) => {
-              setMenuResult(data);
-              if (mappedLang) {
-                setTargetLang(mappedLang);
-              } else {
-                setTargetLang(fetchLang);
-              }
-              setScreen("result");
-            })
-            .catch((err) => {
-              console.log("Failed to load shared menu:", err);
-            });
-        } else if (mappedLang) {
-          setTargetLang(mappedLang);
-        }
-      }
-    }
-  }, []);
+  // Combined app initialization is handled in the unified useEffect above.
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.history?.replaceState) return;
