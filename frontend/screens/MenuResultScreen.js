@@ -167,7 +167,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   }, [items]);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !window.history?.replaceState) return;
+    if (typeof window === "undefined" || !window.location || !window.history?.replaceState) return;
 
     const url = new URL(window.location.href);
 

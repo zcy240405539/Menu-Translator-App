@@ -28,7 +28,7 @@ function AppContent() {
       let oauthToken = null;
       
       // 1. Check for OAuth hash tokens
-      if (typeof window !== "undefined" && window.location.hash) {
+      if (typeof window !== "undefined" && window.location && window.location.hash) {
         const hash = window.location.hash.substring(1);
         const hashParams = new URLSearchParams(hash);
         oauthToken = hashParams.get("access_token");
@@ -66,7 +66,7 @@ function AppContent() {
       }
 
       // 3. Check for menu query params
-      if (typeof window !== "undefined" && window.location.search) {
+      if (typeof window !== "undefined" && window.location && window.location.search) {
         const params = new URLSearchParams(window.location.search);
         const menuHash = params.get("menu_hash");
         const langParam = params.get("lang") || params.get("target_lang");
@@ -121,7 +121,7 @@ function AppContent() {
   // Combined app initialization is handled in the unified useEffect above.
 
   useEffect(() => {
-    if (typeof window === "undefined" || !window.history?.replaceState) return;
+    if (typeof window === "undefined" || !window.location || !window.history?.replaceState) return;
 
     const url = new URL(window.location.href);
     const currentLangParam = url.searchParams.get("lang");
