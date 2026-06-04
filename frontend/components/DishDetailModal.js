@@ -172,29 +172,32 @@ export default function DishDetailModal({
     };
   }, [visible, dish, targetLang, cacheKey]);
 
-  if (!dish) return null;
-
   const activeDetail = detailKey === cacheKey ? detail : null;
-  const mergedDish = {
-    ...dish,
-    ...(activeDetail || {}),
-    image_url: activeDetail?.image_url || dish.image_url,
-    thumbnail_url: activeDetail?.thumbnail_url || dish.thumbnail_url,
-  };
+  const mergedDish = dish
+    ? {
+        ...dish,
+        ...(activeDetail || {}),
+        image_url: activeDetail?.image_url || dish.image_url,
+        thumbnail_url: activeDetail?.thumbnail_url || dish.thumbnail_url,
+      }
+    : {};
 
-  const title = getTranslatedName(mergedDish);
-  const description = getTranslatedDescription(mergedDish);
-  const ingredients = normalizeArray(mergedDish.ingredients);
-  const allergens = normalizeArray(mergedDish.allergens);
-  const price = formatPrice(mergedDish.price || dish.price, {
-    sourceLanguage:
-      mergedDish.source_language ||
-      dish.source_language ||
-      menuInfo?.source_language,
-  });
-  const imageUrl = mergedDish.image_url || mergedDish.thumbnail_url;
+  const title = dish ? getTranslatedName(mergedDish) : "";
+  const description = dish ? getTranslatedDescription(mergedDish) : "";
+  const ingredients = dish ? normalizeArray(mergedDish.ingredients) : [];
+  const allergens = dish ? normalizeArray(mergedDish.allergens) : [];
+  const price = dish
+    ? formatPrice(mergedDish.price || dish.price, {
+        sourceLanguage:
+          mergedDish.source_language ||
+          dish.source_language ||
+          menuInfo?.source_language,
+      })
+    : "";
+  const imageUrl = dish ? (mergedDish.image_url || mergedDish.thumbnail_url) : null;
 
   const matchedUserAllergens = useMemo(() => {
+    if (!dish) return [];
     if (!currentUser || !currentUser.allergies || currentUser.allergies.length === 0) {
       return [];
     }
@@ -215,7 +218,9 @@ export default function DishDetailModal({
       }
       return false;
     });
-  }, [currentUser, allergens, ingredients, title, mergedDish.original_name]);
+  }, [currentUser, allergens, ingredients, title, mergedDish.original_name, dish]);
+
+  if (!dish) return null;
 
   return (
     <Portal>
