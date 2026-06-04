@@ -20,7 +20,7 @@ import {
   TextInput,
   IconButton,
 } from "react-native-paper";
-import { login, register, loginWithGoogle, passwordReset } from "../api";
+import { login, register, loginWithGoogle, passwordReset, getGoogleAuthUrl } from "../api";
 import { isChineseLanguage } from "../i18n";
 
 const DIET_OPTIONS = [
@@ -50,9 +50,6 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  
-  // Mock Google Account Selector State
-  const [showGoogleMock, setShowGoogleMock] = useState(false);
   
   const isZh = isChineseLanguage(targetLang);
   
@@ -164,17 +161,31 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
     }
   };
 
-  const triggerGoogleLogin = async (mockEmail, mockName) => {
+  const handleGoogleLogin = async () => {
     setError("");
     setLoading(true);
-    setShowGoogleMock(false);
     try {
-      const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(mockName)}`;
-      const res = await loginWithGoogle(mockEmail, mockName, avatarUrl);
-      onLoginSuccess(res.token, res.user);
+      let redirectUrl = "http://localhost:19006";
+      if (typeof window !== "undefined" && window.location) {
+        redirectUrl = window.location.origin;
+      }
+      
+      const { url } = await getGoogleAuthUrl(redirectUrl);
+      
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        window.location.href = url;
+      } else {
+        const { Linking } = require("react-native");
+        const supported = await Linking.canOpenURL(url);
+        if (supported) {
+          await Linking.openURL(url);
+        } else {
+          throw new Error("Cannot open redirect URL on this device");
+        }
+      }
       onClose();
     } catch (err) {
-      setError(err.message || "Google OAuth failed");
+      setError(err.message || "Failed to trigger Google OAuth");
     } finally {
       setLoading(false);
     }
@@ -444,7 +455,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                   <Button
                     mode="outlined"
                     icon="google"
-                    onPress={() => setShowGoogleMock(true)}
+                    onPress={handleGoogleLogin}
                     style={styles.googleBtn}
                     contentStyle={styles.googleBtnContent}
                     textColor="#1D1B20"
@@ -455,66 +466,6 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
               </Card>
             </ScrollView>
           </KeyboardAvoidingView>
-
-          {/* Google Mock Account Selector Dialog */}
-          <Portal>
-            <Modal
-              visible={showGoogleMock}
-              onRequestClose={() => setShowGoogleMock(false)}
-              animationType="fade"
-              transparent
-            >
-              <View style={styles.modalOverlay}>
-                <View style={styles.googleModalBox}>
-                  <Text variant="titleMedium" style={styles.googleModalTitle}>
-                    {isZh ? "选择测试谷歌账号" : "Choose Mock Google Account"}
-                  </Text>
-                  <Divider style={styles.dialogDivider} />
-
-                  <TouchableOpacity
-                    style={styles.googleAccountItem}
-                    onPress={() => triggerGoogleLogin("scottz1995@gmail.com", "Scott Zhang")}
-                  >
-                    <IconButton icon="account-circle" size={24} iconColor="#6750A4" />
-                    <View>
-                      <Text style={styles.accountName}>Scott Zhang</Text>
-                      <Text style={styles.accountEmail}>scottz1995@gmail.com</Text>
-                    </View>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.googleAccountItem}
-                    onPress={() => triggerGoogleLogin("developer@gmail.com", "Dev Tester")}
-                  >
-                    <IconButton icon="account-circle" size={24} iconColor="#6750A4" />
-                    <View>
-                      <Text style={styles.accountName}>Dev Tester</Text>
-                      <Text style={styles.accountEmail}>developer@gmail.com</Text>
-                    </View>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.googleAccountItem}
-                    onPress={() => triggerGoogleLogin("bella_eats@gmail.com", "Bella")}
-                  >
-                    <IconButton icon="account-circle" size={24} iconColor="#6750A4" />
-                    <View>
-                      <Text style={styles.accountName}>Bella</Text>
-                      <Text style={styles.accountEmail}>bella_eats@gmail.com</Text>
-                    </View>
-                  </TouchableOpacity>
-
-                  <Button
-                    mode="text"
-                    onPress={() => setShowGoogleMock(false)}
-                    style={styles.googleCloseBtn}
-                  >
-                    {isZh ? "取消" : "Cancel"}
-                  </Button>
-                </View>
-              </View>
-            </Modal>
-          </Portal>
         </Surface>
       </Modal>
     </Portal>

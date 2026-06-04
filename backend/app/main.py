@@ -164,6 +164,15 @@ def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/auth/google/url")
+def get_google_auth_url(redirect_to: str = "http://localhost:19006"):
+    supabase_url = os.getenv("SUPABASE_URL")
+    if not supabase_url:
+        raise HTTPException(status_code=500, detail="SUPABASE_URL not configured")
+    url = f"{supabase_url}/auth/v1/authorize?provider=google&redirect_to={redirect_to}"
+    return {"url": url}
+
+
 @app.get("/auth/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return to_user_response(current_user)

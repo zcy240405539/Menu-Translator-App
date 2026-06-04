@@ -64,29 +64,50 @@ function AppContent() {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location?.search) {
-      const params = new URLSearchParams(window.location.search);
-      const menuHash = params.get("menu_hash");
-      const langParam = params.get("lang") || params.get("target_lang");
-      const mappedLang = mapUrlLangToInternal(langParam);
+    if (typeof window !== "undefined") {
+      // 1. Check for OAuth hash tokens
+      let oauthToken = null;
+      if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const hashParams = new URLSearchParams(hash);
+        oauthToken = hashParams.get("access_token");
+        if (oauthToken) {
+          handleLoginSuccess(oauthToken, null);
+          getProfile()
+            .then((user) => {
+              setCurrentUser(user);
+            })
+            .catch((err) => {
+              console.log("Failed to load profile from OAuth token:", err);
+            });
+        }
+      }
 
-      if (menuHash) {
-        const fetchLang = mappedLang || targetLang || "zh";
-        getCachedMenu(menuHash, fetchLang)
-          .then((data) => {
-            setMenuResult(data);
-            if (mappedLang) {
-              setTargetLang(mappedLang);
-            } else {
-              setTargetLang(fetchLang);
-            }
-            setScreen("result");
-          })
-          .catch((err) => {
-            console.log("Failed to load shared menu:", err);
-          });
-      } else if (mappedLang) {
-        setTargetLang(mappedLang);
+      // 2. Check for menu query params
+      if (window.location.search) {
+        const params = new URLSearchParams(window.location.search);
+        const menuHash = params.get("menu_hash");
+        const langParam = params.get("lang") || params.get("target_lang");
+        const mappedLang = mapUrlLangToInternal(langParam);
+
+        if (menuHash) {
+          const fetchLang = mappedLang || targetLang || "zh";
+          getCachedMenu(menuHash, fetchLang)
+            .then((data) => {
+              setMenuResult(data);
+              if (mappedLang) {
+                setTargetLang(mappedLang);
+              } else {
+                setTargetLang(fetchLang);
+              }
+              setScreen("result");
+            })
+            .catch((err) => {
+              console.log("Failed to load shared menu:", err);
+            });
+        } else if (mappedLang) {
+          setTargetLang(mappedLang);
+        }
       }
     }
   }, []);
