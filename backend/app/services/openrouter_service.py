@@ -1355,3 +1355,73 @@ def extract_dish_candidates_from_ocr_blocks(
         "restaurant_type": None,
         "menu_items": items,
     }
+
+
+def call_openrouter_for_recommendation(
+    menu_items: list[dict],
+    people: int | None = None,
+    diets: list[str] | None = None,
+    budget: str | None = None,
+    taste: str | None = None,
+    target_lang: str = "zh"
+) -> dict:
+    target_lang = normalize_lang(target_lang, "zh")
+    target_language_name = get_language_name(target_lang)
+
+    system_prompt = f"""
+You are a professional restaurant ordering advisor.
+Your job is to analyze the menu items and recommend a selection of dishes for the user based on their preferences (such as number of people, diet constraints, budget, taste/lightness preferences).
+
+You must return a raw JSON object matching this schema:
+{{
+  "recommendation": "Overall ordering advice and portion recommendations in {target_language_name}.",
+  "items": [
+    {{
+      "id": "dish_id_from_menu",
+      "reason": "Clear explanation of why this dish fits their preference, in {target_language_name}."
+    }}
+  ]
+}}
+
+Rules:
+- Provide the recommendation text and reasons in {target_language_name}.
+- Only recommend dish IDs that exist in the menu items list.
+- Ensure the selected dishes respect all specified diet constraints (e.g. Vegetarian, Halal, Kosher, Keto, Gluten-Free).
+- Make sure the total estimated cost fits the budget if specified.
+- Do not use markdown code blocks (e.g. no ```json). Return raw JSON only.
+"""
+
+    simplified_items = []
+    for item in menu_items:
+        simplified_items.append({
+            "id": item.get("id"),
+            "original_name": item.get("original_name"),
+            "translated_name": item.get("translated_name") or item.get("name"),
+            "price": item.get("price"),
+            "category": item.get("category") or item.get("section_heading_translated"),
+            "description": item.get("description"),
+            "ingredients": item.get("ingredients") or [],
+            "allergens": item.get("allergens") or [],
+            "spicy_level": item.get("spicy_level", 0)
+        })
+
+    user_prompt = json.dumps(
+        {
+            "target_language": target_language_name,
+            "menu_items": simplified_items,
+            "preferences": {
+                "people": people,
+                "diet_constraints": diets or [],
+                "budget": budget,
+                "taste_preferences": taste
+            }
+        },
+        ensure_ascii=False
+    )
+
+    payload = _build_payload(system_prompt, user_prompt, max_tokens=3000)
+    data = _post_openrouter(payload, timeout=90)
+    content = data["choices"][0]["message"].get("content")
+    
+    return _extract_json_from_text(content)
+

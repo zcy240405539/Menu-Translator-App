@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.core.database import get_db, engine, Base
 from app.core.models import DishCache, DishImage
-from app.core.schemas import AnalyzeTextRequest, DishDetailRequest
+from app.core.schemas import AnalyzeTextRequest, DishDetailRequest, RecommendRequest
 from app.services.openrouter_service import (
     call_openrouter_for_dish_detail,
     call_openrouter_for_menu,
@@ -28,6 +28,7 @@ from app.services.openrouter_service import (
     call_openrouter_vision_for_menu,
     call_openrouter_translate_category_labels,
     extract_dish_candidates_from_ocr_blocks,
+    call_openrouter_for_recommendation,
 )
 from app.services.dish_cache_service import (
     build_normalized_dish_key,
@@ -377,6 +378,26 @@ async def parse_menu(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# =========================
+# AI Recommend
+# =========================
+
+@app.post("/menus/recommend")
+def recommend_menu(request: RecommendRequest):
+    try:
+        result = call_openrouter_for_recommendation(
+            menu_items=request.menu_items,
+            people=request.people,
+            diets=request.diets,
+            budget=request.budget,
+            taste=request.taste,
+            target_lang=request.target_lang
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # =========================
 # Dish Detail

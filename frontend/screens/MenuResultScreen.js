@@ -7,9 +7,11 @@ import {
   Surface,
   Chip,
   TouchableRipple,
+  Button,
 } from "react-native-paper";
 
 import DishDetailModal from "../components/DishDetailModal";
+import AIRecommendModal from "../components/AIRecommendModal";
 import { getText, isChineseLanguage } from "../i18n";
 import { formatPrice } from "../utils/price";
 
@@ -91,6 +93,7 @@ function getSectionTitle(category, categoryItems, targetLang) {
 
 export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart }) {
   const [selectedDish, setSelectedDish] = useState(null);
+  const [showRecommend, setShowRecommend] = useState(false);
 
   const lang = isChineseLanguage(targetLang) ? targetLang : "en";
   const t = getText(lang);
@@ -242,6 +245,15 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
                 <Text variant="bodyMedium" style={styles.summarySubtitle}>
                   {restaurantType} · {sourceLanguage} · {items.length} {t.result.items}
                 </Text>
+
+                <Button
+                  mode="contained"
+                  icon="brain"
+                  onPress={() => setShowRecommend(true)}
+                  style={styles.recommendBtn}
+                >
+                  {t.result.aiRecommendBtn || "AI智能推荐"}
+                </Button>
               </Card.Content>
             </Card>
           </>
@@ -306,6 +318,17 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
           source_language: sourceLanguage,
         }}
       />
+
+      <AIRecommendModal
+        visible={showRecommend}
+        menuItems={items}
+        targetLang={targetLang}
+        onClose={() => setShowRecommend(false)}
+        menuInfo={{
+          restaurant_type: restaurantType,
+          source_language: sourceLanguage,
+        }}
+      />
     </Surface>
   );
 }
@@ -327,6 +350,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     marginTop: 10,
     marginBottom: 18,
+  },
+  recommendBtn: {
+    marginTop: 12,
+    borderRadius: 100,
   },
   summaryTitle: {
     fontWeight: "700",

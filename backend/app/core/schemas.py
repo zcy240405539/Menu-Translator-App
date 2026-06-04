@@ -45,3 +45,13 @@ class DishDetailRequest(BaseModel):
     cuisine: Optional[str] = None
     image_prompt: Optional[str] = None
     section_heading_original: Optional[str] = None
+
+
+class RecommendRequest(BaseModel):
+    menu_items: List[dict]
+    people: Optional[int] = None
+    diets: Optional[List[str]] = None
+    budget: Optional[str] = None
+    taste: Optional[str] = None
+    target_lang: str = "zh"
+

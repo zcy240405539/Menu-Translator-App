@@ -116,3 +116,28 @@ export async function getDishDetail(
 
   return await res.json();
 }
+
+export async function getAIRecommendations(menuItems, people, diets, budget, taste, targetLang = "zh") {
+  const res = await fetch(`${API_BASE_URL}/menus/recommend`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      menu_items: menuItems,
+      people: people ? parseInt(people, 10) : null,
+      diets: diets && diets.length > 0 ? diets : null,
+      budget: budget || null,
+      taste: taste || null,
+      target_lang: targetLang,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to load AI recommendations");
+  }
+
+  return await res.json();
+}
+
