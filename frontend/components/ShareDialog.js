@@ -68,7 +68,7 @@ export default function ShareDialog({ visible, onClose, shareUrl, shareMessage, 
   };
 
   const openShareUrl = async (url, targetKey) => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && window.location) {
       if (targetKey === "email") {
         window.location.href = url;
         return;
