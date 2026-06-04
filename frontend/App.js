@@ -89,6 +89,8 @@ function AppContent() {
       setTargetLang("zh-Hant");
     } else if (deviceLang.startsWith("zh")) {
       setTargetLang("zh");
+    } else if (deviceLang.startsWith("es")) {
+      setTargetLang("es");
     } else {
       setTargetLang("en");
     }

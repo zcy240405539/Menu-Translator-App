@@ -27,11 +27,11 @@ import { getAIRecommendations } from "../api";
 import { formatPrice } from "../utils/price";
 
 const DIET_OPTIONS = [
-  { key: "Vegetarian", labelEn: "Vegetarian", labelZh: "素食", labelZht: "素食" },
-  { key: "Halal", labelEn: "Halal", labelZh: "清真", labelZht: "清真" },
-  { key: "Kosher", labelEn: "Kosher", labelZh: "犹太", labelZht: "猶太" },
-  { key: "Keto", labelEn: "Keto", labelZh: "生酮", labelZht: "生酮" },
-  { key: "Gluten-Free", labelEn: "Gluten-Free", labelZh: "无麸质", labelZht: "無麩質" },
+  { key: "Vegetarian", labelEn: "Vegetarian", labelZh: "素食", labelZht: "素食", labelEs: "Vegetariano" },
+  { key: "Halal", labelEn: "Halal", labelZh: "清真", labelZht: "清真", labelEs: "Halal" },
+  { key: "Kosher", labelEn: "Kosher", labelZh: "犹太", labelZht: "猶太", labelEs: "Kosher" },
+  { key: "Keto", labelEn: "Keto", labelZh: "生酮", labelZht: "生酮", labelEs: "Keto" },
+  { key: "Gluten-Free", labelEn: "Gluten-Free", labelZh: "无麸质", labelZht: "無麩質", labelEs: "Sin Gluten" },
 ];
 
 export default function AIRecommendModal({
@@ -127,6 +127,7 @@ export default function AIRecommendModal({
   const getDietLabel = (diet) => {
     if (lang === "zh-Hant") return diet.labelZht;
     if (lang === "zh") return diet.labelZh;
+    if (lang === "es") return diet.labelEs;
     return diet.labelEn;
   };
 

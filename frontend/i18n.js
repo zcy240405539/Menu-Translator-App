@@ -7,10 +7,10 @@ export const LANGUAGES = [
   { code: "en", label: "English", flag: "🇺🇸" },
   { code: "zh", label: "简体中文", flag: "🇨🇳" },
   { code: "zh-Hant", label: "繁體中文", flag: "🇹🇼" },
+  { code: "es", label: "Español", flag: "🇪🇸" },
   // { code: "ja", label: "日本語", flag: "🇯🇵" },
   // { code: "ko", label: "한국어", flag: "🇰🇷" },
   // { code: "fr", label: "Français", flag: "🇫🇷" },
-  // { code: "es", label: "Español", flag: "🇪🇸" },
   // { code: "de", label: "Deutsch", flag: "🇩🇪" },
   // { code: "it", label: "Italiano", flag: "🇮🇹" },
 ];
@@ -22,12 +22,12 @@ export const SOURCE_LANGUAGES = [
 
 export const translations = {
   en: {
-    appTitle: "Menu Translator",
+    appTitle: "AI Menu Assistant",
 
     home: {
-      heroTitle: "Understand any menu",
+      heroTitle: "Let AI read the menu for you",
       heroSubtitle:
-        "Take a photo or upload a menu image. We’ll translate it and explain every dish.",
+        "Take a photo or upload a menu, AI will translate and explain every dish.",
       targetLanguage: "Target language",
       sourceLanguage: "Source language",
       autoDetect: "Auto Detect",
@@ -117,11 +117,11 @@ export const translations = {
   },
 
   zh: {
-    appTitle: "菜单翻译助手",
+    appTitle: "AI菜单助手",
 
     home: {
-      heroTitle: "看懂任何菜单",
-      heroSubtitle: "拍照或上传菜单图片，我们会帮你翻译菜单并解释每一道菜。",
+      heroTitle: "让AI为你解读菜单",
+      heroSubtitle: "拍照或上传菜单，AI帮你翻译解读每一道菜。",
       targetLanguage: "目标语言",
       sourceLanguage: "菜单原语言",
       autoDetect: "自动识别",
@@ -211,11 +211,11 @@ export const translations = {
   },
 
   "zh-Hant": {
-    appTitle: "菜單翻譯助手",
+    appTitle: "AI菜單助手",
 
     home: {
-      heroTitle: "看懂任何菜單",
-      heroSubtitle: "拍照或上傳菜單圖片，我們會幫你翻譯菜單並解釋每一道菜。",
+      heroTitle: "讓AI為你解讀菜單",
+      heroSubtitle: "拍照或上傳菜單，AI幫你翻譯解讀每一道菜。",
       targetLanguage: "目標語言",
       sourceLanguage: "菜單原語言",
       autoDetect: "自動識別",
@@ -302,6 +302,100 @@ export const translations = {
       other: "其他",
     },
   },
+
+  es: {
+    appTitle: "Asistente de Menú IA",
+
+    home: {
+      heroTitle: "Deja que la IA lea el menú por ti",
+      heroSubtitle:
+        "Toma una foto o sube un menú, la IA te ayudará a traducir y explicar cada plato.",
+      targetLanguage: "Idioma destino",
+      sourceLanguage: "Idioma origen",
+      autoDetect: "Detectar automáticamente",
+      english: "English",
+      chinese: "Chino Simplificado",
+      traditionalChinese: "Chino Tradicional",
+      takePicture: "Tomar Foto",
+      selectFromFile: "Seleccionar de Archivo",
+      selectedMenu: "Menú Seleccionado",
+      pdfMenu: "Menú en PDF",
+      fileSelectionFailed: "Fallo al seleccionar archivo",
+      analyzeMenu: "Analizar Menú",
+      analyzingMenu: "Analizando menú...",
+      noImageTitle: "Sin Imagen",
+      noImageMessage: "Por favor, tome una foto o seleccione una imagen de menú primero.",
+      permissionRequired: "Permiso Requerido",
+      cameraPermission: "Se requiere permiso de cámara.",
+      photoPermission: "Se requiere permiso de galería de fotos.",
+      analysisFailed: "Fallo en el Análisis del Menú",
+      unknownError: "Error desconocido",
+      shareTitle: "Compartir Asistente de Menú IA",
+      shareSubtitle: "Elija dónde compartir la página actual.",
+      shareMessage: "Traduzca y comprenda menús con Asistente de Menú IA.",
+      shareFailed: "No se pudo abrir el enlace de compartir",
+    },
+
+    result: {
+      title: "Resultados del Menú",
+      items: "platos",
+      empty: "No se encontraron platos en el menú",
+      originalUnavailable: "Nombre original no disponible",
+      restaurantFallback: "Restaurante",
+      sourceFallback: "Desconocido",
+      aiRecommendBtn: "Recomendación IA",
+    },
+
+    recommend: {
+      title: "Recomendación IA",
+      peopleLabel: "Número de Personas",
+      peoplePlaceholder: "ej., 2",
+      dietLabel: "Restricciones Dietéticas (Opcional)",
+      budgetLabel: "Presupuesto (Opcional)",
+      budgetPlaceholder: "ej., $50 o Sin Límite",
+      tasteLabel: "Preferencia de Sabor (Opcional)",
+      tastePlaceholder: "ej., Picante, Suave, Menos Sal",
+      generateBtn: "Generar Recomendación",
+      generating: "La IA está analizando el menú...",
+      suggestionTitle: "Sugerencia de Pedido",
+      recommendedItemsTitle: "Platos Recomendados",
+      addBtn: "Añadir a la Lista",
+      addedBtn: "Añadido",
+      backBtn: "Modificar Opciones",
+      closeBtn: "Cerrar",
+      error: "Error al generar la recomendación. Por favor, inténtelo de nuevo.",
+    },
+
+    detail: {
+      original: "Original",
+      price: "Precio",
+      description: "Descripción",
+      ingredients: "Ingredientes",
+      allergens: "Alérgenos",
+      spicyLevel: "Nivel de Picante",
+      imagePrompt: "Indicación de Imagen",
+      close: "Cerrar",
+      unknown: "Desconocido",
+      none: "Ninguno",
+    },
+
+    categories: {
+      breakfast: "Desayuno",
+      pastries: "Pastelería",
+      savory: "Salado",
+      fromage: "Queso",
+      cafe: "Café y Té",
+      sides: "Acompañamientos",
+      additions: "Adicionales",
+      snacks: "Aperitivos",
+      appetizers: "Entradas",
+      mains: "Platos Principales",
+      dinner: "Cena",
+      dessert: "Postre",
+      drinks: "Bebidas",
+      other: "Otros",
+    },
+  },
 };
 
 export function getText(lang) {
@@ -315,6 +409,7 @@ export function isChineseLanguage(lang) {
 export function getUrlLangParam(langCode) {
   if (langCode === "zh") return "zh-cn";
   if (langCode === "zh-Hant") return "zh-tw";
+  if (langCode === "es") return "es";
   return "en";
 }
 
@@ -323,6 +418,7 @@ export function mapUrlLangToInternal(langParam) {
   const normalized = String(langParam).toLowerCase();
   if (normalized === "zh-cn" || normalized === "zh") return "zh";
   if (normalized === "zh-tw" || normalized === "zh-hk" || normalized === "zh-hant") return "zh-Hant";
+  if (normalized === "es") return "es";
   return "en";
 }
 
