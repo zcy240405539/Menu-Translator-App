@@ -9,11 +9,18 @@ import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
 import { getCachedMenu, setAuthToken, getProfile } from "./api";
-import { Platform, Share, Alert } from "react-native";
+import { Platform, Share, Alert, LogBox } from "react-native";
 import { detectUserCurrency } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
 import AccountProfileModal from "./components/AccountProfileModal";
+
+// Ignore third-party deprecation and platform-specific fallback warnings
+LogBox.ignoreLogs([
+  "props.pointerEvents is deprecated",
+  '"shadow*" style props are deprecated',
+  "Animated: `useNativeDriver` is not supported",
+]);
 
 function AppContent() {
   const [screen, setScreen] = useState("home");
