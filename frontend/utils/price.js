@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 function guessCurrencyOffline() {
   try {
     const locale = (
@@ -75,6 +77,10 @@ export function getCurrencySymbol(sourceLanguage) {
 }
 
 export async function detectUserCurrency() {
+  if (Platform.OS === "web") {
+    return userCurrencySymbol;
+  }
+
   try {
     const response = await fetch("https://freeipapi.com/api/json");
     if (response.ok) {
