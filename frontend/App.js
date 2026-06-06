@@ -26,8 +26,8 @@ function AppContent() {
 
   useEffect(() => {
     async function initializeApp() {
-      // Detect user currency based on IP
-      await detectUserCurrency().catch((err) => console.log("Failed to detect user currency:", err));
+      // Detect user currency based on IP (non-blocking)
+      detectUserCurrency().catch((err) => console.log("Failed to detect user currency:", err));
 
       let oauthToken = null;
       

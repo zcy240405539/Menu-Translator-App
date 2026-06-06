@@ -11,7 +11,7 @@ const getApiBaseUrl = () => {
       return "http://127.0.0.1:8000";
     }
   }
-  return process.env.EXPO_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+  return process.env.EXPO_PUBLIC_API_BASE_URL || "https://ai-menu-app.onrender.com";
 };
 
 const API_BASE_URL = getApiBaseUrl();

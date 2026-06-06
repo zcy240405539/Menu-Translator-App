@@ -1,4 +1,65 @@
-let userCurrencySymbol = null;
+function guessCurrencyOffline() {
+  try {
+    const locale = (
+      (typeof Intl !== "undefined" && Intl.NumberFormat && Intl.NumberFormat().resolvedOptions().locale) ||
+      ""
+    ).toUpperCase();
+    
+    if (locale.includes("-CN") || locale === "ZH") {
+      return "￥";
+    }
+    if (locale.includes("-GB")) {
+      return "£";
+    }
+    if (
+      locale.includes("-ES") ||
+      locale.includes("-FR") ||
+      locale.includes("-DE") ||
+      locale.includes("-IT") ||
+      locale.includes("-PT") ||
+      locale.includes("-NL") ||
+      locale.includes("-BE") ||
+      locale.includes("-GR") ||
+      locale.includes("-AT") ||
+      locale.includes("-FI") ||
+      locale.includes("-IE")
+    ) {
+      return "€";
+    }
+    
+    const tz = (
+      (typeof Intl !== "undefined" && Intl.DateTimeFormat && Intl.DateTimeFormat().resolvedOptions().timeZone) ||
+      ""
+    ).toLowerCase();
+    
+    if (tz.includes("shanghai") || tz.includes("chongqing") || tz.includes("harbin") || tz.includes("urumqi")) {
+      return "￥";
+    }
+    if (tz.includes("london") || tz.includes("belfast") || tz.includes("europe/london")) {
+      return "£";
+    }
+    if (
+      tz.includes("paris") ||
+      tz.includes("berlin") ||
+      tz.includes("rome") ||
+      tz.includes("madrid") ||
+      tz.includes("amsterdam") ||
+      tz.includes("brussels") ||
+      tz.includes("vienna") ||
+      tz.includes("lisbon") ||
+      tz.includes("athens") ||
+      tz.includes("helsinki") ||
+      tz.includes("dublin")
+    ) {
+      return "€";
+    }
+  } catch (e) {
+    // Fallback if Intl is not supported or throws
+  }
+  return "$";
+}
+
+let userCurrencySymbol = guessCurrencyOffline();
 
 function normalizeLanguageCode(value) {
   return String(value || "").trim().toLowerCase();
