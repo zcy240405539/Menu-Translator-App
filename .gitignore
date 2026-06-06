@@ -26,3 +26,5 @@ backend/test-*-layout.json
 frontend/*.log
 AGENTS.md
 AGENT.md
+backend/app/__pycache__/
+

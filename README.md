@@ -254,8 +254,10 @@ Implementation steps:
 - User manage system
 - More language pairs beyond Chinese and English
 - Restaurant recommendation engine
-- Subscription payments
+- Subscription payments, check user subscription status
 - Admin dashboard for OCR quality, AI cost, ad performance, and storage usage
+- Feature of read menu from URL or QR code, translate from website
+- Continuously improve ORC quality and parsing result quality
 
 # Cost Optimization
 
