@@ -78,7 +78,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
           >
             <Card.Content>
               <Text variant="titleMedium" style={styles.title}>
-                {item.restaurant_type || "Restaurant"}
+                {item.business_name || item.restaurant_type || "Restaurant"}
               </Text>
 
               <Text style={styles.subtitle}>

@@ -402,6 +402,9 @@ def parse_image_with_vision(
     if vision_result.get("menu_pricing"):
         result["menu_pricing"] = vision_result.get("menu_pricing")
 
+    if vision_result.get("business_name") and not result.get("business_name"):
+        result["business_name"] = vision_result["business_name"]
+
     result["parser"] = result.get("parser") or "openrouter_vision_layout_openrouter"
     result["ocr_blocks"] = ocr_blocks
 

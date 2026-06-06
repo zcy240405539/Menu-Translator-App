@@ -222,6 +222,7 @@ def normalize_vision_json(parsed, target_lang: str, source_lang: str) -> dict:
     parsed["source_language"] = parsed.get("source_language") or source_lang
     parsed["target_language"] = parsed.get("target_language") or target_lang
     parsed["restaurant_type"] = parsed.get("restaurant_type") or ""
+    parsed["business_name"] = parsed.get("business_name")
     parsed["menu_pricing"] = parsed.get("menu_pricing") or []
     parsed["layout_lines"] = lines[:120]
 
@@ -246,6 +247,7 @@ Rules:
   "source_language": "{source_lang}",
   "target_language": "{target_lang}",
   "restaurant_type": "",
+  "business_name": null,
   "ocr_lines": ["SECTION", "DISH NAME | DESCRIPTION | $12.00"]
 }}
 - ocr_lines must be an array of strings, not objects.
@@ -1300,6 +1302,7 @@ Rules:
 - Use exact visible section headings and dish names.
 - If a dish has a number or code prefix (e.g., "A1.", "05.", "B12"), you MUST preserve it exactly at the start of the line.
 - Exclude logos, footers, allergy notes, tax notes, service charges, social media, and decorative text.
+- Extract the restaurant or business name if printed clearly at the top or bottom of the menu image. Put it in business_name. Otherwise, set it to null.
 - Each ocr_lines entry must be a plain string.
 - For a dish row, combine the dish name, nearby description, and same-row price into one string.
 - Use " | " between name, description, and price when helpful.
@@ -1316,6 +1319,7 @@ JSON schema:
   "source_language": "{source_lang}",
   "target_language": "{target_lang}",
   "restaurant_type": "",
+  "business_name": null,
   "ocr_lines": [
     "SECTION HEADING",
     "DISH NAME | visible description | $12.00"

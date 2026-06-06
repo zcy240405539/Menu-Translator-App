@@ -321,7 +321,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
             <Card mode="elevated" style={styles.summaryCard}>
               <Card.Content>
                 <Text variant="headlineSmall" style={styles.summaryTitle}>
-                  {t.result.title}
+                  {parsedResult?.business_name || t.result.title}
                 </Text>
 
                 <Text variant="bodyMedium" style={styles.summarySubtitle}>
