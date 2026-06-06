@@ -32,6 +32,7 @@ def upsert_menu_cache(
         existing.source_language = result.get("source_language")
         existing.restaurant_type = result.get("restaurant_type")
         existing.business_name = result.get("business_name")
+        existing.currency = result.get("currency")
         existing.business_description = result.get("business_description") or {}    
         existing.ocr_blocks = ocr_blocks
         existing.structure_result = result
@@ -46,6 +47,7 @@ def upsert_menu_cache(
         source_language=result.get("source_language"),
         restaurant_type=result.get("restaurant_type"),
         business_name=result.get("business_name"),
+        currency=result.get("currency"),
         business_description=result.get("business_description") or {},
         ocr_blocks=ocr_blocks,
         structure_result=result,

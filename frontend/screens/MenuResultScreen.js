@@ -258,6 +258,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   const renderDish = ({ item }) => {
     const price = formatPrice(item.price, {
       sourceLanguage: item.source_language || sourceLanguage,
+      currency: parsedResult?.currency,
     });
     const displayName = getTranslatedName(item);
     const displayDescription = getTranslatedDescription(item);
@@ -370,7 +371,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
 
                       {!!pricing.price && (
                         <Chip compact style={styles.priceChip} textStyle={styles.priceText}>
-                          {formatPrice(pricing.price, { sourceLanguage })}
+                          {formatPrice(pricing.price, { sourceLanguage, currency: parsedResult?.currency })}
                         </Chip>
                       )}
                     </View>
@@ -407,6 +408,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         menuInfo={{
           restaurant_type: restaurantType,
           source_language: sourceLanguage,
+          currency: parsedResult?.currency,
         }}
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
@@ -431,6 +433,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         menuInfo={{
           restaurant_type: restaurantType,
           source_language: sourceLanguage,
+          currency: parsedResult?.currency,
         }}
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}

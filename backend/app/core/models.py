@@ -61,6 +61,7 @@ class MenuParseCache(Base):
     source_language = Column(Text)
     restaurant_type = Column(Text)
     business_name = Column(Text, nullable=True)
+    currency = Column(Text, nullable=True)
     business_description = Column(JSON, nullable=True)
     ocr_blocks = Column(JSONB)
     structure_result = Column(JSONB)

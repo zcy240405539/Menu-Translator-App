@@ -11,6 +11,7 @@ export async function saveMenuHistory(menuResult, imageUri, targetLang) {
     imageUri,
     targetLang,
     business_name: menuResult?.business_name || null,
+    currency: menuResult?.currency || null,
     restaurant_type: menuResult?.restaurant_type || "Restaurant",
     source_language: menuResult?.source_language || "Unknown",
     menu_items: menuResult?.menu_items || [],

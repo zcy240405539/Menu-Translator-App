@@ -1,3 +1,5 @@
+let userCurrencySymbol = null;
+
 function normalizeLanguageCode(value) {
   return String(value || "").trim().toLowerCase();
 }
@@ -11,28 +13,69 @@ export function getCurrencySymbol(sourceLanguage) {
   return isChineseLanguage(sourceLanguage) ? "￥" : "$";
 }
 
+export async function detectUserCurrency() {
+  try {
+    const response = await fetch("https://freeipapi.com/api/json");
+    if (response.ok) {
+      const data = await response.json();
+      const countryCode = data.countryCode;
+      if (countryCode === "CN") {
+        userCurrencySymbol = "￥";
+      } else if (["US", "CA", "AU", "NZ", "SG", "HK"].includes(countryCode)) {
+        userCurrencySymbol = "$";
+      } else if (["GB"].includes(countryCode)) {
+        userCurrencySymbol = "£";
+      } else if (["ES", "FR", "DE", "IT", "PT", "NL", "BE", "GR", "AT", "FI", "IE"].includes(countryCode)) {
+        userCurrencySymbol = "€";
+      } else {
+        userCurrencySymbol = "$";
+      }
+    }
+  } catch (error) {
+    console.log("Failed to detect user currency by IP:", error);
+  }
+  return userCurrencySymbol;
+}
+
+export function getUserCurrencySymbol() {
+  return userCurrencySymbol || "";
+}
+
 export function formatPrice(price, options = {}) {
   if (price === null || price === undefined || price === "") return "";
 
   const text = String(price).trim();
   if (!text) return "";
 
+  // 1. If it already has currency symbols, normalize ¥ -> ￥ and return as is.
   if (/[￥¥$€£]/.test(text)) {
-    const normalized = text.replace(/^¥/, "￥");
-    return isChineseLanguage(options.sourceLanguage)
-      ? normalized.replace(/^\s*\$/, "￥")
-      : normalized;
+    return text.replace(/¥/g, "￥");
   }
 
+  // 2. If it has explicit word-based currency code (like USD, CNY, etc.), keep it.
   if (/\b(usd|cad|aud|cny|rmb)\b/i.test(text)) {
     return text;
   }
 
+  // 3. 如果菜单上明确写了15元，再转换为￥
   if (/元/.test(text)) {
-    return `￥${text}`;
+    const cleanNum = text.replace(/元/g, "").trim();
+    return `￥${cleanNum}`;
   }
 
-  return `${getCurrencySymbol(options.sourceLanguage)}${text}`;
+  // 4. Otherwise, prepend menu currency if available, then IP currency, then nothing.
+  const menuCurrency = options.currency || null;
+  if (menuCurrency) {
+    return `${menuCurrency}${text}`;
+  }
+
+  const ipCurrency = userCurrencySymbol;
+  if (ipCurrency) {
+    return `${ipCurrency}${text}`;
+  }
+
+  // 5. If no location/IP or menu currency could be retrieved, default to not displaying any currency symbol.
+  return text;
 }
 
 export function extractPriceNumber(price) {

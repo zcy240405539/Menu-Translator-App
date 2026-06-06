@@ -15,7 +15,7 @@ import {
   clearCart,
   updateCartItemQuantity,
 } from "../storage/cartStorage";
-import { extractPriceNumber, formatPrice, getCurrencySymbol } from "../utils/price";
+import { extractPriceNumber, formatPrice, getCurrencySymbol, getUserCurrencySymbol } from "../utils/price";
 import { isChineseLanguage } from "../i18n";
 
 function getDishName(dish) {
@@ -39,6 +39,11 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   const cartSourceLanguage =
     items.find((item) => item.menuInfo?.source_language)?.menuInfo?.source_language ||
     targetLang;
+
+  const cartCurrencySymbol =
+    items.find((item) => item.menuInfo?.currency)?.menuInfo?.currency ||
+    getUserCurrencySymbol() ||
+    getCurrencySymbol(cartSourceLanguage);
 
   const total = items.reduce((sum, item) => {
     const num = extractPriceNumber(item.dish?.price);
@@ -72,7 +77,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
               {isChinese ? (isTraditional ? "我的待點列表" : "我的待点列表") : "My Order List"}
             </Text>
             <Text style={styles.subtitle}>
-              {items.length} {isChinese ? "道菜" : "items"} · {isChinese ? (isTraditional ? "總計" : "总计") : "Total"}: {getCurrencySymbol(cartSourceLanguage)}{total.toFixed(2)}
+              {items.length} {isChinese ? "道菜" : "items"} · {isChinese ? (isTraditional ? "總計" : "总计") : "Total"}: {cartCurrencySymbol}{total.toFixed(2)}
             </Text>
           </Card.Content>
         </Card>
@@ -104,6 +109,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
                     <Chip style={styles.priceChip}>
                       {formatPrice(item.dish.price, {
                         sourceLanguage: item.menuInfo?.source_language || cartSourceLanguage,
+                        currency: item.menuInfo?.currency || item.dish?.currency,
                       })}
                     </Chip>
                   )}

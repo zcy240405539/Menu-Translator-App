@@ -10,6 +10,7 @@ import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
 import { getCachedMenu, setAuthToken, getProfile } from "./api";
 import { Platform, Share, Alert } from "react-native";
+import { detectUserCurrency } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
 import AccountProfileModal from "./components/AccountProfileModal";
@@ -25,6 +26,9 @@ function AppContent() {
 
   useEffect(() => {
     async function initializeApp() {
+      // Detect user currency based on IP
+      await detectUserCurrency().catch((err) => console.log("Failed to detect user currency:", err));
+
       let oauthToken = null;
       
       // 1. Check for OAuth hash tokens

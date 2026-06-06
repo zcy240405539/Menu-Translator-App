@@ -405,6 +405,9 @@ def parse_image_with_vision(
     if vision_result.get("business_name") and not result.get("business_name"):
         result["business_name"] = vision_result["business_name"]
 
+    if vision_result.get("currency") and not result.get("currency"):
+        result["currency"] = vision_result["currency"]
+
     result["parser"] = result.get("parser") or "openrouter_vision_layout_openrouter"
     result["ocr_blocks"] = ocr_blocks
 
@@ -438,6 +441,7 @@ def get_cached_menu(image_hash: str, target_lang: str = "zh", db: Session = Depe
     result["menu_items"] = record.menu_items or []
     result["ocr_blocks"] = record.ocr_blocks or []
     result["business_name"] = record.business_name
+    result["currency"] = record.currency
     result["business_description"] = record.business_description or {}
     result["image_hash"] = record.image_hash
     return result
@@ -952,6 +956,7 @@ def run_menu_parse_task(
                 result["menu_items"] = cached_menu.menu_items or []
                 result["ocr_blocks"] = cached_menu.ocr_blocks or []
                 result["business_name"] = cached_menu.business_name
+                result["currency"] = cached_menu.currency
                 result["business_description"] = cached_menu.business_description or {}
                 result["image_hash"] = image_hash
 
@@ -1088,6 +1093,9 @@ def run_menu_parse_task(
 
             if "business_name" not in result:
                 result["business_name"] = None
+
+            if "currency" not in result:
+                result["currency"] = None
 
             if "business_description" not in result or result["business_description"] is None:
                 result["business_description"] = {}

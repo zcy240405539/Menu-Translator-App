@@ -223,6 +223,7 @@ def normalize_vision_json(parsed, target_lang: str, source_lang: str) -> dict:
     parsed["target_language"] = parsed.get("target_language") or target_lang
     parsed["restaurant_type"] = parsed.get("restaurant_type") or ""
     parsed["business_name"] = parsed.get("business_name")
+    parsed["currency"] = parsed.get("currency")
     parsed["menu_pricing"] = parsed.get("menu_pricing") or []
     parsed["layout_lines"] = lines[:120]
 
@@ -248,6 +249,7 @@ Rules:
   "target_language": "{target_lang}",
   "restaurant_type": "",
   "business_name": null,
+  "currency": null,
   "ocr_lines": ["SECTION", "DISH NAME | DESCRIPTION | $12.00"]
 }}
 - ocr_lines must be an array of strings, not objects.
@@ -489,6 +491,7 @@ def flatten_nested_menu_json(nested_result: dict) -> dict:
         "target_language": nested_result.get("target_language"),
         "restaurant_type": nested_result.get("restaurant_type") or "",
         "business_name": nested_result.get("business_name"),
+        "currency": nested_result.get("currency"),
         "business_description": nested_result.get("business_description") or {},
         "menu_items": [],
         "menu_pricing": nested_result.get("menu_pricing") or []
@@ -573,6 +576,7 @@ Rules:
 - Keep ingredients and allergens as empty lists [] unless they are explicitly printed on the menu.
 - Keep description concise and customer-friendly. Use null for missing prices. Do not invent prices.
 - Preserve visible price currency symbols and units, such as "$", "￥", "¥", "元", "/份", or size labels. Do not convert currencies.
+- Identify the currency symbol or code used on the menu (e.g., '$', '￥', '¥', '元', '€', '£', etc.) based on pricing signs. Put it in currency. Otherwise, set it to null.
 - Keep image_prompt extremely short (under 4 words, in English).
 - cuisine must be the dish/restaurant cuisine in English Title Case, such as Mexican, Italian, Chinese, Japanese, Korean, Thai, Indian, Vietnamese, American, or Other.
 - Use menu-wide evidence for cuisine. For example, fajita, quesadilla, nachos, taco, tostada, burrito, carnitas, carne asada, sopapilla, guacamole, pico de gallo, and jalapeno are Mexican.
@@ -583,6 +587,7 @@ JSON schema:
   "target_language": "{target_lang}",
   "restaurant_type": "",
   "business_name": null,
+  "currency": null,
   "business_description": {{
     "opening_hours": "",
     "address": "",
@@ -764,6 +769,7 @@ Important:
 
 Business information extraction:
 - Extract restaurant/business name if visible. Put it in business_name.
+- Identify the currency symbol or code used on the menu (e.g., '$', '￥', '¥', '元', '€', '£', etc.) based on pricing signs. Put it in currency. Otherwise, set it to null.
 - Extract non-menu business information into business_description.
 - business_description should include visible opening hours, address, phone number, website, social media, service notes, allergy notices, footer notes, restaurant introduction, and other non-menu information.
 - Do not create menu_items from business information.
@@ -789,6 +795,7 @@ JSON schema:
   "target_language": "{target_lang}",
   "restaurant_type": "",
   "business_name": null,
+  "currency": null,
   "business_description": {{
     "opening_hours": "",
     "address": "",
@@ -1303,6 +1310,7 @@ Rules:
 - If a dish has a number or code prefix (e.g., "A1.", "05.", "B12"), you MUST preserve it exactly at the start of the line.
 - Exclude logos, footers, allergy notes, tax notes, service charges, social media, and decorative text.
 - Extract the restaurant or business name if printed clearly at the top or bottom of the menu image. Put it in business_name. Otherwise, set it to null.
+- Identify the currency symbol or code used on the menu (e.g., '$', '￥', '¥', '元', '€', '£', etc.) based on pricing signs. Put it in currency. Otherwise, set it to null.
 - Each ocr_lines entry must be a plain string.
 - For a dish row, combine the dish name, nearby description, and same-row price into one string.
 - Use " | " between name, description, and price when helpful.
@@ -1320,6 +1328,7 @@ JSON schema:
   "target_language": "{target_lang}",
   "restaurant_type": "",
   "business_name": null,
+  "currency": null,
   "ocr_lines": [
     "SECTION HEADING",
     "DISH NAME | visible description | $12.00"
