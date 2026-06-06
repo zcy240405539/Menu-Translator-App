@@ -193,7 +193,7 @@ def normalize_vision_json(parsed, target_lang: str, source_lang: str) -> dict:
         ocr_lines = [ocr_lines]
 
     if not lines and ocr_lines:
-        for index, line in enumerate(ocr_lines[:45]):
+        for index, line in enumerate(ocr_lines[:120]):
             if isinstance(line, dict):
                 text = (
                     line.get("text")
@@ -223,7 +223,7 @@ def normalize_vision_json(parsed, target_lang: str, source_lang: str) -> dict:
     parsed["target_language"] = parsed.get("target_language") or target_lang
     parsed["restaurant_type"] = parsed.get("restaurant_type") or ""
     parsed["menu_pricing"] = parsed.get("menu_pricing") or []
-    parsed["layout_lines"] = lines[:45]
+    parsed["layout_lines"] = lines[:120]
 
     return parsed
 
@@ -249,7 +249,7 @@ Rules:
   "ocr_lines": ["SECTION", "DISH NAME | DESCRIPTION | $12.00"]
 }}
 - ocr_lines must be an array of strings, not objects.
-- Keep at most 45 lines.
+- Keep at most 120 lines.
 - Keep each line under 220 characters.
 
 Parser error:
@@ -394,6 +394,136 @@ def _compact_ocr_blocks(ocr_blocks: list) -> list:
     return compacted
 
 
+def post_process_restore_prefixes(result: dict, ocr_blocks: list) -> dict:
+    """
+    Post-process the layout parser result to restore number/code prefixes
+    to original_name and translated_name if they were stripped.
+    """
+    menu_items = result.get("menu_items", [])
+    if not menu_items:
+        return result
+
+    def clean_text_for_matching(text: str) -> str:
+        text = text.lower()
+        # Keep Chinese characters and alphanumeric characters
+        text = re.sub(r'[^\w\u4e00-\u9fff]', '', text)
+        return text
+
+    # Map cleaned OCR lines to their raw line text
+    ocr_lines_cleaned = []
+    for block in ocr_blocks:
+        block_text = block.get("text", "")
+        # Split by | to look at segments
+        segments = [s.strip() for s in block_text.split('|')]
+        ocr_lines_cleaned.append({
+            "raw": block_text,
+            "segments_cleaned": [clean_text_for_matching(s) for s in segments if s.strip()]
+        })
+
+    # Prefix regex matches: A01, A-01, 10, 10a, A11S, etc. at the start of a string
+    prefix_pattern = re.compile(r'^([A-Za-z]{1,3}-?\d{1,3}[A-Za-z]?|\d{1,3}[A-Za-z]?)[\s.-]+')
+
+    for item in menu_items:
+        orig = item.get("original_name", "")
+        trans = item.get("translated_name", "")
+        
+        # If the item already starts with a prefix, skip
+        if prefix_pattern.match(orig) or prefix_pattern.match(trans):
+            continue
+            
+        orig_cleaned = clean_text_for_matching(orig)
+        trans_cleaned = clean_text_for_matching(trans)
+        
+        if not orig_cleaned:
+            continue
+            
+        # Try to find the matching OCR block
+        matched_prefix = None
+        for ocr in ocr_lines_cleaned:
+            first_segment_raw = ocr["raw"].split('|')[0].strip()
+            m = prefix_pattern.match(first_segment_raw)
+            if not m:
+                continue
+                
+            prefix = m.group(1)
+            # The rest of the first segment after prefix
+            rest_raw = first_segment_raw[m.end():].strip()
+            rest_cleaned = clean_text_for_matching(rest_raw)
+            
+            # Match check: exact, starts/ends, or general containment
+            is_match = False
+            if rest_cleaned == orig_cleaned or rest_cleaned == trans_cleaned:
+                is_match = True
+            elif orig_cleaned and trans_cleaned and (orig_cleaned in rest_cleaned) and (trans_cleaned in rest_cleaned):
+                if rest_cleaned.startswith(orig_cleaned) or rest_cleaned.endswith(trans_cleaned):
+                    is_match = True
+            elif len(orig_cleaned) >= 2 and rest_cleaned.startswith(orig_cleaned):
+                is_match = True
+                
+            if is_match:
+                matched_prefix = prefix
+                # Keep dot if it was present
+                full_match_str = m.group(0)
+                if '.' in full_match_str:
+                    matched_prefix = prefix + "."
+                break
+                
+        if matched_prefix:
+            if orig:
+                item["original_name"] = f"{matched_prefix} {orig}"
+            if trans:
+                item["translated_name"] = f"{matched_prefix} {trans}"
+
+    return result
+
+
+def flatten_nested_menu_json(nested_result: dict) -> dict:
+    """
+    Convert a nested layout parser result (grouped by section)
+    to the flat result format expected by the app.
+    """
+    flat_result = {
+        "source_language": nested_result.get("source_language"),
+        "target_language": nested_result.get("target_language"),
+        "restaurant_type": nested_result.get("restaurant_type") or "",
+        "business_name": nested_result.get("business_name"),
+        "business_description": nested_result.get("business_description") or {},
+        "menu_items": [],
+        "menu_pricing": nested_result.get("menu_pricing") or []
+    }
+    
+    dish_counter = 1
+    for section in nested_result.get("sections", []):
+        sec_orig = (section.get("section_heading_original") or "").strip()
+        sec_trans = (section.get("section_heading_translated") or "").strip()
+        
+        # category key is a normalized snake_case of sec_orig
+        category_key = re.sub(r'[^a-z0-9]+', '_', sec_orig.lower()).strip('_')
+        if not category_key:
+            category_key = "other"
+            
+        for item in section.get("items", []):
+            flat_item = {
+                "id": f"dish_{dish_counter:03d}",
+                "original_name": item.get("original_name") or "",
+                "translated_name": item.get("translated_name") or "",
+                "price": item.get("price"),
+                "category": category_key,
+                "section_heading_original": sec_orig,
+                "section_heading_translated": sec_trans,
+                "description": item.get("description") or "",
+                "ingredients": item.get("ingredients") or [],
+                "allergens": item.get("allergens") or [],
+                "spicy_level": item.get("spicy_level") or 0,
+                "image_prompt": item.get("image_prompt") or "",
+                "confidence": item.get("confidence") or 0.9
+            }
+            flat_result["menu_items"].append(flat_item)
+            dish_counter += 1
+            
+    return flat_result
+
+
 def _call_openrouter_for_menu_layout_fast(
     ocr_blocks: list,
     target_lang: str,
@@ -421,11 +551,13 @@ OCR blocks:
 
 Rules:
 - Use coordinates to preserve columns, visual groups, section headings, and item order.
-- Process the entire OCR list. Do not stop after the first section.
+- Process the entire OCR list. Do not stop after the first section or truncate the output. You must return ALL visible items.
 - Merge split headings before assigning dishes, e.g. "STARTERS +" + "SNACKS" => "STARTERS + SNACKS".
 - Assign dishes to the closest heading above them in the same column/group/box.
 - Do not infer categories from food type when a visible heading exists.
 - Never output a section heading as a menu item unless the menu sells that heading as a set.
+- If a dish name is prefixed by a number or code (e.g., "A1.", "05.", "B12"), you MUST preserve this exact number/code prefix in both original_name and translated_name. Do not strip or omit the prefix.
+- Bilingual Menu Optimization: If the OCR text for a dish already contains both the source language (e.g. Chinese) and target language (e.g. English) texts (for example, "A1. 回锅肉 Twice-cooked pork" or "A1. 回锅肉 | Twice-cooked pork"), you MUST extract the printed target translation directly from the menu and use it for translated_name (e.g., "A1. Twice-cooked pork") and description (if present) instead of doing AI translation. original_name must be set to the printed original language name (e.g., "A1. 回锅肉").
 - For one dish with several size prices, return one item with a combined price string such as "12in: 13 / 14in: 14 / 16in: 16".
 - If an OCR block uses " | " separators, treat the first segment as original_name, middle segments as description, and price-like segments as price. Do not include prices in original_name or translated_name.
 - Extract real menu items only. Exclude restaurant name, hours, address, phone, social media, notes, taxes, and decorative text.
@@ -435,10 +567,11 @@ Rules:
 - For target_lang "zh-Hant", use Traditional Chinese characters for all user-facing text.
 - For target_lang "zh", use Simplified Chinese characters for all user-facing text.
 - For target_lang "zh" or "zh-Hant", translate English ingredient lists instead of copying them into description, ingredients, or allergens.
-- If the menu gives no description, write a short translated customer-friendly dish explanation from the dish name and section.
+- If the menu gives no description, keep the description empty "" or extremely short (under 10 words).
+- Keep ingredients and allergens as empty lists [] unless they are explicitly printed on the menu.
 - Keep description concise and customer-friendly. Use null for missing prices. Do not invent prices.
 - Preserve visible price currency symbols and units, such as "$", "￥", "¥", "元", "/份", or size labels. Do not convert currencies.
-- image_prompt and cuisine may stay in English for internal image search.
+- Keep image_prompt extremely short (under 4 words, in English).
 - cuisine must be the dish/restaurant cuisine in English Title Case, such as Mexican, Italian, Chinese, Japanese, Korean, Thai, Indian, Vietnamese, American, or Other.
 - Use menu-wide evidence for cuisine. For example, fajita, quesadilla, nachos, taco, tostada, burrito, carnitas, carne asada, sopapilla, guacamole, pico de gallo, and jalapeno are Mexican.
 
@@ -457,21 +590,18 @@ JSON schema:
     "notes": [],
     "description": ""
   }},
-  "menu_items": [
+  "sections": [
     {{
-      "id": "dish_001",
-      "original_name": "",
-      "translated_name": "",
-      "price": null,
-      "category": "",
-      "section_heading_original": "",
-      "section_heading_translated": "",
-      "description": "",
-      "ingredients": [],
-      "allergens": [],
-      "spicy_level": 0,
-      "image_prompt": "",
-      "confidence": 0.0
+      "section_heading_original": "SECTION HEADING IN SOURCE",
+      "section_heading_translated": "SECTION HEADING IN TARGET",
+      "items": [
+        {{
+          "original_name": "",
+          "translated_name": "",
+          "price": null,
+          "description": ""
+        }}
+      ]
     }}
   ]
 }}
@@ -487,6 +617,27 @@ JSON schema:
     data = _post_openrouter(payload, timeout=120)
     content = data["choices"][0]["message"]["content"]
     result = _extract_json_from_text(content)
+
+    # Flatten nested JSON if grouped by sections
+    if "menu_items" not in result and "sections" in result:
+        result = flatten_nested_menu_json(result)
+
+    # Populate default values for compacted fields
+    for item in result.get("menu_items", []):
+        if "description" not in item:
+            item["description"] = ""
+        if "ingredients" not in item:
+            item["ingredients"] = []
+        if "allergens" not in item:
+            item["allergens"] = []
+        if "spicy_level" not in item:
+            item["spicy_level"] = 0
+        if "image_prompt" not in item:
+            item["image_prompt"] = ""
+        if "confidence" not in item:
+            item["confidence"] = 0.9
+
+    result = post_process_restore_prefixes(result, ocr_blocks)
     result["analysis_model"] = selected_model
     result["analysis_prompt"] = "fast"
     return result
@@ -562,10 +713,13 @@ Rules:
 - If source_lang is not "auto", treat the menu source language as {source_language_name}.
 - If OCR contains mixed languages, preserve original_name exactly as printed.
 - source_language in output must use the detected or requested language code.
+- If a dish name is prefixed by a number or code (e.g., "A1.", "05.", "B12"), you MUST preserve this exact number/code prefix in both original_name and translated_name. Do not strip or omit the prefix.
+- Bilingual Menu Optimization: If the OCR text for a dish already contains both the source language (e.g. Chinese) and target language (e.g. English) texts (for example, "A1. 回锅肉 Twice-cooked pork" or "A1. 回锅肉 | Twice-cooked pork"), you MUST extract the printed target translation directly from the menu and use it for translated_name (e.g., "A1. Twice-cooked pork") and description (if present) instead of doing AI translation. original_name must be set to the printed original language name (e.g., "A1. 回锅肉").
+- Process all items in the OCR blocks, ensuring the full menu is returned. Do not skip, group, or truncate items.
 
 Translation rules:
 - original_name must stay in the original menu language.
-- translated_name must be translated into {target_language_name}.
+- translated_name must be translated into {target_language_name} (if bilingual menu optimization is not triggered).
 - description must be translated into {target_language_name}.
 - ingredients must be translated into {target_language_name}.
 - allergens must be translated into {target_language_name}.
@@ -574,7 +728,9 @@ Translation rules:
 - For target_lang "zh-Hant", use Traditional Chinese characters for all user-facing text.
 - For target_lang "zh", use Simplified Chinese characters for all user-facing text.
 - For target_lang "zh" or "zh-Hant", do not copy English ingredient phrases into description or ingredients.
-- image_prompt and cuisine may stay in English because they are internal search/model fields.
+- If the menu gives no description, keep the description empty "" or extremely short (under 10 words).
+- Keep ingredients and allergens as empty lists [] unless they are explicitly printed on the menu.
+- Keep image_prompt extremely short (under 4 words, in English).
 - cuisine must be the dish/restaurant cuisine in English Title Case, such as Mexican, Italian, Chinese, Japanese, Korean, Thai, Indian, Vietnamese, American, or Other.
 - Use menu-wide evidence for cuisine. For example, fajita, quesadilla, nachos, taco, tostada, burrito, carnitas, carne asada, sopapilla, guacamole, pico de gallo, and jalapeno are Mexican.
 
@@ -640,21 +796,18 @@ JSON schema:
     "notes": [],
     "description": ""
   }},
-  "menu_items": [
+  "sections": [
     {{
-      "id": "dish_001",
-      "original_name": "",
-      "translated_name": "",
-      "price": "",
-      "category": "",
-      "section_heading_original": "",
-      "section_heading_translated": "",
-      "description": "",
-      "ingredients": [],
-      "allergens": [],
-      "spicy_level": 0,
-      "image_prompt": "",
-      "confidence": 0.0
+      "section_heading_original": "SECTION HEADING IN SOURCE",
+      "section_heading_translated": "SECTION HEADING IN TARGET",
+      "items": [
+        {{
+          "original_name": "",
+          "translated_name": "",
+          "price": "",
+          "description": ""
+        }}
+      ]
     }}
   ]
 }}
@@ -681,6 +834,27 @@ Output requirements:
     content = data["choices"][0]["message"]["content"]
 
     result = _extract_json_from_text(content)
+
+    # Flatten nested JSON if grouped by sections
+    if "menu_items" not in result and "sections" in result:
+        result = flatten_nested_menu_json(result)
+
+    # Populate default values for compacted fields
+    for item in result.get("menu_items", []):
+        if "description" not in item:
+            item["description"] = ""
+        if "ingredients" not in item:
+            item["ingredients"] = []
+        if "allergens" not in item:
+            item["allergens"] = []
+        if "spicy_level" not in item:
+            item["spicy_level"] = 0
+        if "image_prompt" not in item:
+            item["image_prompt"] = ""
+        if "confidence" not in item:
+            item["confidence"] = 0.9
+
+    result = post_process_restore_prefixes(result, ocr_blocks)
     result["analysis_model"] = model or OPENROUTER_LAYOUT_MODEL
     result["analysis_prompt"] = "full"
     return result
@@ -1124,6 +1298,7 @@ Rules:
 - Do not infer ingredients, allergens, or cuisine from memory.
 - Do not invent dishes or prices.
 - Use exact visible section headings and dish names.
+- If a dish has a number or code prefix (e.g., "A1.", "05.", "B12"), you MUST preserve it exactly at the start of the line.
 - Exclude logos, footers, allergy notes, tax notes, service charges, social media, and decorative text.
 - Each ocr_lines entry must be a plain string.
 - For a dish row, combine the dish name, nearby description, and same-row price into one string.
@@ -1132,9 +1307,9 @@ Rules:
 - Remove decorative dot leaders and OCR noise such as g/m.
 
 Hard limit:
-- Return at most 45 ocr_lines.
+- Return at most 120 ocr_lines (or all visible items, do not omit any section of the menu).
 - Keep each line under 220 characters.
-- If the menu is long, include headings and dish rows first, desserts second, omit decorative text.
+- You must read and return the ENTIRE menu. Do not truncate, skip, or omit any section of the menu (like drinks, sides, desserts, etc.).
 
 JSON schema:
 {{
@@ -1196,13 +1371,21 @@ JSON schema:
             try:
                 parsed = _extract_json_from_text(content)
             except Exception as parse_error:
-                print(f"Vision JSON parse failed for {model_name}, trying repair: {parse_error}")
-                parsed = repair_vision_json_content(
-                    raw_content=content,
-                    error=parse_error,
-                    target_lang=target_lang,
-                    source_lang=source_lang,
-                )
+                print(f"Vision JSON parse failed for {model_name}: {parse_error}")
+                # Check if there are other models to try
+                is_last_model = (model_name == VISION_FALLBACK_MODELS[-1])
+                if not is_last_model:
+                    print("Falling back to next model instead of repairing...")
+                    last_error = parse_error
+                    continue
+                else:
+                    print("No more fallback models. Attempting repair as last resort...")
+                    parsed = repair_vision_json_content(
+                        raw_content=content,
+                        error=parse_error,
+                        target_lang=target_lang,
+                        source_lang=source_lang,
+                    )
 
             return normalize_vision_json(
                 parsed,
