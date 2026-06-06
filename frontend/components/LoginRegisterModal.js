@@ -53,35 +53,12 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   
   const isZh = isChineseLanguage(targetLang);
   
+  const authText = getText(targetLang).auth || {};
   const t = {
-    title: isZh 
-      ? (isForgotPassword ? "重置密码" : (isLogin ? "登录账户" : "注册新账号")) 
-      : (isForgotPassword ? "Reset Password" : (isLogin ? "Sign In" : "Create Account")),
-    email: isZh ? "电子邮箱" : "Email",
-    password: isZh ? "密码" : "Password",
-    confirmPassword: isZh ? "确认密码" : "Confirm Password",
-    username: isZh ? "用户名" : "Username",
-    phone: isZh ? "手机号 (选填)" : "Phone (Optional)",
-    loginBtn: isZh ? "登 录" : "Sign In",
-    registerBtn: isZh ? "注 册" : "Sign Up",
-    switchRegister: isZh ? "还没有账号？去注册" : "Don't have an account? Sign Up",
-    switchLogin: isZh ? "已有账号？去登录" : "Already have an account? Sign In",
-    googleLogin: isZh ? "使用 Google 账号快捷登录" : "Continue with Google",
-    prefTitle: isZh ? "个性化饮食与健康偏好 (选填)" : "Dietary & Health Profile (Optional)",
-    diets: isZh ? "饮食限制" : "Dietary Habits",
-    allergies: isZh ? "食物过敏原 (逗号分隔)" : "Food Allergies (comma separated)",
-    allergiesPlaceholder: isZh ? "如：花生, 海鲜" : "e.g., peanut, seafood",
-    budget: isZh ? "日常预算" : "Dining Budget",
-    budgetPlaceholder: isZh ? "如：50" : "e.g., $50",
-    taste: isZh ? "口味偏好" : "Taste Preference",
-    tastePlaceholder: isZh ? "如：清淡、少油" : "e.g., spicy, light",
-    errorMatch: isZh ? "两次密码不一致" : "Passwords do not match",
-    requiredFields: isZh ? "请填写所有必填项" : "Please fill in all required fields",
-    forgotPasswordLink: isZh ? "忘记密码？" : "Forgot Password?",
-    resetBtn: isZh ? "发送重置邮件" : "Send Reset Email",
-    resetSuccess: isZh ? "重置邮件已发送，请检查您的邮箱" : "Password reset email sent, please check your inbox",
-    backToLogin: isZh ? "返回登录" : "Back to Sign In",
-    resetInstruction: isZh ? "请输入您的注册邮箱接收密码重置链接" : "Enter your email to receive a password reset link",
+    ...authText,
+    title: isForgotPassword 
+      ? authText.resetPasswordTitle 
+      : (isLogin ? authText.signInTitle : authText.signUpTitle),
   };
 
   const handleDietToggle = (dietKey) => {

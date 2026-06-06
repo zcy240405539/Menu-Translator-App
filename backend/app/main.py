@@ -66,6 +66,241 @@ from app.services.pdf_text_service import extract_text_from_pdf_bytes
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
 
+
+def seed_database_presets():
+    from app.core.database import SessionLocal
+    from app.core.models import MenuCategory, NoiseKeyword
+    from sqlalchemy import text
+    
+    db = SessionLocal()
+    try:
+        # Fix database schema unique constraint mismatch
+        try:
+            db.execute(text("ALTER TABLE menu_categories DROP CONSTRAINT IF EXISTS menu_categories_normalized_key_key CASCADE"))
+            db.execute(text("ALTER TABLE menu_categories DROP CONSTRAINT IF EXISTS menu_categories_normalized_key_target_language_uc CASCADE"))
+            db.execute(text("ALTER TABLE menu_categories DROP CONSTRAINT IF EXISTS menu_categories_normalized_key_original_label_target_lang_uc CASCADE"))
+            db.execute(text("ALTER TABLE menu_categories ADD CONSTRAINT menu_categories_normalized_key_original_label_target_lang_uc UNIQUE (normalized_key, original_label, target_language)"))
+            db.commit()
+        except Exception as ex:
+            db.rollback()
+            print(f"Warning: could not alter menu_categories constraint: {ex}")
+
+        # 1. Preset Section Headings
+        preset_sections = [
+            # APPETIZERS
+            {
+                "normalized_key": "appetizers",
+                "original_label": "Appetizers",
+                "source_language": "en",
+                "target_language": "zh",
+                "translated_label": "开胃菜"
+            },
+            {
+                "normalized_key": "appetizers",
+                "original_label": "Appetizers",
+                "source_language": "en",
+                "target_language": "en",
+                "translated_label": "Appetizers"
+            },
+            {
+                "normalized_key": "appetizers",
+                "original_label": "Appetizers",
+                "source_language": "en",
+                "target_language": "zh-Hant",
+                "translated_label": "開胃菜"
+            },
+            {
+                "normalized_key": "appetizers",
+                "original_label": "Appetizers",
+                "source_language": "en",
+                "target_language": "es",
+                "translated_label": "Entradas"
+            },
+            # SOUPS & SALADS
+            {
+                "normalized_key": "soups_salads",
+                "original_label": "Soups & Salads",
+                "source_language": "en",
+                "target_language": "zh",
+                "translated_label": "汤和沙拉"
+            },
+            {
+                "normalized_key": "soups_salads",
+                "original_label": "Soups & Salads",
+                "source_language": "en",
+                "target_language": "en",
+                "translated_label": "Soups & Salads"
+            },
+            {
+                "normalized_key": "soups_salads",
+                "original_label": "Soups & Salads",
+                "source_language": "en",
+                "target_language": "zh-Hant",
+                "translated_label": "湯和沙拉"
+            },
+            {
+                "normalized_key": "soups_salads",
+                "original_label": "Soups & Salads",
+                "source_language": "en",
+                "target_language": "es",
+                "translated_label": "Sopas y Ensaladas"
+            },
+            # PASTA
+            {
+                "normalized_key": "pasta",
+                "original_label": "Pasta",
+                "source_language": "en",
+                "target_language": "zh",
+                "translated_label": "意面"
+            },
+            {
+                "normalized_key": "pasta",
+                "original_label": "Pasta",
+                "source_language": "en",
+                "target_language": "en",
+                "translated_label": "Pasta"
+            },
+            {
+                "normalized_key": "pasta",
+                "original_label": "Pasta",
+                "source_language": "en",
+                "target_language": "zh-Hant",
+                "translated_label": "義麵"
+            },
+            {
+                "normalized_key": "pasta",
+                "original_label": "Pasta",
+                "source_language": "en",
+                "target_language": "es",
+                "translated_label": "Pasta"
+            },
+            # CHEF SPECIAL
+            {
+                "normalized_key": "chef_special",
+                "original_label": "Chef Special",
+                "source_language": "en",
+                "target_language": "zh",
+                "translated_label": "厨师特选"
+            },
+            {
+                "normalized_key": "chef_special",
+                "original_label": "Chef Special",
+                "source_language": "en",
+                "target_language": "en",
+                "translated_label": "Chef Special"
+            },
+            {
+                "normalized_key": "chef_special",
+                "original_label": "Chef Special",
+                "source_language": "en",
+                "target_language": "zh-Hant",
+                "translated_label": "主廚特選"
+            },
+            {
+                "normalized_key": "chef_special",
+                "original_label": "Chef Special",
+                "source_language": "en",
+                "target_language": "es",
+                "translated_label": "Especial del Chef"
+            },
+            # SOUPS&SALADS mapping
+            {
+                "normalized_key": "soups_salads",
+                "original_label": "SOUPS&SALADS",
+                "source_language": "en",
+                "target_language": "zh",
+                "translated_label": "汤和沙拉"
+            },
+            {
+                "normalized_key": "soups_salads",
+                "original_label": "SOUPS&SALADS",
+                "source_language": "en",
+                "target_language": "en",
+                "translated_label": "Soups & Salads"
+            },
+            {
+                "normalized_key": "soups_salads",
+                "original_label": "SOUPS&SALADS",
+                "source_language": "en",
+                "target_language": "zh-Hant",
+                "translated_label": "湯和沙拉"
+            },
+            {
+                "normalized_key": "soups_salads",
+                "original_label": "SOUPS&SALADS",
+                "source_language": "en",
+                "target_language": "es",
+                "translated_label": "Sopas y Ensaladas"
+            },
+            # CHEF'S SPECIAL mapping
+            {
+                "normalized_key": "chef_special",
+                "original_label": "CHEF'S SPECIAL",
+                "source_language": "en",
+                "target_language": "zh",
+                "translated_label": "厨师特选"
+            },
+            {
+                "normalized_key": "chef_special",
+                "original_label": "CHEF'S SPECIAL",
+                "source_language": "en",
+                "target_language": "en",
+                "translated_label": "Chef Special"
+            },
+            {
+                "normalized_key": "chef_special",
+                "original_label": "CHEF'S SPECIAL",
+                "source_language": "en",
+                "target_language": "zh-Hant",
+                "translated_label": "主廚特選"
+            },
+            {
+                "normalized_key": "chef_special",
+                "original_label": "CHEF'S SPECIAL",
+                "source_language": "en",
+                "target_language": "es",
+                "translated_label": "Especial del Chef"
+            }
+        ]
+
+        for section in preset_sections:
+            try:
+                exists = db.query(MenuCategory).filter(
+                    MenuCategory.normalized_key == section["normalized_key"],
+                    MenuCategory.original_label == section["original_label"],
+                    MenuCategory.target_language == section["target_language"]
+                ).first()
+                if not exists:
+                    db.add(MenuCategory(**section))
+                    db.commit()
+            except Exception as item_err:
+                db.rollback()
+                print(f"Skipping preset section {section['original_label']} (lang {section['target_language']}) due to error: {item_err}")
+
+        # 2. Preset Noise Keywords
+        preset_noise = [
+            "HEDGCOXE", "PLANO", "TEXAS", "GMAIL", "ROMA", "ITALIAN KITCHEN",
+            "AM-", "PM", "DRESSING", "ADD CHICKEN", "ADD SHRIMP", "ADD SALMON",
+            "SUB SHRIMP", "SPLIT", "GRATUITY", "EXTRA CHARGE", "SUBSTITUTIONS"
+        ]
+        
+        for keyword in preset_noise:
+            try:
+                exists = db.query(NoiseKeyword).filter(NoiseKeyword.keyword == keyword).first()
+                if not exists:
+                    db.add(NoiseKeyword(keyword=keyword))
+                    db.commit()
+            except Exception as item_err:
+                db.rollback()
+                print(f"Skipping noise keyword {keyword} due to error: {item_err}")
+    except Exception as e:
+        print(f"Error seeding database presets: {e}")
+    finally:
+        db.close()
+
+
+seed_database_presets()
+
 app = FastAPI(title="Menu Translator API")
 
 # =========================

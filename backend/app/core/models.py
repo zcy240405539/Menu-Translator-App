@@ -85,7 +85,7 @@ class MenuCategory(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     __table_args__ = (
-        UniqueConstraint("normalized_key", "target_language"),
+        UniqueConstraint("normalized_key", "original_label", "target_language", name="menu_categories_normalized_key_original_label_target_lang_uc"),
     )
 
 
@@ -140,3 +140,10 @@ class UserSubscription(Base):
             name="chk_plan_values",
         ),
     )
+
+
+class NoiseKeyword(Base):
+    __tablename__ = "noise_keywords"
+
+    id = Column(Integer, primary_key=True, index=True)
+    keyword = Column(Text, nullable=False, unique=True)

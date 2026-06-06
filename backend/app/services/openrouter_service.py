@@ -80,56 +80,54 @@ Rules:
 
 
 
-_RULES_CACHE = None
-def load_menu_parser_rules():
-    global _RULES_CACHE
-
-    if _RULES_CACHE is not None:
-        return _RULES_CACHE
-
-    rules_path = (
-        Path(__file__).resolve().parent
-        / "menu_parser_rules.json"
-    )
-
-    with open(rules_path, "r", encoding="utf-8") as f:
-        _RULES_CACHE = json.load(f)
-
-    return _RULES_CACHE
-
-
 def get_noise_keywords():
-    rules = load_menu_parser_rules()
-    return rules.get("noise_keywords", [])
+    from app.core.database import SessionLocal
+    from app.core.models import NoiseKeyword
+
+    db = SessionLocal()
+    try:
+        keywords = db.query(NoiseKeyword.keyword).all()
+        return [k[0] for k in keywords]
+    except Exception as e:
+        print(f"Error loading noise keywords from DB: {e}")
+        return []
+    finally:
+        db.close()
 
 
 def get_section_info(text: str, target_lang: str = "zh"):
     if not text:
         return None
 
-    rules = load_menu_parser_rules()
+    from app.core.database import SessionLocal
+    from app.core.models import MenuCategory
 
-    section_map = rules.get("section_headings", {})
-
+    target_lang = normalize_lang(target_lang)
     key = text.upper().strip()
     key_no_space = key.replace(" ", "")
 
-    info = (
-        section_map.get(key)
-        or section_map.get(key_no_space)
-    )
+    db = SessionLocal()
+    try:
+        category = db.query(MenuCategory).filter(
+            (MenuCategory.normalized_key == key.lower()) |
+            (MenuCategory.normalized_key == key_no_space.lower()) |
+            (MenuCategory.original_label.ilike(text.strip()))
+        ).filter(
+            MenuCategory.target_language == target_lang
+        ).first()
 
-    if not info:
+        if not category:
+            return None
+
+        return {
+            "category": category.normalized_key,
+            "translated": category.translated_label or text.title()
+        }
+    except Exception as e:
+        print(f"Error querying MenuCategory in get_section_info: {e}")
         return None
-
-    return {
-        "category": info.get("category"),
-        "translated": (
-            info.get("translations", {})
-            .get(target_lang)
-            or text.title()
-        )
-    }
+    finally:
+        db.close()
 
 def get_target_language_name(target_lang: str) -> str:
     return get_language_name(target_lang)

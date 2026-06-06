@@ -24,7 +24,7 @@ import {
 } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile, uploadAvatar, logout } from "../api";
-import { isChineseLanguage } from "../i18n";
+import { isChineseLanguage, getText } from "../i18n";
 
 const DIET_OPTIONS = [
   { key: "Vegetarian", labelEn: "Vegetarian", labelZh: "素食", labelEs: "Vegetariano" },
@@ -55,23 +55,8 @@ export default function AccountProfileModal({
 
   const isZh = isChineseLanguage(targetLang);
 
-  const t = {
-    title: isZh ? "个人中心" : "Profile Settings",
-    username: isZh ? "用户名" : "Username",
-    email: isZh ? "电子邮箱" : "Email",
-    phone: isZh ? "手机号" : "Phone Number",
-    saveBtn: isZh ? "保存修改" : "Save Changes",
-    logoutBtn: isZh ? "退出登录" : "Sign Out",
-    diets: isZh ? "饮食限制" : "Dietary Constraints",
-    allergies: isZh ? "过敏原" : "Food Allergies",
-    allergiesPlaceholder: isZh ? "例如：花生, 海鲜" : "e.g., peanut, seafood",
-    budget: isZh ? "预算限制" : "Dining Budget",
-    budgetPlaceholder: isZh ? "例如：50 或 无限制" : "e.g., $50",
-    taste: isZh ? "口味偏好" : "Taste Preference",
-    tastePlaceholder: isZh ? "例如：清淡、微辣、少油" : "e.g., spicy, light",
-    successMsg: isZh ? "个人信息已成功更新！" : "Profile updated successfully!",
-    avatarTip: isZh ? "点击头像可更换" : "Tap avatar to change",
-  };
+  const t = getText(targetLang).profile || {};
+  const authText = getText(targetLang).auth || {};
 
   // Populate state when user logs in or profile opens
   useEffect(() => {
@@ -127,7 +112,7 @@ export default function AccountProfileModal({
     // Request permission
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      setError(isZh ? "需要媒体库权限才能更换头像" : "Permission to access media library is required");
+      setError(authText.mediaLibraryPermission || "Permission to access media library is required");
       return;
     }
 
@@ -155,11 +140,11 @@ export default function AccountProfileModal({
           avatar_url: uploadRes.avatar_url,
         });
         
-        setSuccess(isZh ? "头像已成功上传并更新！" : "Avatar updated successfully!");
+        setSuccess(authText.avatarSuccess || "Avatar updated successfully!");
       }
     } catch (err) {
       console.warn("Avatar selection/upload failed:", err);
-      setError(isZh ? "上传头像失败，请稍后重试。" : "Avatar upload failed.");
+      setError(authText.avatarFail || "Avatar upload failed.");
     } finally {
       setAvatarLoading(false);
     }

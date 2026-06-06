@@ -2,10 +2,10 @@ SUPPORTED_LANGUAGES = {
     "en": {"name": "English", "native": "English"},
     "zh": {"name": "Simplified Chinese", "native": "简体中文"},
     "zh-Hant": {"name": "Traditional Chinese", "native": "繁體中文"},
+    "es": {"name": "Spanish", "native": "Español"},
     # "ja": {"name": "Japanese", "native": "日本語"},
     # "ko": {"name": "Korean", "native": "한국어"},
     # "fr": {"name": "French", "native": "Français"},
-    # "es": {"name": "Spanish", "native": "Español"},
     # "de": {"name": "German", "native": "Deutsch"},
     # "it": {"name": "Italian", "native": "Italiano"},
     # "pt": {"name": "Portuguese", "native": "Português"},
@@ -23,6 +23,8 @@ def normalize_lang(lang: str | None, fallback: str = "en") -> str:
         return "zh"
     if lang in ("zh-tw", "zh_hant", "zh-hant", "zh-hk", "traditional chinese", "traditional-chinese"):
         return "zh-Hant"
+    if lang in ("es", "spanish", "español", "espanol"):
+        return "es"
     if lang in ("english",):
         return "en"
     return lang if lang in SUPPORTED_LANGUAGES else fallback
