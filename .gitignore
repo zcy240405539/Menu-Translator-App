@@ -14,6 +14,7 @@ frontend/.env
 
 # Expo
 frontend/node_modules/
+backend/app/node_modules/
 frontend/.expo/
 frontend/dist/
 frontend/web-build/

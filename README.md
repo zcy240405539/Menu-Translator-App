@@ -3,10 +3,12 @@
 An AI-powered multilingual restaurant menu translation and food analysis system built with FastAPI, React Native (Expo), PaddleOCR, and OpenRouter.
 
 Users can:
-- Scan restaurant menus
-- Translate menus into English or Chinese
+- Scan restaurant menu images and PDFs
+- Translate menus between English, simplified Chinese, traditional Chinese, and Spanish
 - View AI-generated dish descriptions
-- Browse food images
+- Browse web-sourced or AI-generated food images
+- Get AI ordering recommendations based on party size, budget, diet, allergies, and taste
+- Sign in, manage profile preferences, save history, build an order list, and share cached menu results
 - Cache dish knowledge for lower AI costs and faster responses
 
 ---
@@ -14,11 +16,16 @@ Users can:
 # Features
 
 - Multi-language menu OCR
-- AI-powered menu parsing
-- Chinese ↔ English translation
+- AI-powered menu layout reconstruction and parsing
+- English, simplified Chinese, traditional Chinese, and Spanish translation support
 - Dish detail generation
-- Dish image support
-- PostgreSQL dish cache
+- Dish image search with Pexels, Unsplash, Wikimedia Commons, and OpenAI image fallback
+- PostgreSQL dish, category, and menu parse cache
+- Supabase Auth user accounts, profile preferences, avatars, and subscription records
+- AI recommendation module
+- Shareable cached menu URLs
+- Native ad plumbing with web-safe fallbacks
+- Context-aware price and currency formatting
 - Smart token-saving architecture
 - React Native mobile app
 - FastAPI backend
@@ -29,20 +36,29 @@ Users can:
 ## Frontend
 - React Native
 - Expo
-- Axios
+- React Native Paper
+- AsyncStorage
+- React Native Google Mobile Ads
 
 ## Backend
 - FastAPI
 - PaddleOCR
 - OpenRouter API
 - SQLAlchemy
+- Supabase Python client
+- PyMuPDF
 
 ## Database
 - PostgreSQL
+- Supabase Auth
+- Supabase Storage
 
 ## Image Storage
-- Static image cache
-- Future Cloudinary support
+- Supabase Storage
+- Pexels image search
+- Unsplash image search
+- Wikimedia Commons image search
+- OpenAI generated-image fallback
 
 ---
 
@@ -51,17 +67,21 @@ Users can:
 ```text
 User Upload
     ↓
-PaddleOCR
+Image/PDF normalization
     ↓
-OpenRouter (Light Structure Parsing)
+PaddleOCR or OpenRouter Vision OCR
     ↓
-PostgreSQL Dish Cache
+OpenRouter layout parsing
     ↓
-Missing Dish Enrichment
+PostgreSQL menu, dish, and category cache
     ↓
-Image Cache
+Missing dish enrichment
     ↓
-Frontend Rendering
+Image search / generated image fallback
+    ↓
+Supabase Storage
+    ↓
+Frontend rendering, sharing, recommendation, cart, and history
 ```
 ## APP Structure
 ```
@@ -70,28 +90,35 @@ menu-translator-app/
 ├─ LICENSE
 ├─ backend/
 │  ├─ app/
-│  │	├─ main.py
-│  │	├─ config.py
-│  │	├─ database.py
-│  │	├─ models.py
-│  │	├─ schemas.py
-│  │	├─ ocr_service.py
-│  │	├─ pdf_service.py
-│  │	├─ image_service.py
-│  │	├─ dish_cache_service.py
-│  │	├─ menu_cache_service.py
-│  │	├─ category_service.py
-│  │	├─ menu_layout_service.py
-│  │	└─ openrouter_service.py
+│  │  ├─ main.py
+│  │  ├─ core/
+│  │  │  ├─ config.py
+│  │  │  ├─ database.py
+│  │  │  ├─ i18n_service.py
+│  │  │  ├─ models.py
+│  │  │  └─ schemas.py
+│  │  └─ services/
+│  │     ├─ auth_service.py
+│  │     ├─ category_service.py
+│  │     ├─ dish_cache_service.py
+│  │     ├─ image_service.py
+│  │     ├─ menu_cache_service.py
+│  │     ├─ menu_layout_service.py
+│  │     ├─ ocr_service.py
+│  │     ├─ openrouter_service.py
+│  │     ├─ pdf_service.py
+│  │     └─ pdf_text_service.py
 │  ├─ static/
-│  │	├─ README/
-│  │	├─ dish_images/
-│  │	└─ generated_images/
+│  │  ├─ README/
+│  │  ├─ dish_images/
+│  │  └─ generated_images/
+│  ├─ migrations/
 │  ├─ uploads/
 │  ├─ .env
 │  └─ requirements.txt
 └─ frontend/
    ├─ App.js
+   ├─ app.config.js
    ├─ api.js
    ├─ i18n.js
    ├─ screens/
@@ -102,8 +129,16 @@ menu-translator-app/
    ├─ storage/
    │  ├─ cartStorage.js
    │  └─ menuStorage.js
+   ├─ utils/
+   │  ├─ ads.native.js
+   │  ├─ ads.web.js
+   │  └─ price.js
    └─ components/
-      └─ DishDetailModal.js
+      ├─ AccountProfileModal.js
+      ├─ AIRecommendModal.js
+      ├─ DishDetailModal.js
+      ├─ LoginRegisterModal.js
+      └─ ShareDialog.js
 ```
 
 # Screenshots
@@ -140,24 +175,57 @@ npx expo start -c
 ```
 OPENROUTER_API_KEY=XXXXXXX
 OPENROUTER_MODEL=openrouter/owl-alpha
+OPENROUTER_LAYOUT_MODEL=google/gemini-2.5-flash-lite
+OPENROUTER_DETAIL_MODEL=google/gemini-2.5-flash-lite
+OPENROUTER_VISION_MODEL=openrouter/free
+OPENROUTER_VISION_FALLBACK_MODELS=openrouter/free,google/gemini-2.5-flash-lite
 DATABASE_URL=XXXXXXX
 SUPABASE_URL=https://XXXXXX.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=XXXXXX
 SUPABASE_BUCKET=Dish_Images
+OCR_PROVIDER=auto
+OCR_AUTO_LANG_ORDER=en,ch
 PEXELS_API_KEY=XXXXXXX
 UNSPLASH_ACCESS_KEY=XXXXXXX
 WIKIMEDIA_USER_AGENT=MenuTranslatorApp/1.0 (your-email@example.com)
 OPENAI_API_KEY=XXXXXXX
 OPENAI_IMAGE_MODEL=gpt-image-1-mini
 ENABLE_GENERATED_IMAGE_FALLBACK=true
+EXPO_PUBLIC_API_BASE_URL=https://ai-menu-app.onrender.com
 ```
 
 # API Endpoints
 
 ## Health Check
 ```GET /health```
-## Parse Menu
+## Start Async Menu Parse
+```POST /menus/parse/start```
+## Parse Status
+```GET /menus/parse/status/{task_id}```
+## Cached Menu
+```GET /menus/cache/{image_hash}```
+## Legacy Parse Menu
 ```POST /menus/parse```
+## OCR / Layout / Text Analysis
+```POST /menus/ocr```
+```POST /menus/layout```
+```POST /menus/analyze```
+## AI Recommendation
+```POST /menus/recommend```
+## Dish Detail
+```POST /dish/detail```
+## Auth
+```POST /auth/register```
+```POST /auth/login```
+```POST /auth/google```
+```GET /auth/google/url```
+```GET /auth/me```
+```POST /auth/profile```
+```POST /auth/logout```
+```POST /auth/password-reset```
+```POST /auth/avatar```
+## Language Options
+```GET /i18n/languages```
 
 # Database Schema
 ## dish_cache
@@ -167,97 +235,139 @@ translated dishes
 descriptions
 ingredients
 allergens
+cuisine
 AI metadata
 ```
 ## dish_images
 Stores:
 ```
 food images
-generated image URLs
+web-sourced and generated image URLs
 thumbnail cache
+source metadata
+```
+## menu_parse_cache
+Stores:
+```
+image hashes
+OCR blocks
+structured menu results
+business metadata
+currency
+```
+## menu_categories
+Stores:
+```
+normalized category keys
+source labels
+translated labels
+target language
+```
+## users
+Stores:
+```
+Supabase Auth user id
+username and email
+profile preferences
+avatar URL
+role
+```
+## user_subscriptions
+Stores:
+```
+membership plan
+subscription status
+store and payment identifiers
 ```
 ## Storage Bucket Dish_Images
 ```
 generated
 preset
 restaurants
+web_found
 ```
 
 # Completed Roadmap Items
 - AI-generated and web-sourced dish images
 - Menu history
 - Cloud image storage with Supabase Storage
+- Async menu parsing with polling
+- Menu parse cache by image hash and target language
+- Multi-language UI and translation flow for English, simplified Chinese, traditional Chinese, and Spanish
+- AI smart recommendation modal and backend recommendation endpoint
+- Supabase Auth login, registration, Google OAuth handoff, password reset, profile preferences, and avatar upload
+- Native AdMob integration with web-safe fallback modules
+- Share dialog and shareable cached menu URLs
+- Currency extraction and frontend price formatting
 
 # Future Roadmap
 
-## 1. Improve OCR Accuracy and Efficiency
+## 1. Further Improve OCR Accuracy and Efficiency
 Goal: make image and PDF menu parsing more reliable, faster, and easier to debug.
 
 Implementation steps:
 1. Build an OCR benchmark set with real menu images and PDFs, including clean photos, angled photos, low-light photos, multi-column menus, and dense restaurant menus.
-2. Add image preprocessing before PaddleOCR, such as rotation correction, contrast enhancement, denoising, sharpening, resizing, and optional perspective correction.
-3. Preserve OCR bounding boxes and confidence scores so downstream parsing can use layout, columns, sections, and low-confidence warnings.
-4. Add OCR result caching by file hash to avoid rerunning OCR for the same image or PDF.
-5. Split PDF handling into page rendering, per-page OCR, and result merging so large PDFs can be processed incrementally.
-6. Add OCR timing logs and confidence metrics to compare preprocessing strategies and PaddleOCR settings.
-7. Add fallback logic for failed or low-confidence OCR, such as rerunning with alternate preprocessing or language settings.
+2. Add stronger image preprocessing before OCR, such as rotation correction, contrast enhancement, denoising, sharpening, resizing, and optional perspective correction.
+3. Preserve and display OCR bounding boxes and confidence scores so downstream parsing can use layout, columns, sections, and low-confidence warnings.
+4. Add a dedicated OCR-block cache when useful, separate from the current full menu parse cache.
+5. Improve PDF handling so multi-page PDFs can be processed, merged, and debugged page by page.
+6. Add OCR timing logs and confidence metrics to compare preprocessing strategies, PaddleOCR settings, and OpenRouter Vision models.
+7. Add fallback logic for failed or low-confidence OCR, such as rerunning with alternate preprocessing, OCR provider, or language settings.
 
-## 2. Add Accurate Chinese OCR for Chinese-to-English Translation
-Goal: support Chinese menu input and translate Chinese menus into English.
+## 2. Harden Chinese OCR and Chinese-to-English Translation
+Goal: make Chinese menu input reliable enough for production Chinese-to-English usage.
 
 Implementation steps:
-1. Enable PaddleOCR Chinese recognition by selecting the correct OCR language model when `source_language` is Chinese.
-2. Pass both `source_language` and `target_language` through the frontend upload flow, backend API, OCR service, parser, cache lookup, and AI translation prompts.
+1. Expand the Chinese OCR review set for simplified Chinese, traditional Chinese, mixed English/Chinese menus, handwritten-style fonts, and dense image-heavy layouts.
+2. Tune automatic OCR language selection and fallback order for Chinese, English, and mixed-language menus.
 3. Add Chinese-specific cleanup for punctuation, full-width characters, prices, dish numbering, spice markers, and menu section headings.
-4. Update AI parsing prompts so Chinese menu categories and dishes are extracted into the same structured schema used by English menus.
-5. Update dish cache keys to include source language, target language, normalized original name, and restaurant context when available.
-6. Add Chinese-to-English examples and tests for menus with simplified Chinese, traditional Chinese, mixed English/Chinese, and image-heavy layouts.
-7. Validate output quality with a small manual review set before expanding to more language pairs.
+4. Add regression tests that compare Chinese OCR text, extracted categories, translated dish names, descriptions, allergens, and prices.
+5. Improve normalized English cache-key generation for non-English source dishes.
+6. Validate output quality with a small manual review set before expanding to more language pairs.
 
-## 3. AI Smart Recommendation Module
-Goal: let users open a recommendation flow from the result screen and receive personalized dish suggestions.
-
-Implementation steps:
-1. Add a recommendation entry point on `MenuResultScreen`, such as a button that opens a recommendation modal or screen.
-2. Ask users structured questions: party size, budget, spice preference, dietary restrictions, allergies, disliked ingredients, cuisine preference, and whether they want popular, balanced, adventurous, or value-focused picks.
-3. Send the current parsed menu plus user answers to a backend recommendation endpoint.
-4. Create an AI prompt that recommends dishes only from the parsed menu and returns structured JSON with dish ids, reasons, warnings, budget notes, and optional ordering combinations.
-5. Add backend validation so recommendations never include dishes that are not present in the current menu.
-6. Save recommendation sessions for future personalization and analytics.
-7. Render recommendation cards in the frontend with reasons, allergy warnings, estimated fit, and an add-to-cart action.
-
-## 4. Advertising and Monetization Module
-Goal: add ads in a controlled way while keeping the core menu translation flow usable.
+## 3. Improve AI Smart Recommendation
+Goal: turn the current recommendation module into a more personalized and persistent feature.
 
 Implementation steps:
-1. Choose the ad provider, with Google AdMob as the likely first option for a React Native Expo app.
-2. Add ad placement rules for non-member users, such as result-screen banner ads, history-screen banner ads, and optional rewarded ads for premium AI features.
-3. Add a backend feature flag or remote config so ad placements can be enabled, disabled, or adjusted without shipping a new app version.
-4. Track ad impressions, clicks, and placement performance in a database table for analytics.
-5. Add privacy and consent handling where required, especially for personalized ads.
-6. Make all ad rendering conditional on membership status so paid users can have an ad-free experience.
-7. Test the app with provider test ad units before enabling production ads.
+1. Save recommendation sessions with user id, menu hash, answers, recommended dish ids, and feedback.
+2. Use saved profile preferences as defaults for party size, diet, allergies, budget, and taste.
+3. Add backend validation so recommendations never include dishes outside the current parsed menu or dishes that conflict with known allergies.
+4. Add feedback actions such as liked, not interested, too expensive, allergy concern, and added to order list.
+5. Use recommendation feedback to improve future prompts and ranking.
+6. Add analytics for recommendation conversion into cart/order-list actions.
 
-## 5. User Login, Membership, and Ad Gating
-Goal: identify users, support future membership features, and decide whether ads should be shown.
+## 4. Production Advertising and Monetization
+Goal: move the current ad integration from plumbing to controlled production monetization.
 
 Implementation steps:
-1. Add Supabase Auth for email/password login first, then optionally add OAuth providers such as Google or Apple.
-2. Create user profile and membership tables, such as `profiles` and `user_memberships`, with Row Level Security policies.
-3. Store membership status in trusted server-side data, not editable user metadata.
-4. Add login, signup, logout, password reset, and session restore screens in the frontend.
-5. Attach authenticated user ids to menu history, recommendation sessions, carts, and future favorites.
-6. Add backend JWT verification so protected APIs can trust the current user.
-7. Gate ads and premium features based on membership status returned by the backend.
+1. Add backend feature flags or remote config so ad placements can be enabled, disabled, or adjusted without shipping a new app version.
+2. Gate all ad rendering by trusted membership status from the backend.
+3. Track ad impressions, clicks, load failures, placement type, and app platform in analytics tables.
+4. Add privacy and consent handling where required, especially for personalized ads.
+5. Validate production AdMob ids with provider test modes before enabling live ads.
+6. Add rewarded ad rules only for optional premium features, not the core menu understanding flow.
+
+## 5. Membership, Payments, and Ad Gating
+Goal: connect current Auth/subscription records to paid membership and ad-free behavior.
+
+Implementation steps:
+1. Add subscription status endpoints that return trusted membership state for the current authenticated user.
+2. Integrate payment providers for App Store, Google Play, and optionally Stripe for web.
+3. Store membership status in server-side subscription records, not editable user metadata.
+4. Attach authenticated user ids to menu history, recommendation sessions, carts, and future favorites.
+5. Add RLS policies before exposing user-owned data directly from Supabase.
+6. Gate ads and premium features based on backend-verified membership status.
+7. Add expiration, renewal, cancellation, and grace-period handling.
 
 ## Later Enhancements
 - User manage system
-- More language pairs beyond Chinese and English
+- More language pairs beyond the currently enabled English, Chinese, and Spanish options
 - Restaurant recommendation engine
-- Subscription payments, check user subscription status
 - Admin dashboard for OCR quality, AI cost, ad performance, and storage usage
 - Feature of read menu from URL or QR code, translate from website
 - Continuously improve OCR quality, parsing result quality and menu analyze speed
+- Build to publish on Apple APP store
+- Build to publish on Android stores: Play Store, Amazon Appstore, OPPO App Market, Samsung Galaxy Store, VIVO App Store, Xiaomi GetApps
 
 # Cost Optimization
 
