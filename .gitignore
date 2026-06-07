@@ -29,4 +29,5 @@ frontend/*.log
 AGENTS.md
 AGENT.md
 backend/app/__pycache__/
+frontend/android/
 
