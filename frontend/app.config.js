@@ -4,6 +4,9 @@ module.exports = {
     slug: "ai-menu-app",
     version: "1.0.0",
     orientation: "portrait",
+    android: {
+      package: "com.anonymous.aimenuapp"
+    },
     plugins: [
       "expo-localization",
       [

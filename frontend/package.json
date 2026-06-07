@@ -16,6 +16,11 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
     "react-native-vector-icons": "^10.3.0",
-    "react-native-web": "^0.21.0"
-  }
+    "react-native-web": "^0.21.0",
+    "expo": "~56.0.8",
+    "react-native": "0.85.3"
+  },
+  "name": "frontend",
+  "version": "1.0.0",
+  "scripts": {}
 }
