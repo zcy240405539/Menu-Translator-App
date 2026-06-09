@@ -18,13 +18,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.core.database import get_db, engine, Base
-from app.core.models import DishCache, DishImage, User, UserSubscription
+from app.core.models import DishCache, DishImage, MenuCategory, User, UserCartState, UserMenuHistory, UserSubscription
 from app.core.schemas import (
     SubscriptionResponse,
     AnalyzeTextRequest,
     DishDetailRequest,
     MenuUrlParseRequest,
     RecommendRequest,
+    UserCartSyncRequest,
+    UserMenuHistoryRequest,
     UserRegisterRequest,
     UserLoginRequest,
     GoogleLoginRequest,
@@ -59,7 +61,7 @@ from app.services.dish_cache_service import (
     resolve_dish_cuisine,
 )
 from app.services.image_service import get_or_create_dish_image
-from app.services.category_service import get_or_create_menu_category
+from app.services.category_service import get_or_create_menu_category, normalize_category_key
 from app.core.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
 from app.services.document_text_service import (
     extract_markdown_from_file_bytes,
@@ -437,6 +439,96 @@ def update_profile(request: UserProfileUpdate, current_user: User = Depends(get_
     db.commit()
     db.refresh(current_user)
     return to_user_response(current_user)
+
+
+@app.post("/user/menu-history")
+def save_user_menu_history(
+    request: UserMenuHistoryRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        menu_result = request.menu_result or {}
+        menu_hash = menu_result.get("image_hash") or menu_result.get("hash")
+        target_language = request.target_lang or menu_result.get("target_language")
+
+        history_record = None
+        if menu_hash:
+            history_record = (
+                db.query(UserMenuHistory)
+                .filter(
+                    UserMenuHistory.user_id == current_user.id,
+                    UserMenuHistory.menu_hash == menu_hash,
+                    UserMenuHistory.target_language == target_language,
+                )
+                .first()
+            )
+
+        if not history_record:
+            history_record = UserMenuHistory(user_id=current_user.id)
+            db.add(history_record)
+
+        history_record.menu_hash = menu_hash
+        history_record.source_uri = request.source_uri
+        history_record.target_language = target_language
+        history_record.source_language = menu_result.get("source_language")
+        history_record.business_name = menu_result.get("business_name")
+        history_record.restaurant_type = menu_result.get("restaurant_type")
+        history_record.currency = menu_result.get("currency")
+        history_record.menu_result = menu_result
+
+        db.commit()
+        db.refresh(history_record)
+
+        return {
+            "id": history_record.id,
+            "saved": True,
+            "menu_hash": history_record.menu_hash,
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/user/cart")
+def get_user_cart(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    state = db.query(UserCartState).filter(UserCartState.user_id == current_user.id).first()
+    return {
+        "items": state.items if state else [],
+        "updated_at": state.updated_at.isoformat() if state and state.updated_at else None,
+    }
+
+
+@app.put("/user/cart")
+def update_user_cart(
+    request: UserCartSyncRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        state = db.query(UserCartState).filter(UserCartState.user_id == current_user.id).first()
+
+        if not state:
+            state = UserCartState(user_id=current_user.id, items=request.items or [])
+            db.add(state)
+        else:
+            state.items = request.items or []
+
+        db.commit()
+        db.refresh(state)
+
+        return {
+            "items": state.items or [],
+            "updated_at": state.updated_at.isoformat() if state.updated_at else None,
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/auth/logout")
@@ -1246,6 +1338,121 @@ def collect_category_translation_map(menu_items, target_lang):
     return category_map
 
 
+def collect_existing_category_translation_map(db, labels, target_lang):
+    category_map = {}
+    normalized_labels = []
+
+    for label in labels:
+        normalized_labels.append((label, normalize_category_key(label)))
+
+    if not normalized_labels:
+        return category_map
+
+    keys = list({key for _, key in normalized_labels})
+    records = (
+        db.query(MenuCategory)
+        .filter(
+            MenuCategory.target_language == target_lang,
+            MenuCategory.normalized_key.in_(keys),
+        )
+        .all()
+    )
+
+    exact_records = {
+        (record.normalized_key, record.original_label): record
+        for record in records
+    }
+    fallback_records = {}
+    for record in records:
+        fallback_records.setdefault(record.normalized_key, record)
+
+    for label, key in normalized_labels:
+        record = exact_records.get((key, label)) or fallback_records.get(key)
+        if not record:
+            continue
+
+        if is_useful_category_translation(record.translated_label, label, target_lang):
+            category_map[label] = record.translated_label
+
+    return category_map
+
+
+def resolve_category_translation_map(db, labels, target_lang, source_lang, seed_map=None):
+    category_map = dict(seed_map or {})
+    category_map.update(collect_existing_category_translation_map(db, labels, target_lang))
+
+    missing_labels = [
+        label
+        for label in labels
+        if not is_useful_category_translation(category_map.get(label), label, target_lang)
+    ]
+
+    if missing_labels:
+        try:
+            translated_categories = call_openrouter_translate_category_labels(
+                labels=missing_labels,
+                target_lang=target_lang,
+                source_lang=source_lang,
+            )
+
+            for label, translated in translated_categories.items():
+                if is_useful_category_translation(translated, label, target_lang):
+                    category_map[label] = translated
+
+        except Exception as category_translate_error:
+            print("Category translation failed:", category_translate_error)
+
+    return category_map
+
+
+def apply_category_records_to_items(db, items, target_lang, source_lang, seed_map=None):
+    labels = []
+    for item in items or []:
+        section_original = (
+            item.get("section_heading_original")
+            or item.get("category")
+            or "Other"
+        )
+        if section_original not in labels:
+            labels.append(section_original)
+
+    category_map = resolve_category_translation_map(
+        db=db,
+        labels=labels,
+        target_lang=target_lang,
+        source_lang=source_lang,
+        seed_map=seed_map,
+    )
+
+    for item in items or []:
+        section_original = (
+            item.get("section_heading_original")
+            or item.get("category")
+            or "Other"
+        )
+        section_translated = (
+            category_map.get(section_original)
+            or item.get("section_heading_translated")
+            or section_original
+        )
+
+        category_record = get_or_create_menu_category(
+            db=db,
+            original_label=section_original,
+            source_language=source_lang,
+            target_language=target_lang,
+            translate_func=lambda original, target, text=section_translated: text,
+        )
+
+        item["category_id"] = category_record.id
+        item["category_key"] = category_record.normalized_key
+        item["category_display_name"] = category_record.translated_label
+        item["section_heading_original"] = category_record.original_label
+        item["section_heading_translated"] = category_record.translated_label
+
+    return items or []
+
+
 # =========================
 # Async Tasks
 # =========================
@@ -1297,6 +1504,17 @@ def run_menu_parse_task(
                 elif any(needs_dish_language_enrichment(item, target_lang) for item in result["menu_items"]):
                     print("Menu cache skipped because translated fields need refresh.")
                 else:
+                    try:
+                        result["menu_items"] = apply_category_records_to_items(
+                            db=db,
+                            items=result.get("menu_items") or [],
+                            target_lang=target_lang,
+                            source_lang=result.get("source_language") or source_lang,
+                            seed_map=collect_category_translation_map(result.get("menu_items") or [], target_lang),
+                        )
+                    except Exception as category_error:
+                        print("Cached menu category sync failed:", category_error)
+
                     result["cache_summary"] = {
                         "menu_cache_hit": True,
                         "total_items": len(result.get("menu_items", [])),
@@ -1596,35 +1814,20 @@ def run_menu_parse_task(
                 if section_original not in all_category_originals:
                     all_category_originals.append(section_original)
 
-            missing_category_labels = [
-                label
-                for label in all_category_originals
-                if not is_useful_category_translation(
-                    category_translation_map.get(label),
-                    label,
-                    target_lang,
-                )
-            ]
-
-            if missing_category_labels:
-                try:
-                    translated_categories = call_openrouter_translate_category_labels(
-                        labels=missing_category_labels,
-                        target_lang=target_lang,
-                        source_lang=source_lang,
-                    )
-
-                    for label, translated in translated_categories.items():
-                        if is_useful_category_translation(translated, label, target_lang):
-                            category_translation_map[label] = translated
-
-                except Exception as category_translate_error:
-                    print("Category translation failed:", category_translate_error)
-
+            category_translation_map = resolve_category_translation_map(
+                db=db,
+                labels=all_category_originals,
+                target_lang=target_lang,
+                source_lang=source_lang,
+                seed_map=category_translation_map,
+            )
 
             for item in enriched_items:
+                original_category = original_category_by_id.get(item.get("id"), {})
                 section_original = (
-                    item.get("section_heading_original")
+                    original_category.get("section_heading_original")
+                    or item.get("section_heading_original")
+                    or original_category.get("category")
                     or item.get("category")
                     or "Other"
                 )

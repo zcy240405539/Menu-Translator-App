@@ -128,6 +128,12 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
     return IMAGE_EXTENSIONS.some((extension) => fileName.endsWith(extension));
   };
 
+  const isPdfFile = (file) => {
+    const mimeType = (file?.mimeType || file?.type || "").toLowerCase();
+    const fileName = (file?.name || file?.uri || "").toLowerCase();
+    return mimeType === "application/pdf" || fileName.endsWith(".pdf");
+  };
+
   const takePicture = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -357,6 +363,18 @@ const selectFromFile = async () => {
       () => parseMenuUrl(trimmedUrl, targetLang, sourceLang),
       trimmedUrl
     );
+  };
+
+  const hasSelectedMenuFile = Boolean(selectedFile || imageUri);
+  const hasMenuUrl = Boolean(menuUrl.trim());
+  const canAnalyzeMenu = hasSelectedMenuFile || hasMenuUrl;
+
+  const handleAnalyzeMenu = async () => {
+    if (hasSelectedMenuFile) {
+      return handleParse();
+    }
+
+    return handleParseUrl();
   };
 
   const getCurrentShareUrl = () => {
@@ -602,27 +620,7 @@ const selectFromFile = async () => {
                 left={<TextInput.Icon icon="link-variant" />}
                 style={styles.urlInput}
               />
-
-              <Button
-                mode="outlined"
-                icon="web"
-                style={styles.urlButton}
-                contentStyle={styles.buttonContent}
-                onPress={handleParseUrl}
-                disabled={loading || !menuUrl.trim()}
-              >
-                {t.home.analyzeUrl}
-              </Button>
             </View>
-
-            {loading && !imageUri && !selectedFile && (
-              <View style={styles.loadingBox}>
-                <ActivityIndicator size="large" />
-                <Text style={styles.loadingText}>
-                  {t.home.analyzingMenu}
-                </Text>
-              </View>
-            )}
 
             {(imageUri || selectedFile) && (
               <View style={styles.previewSection}>
@@ -632,12 +630,10 @@ const selectFromFile = async () => {
 
                 {selectedFile && !isImageFile(selectedFile) ? (
                   <View style={styles.pdfPreview}>
-                    <Text style={styles.pdfIcon}>DOC</Text>
-
                     <Text style={styles.pdfTitle}>
-                      {selectedFile?.mimeType === "application/pdf"
-                        ? t.home.pdfMenu
-                        : t.home.documentMenu}
+                      {isPdfFile(selectedFile)
+                        ? t.home.pdfFileSelected
+                        : t.home.documentFileSelected}
                     </Text>
 
                     <Text
@@ -653,26 +649,27 @@ const selectFromFile = async () => {
                     style={styles.preview}
                   />
                 ) : null}
-                
-                {loading ? (
-                  <View style={styles.loadingBox}>
-                    <ActivityIndicator size="large" />
-                    <Text style={styles.loadingText}>
-                      {t.home.analyzingMenu}
-                    </Text>
-                  </View>
-                ) : (
-                  <Button
-                    mode="contained-tonal"
-                    icon="magic-staff"
-                    style={styles.analyzeButton}
-                    contentStyle={styles.buttonContent}
-                    onPress={handleParse}
-                  >
-                    {t.home.analyzeMenu}
-                  </Button>
-                )}
               </View>
+            )}
+
+            {loading ? (
+              <View style={styles.loadingBox}>
+                <ActivityIndicator size="large" />
+                <Text style={styles.loadingText}>
+                  {t.home.analyzingMenu}
+                </Text>
+              </View>
+            ) : (
+              <Button
+                mode="contained-tonal"
+                icon="magic-staff"
+                style={styles.analyzeButton}
+                contentStyle={styles.buttonContent}
+                onPress={handleAnalyzeMenu}
+                disabled={!canAnalyzeMenu}
+              >
+                {t.home.analyzeMenu}
+              </Button>
             )}
           </Card.Content>
         </Card>
@@ -736,9 +733,6 @@ const styles = StyleSheet.create({
   urlInput: {
     backgroundColor: "#FFFFFF",
   },
-  urlButton: {
-    borderRadius: 100,
-  },
   previewSection: {
     marginTop: 22,
   },
@@ -764,7 +758,7 @@ const styles = StyleSheet.create({
   },
   pdfPreview: {
     width: "100%",
-    height: 280,
+    minHeight: 132,
     borderRadius: 18,
     backgroundColor: "#E7E0EC",
     alignItems: "center",
@@ -772,13 +766,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
-  pdfIcon: {
-    fontSize: 58,
-    marginBottom: 12,
-  },
-
   pdfTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
     color: "#1D1B20",
   },

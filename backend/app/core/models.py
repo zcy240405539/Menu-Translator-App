@@ -142,6 +142,34 @@ class UserSubscription(Base):
     )
 
 
+class UserMenuHistory(Base):
+    __tablename__ = "user_menu_history"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    user_id = Column(Text, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    menu_hash = Column(Text, nullable=True, index=True)
+    source_uri = Column(Text, nullable=True)
+    target_language = Column(Text, nullable=True)
+    source_language = Column(Text, nullable=True)
+    business_name = Column(Text, nullable=True)
+    restaurant_type = Column(Text, nullable=True)
+    currency = Column(Text, nullable=True)
+    menu_result = Column(JSONB, nullable=False, default=dict)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    __table_args__ = (
+        UniqueConstraint("user_id", "menu_hash", "target_language", name="user_menu_history_user_hash_target_uc"),
+    )
+
+
+class UserCartState(Base):
+    __tablename__ = "user_cart_state"
+
+    user_id = Column(Text, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    items = Column(JSONB, nullable=False, default=list)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class NoiseKeyword(Base):
     __tablename__ = "noise_keywords"
 

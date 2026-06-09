@@ -8,12 +8,13 @@ import MenuResultScreen from "./screens/MenuResultScreen";
 import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
-import { getCachedMenu, setAuthToken, getProfile } from "./api";
+import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken } from "./api";
 import { Platform, Share, Alert, LogBox, Linking } from "react-native";
 import { detectUserCurrency } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
 import AccountProfileModal from "./components/AccountProfileModal";
+import { getCartItems, setCartCloudSyncHandler, setCartItems } from "./storage/cartStorage";
 
 // Ignore third-party deprecation and platform-specific fallback warnings
 LogBox.ignoreLogs([
@@ -185,6 +186,39 @@ function AppContent() {
   const handleUpdateUser = (updatedUser) => {
     setCurrentUser(updatedUser);
   };
+
+  const syncCartForAuthenticatedUser = async () => {
+    try {
+      const localItems = await getCartItems();
+
+      if (localItems.length > 0) {
+        await saveUserCart(localItems);
+        return;
+      }
+
+      const remoteCart = await getUserCart();
+      const remoteItems = remoteCart?.items || [];
+
+      if (remoteItems.length > 0) {
+        await setCartItems(remoteItems, { skipCloudSync: true });
+      }
+    } catch (err) {
+      console.warn("Cart sync after login failed:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser) {
+      setCartCloudSyncHandler(saveUserCart);
+      syncCartForAuthenticatedUser();
+    } else {
+      setCartCloudSyncHandler(null);
+    }
+
+    return () => {
+      setCartCloudSyncHandler(null);
+    };
+  }, [currentUser?.id]);
 
   // Combined app initialization is handled in the unified useEffect above.
 

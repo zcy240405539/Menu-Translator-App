@@ -65,6 +65,16 @@ class RecommendRequest(BaseModel):
     target_lang: str = "zh"
 
 
+class UserMenuHistoryRequest(BaseModel):
+    menu_result: dict
+    source_uri: Optional[str] = None
+    target_lang: str = "zh"
+
+
+class UserCartSyncRequest(BaseModel):
+    items: List[dict] = []
+
+
 class UserRegisterRequest(BaseModel):
     username: str
     email: str

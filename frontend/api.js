@@ -149,6 +149,10 @@ export function setAuthToken(token) {
   authToken = token;
 }
 
+export function hasAuthToken() {
+  return Boolean(authToken);
+}
+
 function getHeaders(isFormData = false) {
   const headers = {};
   if (!isFormData) {
@@ -318,6 +322,68 @@ export async function updateProfile(profileData) {
     const errMsg = await getErrorMessage(res);
     throw new Error(errMsg || "Failed to update profile");
   }
+  return await res.json();
+}
+
+export async function saveUserMenuHistory(record) {
+  if (!authToken || !record?.raw) {
+    return null;
+  }
+
+  const res = await fetch(`${API_BASE_URL}/user/menu-history`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      menu_result: record.raw,
+      source_uri: record.imageUri,
+      target_lang: record.targetLang,
+    }),
+  });
+
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to save user menu history");
+  }
+
+  return await res.json();
+}
+
+export async function getUserCart() {
+  if (!authToken) {
+    return { items: [] };
+  }
+
+  const res = await fetch(`${API_BASE_URL}/user/cart`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to fetch user cart");
+  }
+
+  return await res.json();
+}
+
+export async function saveUserCart(items) {
+  if (!authToken) {
+    return null;
+  }
+
+  const res = await fetch(`${API_BASE_URL}/user/cart`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      items: Array.isArray(items) ? items : [],
+    }),
+  });
+
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to save user cart");
+  }
+
   return await res.json();
 }
 

@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { saveUserMenuHistory } from "../api";
 
 const MENU_HISTORY_KEY = "MENU_HISTORY";
 
@@ -21,6 +22,10 @@ export async function saveMenuHistory(menuResult, imageUri, targetLang) {
   const updated = [newRecord, ...history].slice(0, 20);
 
   await AsyncStorage.setItem(MENU_HISTORY_KEY, JSON.stringify(updated));
+
+  saveUserMenuHistory(newRecord).catch((err) => {
+    console.warn("Save user menu history failed:", err);
+  });
 
   return newRecord;
 }

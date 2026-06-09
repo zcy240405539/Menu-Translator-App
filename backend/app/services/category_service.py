@@ -5,6 +5,10 @@ from app.core.models import MenuCategory
 
 def normalize_category_key(label: str) -> str:
     text = (label or "").strip().lower()
+    alpha_tokens = re.findall(r"[a-z]+", text)
+    if len(alpha_tokens) >= 3 and all(len(token) == 1 for token in alpha_tokens):
+        return "".join(alpha_tokens)
+
     text = text.replace("&", "and")
     text = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", "_", text)
     return text.strip("_") or "other"
@@ -36,6 +40,7 @@ def get_or_create_menu_category(
         db.query(MenuCategory)
         .filter(
             MenuCategory.normalized_key == key,
+            MenuCategory.original_label == original_label,
             MenuCategory.target_language == target_language,
         )
         .first()
@@ -67,7 +72,11 @@ def get_or_create_menu_category(
 
         existing = (
             db.query(MenuCategory)
-            .filter(MenuCategory.normalized_key == key)
+            .filter(
+                MenuCategory.normalized_key == key,
+                MenuCategory.original_label == original_label,
+                MenuCategory.target_language == target_language,
+            )
             .first()
         )
 

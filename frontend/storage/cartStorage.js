@@ -1,6 +1,29 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CART_KEY = "DISH_CART";
+let cloudSyncHandler = null;
+
+export function setCartCloudSyncHandler(handler) {
+  cloudSyncHandler = typeof handler === "function" ? handler : null;
+}
+
+async function persistCart(items, options = {}) {
+  const safeItems = Array.isArray(items) ? items : [];
+
+  if (options.removeLocal) {
+    await AsyncStorage.removeItem(CART_KEY);
+  } else {
+    await AsyncStorage.setItem(CART_KEY, JSON.stringify(safeItems));
+  }
+
+  if (!options.skipCloudSync && cloudSyncHandler) {
+    cloudSyncHandler(safeItems).catch((err) => {
+      console.warn("Cloud cart sync failed:", err);
+    });
+  }
+
+  return safeItems;
+}
 
 export async function getCartItems() {
   const raw = await AsyncStorage.getItem(CART_KEY);
@@ -36,9 +59,7 @@ export async function addDishToCart(dish, menuInfo = {}) {
     updated = [newItem, ...cart];
   }
 
-  await AsyncStorage.setItem(CART_KEY, JSON.stringify(updated));
-
-  return updated;
+  return persistCart(updated);
 }
 
 export async function updateCartItemQuantity(cartId, quantity) {
@@ -52,20 +73,20 @@ export async function updateCartItemQuantity(cartId, quantity) {
       : item
   );
 
-  await AsyncStorage.setItem(CART_KEY, JSON.stringify(updated));
-
-  return updated;
+  return persistCart(updated);
 }
 
 export async function removeDishFromCart(cartId) {
   const cart = await getCartItems();
   const updated = cart.filter((item) => item.cartId !== cartId);
 
-  await AsyncStorage.setItem(CART_KEY, JSON.stringify(updated));
-
-  return updated;
+  return persistCart(updated);
 }
 
 export async function clearCart() {
-  await AsyncStorage.removeItem(CART_KEY);
+  await persistCart([], { removeLocal: true });
+}
+
+export async function setCartItems(items, options = {}) {
+  return persistCart(items, options);
 }
