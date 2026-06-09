@@ -33,6 +33,13 @@ class MenuAnalysisResult(BaseModel):
 class AnalyzeTextRequest(BaseModel):
     ocr_text: str
     target_lang: str = "zh"
+    source_lang: str = "auto"
+
+
+class MenuUrlParseRequest(BaseModel):
+    url: str
+    target_lang: str = "zh"
+    source_lang: str = "auto"
 
 
 class DishDetailRequest(BaseModel):

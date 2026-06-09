@@ -881,13 +881,15 @@ Do not use markdown.
 Do not invent prices.
 Extract real menu items only.
 Translate content into the requested target language.
+The input may be OCR text, Markdown converted from a document, Markdown converted from HTML, or ordered OCR lines converted into Markdown.
 """
 
     user_prompt = f"""
 Target language code: {target_lang}
 Target language name: {target_language_name}
 
-OCR text: {ocr_text}
+Extracted menu content:
+{ocr_text}
 
 Source language code: {source_lang}
 Source language name: {source_language_name}

@@ -2,6 +2,7 @@ module.exports = {
   expo: {
     name: "AI Menu APP",
     slug: "ai-menu-app",
+    scheme: "aimenuapp",
     version: "1.0.0",
     orientation: "portrait",
     android: {

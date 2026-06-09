@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Image,
@@ -23,9 +23,10 @@ import {
   ActivityIndicator,
   Portal,
   Dialog,
+  TextInput,
 } from "react-native-paper";
 
-import { parseMenuFile } from "../api";
+import { parseMenuFile, parseMenuUrl } from "../api";
 import { InterstitialAd, AdEventType, AD_UNIT_IDS } from "../utils/ads";
 import {
   getText,
@@ -35,7 +36,24 @@ import {
 } from "../i18n";
 
 
-export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile }) {
+const DOCUMENT_PICKER_TYPES = [
+  "image/*",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "text/html",
+  "text/plain",
+  "text/csv",
+  "application/json",
+];
+
+const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"];
+
+export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, initialMenuUrl }) {
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sourceLang, setSourceLang] = useState("auto");
@@ -43,9 +61,16 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [targetLangMenuVisible, setTargetLangMenuVisible] = useState(false);
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [menuUrl, setMenuUrl] = useState("");
 
   const lang = targetLang;
   const t = getText(lang);
+
+  useEffect(() => {
+    if (initialMenuUrl) {
+      setMenuUrl(initialMenuUrl);
+    }
+  }, [initialMenuUrl]);
 
   // source and target languages should not be the same
   const getSafeTargetLang = (langCode) => {
@@ -93,6 +118,16 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
     return item.code === "auto" ? t.home.autoDetect : item.label;
   };
 
+  const isImageFile = (file) => {
+    const mimeType = (file?.mimeType || file?.type || "").toLowerCase();
+    if (mimeType.startsWith("image/")) {
+      return true;
+    }
+
+    const fileName = (file?.name || file?.uri || "").toLowerCase();
+    return IMAGE_EXTENSIONS.some((extension) => fileName.endsWith(extension));
+  };
+
   const takePicture = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -109,7 +144,14 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      const asset = result.assets[0];
+      setSelectedFile({
+        uri: asset.uri,
+        name: "camera-menu.jpg",
+        mimeType: "image/jpeg",
+      });
+      setImageUri(asset.uri);
+      setMenuUrl("");
     }
   };
 
@@ -140,7 +182,7 @@ const compressImage = async (uri) => {
 const selectFromFile = async () => {
   try {
     const result = await DocumentPicker.getDocumentAsync({
-      type: ["image/*", "application/pdf"],
+      type: DOCUMENT_PICKER_TYPES,
       copyToCacheDirectory: true,
     });
 
@@ -157,17 +199,13 @@ const selectFromFile = async () => {
     });
 
     setImageUri(file.uri);
+    setMenuUrl("");
   } catch (error) {
     Alert.alert(t.home.fileSelectionFailed, error.message || t.home.unknownError);
   }
 };
 
-  const handleParse = async () => {
-    if (!imageUri) {
-      Alert.alert(t.home.noImageTitle, t.home.noImageMessage);
-      return;
-    }
-
+  const runMenuAnalysis = async (parseAction, historySource) => {
     let adShown = false;
     let parseResult = null;
     let parseError = null;
@@ -176,28 +214,9 @@ const selectFromFile = async () => {
     try {
       setLoading(true);
 
-      const isPdf =
-        selectedFile?.mimeType === "application/pdf" ||
-        selectedFile?.name?.toLowerCase().endsWith(".pdf");
-
-      let fileToUpload;
-
-      if (isPdf) {
-        fileToUpload = selectedFile;
-      } else {
-        const originalUri = selectedFile?.uri || imageUri;
-        const compressedUri = await compressImage(originalUri);
-
-        fileToUpload = {
-          uri: compressedUri,
-          name: "menu_compressed.jpg",
-          mimeType: "image/jpeg",
-        };
-      }
-
       const navigateToResult = async (data) => {
         try {
-          await saveMenuHistory(data, imageUri, targetLang);
+          await saveMenuHistory(data, historySource || imageUri || menuUrl, targetLang);
           onMenuParsed(data);
         } catch (err) {
           console.warn("Save history failed:", err);
@@ -206,7 +225,7 @@ const selectFromFile = async () => {
       };
 
       // 1. Start Menu Parsing in background
-      const parsePromise = parseMenuFile(fileToUpload, targetLang, sourceLang)
+      parseAction()
         .then((data) => {
           parseResult = data;
           if (!adShown || adClosed) {
@@ -294,6 +313,50 @@ const selectFromFile = async () => {
       );
       setLoading(false);
     }
+  };
+
+  const handleParse = async () => {
+    if (!selectedFile && !imageUri) {
+      Alert.alert(t.home.noMenuTitle, t.home.noMenuMessage);
+      return;
+    }
+
+    const sourceFile = selectedFile || {
+      uri: imageUri,
+      name: "menu.jpg",
+      mimeType: "image/jpeg",
+    };
+
+    let fileToUpload = sourceFile;
+    if (isImageFile(sourceFile)) {
+      const compressedUri = await compressImage(sourceFile.uri);
+      fileToUpload = {
+        uri: compressedUri,
+        name: "menu_compressed.jpg",
+        mimeType: "image/jpeg",
+      };
+    }
+
+    return runMenuAnalysis(
+      () => parseMenuFile(fileToUpload, targetLang, sourceLang),
+      sourceFile.uri || imageUri
+    );
+  };
+
+  const handleParseUrl = async () => {
+    const trimmedUrl = menuUrl.trim();
+    if (!trimmedUrl) {
+      Alert.alert(t.home.noUrlTitle, t.home.noUrlMessage);
+      return;
+    }
+
+    setSelectedFile(null);
+    setImageUri(null);
+
+    return runMenuAnalysis(
+      () => parseMenuUrl(trimmedUrl, targetLang, sourceLang),
+      trimmedUrl
+    );
   };
 
   const getCurrentShareUrl = () => {
@@ -516,7 +579,7 @@ const selectFromFile = async () => {
 
             <Button
               mode="outlined"
-              icon="file-image-outline"
+              icon="file-document-outline"
               style={styles.outlineButton}
               contentStyle={styles.buttonContent}
               onPress={selectFromFile}
@@ -525,19 +588,56 @@ const selectFromFile = async () => {
               {t.home.selectFromFile}
             </Button>
 
-            {imageUri && (
+            <View style={styles.urlSection}>
+              <TextInput
+                mode="outlined"
+                label={t.home.menuUrlLabel}
+                placeholder={t.home.menuUrlPlaceholder}
+                value={menuUrl}
+                onChangeText={setMenuUrl}
+                disabled={loading}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="url"
+                left={<TextInput.Icon icon="link-variant" />}
+                style={styles.urlInput}
+              />
+
+              <Button
+                mode="outlined"
+                icon="web"
+                style={styles.urlButton}
+                contentStyle={styles.buttonContent}
+                onPress={handleParseUrl}
+                disabled={loading || !menuUrl.trim()}
+              >
+                {t.home.analyzeUrl}
+              </Button>
+            </View>
+
+            {loading && !imageUri && !selectedFile && (
+              <View style={styles.loadingBox}>
+                <ActivityIndicator size="large" />
+                <Text style={styles.loadingText}>
+                  {t.home.analyzingMenu}
+                </Text>
+              </View>
+            )}
+
+            {(imageUri || selectedFile) && (
               <View style={styles.previewSection}>
                 <Text variant="titleMedium" style={styles.previewTitle}>
                   {t.home.selectedMenu}
                 </Text>
 
-                {selectedFile?.mimeType?.includes("pdf") ||
-                selectedFile?.name?.toLowerCase().endsWith(".pdf") ? (
+                {selectedFile && !isImageFile(selectedFile) ? (
                   <View style={styles.pdfPreview}>
-                    <Text style={styles.pdfIcon}>📄</Text>
+                    <Text style={styles.pdfIcon}>DOC</Text>
 
                     <Text style={styles.pdfTitle}>
-                      {t.home.pdfMenu}
+                      {selectedFile?.mimeType === "application/pdf"
+                        ? t.home.pdfMenu
+                        : t.home.documentMenu}
                     </Text>
 
                     <Text
@@ -547,12 +647,12 @@ const selectFromFile = async () => {
                       {selectedFile?.name || "menu.pdf"}
                     </Text>
                   </View>
-                ) : (
+                ) : imageUri ? (
                   <Image
                     source={{ uri: imageUri }}
                     style={styles.preview}
                   />
-                )}
+                ) : null}
                 
                 {loading ? (
                   <View style={styles.loadingBox}>
@@ -628,6 +728,16 @@ const styles = StyleSheet.create({
   },
   buttonContent: {
     height: 54,
+  },
+  urlSection: {
+    marginTop: 4,
+    gap: 10,
+  },
+  urlInput: {
+    backgroundColor: "#FFFFFF",
+  },
+  urlButton: {
+    borderRadius: 100,
   },
   previewSection: {
     marginTop: 22,

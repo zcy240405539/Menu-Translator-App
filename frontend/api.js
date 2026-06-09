@@ -21,19 +21,55 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function pollParseTask(taskId) {
+  let consecutiveErrors = 0;
+  let attempts = 0;
+  const maxAttempts = 150; // 5 minutes max
+
+  while (attempts < maxAttempts) {
+    attempts++;
+    await sleep(2000);
+
+    try {
+      const statusRes = await fetch(
+        `${API_BASE_URL}/menus/parse/status/${taskId}`
+      );
+
+      if (!statusRes.ok) {
+        throw new Error(`HTTP error ${statusRes.status}`);
+      }
+
+      const statusData = await statusRes.json();
+      consecutiveErrors = 0;
+
+      if (statusData.status === "done") {
+        return statusData.result;
+      }
+
+      if (statusData.status === "error") {
+        throw new Error(statusData.error || "Menu analysis failed");
+      }
+    } catch (err) {
+      console.warn(`Error checking parsing status (attempt ${attempts}):`, err);
+      consecutiveErrors++;
+      if (consecutiveErrors >= 5) {
+        throw new Error(`Failed to retrieve analysis status: ${err.message}`);
+      }
+    }
+  }
+
+  throw new Error("Menu analysis timed out after 5 minutes.");
+}
+
 export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto") {
   const formData = new FormData();
 
-  const fileName =
-    file.name ||
-    (file.mimeType === "application/pdf" ? "menu.pdf" : "menu.jpg");
+  const fileName = file.name || "menu-upload";
 
   const mimeType =
     file.mimeType ||
     file.type ||
-    (fileName.toLowerCase().endsWith(".pdf")
-      ? "application/pdf"
-      : "image/jpeg");
+    "application/octet-stream";
 
   let uploadFile;
 
@@ -71,45 +107,39 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
   }
 
   const startData = await startRes.json();
-  const taskId = startData.task_id;
+  return pollParseTask(startData.task_id);
+}
 
-  let consecutiveErrors = 0;
-  let attempts = 0;
-  const maxAttempts = 150; // 5 minutes max
+export async function parseMenuUrl(menuUrl, targetLang = "zh", sourceLang = "auto") {
+  const startRes = await fetch(`${API_BASE_URL}/menus/parse/url/start`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      url: menuUrl,
+      target_lang: targetLang,
+      source_lang: sourceLang,
+    }),
+  });
 
-  while (attempts < maxAttempts) {
-    attempts++;
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
+  if (!startRes.ok) {
+    let message = `Failed to start URL menu analysis: ${startRes.status}`;
+    const responseText = await startRes.text();
     try {
-      const statusRes = await fetch(
-        `${API_BASE_URL}/menus/parse/status/${taskId}`
-      );
-
-      if (!statusRes.ok) {
-        throw new Error(`HTTP error ${statusRes.status}`);
-      }
-
-      const statusData = await statusRes.json();
-      consecutiveErrors = 0;
-
-      if (statusData.status === "done") {
-        return statusData.result;
-      }
-
-      if (statusData.status === "error") {
-        throw new Error(statusData.error || "Menu analysis failed");
+      const payload = JSON.parse(responseText);
+      if (payload?.detail) {
+        message = payload.detail;
       }
     } catch (err) {
-      console.warn(`Error checking parsing status (attempt ${attempts}):`, err);
-      consecutiveErrors++;
-      if (consecutiveErrors >= 5) {
-        throw new Error(`Failed to retrieve analysis status: ${err.message}`);
+      if (responseText) {
+        message = responseText;
       }
     }
+    console.log("Start URL parse failed:", startRes.status, message);
+    throw new Error(message);
   }
 
-  throw new Error("Menu analysis timed out after 5 minutes.");
+  const startData = await startRes.json();
+  return pollParseTask(startData.task_id);
 }
 
 

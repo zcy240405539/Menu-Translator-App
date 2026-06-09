@@ -14,7 +14,6 @@ from fastapi import (
     HTTPException,
     Depends, Body,
 )
-from app.services.pdf_service import pdf_bytes_to_images
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -24,6 +23,7 @@ from app.core.schemas import (
     SubscriptionResponse,
     AnalyzeTextRequest,
     DishDetailRequest,
+    MenuUrlParseRequest,
     RecommendRequest,
     UserRegisterRequest,
     UserLoginRequest,
@@ -61,7 +61,13 @@ from app.services.dish_cache_service import (
 from app.services.image_service import get_or_create_dish_image
 from app.services.category_service import get_or_create_menu_category
 from app.core.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
-from app.services.pdf_text_service import extract_text_from_pdf_bytes
+from app.services.document_text_service import (
+    extract_markdown_from_file_bytes,
+    extract_markdown_from_url,
+    is_image_content,
+    ocr_blocks_to_markdown,
+    validate_public_http_url,
+)
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -648,6 +654,54 @@ def parse_image_with_vision(
 
     return result, ocr_blocks
 
+
+def extract_image_markdown_for_analysis(
+    file_bytes: bytes,
+    source_lang: str,
+    target_lang: str,
+    mime_type: str = "image/jpeg",
+) -> tuple[str, list[dict], str]:
+    if should_use_vision_ocr():
+        vision_result = call_openrouter_vision_for_menu(
+            image_bytes=file_bytes,
+            mime_type=mime_type or "image/jpeg",
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+        ocr_blocks = vision_layout_to_ocr_blocks(vision_result)
+        return (
+            ocr_blocks_to_markdown(ocr_blocks, source_label="openrouter_vision_ocr"),
+            ocr_blocks,
+            "image_vision_ocr_markdown_openrouter",
+        )
+
+    extract_layout_blocks_from_image, _ = load_local_ocr_functions()
+    ocr_blocks = extract_layout_blocks_from_image(
+        file_bytes,
+        source_lang=source_lang,
+    )
+
+    if not ocr_blocks:
+        print("OCR returned empty blocks. Falling back to OpenRouter Vision.")
+        vision_result = call_openrouter_vision_for_menu(
+            image_bytes=file_bytes,
+            mime_type=mime_type or "image/jpeg",
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+        ocr_blocks = vision_layout_to_ocr_blocks(vision_result)
+        return (
+            ocr_blocks_to_markdown(ocr_blocks, source_label="openrouter_vision_ocr_fallback"),
+            ocr_blocks,
+            "image_vision_ocr_markdown_fallback_openrouter",
+        )
+
+    return (
+        ocr_blocks_to_markdown(ocr_blocks, source_label="paddleocr"),
+        ocr_blocks,
+        "image_paddleocr_markdown_openrouter",
+    )
+
 # =========================
 # Health
 # =========================
@@ -789,55 +843,98 @@ def analyze_menu(request: AnalyzeTextRequest):
 async def parse_menu(
     file: UploadFile = File(...),
     target_lang: str = "zh",
-    source_lang: str = "en",
+    source_lang: str = "auto",
 ):
     try:
         file_bytes = await file.read()
-        mime_type = file.content_type or "image/jpeg"
+        mime_type = file.content_type or "application/octet-stream"
+        file_name = file.filename or "menu"
 
-        if "pdf" in mime_type:
-            images = pdf_bytes_to_images(file_bytes, max_pages=5)
-            if not images:
-                raise HTTPException(status_code=400, detail="PDF pages not extracted")
-
-            file_bytes = merge_images_vertically(images)
-            mime_type = "image/jpeg"
-
-        if should_use_vision_ocr():
-            result, ocr_blocks = parse_image_with_vision(
+        if is_image_content(mime_type, file_name):
+            extracted_markdown, ocr_blocks, parser_name = extract_image_markdown_for_analysis(
                 file_bytes=file_bytes,
-                target_lang=target_lang,
                 source_lang=source_lang,
+                target_lang=target_lang,
                 mime_type=mime_type,
             )
         else:
-            extract_layout_blocks_from_image, _ = load_local_ocr_functions()
-            ocr_blocks = extract_layout_blocks_from_image(
-                file_bytes,
-                source_lang=source_lang,
+            extracted_markdown = extract_markdown_from_file_bytes(
+                file_bytes=file_bytes,
+                filename=file_name,
+                content_type=mime_type,
             )
+            ocr_blocks = []
+            parser_name = "document_markitdown_openrouter"
 
-            if not ocr_blocks:
-                raise HTTPException(
-                    status_code=422,
-                    detail="OCR did not detect readable text. Please retake the photo with better lighting.",
-                )
+        if not extracted_markdown:
+            raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
 
-            result = call_openrouter_for_menu_layout(
-                ocr_blocks=ocr_blocks,
-                target_lang=target_lang,
-                source_lang=source_lang,
-            )
+        result = call_openrouter_for_menu(
+            ocr_text=extracted_markdown,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
 
-            result["ocr_blocks"] = ocr_blocks
-            result["parser"] = "paddleocr_layout_openrouter"
+        if not isinstance(result, dict):
+            result = {}
 
+        result["ocr_blocks"] = ocr_blocks or [
+            {
+                "type": "markitdown",
+                "text": extracted_markdown,
+                "file_name": file_name,
+            }
+        ]
+        result["parser"] = parser_name
+        result["extracted_text_format"] = "markdown"
+        result["extracted_text_preview"] = extracted_markdown[:12000]
         result["source_lang_request"] = source_lang
 
         return result
 
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/menus/parse/url")
+async def parse_menu_url(request: MenuUrlParseRequest):
+    try:
+        safe_url = validate_public_http_url(request.url)
+        extracted_markdown = extract_markdown_from_url(safe_url)
+
+        if not extracted_markdown:
+            raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
+
+        result = call_openrouter_for_menu(
+            ocr_text=extracted_markdown,
+            target_lang=request.target_lang,
+            source_lang=request.source_lang,
+        )
+
+        if not isinstance(result, dict):
+            result = {}
+
+        result["ocr_blocks"] = [
+            {
+                "type": "markitdown",
+                "text": extracted_markdown,
+                "source_url": safe_url,
+            }
+        ]
+        result["parser"] = "url_markitdown_openrouter"
+        result["source_url"] = safe_url
+        result["extracted_text_format"] = "markdown"
+        result["extracted_text_preview"] = extracted_markdown[:12000]
+        result["source_lang_request"] = request.source_lang
+
+        return result
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1220,108 +1317,64 @@ def run_menu_parse_task(
             # =========================
             content_type = MENU_TASKS[task_id].get("content_type", "") or "image/jpeg"
             source_lang = MENU_TASKS[task_id].get("source_lang", source_lang) or "en"
+            file_name = MENU_TASKS[task_id].get("file_name") or "menu"
+            source_url = MENU_TASKS[task_id].get("source_url")
 
             ocr_blocks = []
+            extraction_started_at = time.perf_counter()
 
-            if "pdf" in content_type:
-                print("PDF detected. Extracting embedded text...")
+            if source_url:
+                print("URL detected. Extracting Markdown with MarkItDown:", source_url)
+                extracted_markdown = extract_markdown_from_url(source_url)
+                parser_name = "url_markitdown_openrouter"
 
-                pdf_text = MENU_TASKS[task_id].get("pdf_text", "")
-                if not pdf_text:
-                    pdf_text = extract_text_from_pdf_bytes(file_bytes, max_pages=5)
-
-                if pdf_text:
-                    print("PDF text extracted:", len(pdf_text))
-
-                    result = call_openrouter_for_menu(
-                        ocr_text=pdf_text,
-                        target_lang=target_lang,
-                        source_lang=source_lang,
-                    )
-
-                    if not isinstance(result, dict):
-                        result = {}
-
-                    result["parser"] = "pdf_text_openrouter"
-                    result["ocr_blocks"] = [
-                        {
-                            "type": "pdf_text",
-                            "text": pdf_text,
-                        }
-                    ]
-
-                else:
-                    print("No embedded PDF text found. Falling back to OCR...")
-
-                    if should_use_vision_ocr():
-                        result, ocr_blocks = parse_image_with_vision(
-                            file_bytes=file_bytes,
-                            target_lang=target_lang,
-                            source_lang=source_lang,
-                            mime_type="image/jpeg",
-                        )
-                        result["parser"] = "pdf_image_openrouter_vision"
-                    else:
-                        extract_layout_blocks_from_image, _ = load_local_ocr_functions()
-                        ocr_blocks = extract_layout_blocks_from_image(
-                            file_bytes,
-                            source_lang=source_lang,
-                        )
-
-                        result = call_openrouter_for_menu_layout(
-                            ocr_blocks=ocr_blocks,
-                            target_lang=target_lang,
-                            source_lang=source_lang,
-                        )
-
-                        if not isinstance(result, dict):
-                            result = {}
-
-                        result["parser"] = "pdf_image_ocr_openrouter"
-                        result["ocr_blocks"] = ocr_blocks
+            elif is_image_content(content_type, file_name):
+                print("Image detected. Extracting OCR Markdown.")
+                extracted_markdown, ocr_blocks, parser_name = extract_image_markdown_for_analysis(
+                    file_bytes=file_bytes,
+                    source_lang=source_lang,
+                    target_lang=target_lang,
+                    mime_type=content_type or "image/jpeg",
+                )
 
             else:
-                ocr_started_at = time.perf_counter()
-                if should_use_vision_ocr():
-                    result, ocr_blocks = parse_image_with_vision(
-                        file_bytes=file_bytes,
-                        target_lang=target_lang,
-                        source_lang=source_lang,
-                        mime_type=content_type or "image/jpeg",
-                    )
-                    timings["vision_ocr_seconds"] = round(time.perf_counter() - ocr_started_at, 3)
+                print("Document detected. Extracting Markdown with MarkItDown:", file_name, content_type)
+                extracted_markdown = extract_markdown_from_file_bytes(
+                    file_bytes=file_bytes,
+                    filename=file_name,
+                    content_type=content_type,
+                )
+                parser_name = "document_markitdown_openrouter"
 
-                else:
-                    extract_layout_blocks_from_image, _ = load_local_ocr_functions()
-                    ocr_blocks = extract_layout_blocks_from_image(
-                        file_bytes,
-                        source_lang=source_lang,
-                    )
-                    timings["ocr_seconds"] = round(time.perf_counter() - ocr_started_at, 3)
+            timings["extraction_seconds"] = round(time.perf_counter() - extraction_started_at, 3)
 
-                    if not ocr_blocks:
-                        print("OCR returned empty blocks. Falling back to OpenRouter Vision.")
+            if not extracted_markdown:
+                raise ValueError("No readable menu text was extracted.")
 
-                        result, ocr_blocks = parse_image_with_vision(
-                            file_bytes=file_bytes,
-                            target_lang=target_lang,
-                            source_lang=source_lang,
-                            mime_type=content_type or "image/jpeg",
-                        )
-                    else:
-                        analysis_started_at = time.perf_counter()
-                        result = call_openrouter_for_menu_layout(
-                            ocr_blocks=ocr_blocks,
-                            target_lang=target_lang,
-                            source_lang=source_lang,
-                        )
-                        timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
+            analysis_started_at = time.perf_counter()
+            result = call_openrouter_for_menu(
+                ocr_text=extracted_markdown,
+                target_lang=target_lang,
+                source_lang=source_lang,
+            )
+            timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
 
-                        if not isinstance(result, dict):
-                            result = {}
+            if not isinstance(result, dict):
+                result = {}
 
-                        result["parser"] = "paddleocr_layout_openrouter"
-                        result["ocr_blocks"] = ocr_blocks
+            result["parser"] = parser_name
+            result["extracted_text_format"] = "markdown"
+            result["extracted_text_preview"] = extracted_markdown[:12000]
+            if source_url:
+                result["source_url"] = source_url
+            result["ocr_blocks"] = ocr_blocks or [
+                {
+                    "type": "markitdown",
+                    "text": extracted_markdown,
+                    "source_url": source_url,
+                    "file_name": file_name,
+                }
+            ]
 
             if "menu_items" not in result:
                 result["menu_items"] = []
@@ -1647,52 +1700,21 @@ def run_menu_parse_task(
 @app.post("/menus/parse/start")
 async def start_parse_menu(
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
+    file: Optional[UploadFile] = File(None),
     target_lang: str = "zh",
-    source_lang: str = "en",
+    source_lang: str = "auto",
 ):
     try:
+        if not file:
+            raise HTTPException(status_code=400, detail="No menu file uploaded")
+
         file_bytes = await file.read()
         content_type = file.content_type or ""
+        file_name = file.filename or "menu"
 
-        if "pdf" in content_type:
-            pdf_text = extract_text_from_pdf_bytes(file_bytes, max_pages=5)
-
-            if pdf_text:
-                task_id = str(uuid.uuid4())
-
-                MENU_TASKS[task_id] = {
-                    "status": "queued",
-                    "result": None,
-                    "error": None,
-                    "content_type": "application/pdf_text",
-                    "source_lang": source_lang,
-                    "pdf_text": pdf_text,
-                }
-
-                background_tasks.add_task(
-                    run_menu_parse_task,
-                    task_id,
-                    file_bytes,
-                    target_lang,
-                    source_lang,
-                )
-
-                return {
-                    "task_id": task_id,
-                    "status": "queued",
-                }
-
-            images = pdf_bytes_to_images(file_bytes, max_pages=5)
-            if not images:
-                raise Exception("PDF pages not extracted")
-
-            file_bytes = compress_image_bytes(images[0], max_size=2200, quality=85)
-            content_type = "image/jpeg"
-
-        elif "image" in content_type:
+        if is_image_content(content_type, file_name):
             file_bytes = compress_image_bytes(file_bytes)
-            content_type = "image/jpeg"                                                                         
+            content_type = "image/jpeg"
 
         task_id = str(uuid.uuid4())
 
@@ -1701,6 +1723,7 @@ async def start_parse_menu(
             "result": None,
             "error": None,
             "content_type": content_type,
+            "file_name": file_name,
             "source_lang": source_lang,
         }
 
@@ -1717,8 +1740,53 @@ async def start_parse_menu(
             "status": "queued",
         }
 
+    except HTTPException:
+        raise
+
     except Exception as e:
         print("Start parse failed:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/menus/parse/url/start")
+async def start_parse_menu_url(
+    request: MenuUrlParseRequest,
+    background_tasks: BackgroundTasks,
+):
+    try:
+        safe_url = validate_public_http_url(request.url)
+        task_id = str(uuid.uuid4())
+        url_bytes = safe_url.encode("utf-8")
+
+        MENU_TASKS[task_id] = {
+            "status": "queued",
+            "result": None,
+            "error": None,
+            "content_type": "text/html",
+            "file_name": "menu-url.html",
+            "source_lang": request.source_lang,
+            "source_url": safe_url,
+        }
+
+        background_tasks.add_task(
+            run_menu_parse_task,
+            task_id,
+            url_bytes,
+            request.target_lang,
+            request.source_lang,
+        )
+
+        return {
+            "task_id": task_id,
+            "status": "queued",
+        }
+
+    except ValueError as e:
+        print("Start URL parse rejected:", e)
+        raise HTTPException(status_code=400, detail=str(e))
+
+    except Exception as e:
+        print("Start URL parse failed:", e)
         raise HTTPException(status_code=500, detail=str(e))
     
 # =========================

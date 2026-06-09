@@ -9,7 +9,7 @@ import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
 import { getCachedMenu, setAuthToken, getProfile } from "./api";
-import { Platform, Share, Alert, LogBox } from "react-native";
+import { Platform, Share, Alert, LogBox, Linking } from "react-native";
 import { detectUserCurrency } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
@@ -22,6 +22,30 @@ LogBox.ignoreLogs([
   "Animated: `useNativeDriver` is not supported",
 ]);
 
+function getSharedMenuUrlFromParams(params) {
+  if (!params) return "";
+  return (
+    params.get("menu_url") ||
+    params.get("share_url") ||
+    params.get("restaurant_url") ||
+    params.get("url") ||
+    params.get("text") ||
+    ""
+  );
+}
+
+function getSharedMenuUrlFromAppUrl(urlString) {
+  if (!urlString) return "";
+
+  try {
+    const parsed = new URL(urlString);
+    return getSharedMenuUrlFromParams(parsed.searchParams);
+  } catch (err) {
+    console.log("Unable to parse incoming menu URL:", err);
+    return "";
+  }
+}
+
 function AppContent() {
   const [screen, setScreen] = useState("home");
   const [menuResult, setMenuResult] = useState(null);
@@ -30,6 +54,7 @@ function AppContent() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [incomingMenuUrl, setIncomingMenuUrl] = useState("");
 
   useEffect(() => {
     async function initializeApp() {
@@ -80,6 +105,7 @@ function AppContent() {
       if (typeof window !== "undefined" && window.location && window.location.search) {
         const params = new URLSearchParams(window.location.search);
         const menuHash = params.get("menu_hash");
+        const sharedMenuUrl = getSharedMenuUrlFromParams(params);
         const langParam = params.get("lang") || params.get("target_lang");
         const mappedLang = mapUrlLangToInternal(langParam);
 
@@ -97,12 +123,43 @@ function AppContent() {
           } catch (err) {
             console.log("Failed to load shared menu:", err);
           }
+        } else if (sharedMenuUrl) {
+          setIncomingMenuUrl(sharedMenuUrl);
+          setScreen("home");
+          if (mappedLang) {
+            setTargetLang(mappedLang);
+          }
         } else if (mappedLang) {
           setTargetLang(mappedLang);
         }
       }
+
+      if (Platform.OS !== "web") {
+        const initialUrl = await Linking.getInitialURL();
+        const sharedUrl = getSharedMenuUrlFromAppUrl(initialUrl);
+        if (sharedUrl) {
+          setIncomingMenuUrl(sharedUrl);
+          setScreen("home");
+        }
+      }
     }
     initializeApp();
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === "web") return undefined;
+
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      const sharedUrl = getSharedMenuUrlFromAppUrl(url);
+      if (sharedUrl) {
+        setIncomingMenuUrl(sharedUrl);
+        setScreen("home");
+      }
+    });
+
+    return () => {
+      subscription?.remove?.();
+    };
   }, []);
 
   const handleLoginSuccess = async (token, user) => {
@@ -307,6 +364,7 @@ function AppContent() {
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
+        initialMenuUrl={incomingMenuUrl}
       />
     );
   }
