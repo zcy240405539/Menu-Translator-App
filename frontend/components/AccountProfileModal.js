@@ -8,6 +8,7 @@ import {
   Platform,
   TouchableOpacity,
   Image,
+  Linking,
 } from "react-native";
 import {
   Appbar,
@@ -33,6 +34,10 @@ const DIET_OPTIONS = [
   { key: "Keto", labelEn: "Keto", labelZh: "生酮", labelEs: "Keto" },
   { key: "Gluten-Free", labelEn: "Gluten-Free", labelZh: "无麸质", labelEs: "Sin Gluten" },
 ];
+
+const ACCOUNT_DELETION_URL = `${
+  process.env.EXPO_PUBLIC_API_BASE_URL || "https://ai-menu-app.onrender.com"
+}`.replace(/\/$/, "") + "/account-deletion";
 
 export default function AccountProfileModal({
   visible,
@@ -160,6 +165,15 @@ export default function AccountProfileModal({
       console.warn("Logout error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenAccountDeletion = async () => {
+    try {
+      await Linking.openURL(ACCOUNT_DELETION_URL);
+    } catch (err) {
+      console.warn("Open account deletion link failed:", err);
+      setError(t.deleteAccountOpenFailed || "Unable to open account deletion page.");
     }
   };
 
@@ -311,6 +325,24 @@ export default function AccountProfileModal({
                     {t.logoutBtn}
                   </Button>
 
+                  <Divider style={styles.deleteDivider} />
+
+                  <View style={styles.deleteAccountSection}>
+                    <Text variant="bodySmall" style={styles.deleteAccountHelp}>
+                      {t.deleteAccountHelp}
+                    </Text>
+                    <Button
+                      mode="text"
+                      onPress={handleOpenAccountDeletion}
+                      disabled={loading || avatarLoading}
+                      icon="account-remove-outline"
+                      textColor="#B3261E"
+                      style={styles.deleteAccountBtn}
+                    >
+                      {t.deleteAccountLink}
+                    </Button>
+                  </View>
+
                 </Card.Content>
               </Card>
             </ScrollView>
@@ -437,6 +469,22 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 100,
     borderColor: "#B3261E",
+  },
+  deleteDivider: {
+    marginTop: 18,
+    marginBottom: 12,
+  },
+  deleteAccountSection: {
+    alignItems: "center",
+  },
+  deleteAccountHelp: {
+    color: "#625B71",
+    textAlign: "center",
+    lineHeight: 18,
+    marginBottom: 4,
+  },
+  deleteAccountBtn: {
+    borderRadius: 100,
   },
   btnContent: {
     height: 52,

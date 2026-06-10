@@ -2,6 +2,7 @@ import uuid
 import re
 import time
 import os
+from html import escape
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
@@ -15,6 +16,7 @@ from fastapi import (
     Depends, Body,
 )
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.core.database import get_db, engine, Base
@@ -323,6 +325,116 @@ app.mount(
     StaticFiles(directory=str(STATIC_DIR)),
     name="static",
 )
+
+
+@app.get("/account-deletion", response_class=HTMLResponse)
+def account_deletion_page():
+    support_email = os.getenv("APP_SUPPORT_EMAIL", "support@agentscottystudio.com").strip()
+    if not support_email:
+        support_email = "support@agentscottystudio.com"
+
+    safe_email = escape(support_email, quote=True)
+    mail_subject = "AI%20Menu%20APP%20Account%20Deletion%20Request"
+    mail_body = (
+        "Please%20delete%20my%20AI%20Menu%20APP%20account.%0A%0A"
+        "Registered%20email%3A%20%0A"
+        "Username%20if%20known%3A%20%0A"
+    )
+
+    return HTMLResponse(
+        f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Delete Account - AI Menu APP</title>
+    <style>
+      body {{
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #fdf8f3;
+        color: #1d1b20;
+        line-height: 1.6;
+      }}
+      main {{
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 48px 20px;
+      }}
+      section {{
+        background: #ffffff;
+        border: 1px solid #e6ded8;
+        border-radius: 24px;
+        padding: 28px;
+      }}
+      h1 {{
+        margin-top: 0;
+        font-size: 32px;
+        line-height: 1.2;
+      }}
+      h2 {{
+        margin-top: 28px;
+        font-size: 20px;
+      }}
+      a.button {{
+        display: inline-block;
+        margin-top: 12px;
+        padding: 12px 18px;
+        border-radius: 999px;
+        background: #6750a4;
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 700;
+      }}
+      .muted {{
+        color: #625b71;
+      }}
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Delete your AI Menu APP account</h1>
+        <p>
+          You can request deletion of your AI Menu APP account and associated
+          account data at any time.
+        </p>
+
+        <h2>How to request deletion</h2>
+        <ol>
+          <li>Send the request from the email address registered with your account.</li>
+          <li>Include your registered email and username if available.</li>
+          <li>We will verify the request and process account deletion.</li>
+        </ol>
+
+        <a class="button" href="mailto:{safe_email}?subject={mail_subject}&body={mail_body}">
+          Email account deletion request
+        </a>
+
+        <p class="muted">Contact email: {safe_email}</p>
+
+        <h2>Data deleted</h2>
+        <p>
+          Account profile data, authentication account, avatar, saved menu
+          history, profile preferences, and saved order list data associated
+          with the account will be deleted where technically feasible.
+        </p>
+
+        <h2>Data that may be retained</h2>
+        <p>
+          We may retain security logs, transaction records required by law, and
+          anonymized or non-user-linked menu, dish, and image cache data that is
+          no longer associated with your account.
+        </p>
+
+        <p class="muted">
+          This page is also linked from Profile Settings inside the app.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>"""
+    )
 
 
 # =========================

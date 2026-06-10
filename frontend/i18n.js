@@ -174,6 +174,9 @@ export const translations = {
       tastePlaceholder: "e.g., spicy, light",
       successMsg: "Profile updated successfully!",
       avatarTip: "Tap avatar to change",
+      deleteAccountLink: "Delete account",
+      deleteAccountHelp: "Need to delete your account? Open the deletion request page.",
+      deleteAccountOpenFailed: "Unable to open account deletion page.",
     },
   },
 
@@ -329,6 +332,9 @@ export const translations = {
       tastePlaceholder: "例如：清淡、微辣、少油",
       successMsg: "个人信息已成功更新！",
       avatarTip: "点击头像可更换",
+      deleteAccountLink: "删除账号",
+      deleteAccountHelp: "需要删除账号？打开账号删除申请页面。",
+      deleteAccountOpenFailed: "无法打开账号删除页面。",
     },
   },
 
@@ -483,6 +489,9 @@ export const translations = {
       tastePlaceholder: "例如：清淡、微辣、少油",
       successMsg: "個人資訊已成功更新！",
       avatarTip: "點擊頭像可更換",
+      deleteAccountLink: "刪除帳號",
+      deleteAccountHelp: "需要刪除帳號？打開帳號刪除申請頁面。",
+      deleteAccountOpenFailed: "無法打開帳號刪除頁面。",
     },
   },
 
@@ -638,6 +647,9 @@ export const translations = {
       tastePlaceholder: "ej., picante, ligero",
       successMsg: "¡Perfil actualizado con éxito!",
       avatarTip: "Toca el avatar para cambiar",
+      deleteAccountLink: "Eliminar cuenta",
+      deleteAccountHelp: "¿Necesitas eliminar tu cuenta? Abre la página de solicitud de eliminación.",
+      deleteAccountOpenFailed: "No se pudo abrir la página de eliminación de cuenta.",
     },
   },
 };
