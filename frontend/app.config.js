@@ -6,7 +6,11 @@ module.exports = {
     version: "1.0.0",
     orientation: "portrait",
     android: {
-      package: "com.agentscottystudio.aimenuapp"
+      package: "com.agentscottystudio.aimenuapp",
+      blockedPermissions: [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ]
     },
     plugins: [
       "expo-localization",

@@ -428,7 +428,7 @@ def account_deletion_page():
         </p>
 
         <p class="muted">
-          This page is also linked from Profile Settings inside the app.
+          This page is linked from Profile Settings inside the app.
         </p>
       </section>
     </main>
@@ -436,6 +436,152 @@ def account_deletion_page():
 </html>"""
     )
 
+
+@app.get("/home/privacy-policy", response_class=HTMLResponse)
+@app.get("/privacy-policy", response_class=HTMLResponse)
+def privacy_policy_page():
+    support_email = os.getenv("APP_SUPPORT_EMAIL", "support@agentscottystudio.com").strip()
+    if not support_email:
+        support_email = "support@agentscottystudio.com"
+
+    safe_email = escape(support_email, quote=True)
+
+    return HTMLResponse(
+        f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy - AI Menu APP</title>
+    <style>
+      body {{
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #fdf8f3;
+        color: #1d1b20;
+        line-height: 1.65;
+      }}
+      main {{
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 48px 20px;
+      }}
+      article {{
+        background: #ffffff;
+        border: 1px solid #e6ded8;
+        border-radius: 24px;
+        padding: 30px;
+      }}
+      h1 {{
+        margin-top: 0;
+        font-size: 34px;
+        line-height: 1.2;
+      }}
+      h2 {{
+        margin-top: 30px;
+        font-size: 21px;
+      }}
+      ul {{
+        padding-left: 22px;
+      }}
+      a {{
+        color: #6750a4;
+        font-weight: 700;
+      }}
+      .muted {{
+        color: #625b71;
+      }}
+    </style>
+  </head>
+  <body>
+    <main>
+      <article>
+        <h1>Privacy Policy</h1>
+        <p class="muted">AI Menu APP · Last updated: June 10, 2026</p>
+
+        <p>
+          AI Menu APP helps users translate and understand restaurant menus from
+          photos, files, documents, and menu links. This Privacy Policy explains
+          what information we collect, how we use it, and the choices available
+          to users.
+        </p>
+
+        <h2>Information we collect</h2>
+        <ul>
+          <li>Account information, such as username, email address, optional phone number, and authentication identifiers.</li>
+          <li>Profile preferences, such as dietary preferences, allergies, budget, and taste preferences when users choose to provide them.</li>
+          <li>User-provided menu content, including menu photos, PDFs, documents, text, webpages, and delivery app share links.</li>
+          <li>Generated menu results, including translated dish names, descriptions, ingredients, allergens, prices, menu history, and order list items.</li>
+          <li>Images uploaded as avatars and images generated or retrieved to represent dishes.</li>
+          <li>Technical data such as app interactions, diagnostics, device or advertising identifiers, and network request metadata.</li>
+        </ul>
+
+        <h2>How we use information</h2>
+        <ul>
+          <li>To provide menu OCR, translation, dish explanation, image matching, and AI recommendation features.</li>
+          <li>To save account profiles, menu history, and order list data for signed-in users.</li>
+          <li>To improve reliability, prevent abuse, debug errors, and maintain app security.</li>
+          <li>To show advertising and measure ad performance where ads are enabled.</li>
+          <li>To respond to support, account deletion, and privacy requests.</li>
+        </ul>
+
+        <h2>Third-party services</h2>
+        <p>
+          The app may process data through service providers used for app
+          hosting, database storage, authentication, OCR, AI model responses,
+          image search or generation, and advertising. These providers may
+          include Render, Supabase, OpenRouter, OpenAI, Google AdMob, Pexels,
+          Unsplash, Wikimedia Commons, and related infrastructure providers.
+        </p>
+
+        <h2>Advertising</h2>
+        <p>
+          AI Menu APP may display ads through Google AdMob. Advertising partners
+          may collect or receive device identifiers, advertising identifiers,
+          app interaction data, and approximate technical information to provide,
+          limit, measure, and improve ads.
+        </p>
+
+        <h2>Data sharing</h2>
+        <p>
+          We do not sell personal information. We share information with service
+          providers only as needed to operate the app, process user requests,
+          provide AI and storage features, show ads, comply with legal
+          obligations, or protect users and the service.
+        </p>
+
+        <h2>Data retention</h2>
+        <p>
+          Account data, saved preferences, menu history, and order list data may
+          be retained while an account remains active. Cached dish, menu, and
+          image data may be retained to improve speed and reduce repeated AI
+          processing. Security logs and legal records may be retained when
+          required.
+        </p>
+
+        <h2>User choices</h2>
+        <ul>
+          <li>Users can use the core menu translation flow without signing in.</li>
+          <li>Users can choose whether to create an account, provide profile preferences, upload files, or save history.</li>
+          <li>Users can request account deletion at <a href="/account-deletion">/account-deletion</a>.</li>
+        </ul>
+
+        <h2>Children</h2>
+        <p>
+          AI Menu APP is not designed for children. Users should not provide
+          personal information for children through the app.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          For privacy questions or account deletion requests, contact us at
+          <a href="mailto:{safe_email}">{safe_email}</a>.
+        </p>
+      </article>
+    </main>
+  </body>
+</html>"""
+    )
 
 # =========================
 # Auth API Endpoints
