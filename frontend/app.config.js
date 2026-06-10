@@ -6,7 +6,7 @@ module.exports = {
     version: "1.0.0",
     orientation: "portrait",
     android: {
-      package: "com.anonymous.aimenuapp"
+      package: "com.agentscottystudio.aimenuapp"
     },
     plugins: [
       "expo-localization",
