@@ -5,12 +5,12 @@ module.exports = {
     scheme: "aimenuapp",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/favicon.png",
+    icon: "./assets/apple-touch-icon.png",
     android: {
       package: "com.agentscottystudio.aimenuapp",
       adaptiveIcon: {
-        foregroundImage: "./assets/favicon.png",
-        backgroundColor: "#FDF8F3"
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#FFFFFF"
       },
       blockedPermissions: [
         "android.permission.RECORD_AUDIO",
