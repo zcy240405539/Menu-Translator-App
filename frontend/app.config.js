@@ -5,7 +5,7 @@ module.exports = {
     scheme: "aimenuapp",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/apple-touch-icon.png",
+    icon: "./assets/favicon.png",
     android: {
       package: "com.agentscottystudio.aimenuapp",
       adaptiveIcon: {
