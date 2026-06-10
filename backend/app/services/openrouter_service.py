@@ -573,7 +573,7 @@ Rules:
 - If the menu gives no description, keep the description empty "" or extremely short (under 10 words).
 - Keep ingredients and allergens as empty lists [] unless they are explicitly printed on the menu.
 - Keep description concise and customer-friendly. Use null for missing prices. Do not invent prices.
-- Preserve visible price currency symbols and units, such as "$", "￥", "¥", "元", "/份", or size labels. Do not convert currencies.
+- Preserve visible price currency symbols and numeric amounts. Translate language-specific price units into {target_language_name}; for example, target English should use "￥10/serving" instead of "￥10/份". Do not convert currencies.
 - Identify the currency symbol or code used on the menu (e.g., '$', '￥', '¥', '元', '€', '£', etc.) based on pricing signs. Put it in currency. Otherwise, set it to null.
 - Keep image_prompt extremely short (under 4 words, in English).
 - cuisine must be the dish/restaurant cuisine in English Title Case, such as Mexican, Italian, Chinese, Japanese, Korean, Thai, Indian, Vietnamese, American, or Other.
@@ -822,7 +822,7 @@ JSON schema:
 Output requirements:
 - Extract all real menu items.
 - Preserve original dish names as accurately as possible.
-- Preserve visible price currency symbols and units, for example "$9.00", "￥10/份", or "10元/份".
+- Preserve visible price currency symbols and numeric amounts. Translate language-specific price units into the target language; for example, target English should use "￥10/serving" instead of "￥10/份".
 - Do not convert RMB prices to USD or prefix Chinese menu prices with "$".
 - Do not invent missing prices. Use null if missing.
 - Keep descriptions short and customer-friendly.

@@ -226,6 +226,7 @@ export default function AIRecommendModal({
                       const price = formatPrice(dish.price, {
                         sourceLanguage: dish.source_language || menuInfo?.source_language,
                         currency: dish.currency || menuInfo?.currency,
+                        targetLanguage: targetLang,
                       });
                       const isAdded = !!addedItemIds[dish.id];
 

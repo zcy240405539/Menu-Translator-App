@@ -108,41 +108,89 @@ export function getUserCurrencySymbol() {
   return userCurrencySymbol || "";
 }
 
+function normalizeCurrencySymbol(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+
+  if (/^(cny|rmb)$/i.test(text) || text === "元") {
+    return "￥";
+  }
+
+  return text.replace(/¥/g, "￥");
+}
+
+function translateChinesePriceUnits(priceText, targetLanguage) {
+  if (!targetLanguage || isChineseLanguage(targetLanguage)) {
+    return priceText;
+  }
+
+  return String(priceText)
+    .replace(/／/g, "/")
+    .replace(/\/\s*份/g, "/serving")
+    .replace(/\/\s*位/g, "/person")
+    .replace(/\/\s*人/g, "/person")
+    .replace(/\/\s*个/g, "/each")
+    .replace(/\/\s*個/g, "/each")
+    .replace(/\/\s*只/g, "/piece")
+    .replace(/\/\s*隻/g, "/piece")
+    .replace(/\/\s*条/g, "/piece")
+    .replace(/\/\s*條/g, "/piece")
+    .replace(/\/\s*碗/g, "/bowl")
+    .replace(/\/\s*盘/g, "/plate")
+    .replace(/\/\s*盤/g, "/plate")
+    .replace(/\/\s*杯/g, "/cup")
+    .replace(/\/\s*瓶/g, "/bottle")
+    .replace(/\/\s*斤/g, "/jin")
+    .replace(/\/\s*两/g, "/liang")
+    .replace(/\/\s*兩/g, "/liang")
+    .replace(/每\s*份/g, "per serving")
+    .replace(/每\s*位/g, "per person")
+    .replace(/每\s*人/g, "per person")
+    .replace(/每\s*个/g, "each")
+    .replace(/每\s*個/g, "each");
+}
+
 export function formatPrice(price, options = {}) {
   if (price === null || price === undefined || price === "") return "";
 
   const text = String(price).trim();
   if (!text) return "";
+  const targetLanguage = options.targetLanguage || options.targetLang;
 
   // 1. If it already has currency symbols, normalize ¥ -> ￥ and return as is.
   if (/[￥¥$€£]/.test(text)) {
-    return text.replace(/¥/g, "￥");
+    return translateChinesePriceUnits(text.replace(/¥/g, "￥"), targetLanguage);
   }
 
   // 2. If it has explicit word-based currency code (like USD, CNY, etc.), keep it.
   if (/\b(usd|cad|aud|cny|rmb)\b/i.test(text)) {
-    return text;
+    return translateChinesePriceUnits(text, targetLanguage);
   }
 
-  // 3. 如果菜单上明确写了15元，再转换为￥
+  // 3. If the menu explicitly uses 元, normalize it to ￥ while preserving units.
   if (/元/.test(text)) {
     const cleanNum = text.replace(/元/g, "").trim();
-    return `￥${cleanNum}`;
+    return translateChinesePriceUnits(`￥${cleanNum}`, targetLanguage);
   }
 
-  // 4. Otherwise, prepend menu currency if available, then IP currency, then nothing.
-  const menuCurrency = options.currency || null;
+  // 4. Otherwise, prepend menu currency if available, then source-language currency, then IP currency.
+  const menuCurrency = normalizeCurrencySymbol(options.currency);
   if (menuCurrency) {
-    return `${menuCurrency}${text}`;
+    return translateChinesePriceUnits(`${menuCurrency}${text}`, targetLanguage);
+  }
+
+  const sourceCurrency = options.sourceLanguage ? getCurrencySymbol(options.sourceLanguage) : "";
+  if (sourceCurrency) {
+    return translateChinesePriceUnits(`${sourceCurrency}${text}`, targetLanguage);
   }
 
   const ipCurrency = userCurrencySymbol;
   if (ipCurrency) {
-    return `${ipCurrency}${text}`;
+    return translateChinesePriceUnits(`${ipCurrency}${text}`, targetLanguage);
   }
 
   // 5. If no location/IP or menu currency could be retrieved, default to not displaying any currency symbol.
-  return text;
+  return translateChinesePriceUnits(text, targetLanguage);
 }
 
 export function extractPriceNumber(price) {

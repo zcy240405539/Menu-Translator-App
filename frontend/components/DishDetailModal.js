@@ -196,6 +196,7 @@ export default function DishDetailModal({
           mergedDish.currency ||
           dish.currency ||
           menuInfo?.currency,
+        targetLanguage: targetLang,
       })
     : "";
   const imageUrl = dish ? (mergedDish.image_url || mergedDish.thumbnail_url) : null;

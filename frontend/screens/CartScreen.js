@@ -110,6 +110,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
                       {formatPrice(item.dish.price, {
                         sourceLanguage: item.menuInfo?.source_language || cartSourceLanguage,
                         currency: item.menuInfo?.currency || item.dish?.currency,
+                        targetLanguage: targetLang,
                       })}
                     </Chip>
                   )}
