@@ -1,5 +1,6 @@
 import os
 import tempfile
+from contextlib import suppress
 from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
@@ -39,6 +40,12 @@ AUTO_OCR_LANG_ORDER = [
     if lang.strip()
 ]
 OCR_ENGINE_CACHE_SIZE = int(os.getenv("OCR_ENGINE_CACHE_SIZE", "2"))
+OCR_AUTO_MODE = os.getenv("OCR_AUTO_MODE", "fast").strip().lower()
+OCR_FAST_AUTO_MIN_SCORE = float(os.getenv("OCR_FAST_AUTO_MIN_SCORE", "58"))
+OCR_MAX_IMAGE_WIDTH = int(os.getenv("OCR_MAX_IMAGE_WIDTH", "1600"))
+OCR_MAX_IMAGE_HEIGHT = int(os.getenv("OCR_MAX_IMAGE_HEIGHT", "2400"))
+OCR_SMALL_IMAGE_UPSCALE_MAX = float(os.getenv("OCR_SMALL_IMAGE_UPSCALE_MAX", "1.65"))
+OCR_JPEG_QUALITY = int(os.getenv("OCR_JPEG_QUALITY", "88"))
 ENABLE_TEXTLINE_ORIENTATION = os.getenv("OCR_TEXTLINE_ORIENTATION", "false").lower() in {
     "1",
     "true",
@@ -86,7 +93,7 @@ def get_ocr_engine(lang: str = "ch"):
             use_doc_orientation_classify=False,
             use_doc_unwarping=False,
             use_textline_orientation=ENABLE_TEXTLINE_ORIENTATION,
-            text_det_limit_side_len=int(os.getenv("OCR_DET_LIMIT_SIDE_LEN", "1800")),
+            text_det_limit_side_len=int(os.getenv("OCR_DET_LIMIT_SIDE_LEN", str(OCR_MAX_IMAGE_WIDTH))),
             text_det_limit_type="max",
             text_rec_score_thresh=0.2,
         )
@@ -107,13 +114,13 @@ def save_preprocessed_image(file_bytes: bytes) -> str:
 
     image = Image.open(original_path).convert("RGB")
 
-    max_width = int(os.getenv("OCR_MAX_IMAGE_WIDTH", "1800"))
-    max_height = int(os.getenv("OCR_MAX_IMAGE_HEIGHT", "2600"))
+    max_width = OCR_MAX_IMAGE_WIDTH
+    max_height = OCR_MAX_IMAGE_HEIGHT
     w, h = image.size
 
     upscale_ratio = 1
     if max(w, h) < 1400:
-        upscale_ratio = min(2.2, max_width / w, max_height / h)
+        upscale_ratio = min(OCR_SMALL_IMAGE_UPSCALE_MAX, max_width / w, max_height / h)
 
     ratio = min(max_width / w, max_height / h, upscale_ratio)
 
@@ -121,14 +128,24 @@ def save_preprocessed_image(file_bytes: bytes) -> str:
         image = image.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
 
     image = ImageOps.autocontrast(image, cutoff=1)
-    image = ImageEnhance.Contrast(image).enhance(1.35)
-    image = ImageEnhance.Sharpness(image).enhance(1.25)
-    image = image.filter(ImageFilter.UnsharpMask(radius=1.2, percent=140, threshold=3))
+    image = ImageEnhance.Contrast(image).enhance(1.25)
+    image = ImageEnhance.Sharpness(image).enhance(1.15)
+    image = image.filter(ImageFilter.UnsharpMask(radius=1.0, percent=110, threshold=3))
 
     processed_path = original_path.replace(".jpg", "_processed.jpg")
-    image.save(processed_path, "JPEG", quality=92)
+    image.save(processed_path, "JPEG", quality=OCR_JPEG_QUALITY, optimize=True)
 
     return processed_path
+
+
+def cleanup_preprocessed_image(processed_path: str) -> None:
+    paths = [processed_path]
+    if processed_path.endswith("_processed.jpg"):
+        paths.append(processed_path.replace("_processed.jpg", ".jpg"))
+
+    for path in paths:
+        with suppress(Exception):
+            os.remove(path)
 
 
 def _run_paddle_ocr(image_path: str, lang: str) -> List[dict]:
@@ -224,26 +241,41 @@ def extract_layout_blocks_from_image(
     source_lang: str = "auto",
 ) -> List[dict]:
     image_path = save_preprocessed_image(file_bytes)
-    lang = normalize_ocr_lang(source_lang)
+    try:
+        lang = normalize_ocr_lang(source_lang)
 
-    if lang != "auto":
-        return _run_paddle_ocr(image_path, lang)
+        if lang != "auto":
+            return _run_paddle_ocr(image_path, lang)
 
-    candidates = []
-    for candidate_lang in AUTO_OCR_LANG_ORDER:
-        try:
-            blocks = _run_paddle_ocr(image_path, candidate_lang)
-            candidates.append((candidate_lang, blocks, _score_blocks(blocks)))
-        except Exception as e:
-            print(f"OCR failed for lang={candidate_lang}: {e}")
+        candidates = []
+        for index, candidate_lang in enumerate(AUTO_OCR_LANG_ORDER):
+            try:
+                blocks = _run_paddle_ocr(image_path, candidate_lang)
+                score = _score_blocks(blocks)
+                candidates.append((candidate_lang, blocks, score))
 
-    if not candidates:
-        return []
+                if (
+                    OCR_AUTO_MODE == "fast"
+                    and index == 0
+                    and score >= OCR_FAST_AUTO_MIN_SCORE
+                ):
+                    print(
+                        f"Fast auto OCR accepted lang={candidate_lang}, "
+                        f"score={score:.2f}, blocks={len(blocks)}"
+                    )
+                    return blocks
+            except Exception as e:
+                print(f"OCR failed for lang={candidate_lang}: {e}")
 
-    best_lang, best_blocks, best_score = max(candidates, key=lambda x: x[2])
-    print(f"Auto OCR selected lang={best_lang}, score={best_score:.2f}, blocks={len(best_blocks)}")
+        if not candidates:
+            return []
 
-    return best_blocks
+        best_lang, best_blocks, best_score = max(candidates, key=lambda x: x[2])
+        print(f"Auto OCR selected lang={best_lang}, score={best_score:.2f}, blocks={len(best_blocks)}")
+
+        return best_blocks
+    finally:
+        cleanup_preprocessed_image(image_path)
 
 
 def extract_text_from_image(

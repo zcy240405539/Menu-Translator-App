@@ -1506,8 +1506,13 @@ def dish_detail(
 # Compress pictures
 # =========================
 
-def compress_image_bytes(file_bytes: bytes, max_size: int = 1400, quality: int = 70) -> bytes:
+def compress_image_bytes(file_bytes: bytes, max_size: int = None, quality: int = None) -> bytes:
     try:
+        if max_size is None:
+            max_size = int(os.getenv("MENU_IMAGE_MAX_SIZE", "1280"))
+        if quality is None:
+            quality = int(os.getenv("MENU_IMAGE_JPEG_QUALITY", "68"))
+
         img = Image.open(BytesIO(file_bytes))
 
         if img.mode != "RGB":

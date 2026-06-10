@@ -10,6 +10,7 @@ OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.
 OPENROUTER_DETAIL_MODEL = os.getenv("OPENROUTER_DETAIL_MODEL", OPENROUTER_LAYOUT_MODEL)
 OPENROUTER_LAYOUT_MAX_TOKENS = int(os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "4500"))
 OPENROUTER_VISION_MAX_TOKENS = int(os.getenv("OPENROUTER_VISION_MAX_TOKENS", "2500"))
+OPENROUTER_VISION_TIMEOUT = int(os.getenv("OPENROUTER_VISION_TIMEOUT", "110"))
 USE_FAST_MENU_PROMPT = os.getenv("OPENROUTER_USE_FAST_MENU_PROMPT", "false").lower() in {
     "1",
     "true",
@@ -1373,7 +1374,7 @@ JSON schema:
 
             print(f"Trying vision model: {model_name}")
 
-            data = _post_openrouter(payload, timeout=180)
+            data = _post_openrouter(payload, timeout=OPENROUTER_VISION_TIMEOUT)
             content = data["choices"][0]["message"].get("content")
 
             if not content:
