@@ -9,7 +9,7 @@ import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
 import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken } from "./api";
-import { Platform, Share, Alert, LogBox, Linking } from "react-native";
+import { Platform, Share, Alert, LogBox, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { detectUserCurrency } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
@@ -22,6 +22,142 @@ LogBox.ignoreLogs([
   '"shadow*" style props are deprecated',
   "Animated: `useNativeDriver` is not supported",
 ]);
+
+const POLICY_SUPPORT_EMAIL = "support@agentscottystudio.com";
+const ACCOUNT_DELETION_MAILTO =
+  `mailto:${POLICY_SUPPORT_EMAIL}?subject=AI%20Menu%20APP%20Account%20Deletion%20Request` +
+  "&body=Please%20delete%20my%20AI%20Menu%20APP%20account.%0A%0ARegistered%20email%3A%20%0AUsername%20if%20known%3A%20%0A";
+
+const STATIC_POLICY_ROUTES = {
+  "/account-deletion": "account-deletion",
+  "/home/privacy-policy": "privacy-policy",
+  "/privacy-policy": "privacy-policy",
+};
+
+function getStaticPolicyRoute() {
+  if (Platform.OS !== "web" || typeof window === "undefined") return null;
+
+  const pathname = window.location?.pathname || "";
+  const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  return STATIC_POLICY_ROUTES[normalizedPath] || null;
+}
+
+function StaticPolicyPage({ route }) {
+  const isAccountDeletion = route === "account-deletion";
+  const title = isAccountDeletion ? "Delete your AI Menu APP account" : "Privacy Policy";
+  const subtitle = isAccountDeletion
+    ? "Request deletion of your account and associated account data."
+    : "AI Menu APP - Last updated: June 10, 2026";
+  const sections = isAccountDeletion
+    ? [
+        {
+          heading: "How to request deletion",
+          items: [
+            "Send the request from the email address registered with your account.",
+            "Include your registered email and username if available.",
+            "We will verify the request and process account deletion.",
+          ],
+        },
+        {
+          heading: "Data deleted",
+          items: [
+            "Account profile data, authentication account, avatar, saved menu history, profile preferences, and saved order list data associated with the account will be deleted where technically feasible.",
+          ],
+        },
+        {
+          heading: "Data that may be retained",
+          items: [
+            "We may retain security logs, transaction records required by law, and anonymized or non-user-linked menu, dish, and image cache data that is no longer associated with your account.",
+          ],
+        },
+      ]
+    : [
+        {
+          heading: "Information we collect",
+          items: [
+            "Account information, such as username, email address, optional phone number, and authentication identifiers.",
+            "Profile preferences, such as dietary preferences, allergies, budget, and taste preferences when users choose to provide them.",
+            "User-provided menu content, including menu photos, PDFs, documents, text, webpages, and delivery app share links.",
+            "Generated menu results, including translated dish names, descriptions, ingredients, allergens, prices, menu history, and order list items.",
+            "Technical data such as app interactions, diagnostics, device or advertising identifiers, and network request metadata.",
+          ],
+        },
+        {
+          heading: "How we use information",
+          items: [
+            "To provide menu OCR, translation, dish explanation, image matching, and AI recommendation features.",
+            "To save account profiles, menu history, and order list data for signed-in users.",
+            "To improve reliability, prevent abuse, debug errors, and maintain app security.",
+            "To show advertising and measure ad performance where ads are enabled.",
+            "To respond to support, account deletion, and privacy requests.",
+          ],
+        },
+        {
+          heading: "Third-party services",
+          items: [
+            "The app may process data through service providers used for hosting, database storage, authentication, AI model processing, image retrieval, analytics, and advertising.",
+            "These providers may include Render, Supabase, OpenRouter, OpenAI, Google AdMob, Pexels, Unsplash, and Wikimedia Commons depending on enabled features.",
+          ],
+        },
+        {
+          heading: "Your choices",
+          items: [
+            "You can avoid signing in and use supported features without an account where available.",
+            "You can request account deletion at /account-deletion.",
+            "You can contact us for privacy questions or deletion requests.",
+          ],
+        },
+      ];
+
+  return (
+    <ScrollView style={policyStyles.screen} contentContainerStyle={policyStyles.container}>
+      <View style={policyStyles.card}>
+        <Text style={policyStyles.brand}>AI Menu APP</Text>
+        <Text style={policyStyles.title}>{title}</Text>
+        <Text style={policyStyles.subtitle}>{subtitle}</Text>
+
+        {isAccountDeletion ? (
+          <Text
+            accessibilityRole="link"
+            onPress={() => Linking.openURL(ACCOUNT_DELETION_MAILTO)}
+            style={policyStyles.primaryLink}
+          >
+            Email account deletion request
+          </Text>
+        ) : (
+          <Text style={policyStyles.body}>
+            AI Menu APP helps users translate and understand restaurant menus from photos, files,
+            documents, and menu links. This Privacy Policy explains what information we collect,
+            how we use it, and the choices available to users.
+          </Text>
+        )}
+
+        {sections.map((section) => (
+          <View key={section.heading} style={policyStyles.section}>
+            <Text style={policyStyles.heading}>{section.heading}</Text>
+            {section.items.map((item) => (
+              <View key={item} style={policyStyles.bulletRow}>
+                <Text style={policyStyles.bulletMarker}>-</Text>
+                <Text style={policyStyles.body}>{item}</Text>
+              </View>
+            ))}
+          </View>
+        ))}
+
+        <Text style={policyStyles.contact}>
+          Contact:{" "}
+          <Text
+            accessibilityRole="link"
+            onPress={() => Linking.openURL(`mailto:${POLICY_SUPPORT_EMAIL}`)}
+            style={policyStyles.inlineLink}
+          >
+            {POLICY_SUPPORT_EMAIL}
+          </Text>
+        </Text>
+      </View>
+    </ScrollView>
+  );
+}
 
 function getSharedMenuUrlFromParams(params) {
   if (!params) return "";
@@ -450,11 +586,104 @@ const theme = {
 };
 
 export default function App() {
+  const staticPolicyRoute = getStaticPolicyRoute();
+
   return (
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
-        <AppContent />
+        {staticPolicyRoute ? <StaticPolicyPage route={staticPolicyRoute} /> : <AppContent />}
       </PaperProvider>
     </SafeAreaProvider>
   );
 }
+
+const policyStyles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#FDF8F3",
+  },
+  container: {
+    flexGrow: 1,
+    padding: 20,
+    alignItems: "center",
+  },
+  card: {
+    width: "100%",
+    maxWidth: 860,
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E6DED8",
+    borderWidth: 1,
+    borderRadius: 24,
+    padding: 28,
+  },
+  brand: {
+    color: "#6750A4",
+    fontSize: 16,
+    fontWeight: "800",
+    marginBottom: 12,
+  },
+  title: {
+    color: "#1D1B20",
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: "800",
+    marginBottom: 10,
+  },
+  subtitle: {
+    color: "#625B71",
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 18,
+  },
+  section: {
+    marginTop: 22,
+  },
+  heading: {
+    color: "#1D1B20",
+    fontSize: 21,
+    lineHeight: 28,
+    fontWeight: "800",
+    marginBottom: 10,
+  },
+  bulletRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    marginBottom: 8,
+  },
+  bulletMarker: {
+    color: "#6750A4",
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: "800",
+  },
+  body: {
+    flex: 1,
+    color: "#49454F",
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  primaryLink: {
+    alignSelf: "flex-start",
+    backgroundColor: "#6750A4",
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "800",
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 999,
+    overflow: "hidden",
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  contact: {
+    color: "#625B71",
+    fontSize: 16,
+    lineHeight: 24,
+    marginTop: 28,
+  },
+  inlineLink: {
+    color: "#6750A4",
+    fontWeight: "800",
+  },
+});
