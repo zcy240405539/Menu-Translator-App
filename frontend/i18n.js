@@ -25,9 +25,15 @@ export const translations = {
     appTitle: "AI Menu Assistant",
 
     home: {
-      heroTitle: "Let AI read menu for you",
+      heroKicker: "Start translating",
+      heroTitle: "Translate menus, order with ease",
       heroSubtitle:
-        "Take a photo or upload a menu, AI will translate and explain every dish.",
+        "Upload photos, PDFs, websites, or delivery app links to get clear dish names, descriptions, and ingredients.",
+      featureDocuments: "Photos, PDFs, websites",
+      featureTranslation: "AI dish translation",
+      featureOrderList: "Order list ready",
+      toolKicker: "Upload menu",
+      toolTitle: "Start with your menu",
       targetLanguage: "Target language",
       sourceLanguage: "Source language",
       autoDetect: "Auto Detect",
@@ -184,8 +190,14 @@ export const translations = {
     appTitle: "AI菜单助手",
 
     home: {
-      heroTitle: "让AI为你解读菜单",
-      heroSubtitle: "拍照或上传菜单，AI帮你翻译解读每一道菜。",
+      heroKicker: "开始翻译",
+      heroTitle: "看懂菜单，轻松点餐",
+      heroSubtitle: "上传照片、PDF、菜单网页或外卖分享链接，快速获得菜名、描述和食材说明。",
+      featureDocuments: "支持照片、PDF、网页",
+      featureTranslation: "AI 菜品翻译",
+      featureOrderList: "待点列表同步",
+      toolKicker: "上传菜单",
+      toolTitle: "从菜单开始",
       targetLanguage: "目标语言",
       sourceLanguage: "菜单原语言",
       autoDetect: "自动识别",
@@ -342,8 +354,14 @@ export const translations = {
     appTitle: "AI菜單助手",
 
     home: {
-      heroTitle: "讓AI為你解讀菜單",
-      heroSubtitle: "拍照或上傳菜單，AI幫你翻譯解讀每一道菜。",
+      heroKicker: "開始翻譯",
+      heroTitle: "看懂菜單，輕鬆點餐",
+      heroSubtitle: "上傳照片、PDF、菜單網頁或外送分享連結，快速獲得菜名、描述和食材說明。",
+      featureDocuments: "支援照片、PDF、網頁",
+      featureTranslation: "AI 菜品翻譯",
+      featureOrderList: "待點清單同步",
+      toolKicker: "上傳菜單",
+      toolTitle: "從菜單開始",
       targetLanguage: "目標語言",
       sourceLanguage: "菜單原語言",
       autoDetect: "自動識別",
@@ -499,9 +517,15 @@ export const translations = {
     appTitle: "Asistente de Menú IA",
 
     home: {
-      heroTitle: "Traductor de menús con IA",
+      heroKicker: "Comenzar traducción",
+      heroTitle: "Traduce menús y pide con facilidad",
       heroSubtitle:
-        "Toma una foto o sube un menú, la IA te ayudará a traducir y explicar cada plato.",
+        "Sube fotos, PDFs, sitios web o enlaces de apps de comida para ver nombres, descripciones e ingredientes claros.",
+      featureDocuments: "Fotos, PDFs, sitios web",
+      featureTranslation: "Traducción de platos con IA",
+      featureOrderList: "Lista de pedido lista",
+      toolKicker: "Subir menú",
+      toolTitle: "Empieza con tu menú",
       targetLanguage: "Idioma destino",
       sourceLanguage: "Idioma origen",
       autoDetect: "Detectar automáticamente",

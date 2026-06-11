@@ -500,8 +500,11 @@ const selectFromFile = async () => {
     }
   };
 
-  const currentLanguage =
-    LANGUAGES.find((item) => item.code === targetLang) || LANGUAGES[0];
+  const homeFeatureItems = [
+    t.home.featureDocuments,
+    t.home.featureTranslation,
+    t.home.featureOrderList,
+  ];
 
   return (
     <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
@@ -520,16 +523,35 @@ const selectFromFile = async () => {
         ]}
         keyboardShouldPersistTaps="handled"
       >
-        <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop]}>
-          <Card.Content style={isDesktopLayout ? styles.cardContentDesktop : undefined}>
-            <View style={[styles.formPane, isDesktopLayout && styles.formPaneDesktop]}>
-              <Text variant="headlineMedium" style={[styles.title, isDesktopLayout && styles.titleDesktop]}>
-                {t.home.heroTitle}
-              </Text>
+        <View style={[styles.homeLayout, isDesktopLayout && styles.homeLayoutDesktop]}>
+          <View style={[styles.heroPanel, isDesktopLayout && styles.heroPanelDesktop]}>
+            <Text style={styles.heroKicker}>{t.home.heroKicker}</Text>
+            <Text variant="displaySmall" style={[styles.title, isDesktopLayout && styles.titleDesktop]}>
+              {t.home.heroTitle}
+            </Text>
 
-              <Text variant="bodyMedium" style={[styles.subtitle, isDesktopLayout && styles.subtitleDesktop]}>
-                {t.home.heroSubtitle}
-              </Text>
+            <Text variant="bodyLarge" style={[styles.subtitle, isDesktopLayout && styles.subtitleDesktop]}>
+              {t.home.heroSubtitle}
+            </Text>
+
+            <View style={styles.featureRow}>
+              {homeFeatureItems.map((item, index) => (
+                <View key={item} style={[styles.featurePill, isDesktopLayout && styles.featurePillDesktop]}>
+                  <Text style={styles.featureNumber}>{String(index + 1).padStart(2, "0")}</Text>
+                  <Text style={styles.featureText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop]}>
+            <Card.Content style={styles.toolContent}>
+              <View>
+                <Text style={styles.toolKicker}>{t.home.toolKicker}</Text>
+                <Text variant="headlineSmall" style={styles.toolTitle}>
+                  {t.home.toolTitle}
+                </Text>
+              </View>
 
               <View style={styles.languageRow}>
                 <View style={styles.languageBox}>
@@ -593,29 +615,29 @@ const selectFromFile = async () => {
                 </View>
               </View>
 
-              <Button
-                mode="contained"
-                icon="camera-outline"
-                style={styles.button}
-                contentStyle={styles.buttonContent}
-                onPress={takePicture}
-                disabled={loading}
-              >
-                {t.home.takePicture}
-              </Button>
+              <View style={styles.inputActions}>
+                <Button
+                  mode="contained"
+                  icon="camera-outline"
+                  style={styles.button}
+                  contentStyle={styles.buttonContent}
+                  onPress={takePicture}
+                  disabled={loading}
+                >
+                  {t.home.takePicture}
+                </Button>
 
-              <Button
-                mode="outlined"
-                icon="file-document-outline"
-                style={styles.outlineButton}
-                contentStyle={styles.buttonContent}
-                onPress={selectFromFile}
-                disabled={loading}
-              >
-                {t.home.selectFromFile}
-              </Button>
+                <Button
+                  mode="outlined"
+                  icon="file-document-outline"
+                  style={styles.outlineButton}
+                  contentStyle={styles.buttonContent}
+                  onPress={selectFromFile}
+                  disabled={loading}
+                >
+                  {t.home.selectFromFile}
+                </Button>
 
-              <View style={styles.urlSection}>
                 <TextInput
                   mode="outlined"
                   label={t.home.menuUrlLabel}
@@ -630,9 +652,7 @@ const selectFromFile = async () => {
                   style={styles.urlInput}
                 />
               </View>
-            </View>
 
-            <View style={[styles.actionPane, isDesktopLayout && styles.actionPaneDesktop]}>
               {(imageUri || selectedFile) && (
                 <View style={[styles.previewSection, isDesktopLayout && styles.previewSectionDesktop]}>
                   <Text variant="titleMedium" style={styles.previewTitle}>
@@ -682,9 +702,9 @@ const selectFromFile = async () => {
                   {t.home.analyzeMenu}
                 </Button>
               )}
-            </View>
-          </Card.Content>
-        </Card>
+            </Card.Content>
+          </Card>
+        </View>
       </ScrollView>
 
 
@@ -716,88 +736,140 @@ const styles = StyleSheet.create({
   },
   scrollContentDesktop: {
     justifyContent: "flex-start",
-    paddingHorizontal: 32,
-    paddingVertical: 36,
+    paddingHorizontal: 40,
+    paddingVertical: 42,
   },
-  card: {
-    borderRadius: 28,
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 22,
-  },
-  cardDesktop: {
+  homeLayout: {
     width: "100%",
     maxWidth: 1120,
     alignSelf: "center",
+    gap: 18,
+  },
+  homeLayoutDesktop: {
+    maxWidth: 1180,
+    flexDirection: "row",
+    alignItems: "stretch",
+    gap: 28,
+  },
+  heroPanel: {
+    paddingHorizontal: 4,
+    paddingBottom: 4,
+  },
+  heroPanelDesktop: {
+    flex: 1,
+    minHeight: 560,
+    justifyContent: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 42,
+  },
+  toolPanel: {
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+  },
+  toolPanelDesktop: {
+    width: 468,
     borderRadius: 8,
-    paddingVertical: 0,
     borderColor: "#E7E0EC",
   },
-  cardContentDesktop: {
-    flexDirection: "row",
-    gap: 32,
-    padding: 32,
+  toolContent: {
+    padding: 24,
+    gap: 18,
   },
-  formPane: {},
-  formPaneDesktop: {
-    flex: 0.95,
-    minWidth: 360,
-    justifyContent: "center",
-  },
-  actionPane: {},
-  actionPaneDesktop: {
-    flex: 1,
-    minHeight: 430,
-    justifyContent: "space-between",
-    borderLeftWidth: 1,
-    borderLeftColor: "#E7E0EC",
-    paddingLeft: 32,
+  heroKicker: {
+    color: "#6D50B3",
+    fontSize: 14,
+    fontWeight: "800",
+    letterSpacing: 0,
+    marginBottom: 12,
+    textTransform: "uppercase",
   },
   title: {
-    textAlign: "center",
-    fontWeight: "700",
+    textAlign: "left",
+    fontWeight: "800",
     color: "#1D1B20",
     marginBottom: 10,
   },
   titleDesktop: {
     textAlign: "left",
-    fontSize: 36,
-    lineHeight: 42,
+    fontSize: 48,
+    lineHeight: 56,
+    maxWidth: 620,
   },
   subtitle: {
-    textAlign: "center",
+    textAlign: "left",
     color: "#625B71",
-    lineHeight: 22,
-    marginBottom: 16,
+    lineHeight: 24,
+    marginBottom: 18,
   },
   subtitleDesktop: {
     textAlign: "left",
-    marginBottom: 24,
-    maxWidth: 520,
+    fontSize: 18,
+    lineHeight: 28,
+    marginBottom: 30,
+    maxWidth: 560,
+  },
+  featureRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  featurePill: {
+    minWidth: 148,
+    flexGrow: 1,
+    borderWidth: 1,
+    borderColor: "#E7E0EC",
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  featurePillDesktop: {
+    maxWidth: 186,
+  },
+  featureNumber: {
+    color: "#6D50B3",
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: 6,
+  },
+  featureText: {
+    color: "#1D1B20",
+    fontSize: 14,
+    fontWeight: "700",
+    lineHeight: 19,
+  },
+  toolKicker: {
+    color: "#6D50B3",
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 0,
+    textTransform: "uppercase",
+  },
+  toolTitle: {
+    color: "#1D1B20",
+    fontWeight: "800",
+    marginTop: 4,
   },
   button: {
-    borderRadius: 100,
-    marginBottom: 14,
+    borderRadius: 8,
   },
   outlineButton: {
-    borderRadius: 100,
-    marginBottom: 10,
+    borderRadius: 8,
   },
   analyzeButton: {
-    borderRadius: 100,
-    marginTop: 16,
+    borderRadius: 8,
   },
   buttonContent: {
-    height: 54,
+    height: 50,
   },
-  urlSection: {
-    marginTop: 4,
+  inputActions: {
     gap: 10,
   },
   urlInput: {
     backgroundColor: "#FFFFFF",
   },
   previewSection: {
-    marginTop: 22,
+    marginTop: 2,
   },
   previewSectionDesktop: {
     marginTop: 0,
@@ -809,13 +881,13 @@ const styles = StyleSheet.create({
   },
   preview: {
     width: "100%",
-    height: 280,
+    height: 250,
     resizeMode: "contain",
-    borderRadius: 18,
+    borderRadius: 8,
     backgroundColor: "#E7E0EC",
   },
   previewDesktop: {
-    height: 360,
+    height: 260,
     borderRadius: 8,
     backgroundColor: "#F0EDF5",
   },
@@ -830,14 +902,14 @@ const styles = StyleSheet.create({
   pdfPreview: {
     width: "100%",
     minHeight: 132,
-    borderRadius: 18,
+    borderRadius: 8,
     backgroundColor: "#E7E0EC",
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
   },
   pdfPreviewDesktop: {
-    minHeight: 360,
+    minHeight: 220,
     borderRadius: 8,
     backgroundColor: "#F0EDF5",
   },
@@ -858,7 +930,6 @@ const styles = StyleSheet.create({
   languageRow: {
     flexDirection: "row",
     gap: 12,
-    marginBottom: 22,
     flexWrap: "wrap",
   },
 
@@ -875,10 +946,10 @@ const styles = StyleSheet.create({
   },
 
   languageButton: {
-    borderRadius: 14,
+    borderRadius: 8,
   },
   analyzeButtonDesktop: {
-    marginTop: 24,
+    marginTop: 2,
   },
 
   shareDialog: {
