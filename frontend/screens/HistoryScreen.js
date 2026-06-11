@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, FlatList, Platform, useWindowDimensions, View } from "react-native";
+import { Platform, StyleSheet, FlatList } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import {
   Appbar,
@@ -34,15 +34,10 @@ const pickFile = async () => {
   }
 };
 
-export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile }) {
+export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome }) {
   const [history, setHistory] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
-  const { width, height } = useWindowDimensions();
-  const isWeb = Platform.OS === "web";
-  const isDesktopLayout = isWeb && width >= 900;
-  const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
-  const columnCount = isDesktopLayout && width >= 1280 ? 3 : isDesktopLayout ? 2 : 1;
 
   const loadHistory = async () => {
     const data = await getMenuHistory();
@@ -54,10 +49,17 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
   }, []);
 
   return (
-    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
-      <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
-        <Appbar.BackAction onPress={onBack} />
-        <Appbar.Content title={shouldHideAppTitle ? "" : isChinese ? (isTraditional ? "歷史菜單" : "历史菜单") : "Menu History"} />
+    <Surface style={styles.screen}>
+      <Appbar.Header mode="center-aligned" style={styles.appbar}>
+        {hasMenuResult ? (
+          <>
+            <Appbar.Action icon="close" onPress={onBackToResult} />
+            <Appbar.Action icon="home-outline" onPress={onGoHome} />
+          </>
+        ) : (
+          <Appbar.BackAction onPress={onBack} />
+        )}
+        <Appbar.Content title={isChinese ? (isTraditional ? "歷史菜單" : "历史菜单") : "Menu History"} />
         <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, isChinese ? "分享菜单翻译助手历史记录并体验翻译！" : "Check out Menu Translator menu history!")} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
@@ -72,39 +74,34 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
       </Appbar.Header>
 
       <FlatList
-        key={`history-${columnCount}`}
-        contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}
+        contentContainerStyle={styles.content}
         data={history}
-        numColumns={columnCount}
-        columnWrapperStyle={columnCount > 1 ? styles.gridRow : undefined}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.gridItem}>
-            <Card
-              mode="elevated"
-              style={[styles.card, isDesktopLayout && styles.cardDesktop]}
-              onPress={() => onOpenMenu(item)}
-            >
-              <Card.Content>
-                <Text variant="titleMedium" style={styles.title}>
-                  {item.business_name || item.restaurant_type || "Restaurant"}
-                </Text>
+          <Card
+            mode="elevated"
+            style={styles.card}
+            onPress={() => onOpenMenu(item)}
+          >
+            <Card.Content>
+              <Text variant="titleMedium" style={styles.title}>
+                {item.business_name || item.restaurant_type || "Restaurant"}
+              </Text>
 
-                <Text style={styles.subtitle}>
-                  {item.source_language} · {item.menu_items?.length || 0}{" "}
-                  {isChinese ? "道菜" : "items"}
-                </Text>
+              <Text style={styles.subtitle}>
+                {item.source_language} · {item.menu_items?.length || 0}{" "}
+                {isChinese ? "道菜" : "items"}
+              </Text>
 
-                <Text style={styles.date}>
-                  {new Date(item.createdAt).toLocaleString()}
-                </Text>
+              <Text style={styles.date}>
+                {new Date(item.createdAt).toLocaleString()}
+              </Text>
 
-                <Chip style={styles.chip}>
-                  {isChinese ? (isTraditional ? "點擊開啟" : "点击打开") : "Tap to open"}
-                </Chip>
-              </Card.Content>
-            </Card>
-          </View>
+              <Chip style={styles.chip}>
+                {isChinese ? (isTraditional ? "點擊開啟" : "点击打开") : "Tap to open"}
+              </Chip>
+            </Card.Content>
+          </Card>
         )}
         ListEmptyComponent={
           <Text style={styles.empty}>
@@ -121,46 +118,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FDF8F3",
   },
-  screenDesktop: {
-    backgroundColor: "#F7F7FA",
-  },
   appbar: {
-    backgroundColor: "#FDF8F3",
-  },
-  appbarDesktop: {
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E7E0EC",
+    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
+    elevation: 0,
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    alignSelf: "center",
   },
   content: {
     padding: 16,
     paddingBottom: 32,
-  },
-  contentDesktop: {
-    width: "100%",
-    maxWidth: 1280,
     alignSelf: "center",
-    paddingHorizontal: 32,
-    paddingTop: 24,
+    width: "100%",
+    maxWidth: 960,
   },
   card: {
     borderRadius: 22,
     backgroundColor: "#FFFFFF",
     marginBottom: 12,
-  },
-  cardDesktop: {
-    borderRadius: 8,
-    minHeight: 154,
-    height: "100%",
-    marginBottom: 0,
-  },
-  gridRow: {
-    gap: 16,
-    marginBottom: 16,
-  },
-  gridItem: {
-    flex: 1,
-    minWidth: 0,
   },
   title: {
     fontWeight: "800",

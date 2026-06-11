@@ -721,7 +721,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7F7FA",
   },
   appbar: {
-    backgroundColor: "#FDF8F3",
+    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
+    elevation: 0,
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    alignSelf: "center",
   },
   appbarDesktop: {
     backgroundColor: "#FFFFFF",
@@ -733,6 +737,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 16,
     paddingVertical: 28,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 960,
   },
   scrollContentDesktop: {
     justifyContent: "flex-start",

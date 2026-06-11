@@ -485,6 +485,9 @@ function AppContent() {
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
+        hasMenuResult={menuResult !== null}
+        onBackToResult={() => setScreen("result")}
+        onGoHome={() => setScreen("home")}
       />
     );
   } else if (screen === "history") {
@@ -503,6 +506,9 @@ function AppContent() {
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
+        hasMenuResult={menuResult !== null}
+        onBackToResult={() => setScreen("result")}
+        onGoHome={() => setScreen("home")}
       />
     );
   } else if (screen === "result" && menuResult) {

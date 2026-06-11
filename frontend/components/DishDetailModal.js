@@ -6,8 +6,8 @@ import {
   ScrollView,
   Image,
   Animated,
-  Platform,
   useWindowDimensions,
+  Platform,
 } from "react-native";
 import {
   ActivityIndicator,
@@ -87,14 +87,12 @@ export default function DishDetailModal({
   onOpenLogin,
   onOpenProfile,
 }) {
+  const { width: windowWidth } = useWindowDimensions();
+  const isLargeScreen = Platform.OS === 'web' && windowWidth > 768;
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [detail, setDetail] = useState(null);
   const [detailKey, setDetailKey] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
-  const { width, height } = useWindowDimensions();
-  const isWeb = Platform.OS === "web";
-  const isDesktopLayout = isWeb && width >= 900;
-  const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
 
   const handleOpenHistory = () => {
     onClose();
@@ -236,10 +234,10 @@ export default function DishDetailModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
-          <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
+        <Surface style={styles.screen}>
+          <Appbar.Header mode="center-aligned" style={styles.appbar}>
             <Appbar.BackAction onPress={onClose} />
-            <Appbar.Content title={shouldHideAppTitle ? "" : title || t.description} />
+            <Appbar.Content title={title || t.description} />
             <Appbar.Action icon="share-variant" onPress={handleShare} />
             <Appbar.Action icon="history" onPress={handleOpenHistory} />
             <Appbar.Action icon="cart-outline" onPress={handleOpenCart} />
@@ -253,146 +251,287 @@ export default function DishDetailModal({
             }} />
           </Appbar.Header>
 
-          <ScrollView contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
-            {matchedUserAllergens.length > 0 && (
-              <Card style={[styles.warningAlertCard, isDesktopLayout && styles.warningAlertCardDesktop]} mode="contained">
-                <Card.Content style={styles.warningAlertContent}>
-                  <Text variant="titleMedium" style={styles.warningAlertTitle}>
-                    ⚠️ {isChineseLanguage(targetLang) ? "过敏风险警示" : "Allergy Risk Warning"}
-                  </Text>
-                  <Text variant="bodyMedium" style={styles.warningAlertText}>
-                    {isChineseLanguage(targetLang)
-                      ? `该菜品可能包含您过敏的食材：${matchedUserAllergens.join("、")}！请谨慎点餐并向店员确认。`
-                      : `This dish may contain ingredients you are allergic to: ${matchedUserAllergens.join(", ")}! Please order with caution and confirm with staff.`}
-                  </Text>
-                </Card.Content>
-              </Card>
-            )}
+          <ScrollView contentContainerStyle={styles.content}>
+            {isLargeScreen ? (
+              <View style={styles.webContainer}>
+                {/* Left Column: Image, Allergy Alert */}
+                <View style={styles.webLeftColumn}>
+                  {matchedUserAllergens.length > 0 && (
+                    <Card style={styles.warningAlertCard} mode="contained">
+                      <Card.Content style={styles.warningAlertContent}>
+                        <Text variant="titleMedium" style={styles.warningAlertTitle}>
+                          ⚠️ {isChineseLanguage(targetLang) ? "过敏风险警示" : "Allergy Risk Warning"}
+                        </Text>
+                        <Text variant="bodyMedium" style={styles.warningAlertText}>
+                          {isChineseLanguage(targetLang)
+                            ? `该菜品可能包含您过敏的食材：${matchedUserAllergens.join("、")}！请谨慎点餐并向店员确认。`
+                            : `This dish may contain ingredients you are allergic to: ${matchedUserAllergens.join(", ")}! Please order with caution and confirm with staff.`}
+                        </Text>
+                      </Card.Content>
+                    </Card>
+                  )}
 
-            <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.heroCard, isDesktopLayout && styles.heroCardDesktop]}>
-              <View style={[styles.imagePlaceholder, isDesktopLayout && styles.imagePlaceholderDesktop]}>
-                {imageUrl ? (
-                  <Image source={{ uri: imageUrl }} style={styles.dishImage} resizeMode="cover" />
-                ) : (
-                  <View style={styles.defaultImageBox}>
-                    <Text style={styles.defaultImageIcon}>🍽️</Text>
-                    <Text style={styles.defaultImageText}>
-                      {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
+                  <Card mode="elevated" style={styles.heroCard}>
+                    <View style={styles.webImagePlaceholder}>
+                      {imageUrl ? (
+                        <Image source={{ uri: imageUrl }} style={styles.webDishImage} />
+                      ) : (
+                        <View style={styles.defaultImageBox}>
+                          <Text style={styles.defaultImageIcon}>🍽️</Text>
+                          <Text style={styles.defaultImageText}>
+                            {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
+                          </Text>
+                        </View>
+                      )}
+
+                      {loadingDetail && (
+                        <View style={styles.imageLoadingOverlay}>
+                          <ActivityIndicator animating size="small" />
+                          <Text style={styles.imageLoadingText}>
+                            {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在載入詳情..." : "正在加载详情...") : "Loading details..."}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </Card>
+                </View>
+
+                {/* Right Column: Title, Details, Action Buttons */}
+                <View style={styles.webRightColumn}>
+                  <Card mode="elevated" style={styles.webDetailCard}>
+                    <Card.Content>
+                      <Text variant="headlineSmall" style={styles.title}>
+                        {title}
+                      </Text>
+
+                      <Text variant="bodyMedium" style={styles.original}>
+                        {t.original}: {mergedDish.original_name || t.unknown}
+                      </Text>
+
+                      {!!price && (
+                        <Chip style={styles.priceChip} textStyle={styles.priceText}>
+                          {t.price}: {price}
+                        </Chip>
+                      )}
+
+                      <Divider style={{ marginVertical: 16 }} />
+
+                      <InfoSection title={t.description}>
+                        <Text variant="bodyMedium" style={styles.text}>
+                          {description || t.unknown}
+                        </Text>
+                      </InfoSection>
+
+                      <Divider />
+
+                      <InfoSection title={t.ingredients}>
+                        {ingredients.length > 0 ? (
+                          <View style={styles.chipRow}>
+                            {ingredients.map((item, index) => (
+                              <Chip key={`${item}-${index}`} style={styles.infoChip}>
+                                {item}
+                              </Chip>
+                            ))}
+                          </View>
+                        ) : (
+                          <Text style={styles.text}>{t.unknown}</Text>
+                        )}
+                      </InfoSection>
+
+                      <Divider />
+
+                      <InfoSection title={t.allergens}>
+                        {allergens.length > 0 ? (
+                          <View style={styles.chipRow}>
+                            {allergens.map((item, index) => (
+                              <Chip key={`${item}-${index}`} style={styles.warningChip}>
+                                {item}
+                              </Chip>
+                            ))}
+                          </View>
+                        ) : (
+                          <Text style={styles.text}>{t.none}</Text>
+                        )}
+                      </InfoSection>
+
+                      <Divider />
+
+                      <InfoSection title={t.spicyLevel}>
+                        <Chip style={styles.infoChip}>
+                          {mergedDish.spicy_level ?? 0} / 5
+                        </Chip>
+                      </InfoSection>
+                    </Card.Content>
+                  </Card>
+
+                  <View style={styles.webButtonRow}>
+                    <Button
+                      mode="contained-tonal"
+                      icon="cart-plus"
+                      style={[styles.addButton, { flex: 1, marginTop: 0 }]}
+                      contentStyle={styles.closeButtonContent}
+                      onPress={async () => {
+                        await addDishToCart(mergedDish, menuInfo);
+                        setSnackbarVisible(true);
+                      }}
+                    >
+                      {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "加入待點列表" : "加入待点列表") : "Add to Order List"}
+                    </Button>
+
+                    <Button
+                      mode="contained"
+                      icon="close"
+                      style={[styles.closeButton, { flex: 1, marginTop: 0 }]}
+                      contentStyle={styles.closeButtonContent}
+                      onPress={onClose}
+                    >
+                      {t.close}
+                    </Button>
+                  </View>
+                </View>
+              </View>
+            ) : (
+              // Mobile View (Single Column)
+              <>
+                {matchedUserAllergens.length > 0 && (
+                  <Card style={styles.warningAlertCard} mode="contained">
+                    <Card.Content style={styles.warningAlertContent}>
+                      <Text variant="titleMedium" style={styles.warningAlertTitle}>
+                        ⚠️ {isChineseLanguage(targetLang) ? "过敏风险警示" : "Allergy Risk Warning"}
+                      </Text>
+                      <Text variant="bodyMedium" style={styles.warningAlertText}>
+                        {isChineseLanguage(targetLang)
+                          ? `该菜品可能包含您过敏的食材：${matchedUserAllergens.join("、")}！请谨慎点餐并向店员确认。`
+                          : `This dish may contain ingredients you are allergic to: ${matchedUserAllergens.join(", ")}! Please order with caution and confirm with staff.`}
+                      </Text>
+                    </Card.Content>
+                  </Card>
+                )}
+
+                <Card mode="elevated" style={styles.heroCard}>
+                  <View style={styles.imagePlaceholder}>
+                    {imageUrl ? (
+                      <Image source={{ uri: imageUrl }} style={styles.dishImage} />
+                    ) : (
+                      <View style={styles.defaultImageBox}>
+                        <Text style={styles.defaultImageIcon}>🍽️</Text>
+                        <Text style={styles.defaultImageText}>
+                          {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
+                        </Text>
+                      </View>
+                    )}
+
+                    {loadingDetail && (
+                      <View style={styles.imageLoadingOverlay}>
+                        <ActivityIndicator animating size="small" />
+                        <Text style={styles.imageLoadingText}>
+                          {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在載入詳情..." : "正在加载详情...") : "Loading details..."}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <Card.Content>
+                    <Text variant="headlineSmall" style={styles.title}>
+                      {title}
                     </Text>
+
+                    <Text variant="bodyMedium" style={styles.original}>
+                      {t.original}: {mergedDish.original_name || t.unknown}
+                    </Text>
+
+                    {!!price && (
+                      <Chip style={styles.priceChip} textStyle={styles.priceText}>
+                        {t.price}: {price}
+                      </Chip>
+                    )}
+                  </Card.Content>
+                </Card>
+
+                <Card mode="elevated" style={styles.detailCard}>
+                  <Card.Content>
+                    <InfoSection title={t.description}>
+                      <Text variant="bodyMedium" style={styles.text}>
+                        {description || t.unknown}
+                      </Text>
+                    </InfoSection>
+
+                    <Divider />
+
+                    <InfoSection title={t.ingredients}>
+                      {ingredients.length > 0 ? (
+                        <View style={styles.chipRow}>
+                          {ingredients.map((item, index) => (
+                            <Chip key={`${item}-${index}`} style={styles.infoChip}>
+                              {item}
+                            </Chip>
+                          ))}
+                        </View>
+                      ) : (
+                        <Text style={styles.text}>{t.unknown}</Text>
+                      )}
+                    </InfoSection>
+
+                    <Divider />
+
+                    <InfoSection title={t.allergens}>
+                      {allergens.length > 0 ? (
+                        <View style={styles.chipRow}>
+                          {allergens.map((item, index) => (
+                            <Chip key={`${item}-${index}`} style={styles.warningChip}>
+                              {item}
+                            </Chip>
+                          ))}
+                        </View>
+                      ) : (
+                        <Text style={styles.text}>{t.none}</Text>
+                      )}
+                    </InfoSection>
+
+                    <Divider />
+
+                    <InfoSection title={t.spicyLevel}>
+                      <Chip style={styles.infoChip}>
+                        {mergedDish.spicy_level ?? 0} / 5
+                      </Chip>
+                    </InfoSection>
+
+                    <Divider />
+                  </Card.Content>
+                </Card>
+
+                {BannerAd && (
+                  <View style={styles.adContainer}>
+                    <BannerAd
+                      unitId={AD_UNIT_IDS.itemBanner}
+                      size={BannerAdSize.BANNER}
+                    />
                   </View>
                 )}
 
-                {loadingDetail && (
-                  <View style={styles.imageLoadingOverlay}>
-                    <ActivityIndicator animating size="small" />
-                    <Text style={styles.imageLoadingText}>
-                      {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在載入詳情..." : "正在加载详情...") : "Loading details..."}
-                    </Text>
-                  </View>
-                )}
-              </View>
-              <Card.Content style={isDesktopLayout ? styles.heroContentDesktop : undefined}>
-                <Text variant="headlineSmall" style={styles.title}>
-                  {title}
-                </Text>
+                <Button
+                  mode="contained-tonal"
+                  icon="cart-plus"
+                  style={styles.addButton}
+                  contentStyle={styles.closeButtonContent}
+                  onPress={async () => {
+                    await addDishToCart(mergedDish, menuInfo);
+                    setSnackbarVisible(true);
+                  }}
+                >
+                  {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "加入待點列表" : "加入待点列表") : "Add to Order List"}
+                </Button>
 
-                <Text variant="bodyMedium" style={styles.original}>
-                  {t.original}: {mergedDish.original_name || t.unknown}
-                </Text>
-
-                {!!price && (
-                  <Chip style={styles.priceChip} textStyle={styles.priceText}>
-                    {t.price}: {price}
-                  </Chip>
-                )}
-              </Card.Content>
-            </Card>
-
-            <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.detailCard, isDesktopLayout && styles.detailCardDesktop]}>
-              <Card.Content>
-                <InfoSection title={t.description}>
-                  <Text variant="bodyMedium" style={styles.text}>
-                    {description || t.unknown}
-                  </Text>
-                </InfoSection>
-
-                <Divider />
-
-                <InfoSection title={t.ingredients}>
-                  {ingredients.length > 0 ? (
-                    <View style={styles.chipRow}>
-                      {ingredients.map((item, index) => (
-                        <Chip key={`${item}-${index}`} style={styles.infoChip}>
-                          {item}
-                        </Chip>
-                      ))}
-                    </View>
-                  ) : (
-                    <Text style={styles.text}>{t.unknown}</Text>
-                  )}
-                </InfoSection>
-
-                <Divider />
-
-                <InfoSection title={t.allergens}>
-                  {allergens.length > 0 ? (
-                    <View style={styles.chipRow}>
-                      {allergens.map((item, index) => (
-                        <Chip key={`${item}-${index}`} style={styles.warningChip}>
-                          {item}
-                        </Chip>
-                      ))}
-                    </View>
-                  ) : (
-                    <Text style={styles.text}>{t.none}</Text>
-                  )}
-                </InfoSection>
-
-                <Divider />
-
-                <InfoSection title={t.spicyLevel}>
-                  <Chip style={styles.infoChip}>
-                    {mergedDish.spicy_level ?? 0} / 5
-                  </Chip>
-                </InfoSection>
-
-                <Divider />
-              </Card.Content>
-            </Card>
-
-            {BannerAd && (
-              <View style={styles.adContainer}>
-                <BannerAd
-                  unitId={AD_UNIT_IDS.itemBanner}
-                  size={BannerAdSize.BANNER}
-                />
-              </View>
+                <Button
+                  mode="contained"
+                  icon="close"
+                  style={styles.closeButton}
+                  contentStyle={styles.closeButtonContent}
+                  onPress={onClose}
+                >
+                  {t.close}
+                </Button>
+              </>
             )}
-
-            <View style={[styles.actionRow, isDesktopLayout && styles.actionRowDesktop]}>
-              <Button
-                mode="contained-tonal"
-                icon="cart-plus"
-                style={[styles.addButton, isDesktopLayout && styles.actionButtonDesktop]}
-                contentStyle={styles.closeButtonContent}
-                onPress={async () => {
-                  await addDishToCart(mergedDish, menuInfo);
-                  setSnackbarVisible(true);
-                }}
-              >
-                {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "加入待點列表" : "加入待点列表") : "Add to Order List"}
-              </Button>
-
-              <Button
-                mode="contained"
-                icon="close"
-                style={[styles.closeButton, isDesktopLayout && styles.actionButtonDesktop]}
-                contentStyle={styles.closeButtonContent}
-                onPress={onClose}
-              >
-                {t.close}
-              </Button>
-            </View>
           </ScrollView>
 
           <Snackbar
@@ -413,28 +552,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FDF8F3",
   },
-  screenDesktop: {
-    backgroundColor: "#F7F7FA",
-  },
   appbar: {
-    backgroundColor: "#FDF8F3",
-  },
-  appbarDesktop: {
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E7E0EC",
+    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
+    elevation: 0,
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    alignSelf: "center",
   },
   content: {
     paddingHorizontal: 16,
     paddingBottom: 36,
-  },
-  contentDesktop: {
-    width: "100%",
-    maxWidth: 1180,
     alignSelf: "center",
-    paddingHorizontal: 32,
-    paddingTop: 24,
-    paddingBottom: 48,
+    width: "100%",
+    maxWidth: 960,
   },
   heroCard: {
     borderRadius: 28,
@@ -443,30 +573,51 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     overflow: "hidden",
   },
-  heroCardDesktop: {
-    borderRadius: 8,
-    flexDirection: "row",
-    minHeight: 320,
-    borderColor: "#E7E0EC",
-    marginTop: 0,
-  },
   dishImage: {
     width: "100%",
-    height: "100%",
+    height: 220,
     backgroundColor: "#EFE7DD",
   },
-  heroContentDesktop: {
+  webImagePlaceholder: {
+    width: "100%",
+    height: 380,
+    backgroundColor: "#EFE7DD",
+    position: "relative",
+    overflow: "hidden",
+  },
+  webDishImage: {
+    width: "100%",
+    height: 380,
+    resizeMode: "cover",
+    backgroundColor: "#EFE7DD",
+  },
+  webContainer: {
+    flexDirection: "row",
+    gap: 24,
+    marginTop: 10,
+    width: "100%",
+  },
+  webLeftColumn: {
+    flex: 4.5,
+    minWidth: 320,
+  },
+  webRightColumn: {
+    flex: 5.5,
+    gap: 16,
+  },
+  webDetailCard: {
+    borderRadius: 28,
+    backgroundColor: "#FFFFFF",
     flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 30,
+  },
+  webButtonRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
   },
   detailCard: {
     borderRadius: 28,
     backgroundColor: "#FFFFFF",
-  },
-  detailCardDesktop: {
-    borderRadius: 8,
-    borderColor: "#E7E0EC",
   },
   title: {
     fontWeight: "800",
@@ -528,16 +679,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     marginTop: 22,
   },
-  actionRow: {},
-  actionRowDesktop: {
-    flexDirection: "row",
-    gap: 16,
-    justifyContent: "flex-end",
-  },
-  actionButtonDesktop: {
-    flexGrow: 0,
-    flexBasis: 260,
-  },
   closeButtonContent: {
     height: 54,
   },
@@ -547,11 +688,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFE7DD",
     position: "relative",
     overflow: "hidden",
-  },
-  imagePlaceholderDesktop: {
-    width: 460,
-    height: 320,
-    flexShrink: 0,
   },
 
   defaultImageBox: {
@@ -595,10 +731,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 16,
     overflow: "hidden",
-  },
-  warningAlertCardDesktop: {
-    borderRadius: 8,
-    marginTop: 0,
   },
   warningAlertContent: {
     paddingVertical: 14,
