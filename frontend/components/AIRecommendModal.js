@@ -34,6 +34,8 @@ const DIET_OPTIONS = [
   { key: "Gluten-Free", labelEn: "Gluten-Free", labelZh: "无麸质", labelZht: "無麩質", labelEs: "Sin Gluten" },
 ];
 
+const KeyboardContainer = Platform.OS === 'web' ? View : KeyboardAvoidingView;
+
 export default function AIRecommendModal({
   visible,
   menuItems,
@@ -191,8 +193,8 @@ export default function AIRecommendModal({
             }} />
           </Appbar.Header>
 
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          <KeyboardContainer
+            behavior={Platform.OS === "web" ? undefined : (Platform.OS === "ios" ? "padding" : "height")}
             style={styles.keyboardContainer}
           >
             {loading ? (
@@ -402,7 +404,7 @@ export default function AIRecommendModal({
                 </Button>
               </ScrollView>
             )}
-          </KeyboardAvoidingView>
+          </KeyboardContainer>
 
           <Snackbar
             visible={snackbarVisible}
@@ -426,7 +428,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#FDF8F3",
   },
   appbar: {
-    backgroundColor: "#FDF8F3",
+    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
+    elevation: 0,
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    alignSelf: "center",
   },
   keyboardContainer: {
     flex: 1,
@@ -434,6 +440,9 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingBottom: 36,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 640 : "100%",
   },
   loadingContainer: {
     flex: 1,
@@ -480,6 +489,8 @@ const styles = StyleSheet.create({
   generateBtn: {
     borderRadius: 100,
     marginTop: 12,
+    alignSelf: Platform.OS === "web" ? "center" : "stretch",
+    width: Platform.OS === "web" ? 320 : "auto",
   },
   btnContent: {
     height: 52,

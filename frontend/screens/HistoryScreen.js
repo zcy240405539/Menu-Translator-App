@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, FlatList } from "react-native";
+import { Platform, StyleSheet, FlatList } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import {
   Appbar,
@@ -34,7 +34,7 @@ const pickFile = async () => {
   }
 };
 
-export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile }) {
+export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome }) {
   const [history, setHistory] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
@@ -51,7 +51,14 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
   return (
     <Surface style={styles.screen}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
-        <Appbar.BackAction onPress={onBack} />
+        {hasMenuResult ? (
+          <>
+            <Appbar.Action icon="close" onPress={onBackToResult} />
+            <Appbar.Action icon="home-outline" onPress={onGoHome} />
+          </>
+        ) : (
+          <Appbar.BackAction onPress={onBack} />
+        )}
         <Appbar.Content title={isChinese ? (isTraditional ? "歷史菜單" : "历史菜单") : "Menu History"} />
         <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, isChinese ? "分享菜单翻译助手历史记录并体验翻译！" : "Check out Menu Translator menu history!")} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
@@ -112,11 +119,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#FDF8F3",
   },
   appbar: {
-    backgroundColor: "#FDF8F3",
+    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
+    elevation: 0,
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    alignSelf: "center",
   },
   content: {
     padding: 16,
     paddingBottom: 32,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 960,
   },
   card: {
     borderRadius: 22,

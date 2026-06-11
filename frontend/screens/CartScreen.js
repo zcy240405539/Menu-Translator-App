@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList, Platform, TouchableRipple } from "react-native";
 import {
   Appbar,
   Card,
@@ -22,7 +22,7 @@ function getDishName(dish) {
   return dish.translated_name || dish.original_name || "Dish";
 }
 
-export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile }) {
+export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome }) {
   const [items, setItems] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
@@ -55,7 +55,14 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   return (
     <Surface style={styles.screen}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
-        <Appbar.BackAction onPress={onBack} />
+        {hasMenuResult ? (
+          <>
+            <Appbar.Action icon="close" onPress={onBackToResult} />
+            <Appbar.Action icon="home-outline" onPress={onGoHome} />
+          </>
+        ) : (
+          <Appbar.BackAction onPress={onBack} />
+        )}
         <Appbar.Content title={isChinese ? (isTraditional ? "待點列表" : "待点列表") : "Order List"} />
         <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, isChinese ? "分享我的待点列表并体验菜单翻译助手！" : "Check out my order list and Menu Translator!")} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
@@ -106,47 +113,49 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
                   </View>
 
                   {!!item.dish?.price && (
-                    <Chip style={styles.priceChip}>
-                      {formatPrice(item.dish.price, {
-                        sourceLanguage: item.menuInfo?.source_language || cartSourceLanguage,
-                        currency: item.menuInfo?.currency || item.dish?.currency,
-                        targetLanguage: targetLang,
-                      })}
-                    </Chip>
+                    <View style={styles.priceContainer}>
+                      <Text style={styles.priceText}>
+                        {formatPrice(item.dish.price, {
+                          sourceLanguage: item.menuInfo?.source_language || cartSourceLanguage,
+                          currency: item.menuInfo?.currency || item.dish?.currency,
+                          targetLanguage: targetLang,
+                        })}
+                      </Text>
+                    </View>
                   )}
                 </View>
                 <View style={styles.quantityRow}>
-                    <Button
-                        mode="outlined"
-                        compact
+                    <TouchableRipple
+                        borderless
+                        style={styles.quantityBtn}
                         onPress={async () => {
-                        const updated = await updateCartItemQuantity(
-                            item.cartId,
-                            (item.quantity || 1) - 1
-                        );
-                        setItems(updated);
+                          const updated = await updateCartItemQuantity(
+                              item.cartId,
+                              (item.quantity || 1) - 1
+                          );
+                          setItems(updated);
                         }}
                     >
-                        -
-                    </Button>
+                        <Text style={styles.quantityBtnText}>-</Text>
+                    </TouchableRipple>
 
                     <Text style={styles.quantityText}>
                         {item.quantity || 1}
                     </Text>
 
-                    <Button
-                        mode="outlined"
-                        compact
+                    <TouchableRipple
+                        borderless
+                        style={styles.quantityBtn}
                         onPress={async () => {
-                        const updated = await updateCartItemQuantity(
-                            item.cartId,
-                            (item.quantity || 1) + 1
-                        );
-                        setItems(updated);
+                          const updated = await updateCartItemQuantity(
+                              item.cartId,
+                              (item.quantity || 1) + 1
+                          );
+                          setItems(updated);
                         }}
                     >
-                        +
-                    </Button>
+                        <Text style={styles.quantityBtnText}>+</Text>
+                    </TouchableRipple>
                 </View>
                 <Button
                   mode="text"
@@ -178,11 +187,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#FDF8F3",
   },
   appbar: {
-    backgroundColor: "#FDF8F3",
+    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
+    elevation: 0,
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    alignSelf: "center",
   },
   content: {
     flex: 1,
     padding: 16,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 960,
   },
   summaryCard: {
     borderRadius: 28,
@@ -221,8 +237,18 @@ const styles = StyleSheet.create({
     marginTop: 6,
     color: "#625B71",
   },
-  priceChip: {
+  priceContainer: {
     backgroundColor: "#E8DEF8",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    maxHeight: 28,
+  },
+  priceText: {
+    color: "#6750A4",
+    fontWeight: "700",
+    fontSize: 14,
   },
   quantityRow: {
     flexDirection: "row",
@@ -230,6 +256,23 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     gap: 10,
     marginTop: 12,
+  },
+  quantityBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#6750A4",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
+  },
+  quantityBtnText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#6750A4",
+    textAlign: "center",
+    lineHeight: Platform.OS === 'web' ? 24 : 26,
   },
   quantityText: {
     fontSize: 18,

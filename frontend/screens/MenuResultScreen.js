@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, StyleSheet, SectionList } from "react-native";
+import { View, StyleSheet, SectionList, Platform } from "react-native";
 import {
   Appbar,
   Card,
@@ -462,11 +462,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#FDF8F3",
   },
   appbar: {
-    backgroundColor: "#FDF8F3",
+    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
+    elevation: 0,
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    alignSelf: "center",
   },
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 32,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 960,
   },
   summaryCard: {
     borderRadius: 28,

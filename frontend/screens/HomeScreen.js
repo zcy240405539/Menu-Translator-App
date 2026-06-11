@@ -686,13 +686,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#FDF8F3",
   },
   appbar: {
-    backgroundColor: "#FDF8F3",
+    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
+    elevation: 0,
+    width: "100%",
+    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    alignSelf: "center",
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
     paddingHorizontal: 16,
     paddingVertical: 28,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 960,
   },
   card: {
     borderRadius: 28,
