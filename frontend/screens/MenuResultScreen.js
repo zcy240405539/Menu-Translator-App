@@ -179,17 +179,6 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
     }
   }, [items, targetLang]);
 
-  const displaySections = useMemo(() => {
-    if (!isDesktopLayout) {
-      return sections;
-    }
-
-    return sections.map((section) => ({
-      ...section,
-      data: chunkItems(section.data, desktopColumnCount),
-    }));
-  }, [sections, isDesktopLayout, desktopColumnCount]);
-
   useEffect(() => {
     if (typeof window === "undefined" || !window.location || !window.history?.replaceState) return;
 
@@ -248,6 +237,17 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
       };
     });
   }, [items]);
+
+  const displaySections = useMemo(() => {
+    if (!isDesktopLayout) {
+      return sections;
+    }
+
+    return sections.map((section) => ({
+      ...section,
+      data: chunkItems(section.data, desktopColumnCount),
+    }));
+  }, [sections, isDesktopLayout, desktopColumnCount]);
 
   const restaurantType =
     parsedResult?.restaurant_type || t.result.restaurantFallback;
