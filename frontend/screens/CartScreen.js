@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList, Platform, useWindowDimensions } from "react-native";
 import {
   Appbar,
   Card,
@@ -26,6 +26,11 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   const [items, setItems] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
+  const { width, height } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
+  const isDesktopLayout = isWeb && width >= 900;
+  const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
+  const columnCount = isDesktopLayout && width >= 1280 ? 3 : isDesktopLayout ? 2 : 1;
 
   const loadCart = async () => {
     const data = await getCartItems();
@@ -53,10 +58,10 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   }, 0);
 
   return (
-    <Surface style={styles.screen}>
-      <Appbar.Header mode="center-aligned" style={styles.appbar}>
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+      <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
         <Appbar.BackAction onPress={onBack} />
-        <Appbar.Content title={isChinese ? (isTraditional ? "待點列表" : "待点列表") : "Order List"} />
+        <Appbar.Content title={shouldHideAppTitle ? "" : isChinese ? (isTraditional ? "待點列表" : "待点列表") : "Order List"} />
         <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, isChinese ? "分享我的待点列表并体验菜单翻译助手！" : "Check out my order list and Menu Translator!")} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
@@ -70,8 +75,8 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
         <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
       </Appbar.Header>
 
-      <View style={styles.content}>
-        <Card mode="elevated" style={styles.summaryCard}>
+      <View style={[styles.content, isDesktopLayout && styles.contentDesktop]}>
+        <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.summaryCard, isDesktopLayout && styles.summaryCardDesktop]}>
           <Card.Content>
             <Text variant="headlineSmall" style={styles.title}>
               {isChinese ? (isTraditional ? "我的待點列表" : "我的待点列表") : "My Order List"}
@@ -83,39 +88,43 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
         </Card>
 
         <FlatList
+          key={`cart-${columnCount}`}
           data={items}
+          numColumns={columnCount}
+          columnWrapperStyle={columnCount > 1 ? styles.gridRow : undefined}
           keyExtractor={(item) => item.cartId}
           renderItem={({ item }) => (
-            <Card mode="elevated" style={styles.card}>
-              <Card.Content>
-                <View style={styles.row}>
-                  <View style={styles.nameBox}>
-                    <Text variant="titleMedium" style={styles.name}>
-                      {getDishName(item.dish)}
-                    </Text>
-
-                    <Text style={styles.original}>
-                      {item.dish?.original_name}
-                    </Text>
-
-                    {!!item.menuInfo?.restaurant_type && (
-                      <Text style={styles.restaurant}>
-                        {item.menuInfo.restaurant_type}
+            <View style={[styles.gridItem, isDesktopLayout && styles.gridItemDesktop]}>
+              <Card mode="elevated" style={[styles.card, isDesktopLayout && styles.cardDesktop]}>
+                <Card.Content style={styles.cardContent}>
+                  <View style={styles.row}>
+                    <View style={styles.nameBox}>
+                      <Text variant="titleMedium" style={styles.name}>
+                        {getDishName(item.dish)}
                       </Text>
+
+                      <Text style={styles.original}>
+                        {item.dish?.original_name}
+                      </Text>
+
+                      {!!item.menuInfo?.restaurant_type && (
+                        <Text style={styles.restaurant}>
+                          {item.menuInfo.restaurant_type}
+                        </Text>
+                      )}
+                    </View>
+
+                    {!!item.dish?.price && (
+                      <Chip style={styles.priceChip}>
+                        {formatPrice(item.dish.price, {
+                          sourceLanguage: item.menuInfo?.source_language || cartSourceLanguage,
+                          currency: item.menuInfo?.currency || item.dish?.currency,
+                          targetLanguage: targetLang,
+                        })}
+                      </Chip>
                     )}
                   </View>
-
-                  {!!item.dish?.price && (
-                    <Chip style={styles.priceChip}>
-                      {formatPrice(item.dish.price, {
-                        sourceLanguage: item.menuInfo?.source_language || cartSourceLanguage,
-                        currency: item.menuInfo?.currency || item.dish?.currency,
-                        targetLanguage: targetLang,
-                      })}
-                    </Chip>
-                  )}
-                </View>
-                <View style={styles.quantityRow}>
+                  <View style={styles.quantityRow}>
                     <Button
                         mode="outlined"
                         compact
@@ -147,19 +156,20 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
                     >
                         +
                     </Button>
-                </View>
-                <Button
-                  mode="text"
-                  icon="trash-can-outline"
-                  onPress={async () => {
-                    const updated = await removeDishFromCart(item.cartId);
-                    setItems(updated);
-                  }}
-                >
-                  {isChinese ? (isTraditional ? "刪除" : "删除") : "Remove"}
-                </Button>
-              </Card.Content>
-            </Card>
+                  </View>
+                  <Button
+                    mode="text"
+                    icon="trash-can-outline"
+                    onPress={async () => {
+                      const updated = await removeDishFromCart(item.cartId);
+                      setItems(updated);
+                    }}
+                  >
+                    {isChinese ? (isTraditional ? "刪除" : "删除") : "Remove"}
+                  </Button>
+                </Card.Content>
+              </Card>
+            </View>
           )}
           ListEmptyComponent={
             <Text style={styles.empty}>
@@ -177,17 +187,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FDF8F3",
   },
+  screenDesktop: {
+    backgroundColor: "#F7F7FA",
+  },
   appbar: {
     backgroundColor: "#FDF8F3",
+  },
+  appbarDesktop: {
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E7E0EC",
   },
   content: {
     flex: 1,
     padding: 16,
   },
+  contentDesktop: {
+    width: "100%",
+    maxWidth: 1280,
+    alignSelf: "center",
+    paddingHorizontal: 32,
+    paddingTop: 24,
+  },
   summaryCard: {
     borderRadius: 28,
     marginBottom: 18,
     backgroundColor: "#FFFFFF",
+  },
+  summaryCardDesktop: {
+    borderRadius: 8,
+    borderColor: "#E7E0EC",
   },
   title: {
     fontWeight: "800",
@@ -200,6 +229,26 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     marginBottom: 12,
     backgroundColor: "#FFFFFF",
+  },
+  cardDesktop: {
+    borderRadius: 8,
+    minHeight: 198,
+    height: "100%",
+    marginBottom: 0,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  gridRow: {
+    gap: 16,
+    marginBottom: 16,
+  },
+  gridItem: {
+    flex: 1,
+    minWidth: 0,
+  },
+  gridItemDesktop: {
+    marginBottom: 0,
   },
   row: {
     flexDirection: "row",

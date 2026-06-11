@@ -1,132 +1,29 @@
 import re
 import unicodedata
 from app.core.models import DishCache, DishImage
+from app.services.app_config_service import get_config_map, get_config_set
 
 
-KNOWN_CUISINES = {
-    "american": "American",
-    "chinese": "Chinese",
-    "french": "French",
-    "indian": "Indian",
-    "italian": "Italian",
-    "japanese": "Japanese",
-    "korean": "Korean",
-    "mexican": "Mexican",
-    "thai": "Thai",
-    "vietnamese": "Vietnamese",
-}
-
-CUISINE_KEYWORDS = {
-    "Mexican": [
-        r"\btacos?\b",
-        r"\bfajitas?\b",
-        r"\bquesadillas?\b",
-        r"\bnachos?\b",
-        r"\btostadas?\b",
-        r"\bburritos?\b",
-        r"\benchiladas?\b",
-        r"\bcarnitas?\b",
-        r"\bcarne asada\b",
-        r"\bal pastor\b",
-        r"\bchile rellenos?\b",
-        r"\bchimichangas?\b",
-        r"\bsopapillas?\b",
-        r"\bguacamole\b",
-        r"\bpico de gallo\b",
-        r"\bjalape[nñ]os?\b",
-        r"\btortillas?\b",
-        r"\brefried beans?\b",
-        r"\bdiabla\b",
-        r"\bacapulco\b",
-        r"\bjuan'?s favorite\b",
-    ],
-    "Italian": [
-        r"\bpizzas?\b",
-        r"\bpastas?\b",
-        r"\bravioli\b",
-        r"\blasagn[ae]\b",
-        r"\brisotto\b",
-        r"\bgnocchi\b",
-        r"\bmozzarella\b",
-        r"\bbruschetta\b",
-        r"\bparmigiana\b",
-        r"\bmarinara\b",
-    ],
-    "Chinese": [
-        r"\bdumplings?\b",
-        r"\bwontons?\b",
-        r"\bchow mein\b",
-        r"\bfried rice\b",
-        r"\bkung pao\b",
-        r"\bszechuan\b",
-        r"\bsichuan\b",
-        r"\bzhajiang\b",
-    ],
-    "Japanese": [
-        r"\bsushi\b",
-        r"\bsashimi\b",
-        r"\bramen\b",
-        r"\budon\b",
-        r"\btempura\b",
-        r"\bteriyaki\b",
-    ],
-    "Korean": [
-        r"\bbulgogi\b",
-        r"\bbibimbap\b",
-        r"\bkimchi\b",
-        r"\btteokbokki\b",
-        r"\bkorean\b",
-    ],
-    "Thai": [
-        r"\bpad thai\b",
-        r"\btom yum\b",
-        r"\btom kha\b",
-        r"\bthai\b",
-        r"\bgreen curry\b",
-        r"\bred curry\b",
-    ],
-    "Indian": [
-        r"\bcurry\b",
-        r"\btikka\b",
-        r"\bmasala\b",
-        r"\bbiryani\b",
-        r"\bnaan\b",
-        r"\bsamosas?\b",
-        r"\btandoori\b",
-    ],
-    "Vietnamese": [
-        r"\bpho\b",
-        r"\bbanh mi\b",
-        r"\bbún\b",
-        r"\bvermicelli\b",
-        r"\bspring rolls?\b",
-    ],
-    "American": [
-        r"\bburgers?\b",
-        r"\bcheeseburgers?\b",
-        r"\bbaconator\b",
-        r"\bnuggets?\b",
-        r"\bwaffles?\b",
-        r"\bomelets?\b",
-        r"\bfrench toast\b",
-        r"\bhot dogs?\b",
-    ],
-}
+def get_known_cuisines() -> dict[str, str]:
+    cuisines = {}
+    for key, value in get_config_map("cuisine_aliases").items():
+        if value:
+            cuisines[str(key).lower()] = str(value)
+    return cuisines
 
 
-NON_CACHEABLE_NORMALIZED_NAMES = {
-    "",
-    "empty",
-    "null",
-    "none",
-    "unknown",
-    "undefined",
-    "n/a",
-    "na",
-    "dish",
-    "item",
-    "menu item",
-}
+def get_cuisine_keywords() -> dict[str, list[str]]:
+    keywords = {}
+    for cuisine, patterns in get_config_map("cuisine_keywords").items():
+        if isinstance(patterns, list):
+            keywords[cuisine] = [str(pattern) for pattern in patterns if str(pattern).strip()]
+        elif patterns:
+            keywords[cuisine] = [str(patterns)]
+    return keywords
+
+
+def get_non_cacheable_normalized_names() -> set[str]:
+    return {value.lower() for value in get_config_set("non_cacheable_normalized_names")}
 
 
 def normalize_dish_name(name: str) -> str:
@@ -141,7 +38,7 @@ def normalize_dish_name(name: str) -> str:
     text = re.sub(r"\s+", " ", text)
 
     normalized = text.strip()
-    if normalized in NON_CACHEABLE_NORMALIZED_NAMES:
+    if normalized in get_non_cacheable_normalized_names():
         return ""
 
     return normalized
@@ -151,7 +48,7 @@ def is_cacheable_normalized_name(normalized_name: str) -> bool:
     normalized_name = normalize_dish_name(normalized_name)
     return bool(
         normalized_name
-        and normalized_name not in NON_CACHEABLE_NORMALIZED_NAMES
+        and normalized_name not in get_non_cacheable_normalized_names()
         and re.search(r"[a-z]", normalized_name)
         and not contains_chinese(normalized_name)
     )
@@ -271,7 +168,7 @@ def normalize_cuisine(cuisine: str) -> str:
         return "Other"
 
     lowered = re.sub(r"\s+", " ", cuisine.lower()).strip()
-    return KNOWN_CUISINES.get(lowered, cuisine.title())
+    return get_known_cuisines().get(lowered, cuisine.title())
 
 
 def infer_cuisine_from_text(text: str) -> str:
@@ -280,7 +177,7 @@ def infer_cuisine_from_text(text: str) -> str:
 
     haystack = str(text).lower()
 
-    for cuisine, patterns in CUISINE_KEYWORDS.items():
+    for cuisine, patterns in get_cuisine_keywords().items():
         if any(re.search(pattern, haystack, re.IGNORECASE) for pattern in patterns):
             return cuisine
 
@@ -305,7 +202,7 @@ def infer_menu_cuisine(menu_items: list[dict], restaurant_type: str = "", busine
 
     context = " ".join(str(part) for part in context_parts if part)
 
-    for cuisine, patterns in CUISINE_KEYWORDS.items():
+    for cuisine, patterns in get_cuisine_keywords().items():
         score = sum(
             1
             for pattern in patterns
@@ -356,7 +253,7 @@ def resolve_dish_cuisine(dish: dict, menu_cuisine: str = "") -> str:
     return "Other"
 
 
-def upsert_dish_cache(db, dish, target_lang):
+def upsert_dish_cache(db, dish, target_lang, commit: bool = True):
     original_name = dish.get("original_name", "")
     normalized_name = build_normalized_dish_key(
         original_name,
@@ -401,5 +298,6 @@ def upsert_dish_cache(db, dish, target_lang):
             )
         )
 
-    db.commit()
+    if commit:
+        db.commit()
 

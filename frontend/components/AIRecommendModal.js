@@ -6,6 +6,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  useWindowDimensions,
 } from "react-native";
 import {
   ActivityIndicator,
@@ -61,6 +62,10 @@ export default function AIRecommendModal({
   const [recommendedItems, setRecommendedItems] = useState([]);
   const [addedItemIds, setAddedItemIds] = useState({});
   const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const { width, height } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
+  const isDesktopLayout = isWeb && width >= 900;
+  const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
 
   // Populate guest/user preferences when modal is opened
   useEffect(() => {
@@ -174,10 +179,10 @@ export default function AIRecommendModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={styles.screen}>
-          <Appbar.Header mode="center-aligned" style={styles.appbar}>
+        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+          <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
             <Appbar.BackAction onPress={onClose} />
-            <Appbar.Content title={t.recommend.title} />
+            <Appbar.Content title={shouldHideAppTitle ? "" : t.recommend.title} />
             <Appbar.Action icon="share-variant" onPress={handleShare} />
             <Appbar.Action icon="history" onPress={handleOpenHistory} />
             <Appbar.Action icon="cart-outline" onPress={handleOpenCart} />
@@ -202,8 +207,8 @@ export default function AIRecommendModal({
               </View>
             ) : recommendationText ? (
               // 推荐结果页面
-              <ScrollView contentContainerStyle={styles.content}>
-                <Card mode="elevated" style={styles.card}>
+              <ScrollView contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
+                <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop]}>
                   <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
                       {t.recommend.suggestionTitle}
@@ -220,6 +225,7 @@ export default function AIRecommendModal({
                       {t.recommend.recommendedItemsTitle}
                     </Text>
 
+                    <View style={isDesktopLayout ? styles.recommendationGridDesktop : undefined}>
                     {matchedItems.map(({ dish, reason }) => {
                       const displayName = dish.translated_name || dish.name || dish.original_name;
                       const displayOriginalName = dish.original_name;
@@ -234,7 +240,7 @@ export default function AIRecommendModal({
                         <Card
                           key={dish.id}
                           mode="elevated"
-                          style={styles.dishCard}
+                          style={[styles.dishCard, isDesktopLayout && styles.dishCardDesktop]}
                           onPress={() => onPressDish && onPressDish(dish)}
                         >
                           <Card.Content>
@@ -270,6 +276,7 @@ export default function AIRecommendModal({
                         </Card>
                       );
                     })}
+                    </View>
                   </View>
                 )}
 
@@ -295,93 +302,99 @@ export default function AIRecommendModal({
               </ScrollView>
             ) : (
               // 选项输入表单页面
-              <ScrollView contentContainerStyle={styles.content}>
-                <Card mode="elevated" style={styles.card}>
-                  <Card.Content>
+              <ScrollView contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
+                <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop]}>
+                  <Card.Content style={isDesktopLayout ? styles.formCardContentDesktop : undefined}>
                     <Text variant="bodyMedium" style={styles.introText}>
                       {isChineseLanguage(targetLang)
                         ? "告诉 AI 您的偏好，为您生成定制的配餐方案和推荐菜品。"
                         : "Tell AI your preferences and get a customized recommendation."}
                     </Text>
 
-                    {/* 用餐人数 */}
-                    <Text variant="titleSmall" style={styles.label}>
-                      {t.recommend.peopleLabel}
-                    </Text>
-                    <TextInput
-                      mode="outlined"
-                      value={people}
-                      onChangeText={setPeople}
-                      keyboardType="numeric"
-                      placeholder={t.recommend.peoplePlaceholder}
-                      style={styles.input}
-                    />
+                    <View style={[styles.formGrid, isDesktopLayout && styles.formGridDesktop]}>
+                      <View style={styles.formField}>
+                        <Text variant="titleSmall" style={styles.label}>
+                          {t.recommend.peopleLabel}
+                        </Text>
+                        <TextInput
+                          mode="outlined"
+                          value={people}
+                          onChangeText={setPeople}
+                          keyboardType="numeric"
+                          placeholder={t.recommend.peoplePlaceholder}
+                          style={styles.input}
+                        />
+                      </View>
 
-                    {/* 饮食限制 */}
-                    <Text variant="titleSmall" style={styles.label}>
-                      {t.recommend.dietLabel}
-                    </Text>
-                    <View style={styles.chipRow}>
-                      {DIET_OPTIONS.map((diet) => {
-                        const isSelected = selectedDiets.includes(diet.key);
-                        return (
-                          <Chip
-                            key={diet.key}
-                            selected={isSelected}
-                            onPress={() => handleDietToggle(diet.key)}
-                            style={[
-                              styles.dietChip,
-                              isSelected && styles.dietChipSelected,
-                            ]}
-                            selectedColor={isSelected ? "#FFFFFF" : "#625B71"}
-                            showSelectedOverlay
-                          >
-                            {getDietLabel(diet)}
-                          </Chip>
-                        );
-                      })}
+                      <View style={styles.formField}>
+                        <Text variant="titleSmall" style={styles.label}>
+                          {t.recommend.budgetLabel}
+                        </Text>
+                        <TextInput
+                          mode="outlined"
+                          value={budget}
+                          onChangeText={setBudget}
+                          placeholder={t.recommend.budgetPlaceholder}
+                          style={styles.input}
+                        />
+                      </View>
+
+                      <View style={styles.formFieldWide}>
+                        <Text variant="titleSmall" style={styles.label}>
+                          {t.recommend.dietLabel}
+                        </Text>
+                        <View style={styles.chipRow}>
+                          {DIET_OPTIONS.map((diet) => {
+                            const isSelected = selectedDiets.includes(diet.key);
+                            return (
+                              <Chip
+                                key={diet.key}
+                                selected={isSelected}
+                                onPress={() => handleDietToggle(diet.key)}
+                                style={[
+                                  styles.dietChip,
+                                  isSelected && styles.dietChipSelected,
+                                ]}
+                                selectedColor={isSelected ? "#FFFFFF" : "#625B71"}
+                                showSelectedOverlay
+                              >
+                                {getDietLabel(diet)}
+                              </Chip>
+                            );
+                          })}
+                        </View>
+                      </View>
+
+                      <View style={styles.formField}>
+                        <Text variant="titleSmall" style={styles.label}>
+                          {t.detail.allergens}
+                        </Text>
+                        <TextInput
+                          mode="outlined"
+                          value={allergiesText}
+                          onChangeText={setAllergiesText}
+                          placeholder={
+                            isChineseLanguage(targetLang)
+                              ? (targetLang === "zh-Hant" ? "例如：花生、海鮮（逗號分隔）" : "例如：花生、海鲜（逗号分隔）")
+                              : "e.g., peanut, seafood (comma separated)"
+                          }
+                          style={styles.input}
+                        />
+                      </View>
+
+                      <View style={styles.formField}>
+                        <Text variant="titleSmall" style={styles.label}>
+                          {t.recommend.tasteLabel}
+                        </Text>
+                        <TextInput
+                          mode="outlined"
+                          value={taste}
+                          onChangeText={setTaste}
+                          placeholder={t.recommend.tastePlaceholder}
+                          style={styles.input}
+                        />
+                      </View>
                     </View>
-
-                    {/* 预算 */}
-                    <Text variant="titleSmall" style={styles.label}>
-                      {t.recommend.budgetLabel}
-                    </Text>
-                    <TextInput
-                      mode="outlined"
-                      value={budget}
-                      onChangeText={setBudget}
-                      placeholder={t.recommend.budgetPlaceholder}
-                      style={styles.input}
-                    />
-
-
-                    {/* 食物过敏原 */}
-                    <Text variant="titleSmall" style={styles.label}>
-                      {t.detail.allergens}
-                    </Text>
-                    <TextInput
-                      mode="outlined"
-                      value={allergiesText}
-                      onChangeText={setAllergiesText}
-                      placeholder={
-                        isChineseLanguage(targetLang)
-                          ? (targetLang === "zh-Hant" ? "例如：花生、海鮮（逗號分隔）" : "例如：花生、海鲜（逗号分隔）")
-                          : "e.g., peanut, seafood (comma separated)"
-                      }
-                      style={styles.input}
-                    />
-
-                    {/* 口味偏好 */}
-                    <Text variant="titleSmall" style={styles.label}>
-                      {t.recommend.tasteLabel}
-                    </Text>
-                    <TextInput
-                      mode="outlined"
-                      value={taste}
-                      onChangeText={setTaste}
-                      placeholder={t.recommend.tastePlaceholder}
-                      style={styles.input}
-                    />
                   </Card.Content>
                 </Card>
 
@@ -425,8 +438,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FDF8F3",
   },
+  screenDesktop: {
+    backgroundColor: "#F7F7FA",
+  },
   appbar: {
     backgroundColor: "#FDF8F3",
+  },
+  appbarDesktop: {
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E7E0EC",
   },
   keyboardContainer: {
     flex: 1,
@@ -434,6 +455,14 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingBottom: 36,
+  },
+  contentDesktop: {
+    width: "100%",
+    maxWidth: 1180,
+    alignSelf: "center",
+    paddingHorizontal: 32,
+    paddingTop: 24,
+    paddingBottom: 48,
   },
   loadingContainer: {
     flex: 1,
@@ -455,6 +484,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     marginTop: 10,
     marginBottom: 16,
+  },
+  cardDesktop: {
+    borderRadius: 8,
+    borderColor: "#E7E0EC",
+    marginTop: 0,
+  },
+  formCardContentDesktop: {
+    padding: 28,
+  },
+  formGrid: {
+    gap: 4,
+  },
+  formGridDesktop: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 18,
+  },
+  formField: {
+    flexGrow: 1,
+    flexBasis: 320,
+    minWidth: 260,
+  },
+  formFieldWide: {
+    flexGrow: 1,
+    flexBasis: "100%",
   },
   label: {
     fontWeight: "700",
@@ -492,6 +546,11 @@ const styles = StyleSheet.create({
   itemsSection: {
     marginVertical: 12,
   },
+  recommendationGridDesktop: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 16,
+  },
   sectionTitle: {
     fontWeight: "800",
     color: "#1D1B20",
@@ -501,6 +560,13 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: "#FFFFFF",
     marginBottom: 12,
+  },
+  dishCardDesktop: {
+    borderRadius: 8,
+    flexBasis: "31.9%",
+    flexGrow: 1,
+    minWidth: 280,
+    marginBottom: 0,
   },
   dishHeader: {
     flexDirection: "row",

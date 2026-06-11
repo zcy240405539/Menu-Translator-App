@@ -21,6 +21,7 @@ frontend/web-build/
 
 # Local runtime/test artifacts
 backend/*.log
+backend/scratch/*.log
 backend/*-result*.json
 backend/*-parse-*.json
 backend/*-status*.json

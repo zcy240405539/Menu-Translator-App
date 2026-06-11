@@ -6,6 +6,8 @@ import {
   ScrollView,
   Image,
   Animated,
+  Platform,
+  useWindowDimensions,
 } from "react-native";
 import {
   ActivityIndicator,
@@ -89,6 +91,10 @@ export default function DishDetailModal({
   const [detail, setDetail] = useState(null);
   const [detailKey, setDetailKey] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const { width, height } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
+  const isDesktopLayout = isWeb && width >= 900;
+  const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
 
   const handleOpenHistory = () => {
     onClose();
@@ -230,10 +236,10 @@ export default function DishDetailModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={styles.screen}>
-          <Appbar.Header mode="center-aligned" style={styles.appbar}>
+        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+          <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
             <Appbar.BackAction onPress={onClose} />
-            <Appbar.Content title={title || t.description} />
+            <Appbar.Content title={shouldHideAppTitle ? "" : title || t.description} />
             <Appbar.Action icon="share-variant" onPress={handleShare} />
             <Appbar.Action icon="history" onPress={handleOpenHistory} />
             <Appbar.Action icon="cart-outline" onPress={handleOpenCart} />
@@ -247,9 +253,9 @@ export default function DishDetailModal({
             }} />
           </Appbar.Header>
 
-          <ScrollView contentContainerStyle={styles.content}>
+          <ScrollView contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
             {matchedUserAllergens.length > 0 && (
-              <Card style={styles.warningAlertCard} mode="contained">
+              <Card style={[styles.warningAlertCard, isDesktopLayout && styles.warningAlertCardDesktop]} mode="contained">
                 <Card.Content style={styles.warningAlertContent}>
                   <Text variant="titleMedium" style={styles.warningAlertTitle}>
                     ⚠️ {isChineseLanguage(targetLang) ? "过敏风险警示" : "Allergy Risk Warning"}
@@ -263,10 +269,10 @@ export default function DishDetailModal({
               </Card>
             )}
 
-            <Card mode="elevated" style={styles.heroCard}>
-              <View style={styles.imagePlaceholder}>
+            <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.heroCard, isDesktopLayout && styles.heroCardDesktop]}>
+              <View style={[styles.imagePlaceholder, isDesktopLayout && styles.imagePlaceholderDesktop]}>
                 {imageUrl ? (
-                  <Image source={{ uri: imageUrl }} style={styles.dishImage} />
+                  <Image source={{ uri: imageUrl }} style={styles.dishImage} resizeMode="cover" />
                 ) : (
                   <View style={styles.defaultImageBox}>
                     <Text style={styles.defaultImageIcon}>🍽️</Text>
@@ -285,7 +291,7 @@ export default function DishDetailModal({
                   </View>
                 )}
               </View>
-              <Card.Content>
+              <Card.Content style={isDesktopLayout ? styles.heroContentDesktop : undefined}>
                 <Text variant="headlineSmall" style={styles.title}>
                   {title}
                 </Text>
@@ -302,7 +308,7 @@ export default function DishDetailModal({
               </Card.Content>
             </Card>
 
-            <Card mode="elevated" style={styles.detailCard}>
+            <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.detailCard, isDesktopLayout && styles.detailCardDesktop]}>
               <Card.Content>
                 <InfoSection title={t.description}>
                   <Text variant="bodyMedium" style={styles.text}>
@@ -363,28 +369,30 @@ export default function DishDetailModal({
               </View>
             )}
 
-            <Button
-              mode="contained-tonal"
-              icon="cart-plus"
-              style={styles.addButton}
-              contentStyle={styles.closeButtonContent}
-              onPress={async () => {
-                await addDishToCart(mergedDish, menuInfo);
-                setSnackbarVisible(true);
-              }}
-            >
-              {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "加入待點列表" : "加入待点列表") : "Add to Order List"}
-            </Button>
+            <View style={[styles.actionRow, isDesktopLayout && styles.actionRowDesktop]}>
+              <Button
+                mode="contained-tonal"
+                icon="cart-plus"
+                style={[styles.addButton, isDesktopLayout && styles.actionButtonDesktop]}
+                contentStyle={styles.closeButtonContent}
+                onPress={async () => {
+                  await addDishToCart(mergedDish, menuInfo);
+                  setSnackbarVisible(true);
+                }}
+              >
+                {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "加入待點列表" : "加入待点列表") : "Add to Order List"}
+              </Button>
 
-            <Button
-              mode="contained"
-              icon="close"
-              style={styles.closeButton}
-              contentStyle={styles.closeButtonContent}
-              onPress={onClose}
-            >
-              {t.close}
-            </Button>
+              <Button
+                mode="contained"
+                icon="close"
+                style={[styles.closeButton, isDesktopLayout && styles.actionButtonDesktop]}
+                contentStyle={styles.closeButtonContent}
+                onPress={onClose}
+              >
+                {t.close}
+              </Button>
+            </View>
           </ScrollView>
 
           <Snackbar
@@ -405,12 +413,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FDF8F3",
   },
+  screenDesktop: {
+    backgroundColor: "#F7F7FA",
+  },
   appbar: {
     backgroundColor: "#FDF8F3",
+  },
+  appbarDesktop: {
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E7E0EC",
   },
   content: {
     paddingHorizontal: 16,
     paddingBottom: 36,
+  },
+  contentDesktop: {
+    width: "100%",
+    maxWidth: 1180,
+    alignSelf: "center",
+    paddingHorizontal: 32,
+    paddingTop: 24,
+    paddingBottom: 48,
   },
   heroCard: {
     borderRadius: 28,
@@ -419,14 +443,30 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     overflow: "hidden",
   },
+  heroCardDesktop: {
+    borderRadius: 8,
+    flexDirection: "row",
+    minHeight: 320,
+    borderColor: "#E7E0EC",
+    marginTop: 0,
+  },
   dishImage: {
     width: "100%",
-    height: 220,
+    height: "100%",
     backgroundColor: "#EFE7DD",
+  },
+  heroContentDesktop: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 30,
   },
   detailCard: {
     borderRadius: 28,
     backgroundColor: "#FFFFFF",
+  },
+  detailCardDesktop: {
+    borderRadius: 8,
+    borderColor: "#E7E0EC",
   },
   title: {
     fontWeight: "800",
@@ -488,6 +528,16 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     marginTop: 22,
   },
+  actionRow: {},
+  actionRowDesktop: {
+    flexDirection: "row",
+    gap: 16,
+    justifyContent: "flex-end",
+  },
+  actionButtonDesktop: {
+    flexGrow: 0,
+    flexBasis: 260,
+  },
   closeButtonContent: {
     height: 54,
   },
@@ -497,6 +547,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFE7DD",
     position: "relative",
     overflow: "hidden",
+  },
+  imagePlaceholderDesktop: {
+    width: 460,
+    height: 320,
+    flexShrink: 0,
   },
 
   defaultImageBox: {
@@ -540,6 +595,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 16,
     overflow: "hidden",
+  },
+  warningAlertCardDesktop: {
+    borderRadius: 8,
+    marginTop: 0,
   },
   warningAlertContent: {
     paddingVertical: 14,

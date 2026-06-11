@@ -25,7 +25,7 @@ export const translations = {
     appTitle: "AI Menu Assistant",
 
     home: {
-      heroTitle: "Let AI read the menu for you",
+      heroTitle: "Let AI read menu for you",
       heroSubtitle:
         "Take a photo or upload a menu, AI will translate and explain every dish.",
       targetLanguage: "Target language",
@@ -499,7 +499,7 @@ export const translations = {
     appTitle: "Asistente de Menú IA",
 
     home: {
-      heroTitle: "Deja que la IA lea el menú por ti",
+      heroTitle: "Traductor de menús con IA",
       heroSubtitle:
         "Toma una foto o sube un menú, la IA te ayudará a traducir y explicar cada plato.",
       targetLanguage: "Idioma destino",

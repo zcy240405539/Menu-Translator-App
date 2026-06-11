@@ -24,6 +24,7 @@ def get_or_create_menu_category(
     source_language: str,
     target_language: str,
     translate_func=None,
+    commit: bool = True,
 ):
     key = normalize_category_key(original_label)
 
@@ -50,8 +51,11 @@ def get_or_create_menu_category(
         if translated_label and translated_label != original_label:
             existing.translated_label = translated_label
             existing.source_language = source_language
-            db.commit()
-            db.refresh(existing)
+            if commit:
+                db.commit()
+                db.refresh(existing)
+            else:
+                db.flush()
 
         return existing
 
@@ -65,8 +69,11 @@ def get_or_create_menu_category(
 
     db.add(category)
     try:
-        db.commit()
-        db.refresh(category)
+        if commit:
+            db.commit()
+            db.refresh(category)
+        else:
+            db.flush()
     except IntegrityError:
         db.rollback()
 
@@ -89,8 +96,11 @@ def get_or_create_menu_category(
         if translated_label:
             existing.translated_label = translated_label
 
-        db.commit()
-        db.refresh(existing)
+        if commit:
+            db.commit()
+            db.refresh(existing)
+        else:
+            db.flush()
         return existing
 
     return category

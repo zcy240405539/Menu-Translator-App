@@ -8,6 +8,7 @@ import {
   Platform,
   Share,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { saveMenuHistory } from "../storage/menuStorage";
 import * as ImagePicker from "expo-image-picker";
@@ -65,6 +66,10 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
 
   const lang = targetLang;
   const t = getText(lang);
+  const { width, height } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
+  const isDesktopLayout = isWeb && width >= 900;
+  const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
 
   useEffect(() => {
     if (initialMenuUrl) {
@@ -499,9 +504,9 @@ const selectFromFile = async () => {
     LANGUAGES.find((item) => item.code === targetLang) || LANGUAGES[0];
 
   return (
-    <Surface style={styles.screen}>
-      <Appbar.Header mode="center-aligned" style={styles.appbar}>
-        <Appbar.Content title={t.appTitle} />
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+      <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
+        <Appbar.Content title={shouldHideAppTitle ? "" : t.appTitle} />
         <Appbar.Action icon="share-variant" onPress={handleShare} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
@@ -509,168 +514,175 @@ const selectFromFile = async () => {
       </Appbar.Header>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isDesktopLayout && styles.scrollContentDesktop,
+        ]}
         keyboardShouldPersistTaps="handled"
       >
-        <Card mode="elevated" style={styles.card}>
-          <Card.Content>
-            <Text variant="headlineMedium" style={styles.title}>
-              {t.home.heroTitle}
-            </Text>
+        <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop]}>
+          <Card.Content style={isDesktopLayout ? styles.cardContentDesktop : undefined}>
+            <View style={[styles.formPane, isDesktopLayout && styles.formPaneDesktop]}>
+              <Text variant="headlineMedium" style={[styles.title, isDesktopLayout && styles.titleDesktop]}>
+                {t.home.heroTitle}
+              </Text>
 
-            <Text variant="bodyMedium" style={styles.subtitle}>
-              {t.home.heroSubtitle}
-            </Text>
+              <Text variant="bodyMedium" style={[styles.subtitle, isDesktopLayout && styles.subtitleDesktop]}>
+                {t.home.heroSubtitle}
+              </Text>
 
-            <View style={styles.languageRow}>
-              <View style={styles.languageBox}>
-                <Text style={styles.languageLabel}>{t.home.sourceLanguage}</Text>
+              <View style={styles.languageRow}>
+                <View style={styles.languageBox}>
+                  <Text style={styles.languageLabel}>{t.home.sourceLanguage}</Text>
 
-                <Menu
-                  visible={sourceLangMenuVisible}
-                  onDismiss={() => setSourceLangMenuVisible(false)}
-                  anchor={
-                    <Button
-                      mode="outlined"
-                      onPress={() => setSourceLangMenuVisible(true)}
-                      style={styles.languageButton}
-                    >
-                      {SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.flag}{" "}
-                      {getSourceLanguageLabel(SOURCE_LANGUAGES.find((item) => item.code === sourceLang))}
-                    </Button>
-                  }
-                >
-                  {SOURCE_LANGUAGES.map((item) => (
-                    <Menu.Item
-                      key={item.code}
-                      title={`${item.flag} ${getSourceLanguageLabel(item)}`}
-                      onPress={() => {
-                        handleSourceLanguageChange(item.code);
-                        setSourceLangMenuVisible(false);
-                      }}
-                    />
-                  ))}
-                </Menu>
+                  <Menu
+                    visible={sourceLangMenuVisible}
+                    onDismiss={() => setSourceLangMenuVisible(false)}
+                    anchor={
+                      <Button
+                        mode="outlined"
+                        onPress={() => setSourceLangMenuVisible(true)}
+                        style={styles.languageButton}
+                      >
+                        {SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.flag}{" "}
+                        {getSourceLanguageLabel(SOURCE_LANGUAGES.find((item) => item.code === sourceLang))}
+                      </Button>
+                    }
+                  >
+                    {SOURCE_LANGUAGES.map((item) => (
+                      <Menu.Item
+                        key={item.code}
+                        title={`${item.flag} ${getSourceLanguageLabel(item)}`}
+                        onPress={() => {
+                          handleSourceLanguageChange(item.code);
+                          setSourceLangMenuVisible(false);
+                        }}
+                      />
+                    ))}
+                  </Menu>
+                </View>
+
+                <View style={styles.languageBox}>
+                  <Text style={styles.languageLabel}>{t.home.targetLanguage}</Text>
+
+                  <Menu
+                    visible={targetLangMenuVisible}
+                    onDismiss={() => setTargetLangMenuVisible(false)}
+                    anchor={
+                      <Button
+                        mode="outlined"
+                        onPress={() => setTargetLangMenuVisible(true)}
+                        style={styles.languageButton}
+                      >
+                        {LANGUAGES.find((item) => item.code === targetLang)?.flag}{" "}
+                        {LANGUAGES.find((item) => item.code === targetLang)?.label}
+                      </Button>
+                    }
+                  >
+                    {LANGUAGES.map((item) => (
+                      <Menu.Item
+                        key={item.code}
+                        title={`${item.flag} ${item.label}`}
+                        onPress={() => {
+                          handleTargetLanguageChange(item.code);
+                          setTargetLangMenuVisible(false);
+                        }}
+                      />
+                    ))}
+                  </Menu>
+                </View>
               </View>
 
-              <View style={styles.languageBox}>
-                <Text style={styles.languageLabel}>{t.home.targetLanguage}</Text>
-
-                <Menu
-                  visible={targetLangMenuVisible}
-                  onDismiss={() => setTargetLangMenuVisible(false)}
-                  anchor={
-                    <Button
-                      mode="outlined"
-                      onPress={() => setTargetLangMenuVisible(true)}
-                      style={styles.languageButton}
-                    >
-                      {LANGUAGES.find((item) => item.code === targetLang)?.flag}{" "}
-                      {LANGUAGES.find((item) => item.code === targetLang)?.label}
-                    </Button>
-                  }
-                >
-                  {LANGUAGES.map((item) => (
-                    <Menu.Item
-                      key={item.code}
-                      title={`${item.flag} ${item.label}`}
-                      onPress={() => {
-                        handleTargetLanguageChange(item.code);
-                        setTargetLangMenuVisible(false);
-                      }}
-                    />
-                  ))}
-                </Menu>
-              </View>
-            </View>
-
-            <Button
-              mode="contained"
-              icon="camera-outline"
-              style={styles.button}
-              contentStyle={styles.buttonContent}
-              onPress={takePicture}
-              disabled={loading}
-            >
-              {t.home.takePicture}
-            </Button>
-
-            <Button
-              mode="outlined"
-              icon="file-document-outline"
-              style={styles.outlineButton}
-              contentStyle={styles.buttonContent}
-              onPress={selectFromFile}
-              disabled={loading}
-            >
-              {t.home.selectFromFile}
-            </Button>
-
-            <View style={styles.urlSection}>
-              <TextInput
-                mode="outlined"
-                label={t.home.menuUrlLabel}
-                placeholder={t.home.menuUrlPlaceholder}
-                value={menuUrl}
-                onChangeText={setMenuUrl}
-                disabled={loading}
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="url"
-                left={<TextInput.Icon icon="link-variant" />}
-                style={styles.urlInput}
-              />
-            </View>
-
-            {(imageUri || selectedFile) && (
-              <View style={styles.previewSection}>
-                <Text variant="titleMedium" style={styles.previewTitle}>
-                  {t.home.selectedMenu}
-                </Text>
-
-                {selectedFile && !isImageFile(selectedFile) ? (
-                  <View style={styles.pdfPreview}>
-                    <Text style={styles.pdfTitle}>
-                      {isPdfFile(selectedFile)
-                        ? t.home.pdfFileSelected
-                        : t.home.documentFileSelected}
-                    </Text>
-
-                    <Text
-                      style={styles.pdfName}
-                      numberOfLines={2}
-                    >
-                      {selectedFile?.name || "menu.pdf"}
-                    </Text>
-                  </View>
-                ) : imageUri ? (
-                  <Image
-                    source={{ uri: imageUri }}
-                    style={styles.preview}
-                  />
-                ) : null}
-              </View>
-            )}
-
-            {loading ? (
-              <View style={styles.loadingBox}>
-                <ActivityIndicator size="large" />
-                <Text style={styles.loadingText}>
-                  {t.home.analyzingMenu}
-                </Text>
-              </View>
-            ) : (
               <Button
-                mode="contained-tonal"
-                icon="magic-staff"
-                style={styles.analyzeButton}
+                mode="contained"
+                icon="camera-outline"
+                style={styles.button}
                 contentStyle={styles.buttonContent}
-                onPress={handleAnalyzeMenu}
-                disabled={!canAnalyzeMenu}
+                onPress={takePicture}
+                disabled={loading}
               >
-                {t.home.analyzeMenu}
+                {t.home.takePicture}
               </Button>
-            )}
+
+              <Button
+                mode="outlined"
+                icon="file-document-outline"
+                style={styles.outlineButton}
+                contentStyle={styles.buttonContent}
+                onPress={selectFromFile}
+                disabled={loading}
+              >
+                {t.home.selectFromFile}
+              </Button>
+
+              <View style={styles.urlSection}>
+                <TextInput
+                  mode="outlined"
+                  label={t.home.menuUrlLabel}
+                  placeholder={t.home.menuUrlPlaceholder}
+                  value={menuUrl}
+                  onChangeText={setMenuUrl}
+                  disabled={loading}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="url"
+                  left={<TextInput.Icon icon="link-variant" />}
+                  style={styles.urlInput}
+                />
+              </View>
+            </View>
+
+            <View style={[styles.actionPane, isDesktopLayout && styles.actionPaneDesktop]}>
+              {(imageUri || selectedFile) && (
+                <View style={[styles.previewSection, isDesktopLayout && styles.previewSectionDesktop]}>
+                  <Text variant="titleMedium" style={styles.previewTitle}>
+                    {t.home.selectedMenu}
+                  </Text>
+
+                  {selectedFile && !isImageFile(selectedFile) ? (
+                    <View style={[styles.pdfPreview, isDesktopLayout && styles.pdfPreviewDesktop]}>
+                      <Text style={styles.pdfTitle}>
+                        {isPdfFile(selectedFile)
+                          ? t.home.pdfFileSelected
+                          : t.home.documentFileSelected}
+                      </Text>
+
+                      <Text
+                        style={styles.pdfName}
+                        numberOfLines={2}
+                      >
+                        {selectedFile?.name || "menu.pdf"}
+                      </Text>
+                    </View>
+                  ) : imageUri ? (
+                    <Image
+                      source={{ uri: imageUri }}
+                      style={[styles.preview, isDesktopLayout && styles.previewDesktop]}
+                    />
+                  ) : null}
+                </View>
+              )}
+
+              {loading ? (
+                <View style={styles.loadingBox}>
+                  <ActivityIndicator size="large" />
+                  <Text style={styles.loadingText}>
+                    {t.home.analyzingMenu}
+                  </Text>
+                </View>
+              ) : (
+                <Button
+                  mode="contained-tonal"
+                  icon="magic-staff"
+                  style={[styles.analyzeButton, isDesktopLayout && styles.analyzeButtonDesktop]}
+                  contentStyle={styles.buttonContent}
+                  onPress={handleAnalyzeMenu}
+                  disabled={!canAnalyzeMenu}
+                >
+                  {t.home.analyzeMenu}
+                </Button>
+              )}
+            </View>
           </Card.Content>
         </Card>
       </ScrollView>
@@ -685,8 +697,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FDF8F3",
   },
+  screenDesktop: {
+    backgroundColor: "#F7F7FA",
+  },
   appbar: {
     backgroundColor: "#FDF8F3",
+  },
+  appbarDesktop: {
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E7E0EC",
   },
   scrollContent: {
     flexGrow: 1,
@@ -694,10 +714,43 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 28,
   },
+  scrollContentDesktop: {
+    justifyContent: "flex-start",
+    paddingHorizontal: 32,
+    paddingVertical: 36,
+  },
   card: {
     borderRadius: 28,
     backgroundColor: "#FFFFFF",
     paddingVertical: 22,
+  },
+  cardDesktop: {
+    width: "100%",
+    maxWidth: 1120,
+    alignSelf: "center",
+    borderRadius: 8,
+    paddingVertical: 0,
+    borderColor: "#E7E0EC",
+  },
+  cardContentDesktop: {
+    flexDirection: "row",
+    gap: 32,
+    padding: 32,
+  },
+  formPane: {},
+  formPaneDesktop: {
+    flex: 0.95,
+    minWidth: 360,
+    justifyContent: "center",
+  },
+  actionPane: {},
+  actionPaneDesktop: {
+    flex: 1,
+    minHeight: 430,
+    justifyContent: "space-between",
+    borderLeftWidth: 1,
+    borderLeftColor: "#E7E0EC",
+    paddingLeft: 32,
   },
   title: {
     textAlign: "center",
@@ -705,11 +758,21 @@ const styles = StyleSheet.create({
     color: "#1D1B20",
     marginBottom: 10,
   },
+  titleDesktop: {
+    textAlign: "left",
+    fontSize: 36,
+    lineHeight: 42,
+  },
   subtitle: {
     textAlign: "center",
     color: "#625B71",
     lineHeight: 22,
     marginBottom: 16,
+  },
+  subtitleDesktop: {
+    textAlign: "left",
+    marginBottom: 24,
+    maxWidth: 520,
   },
   button: {
     borderRadius: 100,
@@ -736,6 +799,9 @@ const styles = StyleSheet.create({
   previewSection: {
     marginTop: 22,
   },
+  previewSectionDesktop: {
+    marginTop: 0,
+  },
   previewTitle: {
     marginBottom: 10,
     fontWeight: "700",
@@ -747,6 +813,11 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
     borderRadius: 18,
     backgroundColor: "#E7E0EC",
+  },
+  previewDesktop: {
+    height: 360,
+    borderRadius: 8,
+    backgroundColor: "#F0EDF5",
   },
   loadingBox: {
     marginTop: 18,
@@ -764,6 +835,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+  },
+  pdfPreviewDesktop: {
+    minHeight: 360,
+    borderRadius: 8,
+    backgroundColor: "#F0EDF5",
   },
 
   pdfTitle: {
@@ -783,10 +859,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     marginBottom: 22,
+    flexWrap: "wrap",
   },
 
   languageBox: {
     flex: 1,
+    minWidth: 150,
   },
 
   languageLabel: {
@@ -798,6 +876,9 @@ const styles = StyleSheet.create({
 
   languageButton: {
     borderRadius: 14,
+  },
+  analyzeButtonDesktop: {
+    marginTop: 24,
   },
 
   shareDialog: {

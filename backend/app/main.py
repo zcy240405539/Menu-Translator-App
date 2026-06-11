@@ -77,14 +77,12 @@ from app.services.document_text_service import (
 Base.metadata.create_all(bind=engine)
 
 
-def seed_database_presets():
+def ensure_database_schema_compatibility():
     from app.core.database import SessionLocal
-    from app.core.models import MenuCategory, NoiseKeyword
     from sqlalchemy import text
     
     db = SessionLocal()
     try:
-        # Fix database schema unique constraint mismatch
         try:
             db.execute(text("ALTER TABLE menu_categories DROP CONSTRAINT IF EXISTS menu_categories_normalized_key_key CASCADE"))
             db.execute(text("ALTER TABLE menu_categories DROP CONSTRAINT IF EXISTS menu_categories_normalized_key_target_language_uc CASCADE"))
@@ -94,222 +92,13 @@ def seed_database_presets():
         except Exception as ex:
             db.rollback()
             print(f"Warning: could not alter menu_categories constraint: {ex}")
-
-        # 1. Preset Section Headings
-        preset_sections = [
-            # APPETIZERS
-            {
-                "normalized_key": "appetizers",
-                "original_label": "Appetizers",
-                "source_language": "en",
-                "target_language": "zh",
-                "translated_label": "开胃菜"
-            },
-            {
-                "normalized_key": "appetizers",
-                "original_label": "Appetizers",
-                "source_language": "en",
-                "target_language": "en",
-                "translated_label": "Appetizers"
-            },
-            {
-                "normalized_key": "appetizers",
-                "original_label": "Appetizers",
-                "source_language": "en",
-                "target_language": "zh-Hant",
-                "translated_label": "開胃菜"
-            },
-            {
-                "normalized_key": "appetizers",
-                "original_label": "Appetizers",
-                "source_language": "en",
-                "target_language": "es",
-                "translated_label": "Entradas"
-            },
-            # SOUPS & SALADS
-            {
-                "normalized_key": "soups_salads",
-                "original_label": "Soups & Salads",
-                "source_language": "en",
-                "target_language": "zh",
-                "translated_label": "汤和沙拉"
-            },
-            {
-                "normalized_key": "soups_salads",
-                "original_label": "Soups & Salads",
-                "source_language": "en",
-                "target_language": "en",
-                "translated_label": "Soups & Salads"
-            },
-            {
-                "normalized_key": "soups_salads",
-                "original_label": "Soups & Salads",
-                "source_language": "en",
-                "target_language": "zh-Hant",
-                "translated_label": "湯和沙拉"
-            },
-            {
-                "normalized_key": "soups_salads",
-                "original_label": "Soups & Salads",
-                "source_language": "en",
-                "target_language": "es",
-                "translated_label": "Sopas y Ensaladas"
-            },
-            # PASTA
-            {
-                "normalized_key": "pasta",
-                "original_label": "Pasta",
-                "source_language": "en",
-                "target_language": "zh",
-                "translated_label": "意面"
-            },
-            {
-                "normalized_key": "pasta",
-                "original_label": "Pasta",
-                "source_language": "en",
-                "target_language": "en",
-                "translated_label": "Pasta"
-            },
-            {
-                "normalized_key": "pasta",
-                "original_label": "Pasta",
-                "source_language": "en",
-                "target_language": "zh-Hant",
-                "translated_label": "義麵"
-            },
-            {
-                "normalized_key": "pasta",
-                "original_label": "Pasta",
-                "source_language": "en",
-                "target_language": "es",
-                "translated_label": "Pasta"
-            },
-            # CHEF SPECIAL
-            {
-                "normalized_key": "chef_special",
-                "original_label": "Chef Special",
-                "source_language": "en",
-                "target_language": "zh",
-                "translated_label": "厨师特选"
-            },
-            {
-                "normalized_key": "chef_special",
-                "original_label": "Chef Special",
-                "source_language": "en",
-                "target_language": "en",
-                "translated_label": "Chef Special"
-            },
-            {
-                "normalized_key": "chef_special",
-                "original_label": "Chef Special",
-                "source_language": "en",
-                "target_language": "zh-Hant",
-                "translated_label": "主廚特選"
-            },
-            {
-                "normalized_key": "chef_special",
-                "original_label": "Chef Special",
-                "source_language": "en",
-                "target_language": "es",
-                "translated_label": "Especial del Chef"
-            },
-            # SOUPS&SALADS mapping
-            {
-                "normalized_key": "soups_salads",
-                "original_label": "SOUPS&SALADS",
-                "source_language": "en",
-                "target_language": "zh",
-                "translated_label": "汤和沙拉"
-            },
-            {
-                "normalized_key": "soups_salads",
-                "original_label": "SOUPS&SALADS",
-                "source_language": "en",
-                "target_language": "en",
-                "translated_label": "Soups & Salads"
-            },
-            {
-                "normalized_key": "soups_salads",
-                "original_label": "SOUPS&SALADS",
-                "source_language": "en",
-                "target_language": "zh-Hant",
-                "translated_label": "湯和沙拉"
-            },
-            {
-                "normalized_key": "soups_salads",
-                "original_label": "SOUPS&SALADS",
-                "source_language": "en",
-                "target_language": "es",
-                "translated_label": "Sopas y Ensaladas"
-            },
-            # CHEF'S SPECIAL mapping
-            {
-                "normalized_key": "chef_special",
-                "original_label": "CHEF'S SPECIAL",
-                "source_language": "en",
-                "target_language": "zh",
-                "translated_label": "厨师特选"
-            },
-            {
-                "normalized_key": "chef_special",
-                "original_label": "CHEF'S SPECIAL",
-                "source_language": "en",
-                "target_language": "en",
-                "translated_label": "Chef Special"
-            },
-            {
-                "normalized_key": "chef_special",
-                "original_label": "CHEF'S SPECIAL",
-                "source_language": "en",
-                "target_language": "zh-Hant",
-                "translated_label": "主廚特選"
-            },
-            {
-                "normalized_key": "chef_special",
-                "original_label": "CHEF'S SPECIAL",
-                "source_language": "en",
-                "target_language": "es",
-                "translated_label": "Especial del Chef"
-            }
-        ]
-
-        for section in preset_sections:
-            try:
-                exists = db.query(MenuCategory).filter(
-                    MenuCategory.normalized_key == section["normalized_key"],
-                    MenuCategory.original_label == section["original_label"],
-                    MenuCategory.target_language == section["target_language"]
-                ).first()
-                if not exists:
-                    db.add(MenuCategory(**section))
-                    db.commit()
-            except Exception as item_err:
-                db.rollback()
-                print(f"Skipping preset section {section['original_label']} (lang {section['target_language']}) due to error: {item_err}")
-
-        # 2. Preset Noise Keywords
-        preset_noise = [
-            "HEDGCOXE", "PLANO", "TEXAS", "GMAIL", "ROMA", "ITALIAN KITCHEN",
-            "AM-", "PM", "DRESSING", "ADD CHICKEN", "ADD SHRIMP", "ADD SALMON",
-            "SUB SHRIMP", "SPLIT", "GRATUITY", "EXTRA CHARGE", "SUBSTITUTIONS"
-        ]
-        
-        for keyword in preset_noise:
-            try:
-                exists = db.query(NoiseKeyword).filter(NoiseKeyword.keyword == keyword).first()
-                if not exists:
-                    db.add(NoiseKeyword(keyword=keyword))
-                    db.commit()
-            except Exception as item_err:
-                db.rollback()
-                print(f"Skipping noise keyword {keyword} due to error: {item_err}")
     except Exception as e:
-        print(f"Error seeding database presets: {e}")
+        print(f"Error ensuring database schema compatibility: {e}")
     finally:
         db.close()
 
 
-seed_database_presets()
+ensure_database_schema_compatibility()
 
 app = FastAPI(title="Menu Translator API")
 
@@ -1721,7 +1510,8 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 2
+MENU_CACHE_SCHEMA_VERSION = 3
+MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
     task_id: str,
@@ -1929,7 +1719,14 @@ def run_menu_parse_task(
                 if needs_dish_language_enrichment(item, target_lang)
             ]
 
+            skipped_initial_detail_count = 0
+            if MENU_PARSE_INITIAL_DETAIL_LIMIT >= 0 and len(missing_items) > MENU_PARSE_INITIAL_DETAIL_LIMIT:
+                skipped_initial_detail_count = len(missing_items) - MENU_PARSE_INITIAL_DETAIL_LIMIT
+                missing_items = missing_items[:MENU_PARSE_INITIAL_DETAIL_LIMIT]
+
             print("DEBUG MISSING DETAIL ITEMS:", len(missing_items))
+            if skipped_initial_detail_count:
+                print("DEBUG SKIPPED INITIAL DETAIL ITEMS:", skipped_initial_detail_count)
             missing_details = []
             if missing_items:
                 detail_started_at = time.perf_counter()
@@ -1996,6 +1793,7 @@ def run_menu_parse_task(
             }
 
             final_items = []
+            dish_cache_changed = False
 
             if not enriched_items:
                 enriched_items = menu_items
@@ -2007,8 +1805,12 @@ def run_menu_parse_task(
                             db=db,
                             dish=item,
                             target_lang=target_lang,
+                            commit=False,
                         )
+                        dish_cache_changed = True
                     except Exception as cache_error:
+                        db.rollback()
+                        dish_cache_changed = False
                         print("Cached dish cuisine refresh failed:", cache_error)
                     final_items.append(item)
                     continue
@@ -2032,7 +1834,6 @@ def run_menu_parse_task(
                 item["image_prompt"] = (
                     f"{cuisine} {restaurant_type} dish for {dish_name}"
                 ).strip()
-                print("Searched for image:", ["image_prompt"])
 
                 # 不管 OpenRouter 成功失败，都写入数据库
                 try:
@@ -2040,11 +1841,22 @@ def run_menu_parse_task(
                         db=db,
                         dish=item,
                         target_lang=target_lang,
+                        commit=False,
                     )
+                    dish_cache_changed = True
                 except Exception as cache_error:
+                    db.rollback()
+                    dish_cache_changed = False
                     print("Dish cache upsert failed:", cache_error)
 
                 final_items.append(item)
+
+            if dish_cache_changed:
+                try:
+                    db.commit()
+                except Exception as cache_commit_error:
+                    db.rollback()
+                    print("Dish cache batch commit failed:", cache_commit_error)
 
             enriched_items = final_items
             original_category_by_id = {
@@ -2085,6 +1897,7 @@ def run_menu_parse_task(
                 seed_map=category_translation_map,
             )
 
+            category_records_changed = False
             for item in enriched_items:
                 original_category = original_category_by_id.get(item.get("id"), {})
                 section_original = (
@@ -2109,7 +1922,9 @@ def run_menu_parse_task(
                         source_language=source_lang,
                         target_language=target_lang,
                         translate_func=lambda original, target, text=section_translated: text,
+                        commit=False,
                     )
+                    category_records_changed = True
 
                     item["category_id"] = category_record.id
                     item["category_key"] = category_record.normalized_key
@@ -2118,7 +1933,16 @@ def run_menu_parse_task(
                     item["section_heading_translated"] = category_record.translated_label
 
                 except Exception as category_error:
+                    db.rollback()
+                    category_records_changed = False
                     print("Final category upsert failed:", category_error)
+
+            if category_records_changed:
+                try:
+                    db.flush()
+                except Exception as category_flush_error:
+                    db.rollback()
+                    print("Final category batch flush failed:", category_flush_error)
 
 
             result["menu_items"] = enriched_items or menu_items
@@ -2129,6 +1953,8 @@ def run_menu_parse_task(
                 "total_items": len(enriched_items),
                 "dish_cache_hits": len([x for x in enriched_items if x.get("cache_hit")]),
                 "dish_cache_misses": len([x for x in enriched_items if not x.get("cache_hit")]),
+                "initial_detail_limit": MENU_PARSE_INITIAL_DETAIL_LIMIT,
+                "initial_detail_skipped": skipped_initial_detail_count,
             }
             result["cache_schema_version"] = MENU_CACHE_SCHEMA_VERSION
             timings["total_seconds"] = round(time.perf_counter() - task_started_at, 3)

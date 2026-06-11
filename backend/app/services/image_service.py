@@ -3,6 +3,7 @@ import re
 import uuid
 import base64
 import requests
+from concurrent.futures import ThreadPoolExecutor, TimeoutError, as_completed
 from typing import Any
 from supabase import create_client
 
@@ -13,6 +14,7 @@ from app.services.dish_cache_service import (
     normalize_dish_name,
     resolve_dish_cuisine,
 )
+from app.services.app_config_service import get_config_map, get_config_set
 from app.core.models import DishImage
 
 
@@ -34,54 +36,49 @@ ENABLE_GENERATED_IMAGE_FALLBACK = os.getenv(
 IMAGE_SEARCH_VERSION = "image-search-v3"
 IMAGE_SEARCH_PER_SOURCE = max(1, int(os.getenv("IMAGE_SEARCH_PER_SOURCE", "4")))
 IMAGE_SEARCH_MIN_SCORE = float(os.getenv("IMAGE_SEARCH_MIN_SCORE", "30"))
+IMAGE_SEARCH_TIMEOUT_SECONDS = float(os.getenv("IMAGE_SEARCH_TIMEOUT_SECONDS", "5"))
+IMAGE_SEARCH_REQUEST_TIMEOUT = float(os.getenv("IMAGE_SEARCH_REQUEST_TIMEOUT", "3.5"))
+IMAGE_SEARCH_WORKERS = max(1, int(os.getenv("IMAGE_SEARCH_WORKERS", "8")))
+IMAGE_DOWNLOAD_TIMEOUT_SECONDS = float(os.getenv("IMAGE_DOWNLOAD_TIMEOUT_SECONDS", "5"))
+IMAGE_SEARCH_EARLY_SCORE = float(os.getenv("IMAGE_SEARCH_EARLY_SCORE", "78"))
 OPENVERSE_API_URL = os.getenv("OPENVERSE_API_URL", "https://api.openverse.org/v1/images/")
-
-NEGATIVE_IMAGE_TERMS = {
-    "chef",
-    "cook",
-    "cooking",
-    "kitchen",
-    "restaurant interior",
-    "menu",
-    "sign",
-    "logo",
-    "people",
-    "person",
-    "waiter",
-    "waitress",
-    "market",
-    "ingredient",
-    "raw",
-}
-
-SOURCE_SCORE_BONUS = {
-    "wikimedia_found": 18,
-    "openverse_found": 17,
-    "pexels_found": 13,
-    "unsplash_found": 10,
-}
-
-DISH_SEARCH_ALIASES = {
-    "zhajiang noodles": ["zhajiangmian", "zha jiang mian", "noodles with soybean paste"],
-    "old beijing zhajiang noodles": ["zhajiangmian", "zha jiang mian", "beijing noodles soybean paste"],
-    "dan dan noodles": ["dandan noodles", "dan dan mian"],
-    "beef noodle soup": ["niu rou mian", "taiwanese beef noodle soup"],
-    "mapo tofu": ["ma po tofu", "mapo doufu"],
-    "kung pao chicken": ["gong bao chicken"],
-    "twice cooked pork": ["hui guo rou"],
-    "soup dumplings": ["xiaolongbao", "xiao long bao"],
-    "pork wontons": ["wontons", "huntun"],
-    "scallion pancake": ["cong you bing", "green onion pancake"],
-    "potstickers": ["guotie", "pan fried dumplings"],
-    "char siu": ["chashu pork", "bbq pork"],
-    "beef quesadilla": ["quesadilla beef"],
-    "cheese quesadilla": ["quesadilla cheese"],
-    "shrimp fajitas": ["fajitas shrimp"],
-    "chicken fajitas": ["fajitas chicken"],
-}
 
 
 supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+
+def get_negative_image_terms() -> set[str]:
+    return {value.lower() for value in get_config_set("negative_image_terms")}
+
+
+def get_image_source_score_bonus() -> dict[str, float]:
+    bonus = {}
+    for key, value in get_config_map("image_source_score_bonus").items():
+        try:
+            bonus[key] = float(value)
+        except (TypeError, ValueError):
+            continue
+    return bonus
+
+
+def get_dish_search_aliases() -> dict[str, list[str]]:
+    aliases = {}
+    for key, value in get_config_map("dish_search_aliases").items():
+        if isinstance(value, list):
+            aliases[key.lower()] = [str(item).strip() for item in value if str(item).strip()]
+        elif value:
+            aliases[key.lower()] = [str(value).strip()]
+    return aliases
+
+
+def get_dish_image_conflict_terms() -> dict[str, list[str]]:
+    conflicts = {}
+    for key, value in get_config_map("dish_image_conflict_terms").items():
+        if isinstance(value, list):
+            conflicts[key.lower()] = [str(item).strip().lower() for item in value if str(item).strip()]
+        elif value:
+            conflicts[key.lower()] = [str(value).strip().lower()]
+    return conflicts
 
 
 def slugify(text: str) -> str:
@@ -148,13 +145,17 @@ def get_dish_names_for_search(dish: dict) -> list[str]:
         )
     )
 
+    search_candidates = [original, normalized]
+    if not original:
+        search_candidates.append(translated)
+
     names = []
-    for name in [original, normalized, translated]:
+    for name in search_candidates:
         if name and name.lower() not in {existing.lower() for existing in names}:
             names.append(name)
 
     lookup_text = " ".join(names).lower()
-    for key, aliases in DISH_SEARCH_ALIASES.items():
+    for key, aliases in get_dish_search_aliases().items():
         if key in lookup_text:
             for alias in aliases:
                 if alias and alias.lower() not in {existing.lower() for existing in names}:
@@ -204,7 +205,7 @@ def build_image_search_queries(dish: dict) -> list[str]:
         if query and query.lower() not in {existing.lower() for existing in deduped}:
             deduped.append(query)
 
-    return deduped[:8]
+    return deduped[:6]
 
 
 def score_image_candidate(candidate: dict, dish: dict, query: str) -> float:
@@ -239,8 +240,10 @@ def score_image_candidate(candidate: dict, dish: dict, query: str) -> float:
     query_tokens = tokenize_for_image_match(query)
     overlap = fuzzy_token_overlap(name_tokens, candidate_tokens)
     cuisine = resolve_dish_cuisine(dish)
+    lookup_text = " ".join(names).lower()
 
-    score = SOURCE_SCORE_BONUS.get(source_type, 8)
+    source_score_bonus = get_image_source_score_bonus()
+    score = source_score_bonus.get(source_type, 8)
     score += min(overlap, 6) * 7
     if exact_name_hit:
         score += 34
@@ -248,8 +251,12 @@ def score_image_candidate(candidate: dict, dish: dict, query: str) -> float:
         score += 8
     if any(term in title_lower for term in ["food", "dish", "cuisine", "meal", "plate", "plated"]):
         score += 6
-    if any(term in title_lower for term in NEGATIVE_IMAGE_TERMS):
+    negative_image_terms = get_negative_image_terms()
+    if any(term in title_lower for term in negative_image_terms):
         score -= 22
+    for dish_key, conflict_terms in get_dish_image_conflict_terms().items():
+        if dish_key in lookup_text and any(term in title_lower for term in conflict_terms):
+            score -= 34
     if not exact_name_hit and overlap == 0 and len(query_tokens & candidate_tokens) < 2:
         score -= 16
     if candidate.get("width") and candidate.get("height"):
@@ -303,7 +310,7 @@ def search_pexels_images(query: str) -> list[dict]:
             "per_page": IMAGE_SEARCH_PER_SOURCE,
             "orientation": "landscape",
         },
-        timeout=20,
+        timeout=IMAGE_SEARCH_REQUEST_TIMEOUT,
     )
 
     if not res.ok:
@@ -351,7 +358,7 @@ def search_unsplash_images(query: str) -> list[dict]:
             "content_filter": "high",
             "order_by": "relevant",
         },
-        timeout=20,
+        timeout=IMAGE_SEARCH_REQUEST_TIMEOUT,
     )
 
     if not res.ok:
@@ -401,7 +408,7 @@ def search_wikimedia_images(query: str) -> list[dict]:
             "iiprop": "url|mime",
             "iiurlwidth": 1024,
         },
-        timeout=20,
+        timeout=IMAGE_SEARCH_REQUEST_TIMEOUT,
     )
 
     if not res.ok:
@@ -446,7 +453,7 @@ def search_openverse_images(query: str) -> list[dict]:
             "license_type": "commercial,modification",
             "extension": "jpg,png,webp",
         },
-        timeout=20,
+        timeout=IMAGE_SEARCH_REQUEST_TIMEOUT,
     )
 
     if not res.ok:
@@ -455,7 +462,7 @@ def search_openverse_images(query: str) -> list[dict]:
 
     candidates = []
     for image in (res.json().get("results") or []):
-        image_url = image.get("url") or image.get("thumbnail")
+        image_url = image.get("thumbnail") or image.get("url")
         if not image_url:
             continue
         tags = [
@@ -492,12 +499,20 @@ def find_best_web_image(dish: dict, queries: list[str]) -> tuple[dict | None, st
         search_unsplash_images,
     ]
 
-    for query in queries:
-        for searcher in searchers:
+    executor = ThreadPoolExecutor(max_workers=IMAGE_SEARCH_WORKERS)
+    future_map = {
+        executor.submit(searcher, query): (searcher.__name__, query)
+        for query in queries
+        for searcher in searchers
+    }
+
+    try:
+        for future in as_completed(future_map, timeout=IMAGE_SEARCH_TIMEOUT_SECONDS):
+            searcher_name, query = future_map[future]
             try:
-                candidates = searcher(query)
+                candidates = future.result()
             except Exception as error:
-                print(f"Image search failed for {searcher.__name__}: {error}")
+                print(f"Image search failed for {searcher_name}: {error}")
                 continue
 
             for candidate in candidates:
@@ -508,8 +523,15 @@ def find_best_web_image(dish: dict, queries: list[str]) -> tuple[dict | None, st
                     best_query = query
                     best_score = score
 
-        if best_score >= IMAGE_SEARCH_MIN_SCORE + 24:
-            break
+            if best_score >= IMAGE_SEARCH_EARLY_SCORE:
+                break
+    except TimeoutError:
+        print(
+            "Image search timed out with partial results:",
+            {"best_score": best_score, "best_query": best_query},
+        )
+    finally:
+        executor.shutdown(wait=False, cancel_futures=True)
 
     if best_candidate and best_score >= IMAGE_SEARCH_MIN_SCORE:
         return best_candidate, best_query, best_score
@@ -522,7 +544,7 @@ def find_best_web_image(dish: dict, queries: list[str]) -> tuple[dict | None, st
 
 
 def upload_remote_image_to_supabase(image_url: str, dish_name: str, source_folder="generated"):
-    image_res = requests.get(image_url, timeout=30)
+    image_res = requests.get(image_url, timeout=IMAGE_DOWNLOAD_TIMEOUT_SECONDS)
 
     if not image_res.ok:
         raise RuntimeError(f"Failed to download image: {image_res.status_code}")

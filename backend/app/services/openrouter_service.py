@@ -6,12 +6,14 @@ import os
 import time
 from pathlib import Path
 from app.core.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_MODEL
-OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash-lite")
+OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash")
 OPENROUTER_DETAIL_MODEL = os.getenv("OPENROUTER_DETAIL_MODEL", OPENROUTER_LAYOUT_MODEL)
 OPENROUTER_LAYOUT_MAX_TOKENS = int(os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "4500"))
 OPENROUTER_VISION_MAX_TOKENS = int(os.getenv("OPENROUTER_VISION_MAX_TOKENS", "2500"))
-OPENROUTER_VISION_TIMEOUT = int(os.getenv("OPENROUTER_VISION_TIMEOUT", "110"))
-USE_FAST_MENU_PROMPT = os.getenv("OPENROUTER_USE_FAST_MENU_PROMPT", "false").lower() in {
+OPENROUTER_LAYOUT_TIMEOUT = int(os.getenv("OPENROUTER_LAYOUT_TIMEOUT", "45"))
+OPENROUTER_VISION_TIMEOUT = int(os.getenv("OPENROUTER_VISION_TIMEOUT", "45"))
+OPENROUTER_MAX_RETRIES = max(1, int(os.getenv("OPENROUTER_MAX_RETRIES", "2")))
+USE_FAST_MENU_PROMPT = os.getenv("OPENROUTER_USE_FAST_MENU_PROMPT", "true").lower() in {
     "1",
     "true",
     "yes",
@@ -76,7 +78,39 @@ Rules:
     content = data["choices"][0]["message"].get("content")
     parsed = _extract_json_from_text(content)
 
-    return parsed.get("translations", {})
+    translations = parsed.get("translations", parsed)
+
+    if isinstance(translations, dict):
+        return translations
+
+    if isinstance(translations, list):
+        normalized = {}
+        for entry in translations:
+            if not isinstance(entry, dict):
+                continue
+
+            source = (
+                entry.get("original_label")
+                or entry.get("original")
+                or entry.get("source")
+                or entry.get("label")
+            )
+            translated = (
+                entry.get("translated_label")
+                or entry.get("translated")
+                or entry.get("translation")
+                or entry.get("target")
+            )
+
+            if not source and len(entry) == 1:
+                source, translated = next(iter(entry.items()))
+
+            if source and translated:
+                normalized[str(source)] = translated
+
+        return normalized
+
+    return {}
 
 
 
@@ -308,7 +342,7 @@ def _post_openrouter(payload: dict, timeout: int = 120) -> dict:
 
     last_error = None
 
-    for attempt in range(3):
+    for attempt in range(OPENROUTER_MAX_RETRIES):
         response = requests.post(
             OPENROUTER_URL,
             headers=headers,
@@ -323,21 +357,21 @@ def _post_openrouter(payload: dict, timeout: int = 120) -> dict:
                 f"OpenRouter returned non-JSON response "
                 f"{response.status_code}: {response.text}"
             )
-            if response.status_code >= 500 and attempt < 2:
+            if response.status_code >= 500 and attempt < OPENROUTER_MAX_RETRIES - 1:
                 time.sleep(1.5 * (attempt + 1))
                 continue
             raise last_error
 
         if response.status_code != 200:
             last_error = RuntimeError(f"OpenRouter error {response.status_code}: {data}")
-            if _is_transient_openrouter_error(data, response.status_code) and attempt < 2:
+            if _is_transient_openrouter_error(data, response.status_code) and attempt < OPENROUTER_MAX_RETRIES - 1:
                 time.sleep(1.5 * (attempt + 1))
                 continue
             raise last_error
 
         if "choices" not in data:
             last_error = RuntimeError(f"OpenRouter response missing choices: {data}")
-            if _is_transient_openrouter_error(data, response.status_code) and attempt < 2:
+            if _is_transient_openrouter_error(data, response.status_code) and attempt < OPENROUTER_MAX_RETRIES - 1:
                 time.sleep(1.5 * (attempt + 1))
                 continue
             raise last_error
@@ -620,7 +654,7 @@ JSON schema:
         model=selected_model,
     )
 
-    data = _post_openrouter(payload, timeout=120)
+    data = _post_openrouter(payload, timeout=OPENROUTER_LAYOUT_TIMEOUT)
     content = data["choices"][0]["message"]["content"]
     result = _extract_json_from_text(content)
 
@@ -838,7 +872,7 @@ Output requirements:
         model=model or OPENROUTER_LAYOUT_MODEL,
     )
 
-    data = _post_openrouter(payload, timeout=180)
+    data = _post_openrouter(payload, timeout=OPENROUTER_LAYOUT_TIMEOUT)
     content = data["choices"][0]["message"]["content"]
 
     result = _extract_json_from_text(content)
@@ -968,7 +1002,7 @@ Return valid JSON only:
 
     payload = _build_payload(system_prompt=system_prompt, user_prompt=user_prompt, max_tokens=5000)
 
-    data = _post_openrouter(payload, timeout=150)
+    data = _post_openrouter(payload, timeout=OPENROUTER_LAYOUT_TIMEOUT)
     content = data["choices"][0]["message"]["content"]
 
     return _extract_json_from_text(content)

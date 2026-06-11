@@ -89,6 +89,24 @@ class MenuCategory(Base):
     )
 
 
+class AppConfigEntry(Base):
+    __tablename__ = "app_config_entries"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    namespace = Column(Text, nullable=False)
+    key = Column(Text, nullable=False)
+    value = Column(JSONB, nullable=False)
+    description = Column(Text)
+    is_active = Column(Boolean, default=True, nullable=False, server_default="true")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    __table_args__ = (
+        UniqueConstraint("namespace", "key", name="app_config_entries_namespace_key_uc"),
+        CheckConstraint("btrim(namespace) <> ''", name="app_config_entries_namespace_not_blank"),
+        CheckConstraint("btrim(key) <> ''", name="app_config_entries_key_not_blank"),
+    )
+
+
 class User(Base):
     __tablename__ = "users"
 

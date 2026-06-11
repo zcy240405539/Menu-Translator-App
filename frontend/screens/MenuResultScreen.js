@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, StyleSheet, SectionList } from "react-native";
+import { View, StyleSheet, SectionList, Platform, useWindowDimensions } from "react-native";
 import {
   Appbar,
   Card,
@@ -92,6 +92,14 @@ function getSectionTitle(category, categoryItems, targetLang) {
   );
 }
 
+function chunkItems(items, size) {
+  const rows = [];
+  for (let index = 0; index < items.length; index += size) {
+    rows.push(items.slice(index, index + size));
+  }
+  return rows;
+}
+
 export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile }) {
   const [selectedDish, setSelectedDish] = useState(null);
   const [showRecommend, setShowRecommend] = useState(false);
@@ -119,6 +127,11 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
 
   const lang = isChineseLanguage(targetLang) ? targetLang : "en";
   const t = getText(lang);
+  const { width, height } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
+  const isDesktopLayout = isWeb && width >= 900;
+  const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
+  const desktopColumnCount = isDesktopLayout && width >= 1280 ? 3 : 2;
 
   let parsedResult = menuResult;
 
@@ -164,7 +177,18 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         }
       }
     }
-  }, [items]);
+  }, [items, targetLang]);
+
+  const displaySections = useMemo(() => {
+    if (!isDesktopLayout) {
+      return sections;
+    }
+
+    return sections.map((section) => ({
+      ...section,
+      data: chunkItems(section.data, desktopColumnCount),
+    }));
+  }, [sections, isDesktopLayout, desktopColumnCount]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.location || !window.history?.replaceState) return;
@@ -255,7 +279,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
     });
   };
   
-  const renderDish = ({ item }) => {
+  const renderDishCard = (item) => {
     const price = formatPrice(item.price, {
       sourceLanguage: item.source_language || sourceLanguage,
       currency: parsedResult?.currency,
@@ -267,10 +291,10 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
     return (
       <TouchableRipple
         borderless
-        style={styles.ripple}
+        style={[styles.ripple, isDesktopLayout && styles.rippleDesktop]}
         onPress={() => setSelectedDish(item)}
       >
-        <Card mode="elevated" style={styles.dishCard}>
+        <Card mode="elevated" style={[styles.dishCard, isDesktopLayout && styles.dishCardDesktop]}>
           <Card.Content>
             <View style={styles.cardHeader}>
               <View style={styles.nameBox}>
@@ -301,11 +325,32 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
     );
   };
 
+  const renderDish = ({ item }) => {
+    if (!isDesktopLayout) {
+      return renderDishCard(item);
+    }
+
+    const fillers = Array.from({ length: Math.max(0, desktopColumnCount - item.length) });
+
+    return (
+      <View style={styles.desktopGridRow}>
+        {item.map((dish) => (
+          <View key={dish.id?.toString() || dish.original_name || dish.translated_name} style={styles.desktopGridCell}>
+            {renderDishCard(dish)}
+          </View>
+        ))}
+        {fillers.map((_, index) => (
+          <View key={`empty-${index}`} style={styles.desktopGridCell} />
+        ))}
+      </View>
+    );
+  };
+
   return (
-    <Surface style={styles.screen}>
-      <Appbar.Header mode="center-aligned" style={styles.appbar}>
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+      <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
         <Appbar.BackAction onPress={onBack} />
-        <Appbar.Content title={t.result.title} />
+        <Appbar.Content title={shouldHideAppTitle ? "" : t.result.title} />
         <Appbar.Action icon="share-variant" onPress={handleShare} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
@@ -313,14 +358,17 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
       </Appbar.Header>
 
       <SectionList
-        sections={sections}
-        keyExtractor={(item, index) => item.id?.toString() || String(index)}
+        sections={displaySections}
+        keyExtractor={(item, index) => Array.isArray(item) ? item.map((dish) => dish.id || dish.original_name || dish.translated_name).join("-") || String(index) : item.id?.toString() || String(index)}
         renderItem={renderDish}
         stickySectionHeadersEnabled={false}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          isDesktopLayout && styles.listContentDesktop,
+        ]}
         ListHeaderComponent={
           <>
-            <Card mode="elevated" style={styles.summaryCard}>
+            <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.summaryCard, isDesktopLayout && styles.summaryCardDesktop]}>
               <Card.Content>
                 <Text variant="headlineSmall" style={styles.summaryTitle}>
                   {parsedResult?.business_name || t.result.title}
@@ -357,15 +405,15 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
           </Card>
         }
         ListFooterComponent={
-          <>
+          <View style={isDesktopLayout && styles.footerGrid}>
             {menuPricing.map((pricing, index) => (
               <TouchableRipple
                 key={`pricing-${index}`}
                 borderless
-                style={styles.ripple}
+                style={[styles.ripple, isDesktopLayout && styles.footerGridCell]}
                 onPress={() => openPricingDetail(pricing)}
               >
-                <Card mode="elevated" style={styles.pricingCard}>
+                <Card mode="elevated" style={[styles.pricingCard, isDesktopLayout && styles.pricingCardDesktop]}>
                   <Card.Content>
                     <View style={styles.pricingHeader}>
                       <Text style={styles.pricingTitle}>{pricing.label}</Text>
@@ -392,7 +440,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
                 </Card>
               </TouchableRipple>
             ))}
-          </>
+          </View>
         }
       />
 
@@ -461,18 +509,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FDF8F3",
   },
+  screenDesktop: {
+    backgroundColor: "#F7F7FA",
+  },
   appbar: {
     backgroundColor: "#FDF8F3",
+  },
+  appbarDesktop: {
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E7E0EC",
   },
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 32,
+  },
+  listContentDesktop: {
+    width: "100%",
+    maxWidth: 1280,
+    alignSelf: "center",
+    paddingHorizontal: 32,
+    paddingTop: 24,
+    paddingBottom: 48,
   },
   summaryCard: {
     borderRadius: 28,
     backgroundColor: "#FFFFFF",
     marginTop: 10,
     marginBottom: 18,
+  },
+  summaryCardDesktop: {
+    borderRadius: 8,
+    marginTop: 0,
+    borderColor: "#E7E0EC",
   },
   recommendBtn: {
     marginTop: 12,
@@ -498,9 +567,28 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     marginBottom: 12,
   },
+  rippleDesktop: {
+    borderRadius: 8,
+    marginBottom: 0,
+    height: "100%",
+  },
   dishCard: {
     borderRadius: 22,
     backgroundColor: "#FFFFFF",
+  },
+  dishCardDesktop: {
+    borderRadius: 8,
+    minHeight: 150,
+    height: "100%",
+  },
+  desktopGridRow: {
+    flexDirection: "row",
+    gap: 16,
+    marginBottom: 16,
+  },
+  desktopGridCell: {
+    flex: 1,
+    minWidth: 0,
   },
   cardHeader: {
     flexDirection: "row",
@@ -544,6 +632,23 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: "#FFFFFF",
     marginBottom: 18,
+  },
+  pricingCardDesktop: {
+    borderRadius: 8,
+    minHeight: 132,
+    height: "100%",
+  },
+  footerGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 16,
+  },
+  footerGridCell: {
+    flexBasis: "31.9%",
+    flexGrow: 1,
+    minWidth: 280,
+    borderRadius: 8,
+    marginBottom: 0,
   },
 
   pricingHeader: {
