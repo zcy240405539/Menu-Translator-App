@@ -33,3 +33,5 @@ AGENT.md
 backend/app/__pycache__/
 frontend/android/
 
+# Local development resources
+APP_Develop_Resouce/
