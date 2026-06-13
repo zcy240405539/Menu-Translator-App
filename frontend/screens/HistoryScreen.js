@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
     elevation: 0,
     width: "100%",
-    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    maxWidth: Platform.OS === 'web' ? 800 : '100%',
     alignSelf: "center",
   },
   content: {

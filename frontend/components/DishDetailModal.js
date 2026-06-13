@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
     elevation: 0,
     width: "100%",
-    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    maxWidth: Platform.OS === 'web' ? 800 : '100%',
     alignSelf: "center",
   },
   content: {
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
     paddingBottom: 36,
     alignSelf: "center",
     width: "100%",
-    maxWidth: 960,
+    maxWidth: Platform.OS === 'web' ? 1080 : 960,
   },
   heroCard: {
     borderRadius: 28,
@@ -749,5 +749,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginVertical: 14,
+  },
+  webContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 24,
+  },
+  webLeftColumn: {
+    flex: 1,
+    maxWidth: 400,
+  },
+  webRightColumn: {
+    flex: 2,
+    minWidth: 320,
+  },
+  webImagePlaceholder: {
+    width: "100%",
+    height: 360,
+    backgroundColor: "#EFE7DD",
+    position: "relative",
+    overflow: "hidden",
+    borderRadius: 8,
+  },
+  webDishImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  webDetailCard: {
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E7E0EC",
+    marginBottom: 24,
+  },
+  webButtonRow: {
+    flexDirection: "row",
+    gap: 16,
   },
 });

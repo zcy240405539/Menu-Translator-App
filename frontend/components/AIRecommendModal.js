@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
     elevation: 0,
     width: "100%",
-    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    maxWidth: Platform.OS === 'web' ? 800 : '100%',
     alignSelf: "center",
   },
   appbarDesktop: {
@@ -512,12 +512,12 @@ const styles = StyleSheet.create({
   },
   formField: {
     flexGrow: 1,
-    flexBasis: 320,
     minWidth: 260,
+    width: Platform.OS === 'web' ? 'auto' : '100%',
   },
   formFieldWide: {
     flexGrow: 1,
-    flexBasis: "100%",
+    width: '100%',
   },
   label: {
     fontWeight: "700",
@@ -543,8 +543,9 @@ const styles = StyleSheet.create({
   generateBtn: {
     borderRadius: 100,
     marginTop: 12,
-    alignSelf: Platform.OS === "web" ? "center" : "stretch",
-    width: Platform.OS === "web" ? 320 : "auto",
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: Platform.OS === "web" ? 320 : "100%",
   },
   btnContent: {
     height: 52,
