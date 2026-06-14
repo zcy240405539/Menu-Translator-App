@@ -3,12 +3,12 @@ module.exports = {
     name: "AI Menu APP",
     slug: "ai-menu-app",
     scheme: "aimenuapp",
-    version: "1.0.0",
+    version: "2.2",
     orientation: "portrait",
     icon: "./assets/favicon.png",
     android: {
       package: "com.agentscottystudio.aimenuapp",
-      versionCode: 2,
+      versionCode: 4,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF"
