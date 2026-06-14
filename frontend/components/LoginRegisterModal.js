@@ -178,7 +178,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
           </Appbar.Header>
 
           <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
             style={styles.keyboardView}
           >
             <ScrollView contentContainerStyle={styles.content}>

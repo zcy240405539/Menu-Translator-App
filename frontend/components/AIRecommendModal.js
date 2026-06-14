@@ -272,7 +272,7 @@ export default function AIRecommendModal({
           </Appbar.Header>
 
           <KeyboardContainer
-            behavior={Platform.OS === "web" ? undefined : (Platform.OS === "ios" ? "padding" : "height")}
+            behavior={Platform.OS === "web" ? undefined : (Platform.OS === "ios" ? "padding" : undefined)}
             style={styles.keyboardContainer}
           >
             {loading ? (
