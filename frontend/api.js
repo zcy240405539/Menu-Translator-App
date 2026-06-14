@@ -87,11 +87,11 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
     formData.append("file", uploadFile);
   } else {
     // Expo Go / Native
-    formData.append("file", {
+    formData.append("file", JSON.parse(JSON.stringify({
       uri: file.uri,
       name: fileName,
       type: mimeType,
-    });
+    })));
   }
 
   const startRes = await fetch(
@@ -399,11 +399,11 @@ export async function uploadAvatar(file) {
     const blob = await fileResponse.blob();
     formData.append("file", new File([blob], fileName, { type: mimeType }));
   } else {
-    formData.append("file", {
+    formData.append("file", JSON.parse(JSON.stringify({
       uri: file.uri,
       name: fileName,
       type: mimeType,
-    });
+    })));
   }
 
   const res = await fetch(`${API_BASE_URL}/auth/avatar`, {

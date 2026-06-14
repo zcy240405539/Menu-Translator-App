@@ -548,10 +548,6 @@ const selectFromFile = async () => {
           <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop]}>
             <Card.Content style={styles.toolContent}>
               <View>
-                <Text style={styles.toolKicker}>{t.home.toolKicker}</Text>
-                <Text variant="headlineSmall" style={styles.toolTitle}>
-                  {t.home.toolTitle}
-                </Text>
               </View>
 
               <View style={styles.languageRow}>
@@ -833,15 +829,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 14,
     paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
   },
   featurePillDesktop: {
     maxWidth: 186,
   },
   featureNumber: {
     color: "#6D50B3",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "800",
-    marginBottom: 6,
+    marginRight: 8,
   },
   featureText: {
     color: "#1D1B20",
