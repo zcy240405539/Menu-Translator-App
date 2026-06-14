@@ -194,7 +194,7 @@ const selectFromFile = async () => {
   try {
     const result = await DocumentPicker.getDocumentAsync({
       type: DOCUMENT_PICKER_TYPES,
-      copyToCacheDirectory: true,
+      copyToCacheDirectory: false,
     });
 
     if (result.canceled) {

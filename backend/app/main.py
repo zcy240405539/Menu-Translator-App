@@ -1538,6 +1538,7 @@ def run_menu_parse_task(
         timings = {}
 
         image_hash = calculate_image_hash(file_bytes)
+        print("Calculated image_hash:", image_hash)
         db = SessionLocal()
 
         try:

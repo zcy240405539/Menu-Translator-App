@@ -6,15 +6,22 @@ import * as FileSystem from "expo-file-system/legacy";
 //const API_BASE_URL = "http://127.0.0.1:8000";
 //const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const getApiBaseUrl = () => {
-  if (typeof window !== "undefined" && window.location && window.location.hostname) {
-    if (
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1"
-    ) {
-      return "http://127.0.0.1:8000";
+  if (process.env.EXPO_PUBLIC_API_BASE_URL) {
+    return process.env.EXPO_PUBLIC_API_BASE_URL;
+  }
+  if (Platform.OS !== "web") {
+    return "http://192.168.0.56:8000";
+  } else {
+    if (typeof window !== "undefined" && window.location && window.location.hostname) {
+      if (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      ) {
+        return "http://192.168.0.56:8000";
+      }
     }
   }
-  return process.env.EXPO_PUBLIC_API_BASE_URL || "https://ai-menu-app.onrender.com";
+  return "https://ai-menu-app.onrender.com";
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -93,7 +100,7 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
   } else {
     // Native (Android/iOS): Use expo-file-system's native Multipart upload task.
     // This completely bypasses the JS-side FormData and fetch serialization issues.
-    const headers = getHeaders();
+    const headers = getHeaders(true);
 
     const uploadTask = FileSystem.createUploadTask(
       url,
@@ -110,10 +117,16 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
 
     if (!result || result.status < 200 || result.status >= 300) {
       console.log("Start native parse failed:", result?.status, result?.body);
-      throw new Error(`Failed to start menu analysis: ${result?.status || 'Unknown error'}`);
+      throw new Error(`Failed to start menu analysis: ${result?.status || 'Unknown error'} (URL: ${url})`);
     }
 
-    const startData = JSON.parse(result.body);
+    let startData;
+    try {
+      startData = JSON.parse(result.body);
+    } catch (err) {
+      console.log("Parse native JSON failed:", result.body);
+      throw new Error(`JSON Parse error: ${err.message} (Status: ${result.status}, Body: ${result.body || '(empty)'}, URL: ${url})`);
+    }
     return pollParseTask(startData.task_id);
   }
 }
@@ -420,7 +433,7 @@ export async function uploadAvatar(file) {
     return await res.json();
   } else {
     // Native (Android/iOS): Use expo-file-system
-    const headers = getHeaders();
+    const headers = getHeaders(true);
 
     const uploadTask = FileSystem.createUploadTask(
       url,
