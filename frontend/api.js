@@ -21,7 +21,7 @@ const getApiBaseUrl = () => {
       }
     }
   }
-  return "https://ai-menu-app.onrender.com";
+  return "https://menu-translator-app.onrender.com";
 };
 
 const API_BASE_URL = getApiBaseUrl();
