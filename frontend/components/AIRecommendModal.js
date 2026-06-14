@@ -27,6 +27,7 @@ import { addDishToCart } from "../storage/cartStorage";
 import { getText, isChineseLanguage } from "../i18n";
 import { getAIRecommendations } from "../api";
 import { formatPrice } from "../utils/price";
+import { InterstitialAd, AdEventType, BannerAd, BannerAdSize, AD_UNIT_IDS } from "../utils/ads";
 
 const DIET_OPTIONS = [
   { key: "Vegetarian", labelEn: "Vegetarian", labelZh: "素食", labelZht: "素食", labelEs: "Vegetariano" },
@@ -120,6 +121,11 @@ export default function AIRecommendModal({
   };
 
   const handleGenerate = async () => {
+    let adShown = false;
+    let recResult = null;
+    let recError = null;
+    let adClosed = false;
+
     try {
       setLoading(true);
       setError("");
@@ -128,23 +134,86 @@ export default function AIRecommendModal({
         ? allergiesText.split(/[,，]/).map((s) => s.trim()).filter(Boolean)
         : [];
 
-      const res = await getAIRecommendations(
-        menuItems,
-        people,
-        selectedDiets,
-        budget,
-        taste,
-        targetLang,
-        allergies
-      );
+      const executeGenerate = async () => {
+        try {
+          const res = await getAIRecommendations(
+            menuItems,
+            people,
+            selectedDiets,
+            budget,
+            taste,
+            targetLang,
+            allergies
+          );
+          return { data: res };
+        } catch (err) {
+          return { error: err };
+        }
+      };
 
-      setRecommendationText(res.recommendation || "");
-      setRecommendedItems(res.items || []);
-      setAddedItemIds({});
+      const finishProcess = (result, error) => {
+        if (result) {
+          setRecommendationText(result.recommendation || "");
+          setRecommendedItems(result.items || []);
+          setAddedItemIds({});
+        } else if (error) {
+          console.warn("AI Recommend failed:", error);
+          setError(t.recommend.error || "Failed to generate recommendation");
+        }
+        setLoading(false);
+      };
+
+      // 1. Start generation
+      executeGenerate().then(({ data, error }) => {
+        if (data) recResult = data;
+        if (error) recError = error;
+        
+        if (!adShown || adClosed) {
+          finishProcess(recResult, recError);
+        }
+      });
+
+      // 2. Start Ad
+      if (Platform.OS !== "web" && InterstitialAd) {
+        const interstitial = InterstitialAd.createForAdRequest(AD_UNIT_IDS.recommendInterstitial);
+        
+        let adTimeout = setTimeout(() => {
+          if (!adShown) {
+            adClosed = true;
+            if (recResult || recError) finishProcess(recResult, recError);
+          }
+        }, 5000); // Wait up to 5 seconds
+
+        interstitial.addAdEventListener(AdEventType.LOADED, () => {
+          clearTimeout(adTimeout);
+          adShown = true;
+          interstitial.show().catch((err) => {
+            console.warn("Failed to show interstitial ad:", err);
+            adClosed = true;
+            if (recResult || recError) finishProcess(recResult, recError);
+          });
+        });
+
+        interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+          adClosed = true;
+          if (recResult || recError) finishProcess(recResult, recError);
+        });
+
+        interstitial.addAdEventListener(AdEventType.ERROR, (err) => {
+          console.warn("Interstitial ad error:", err);
+          clearTimeout(adTimeout);
+          adClosed = true;
+          if (recResult || recError) finishProcess(recResult, recError);
+        });
+
+        interstitial.load();
+      } else {
+        adClosed = true;
+      }
+
     } catch (err) {
-      console.warn("AI Recommend failed:", err);
+      console.warn("AI Recommend init failed:", err);
       setError(t.recommend.error || "Failed to generate recommendation");
-    } finally {
       setLoading(false);
     }
   };
@@ -303,6 +372,18 @@ export default function AIRecommendModal({
                 >
                   {t.recommend.closeBtn}
                 </Button>
+
+                {Platform.OS !== "web" && BannerAd && (
+                  <View style={styles.bannerContainer}>
+                    <BannerAd
+                      unitId={AD_UNIT_IDS.recommendBanner}
+                      size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+                      requestOptions={{
+                        requestNonPersonalizedAdsOnly: true,
+                      }}
+                    />
+                  </View>
+                )}
               </ScrollView>
             ) : (
               // 选项输入表单页面
@@ -629,5 +710,10 @@ const styles = StyleSheet.create({
   },
   snackbar: {
     marginBottom: 16,
+  },
+  bannerContainer: {
+    marginTop: 24,
+    alignItems: "center",
+    width: "100%",
   },
 });
