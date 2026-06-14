@@ -280,7 +280,8 @@ export default function AIRecommendModal({
               </View>
             ) : recommendationText ? (
               // 推荐结果页面
-              <ScrollView contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
+              <View style={{ flex: 1 }}>
+                <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
                 <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop]}>
                   <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -372,6 +373,7 @@ export default function AIRecommendModal({
                 >
                   {t.recommend.closeBtn}
                 </Button>
+              </ScrollView>
 
                 {Platform.OS !== "web" && BannerAd && (
                   <View style={styles.bannerContainer}>
@@ -381,10 +383,11 @@ export default function AIRecommendModal({
                       requestOptions={{
                         requestNonPersonalizedAdsOnly: true,
                       }}
+                      onAdFailedToLoad={(error) => console.warn("BannerAd error:", error)}
                     />
                   </View>
                 )}
-              </ScrollView>
+              </View>
             ) : (
               // 选项输入表单页面
               <ScrollView contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
