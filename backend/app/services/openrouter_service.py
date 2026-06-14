@@ -597,7 +597,7 @@ Rules:
 - If a dish name is prefixed by a number or code (e.g., "A1.", "05.", "B12"), you MUST preserve this exact number/code prefix in both original_name and translated_name. Do not strip or omit the prefix.
 - Bilingual Menu Optimization: If the OCR text for a dish already contains both the source language (e.g. Chinese) and target language (e.g. English) texts (for example, "A1. 回锅肉 Twice-cooked pork" or "A1. 回锅肉 | Twice-cooked pork"), you MUST extract the printed target translation directly from the menu and use it for translated_name (e.g., "A1. Twice-cooked pork") and description (if present) instead of doing AI translation. original_name must be set to the printed original language name (e.g., "A1. 回锅肉").
 - For one dish with several size prices, return one item with a combined price string such as "12in: 13 / 14in: 14 / 16in: 16".
-- If an OCR block uses " | " separators, treat the first segment as original_name, middle segments as description, and price-like segments as price. Do not include prices in original_name or translated_name.
+- If an OCR block uses " | " separators, treat the first segment as original_name, middle segments as description, and price-like segments as price. Do not include prices in original_name or translated_name. CRITICAL: If a single line contains multiple separate dish names separated by prices (e.g., "素炒河粉 | 10元/份 | 酸辣土豆丝盖饭 | 12元/份"), do NOT treat the second dish name as a description of the first! Instead, split it into two separate menu items (e.g., item 1: "素炒河粉" with price 10元, item 2: "酸辣土豆丝盖饭" with price 12元). Only treat the middle segment as a description if it is clearly explanatory text.
 - Extract real menu items only. Exclude restaurant name, hours, address, phone, social media, notes, taxes, and decorative text.
 - original_name stays exactly in source language.
 - translated_name, description, ingredients, allergens, and section_heading_translated must be in {target_language_name}.
@@ -730,7 +730,7 @@ Critical layout rules:
 - Preserve the visual order of dishes.
 - If one dish row has multiple size or option price columns, keep it as one menu item.
 - For multiple price columns, combine them into one price string, for example "12in: 13 / 14in: 14 / 16in: 16".
-- If an OCR block uses " | " separators, treat the first segment as original_name, middle segments as description, and price-like segments as price. Do not include prices in original_name or translated_name.
+- If an OCR block uses " | " separators, treat the first segment as original_name, middle segments as description, and price-like segments as price. Do not include prices in original_name or translated_name. CRITICAL: If a single line contains multiple separate dish names separated by prices (e.g., "素炒河粉 | 10元/份 | 酸辣土豆丝盖饭 | 12元/份"), do NOT treat the second dish name as a description of the first! Instead, split it into two separate menu items (e.g., item 1: "素炒河粉" with price 10元, item 2: "酸辣土豆丝盖饭" with price 12元). Only treat the middle segment as a description if it is clearly explanatory text.
 - Do not duplicate the same dish once per size column unless the menu explicitly lists them as separate dishes.
 - Do not stop early. Extract the whole menu, including drinks, cafe, tea, pastry, dessert, cheese, and side sections.
 - Return raw JSON only.
