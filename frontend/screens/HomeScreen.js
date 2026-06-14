@@ -615,10 +615,12 @@ const selectFromFile = async () => {
 
               <View style={styles.inputActions}>
                 <Button
-                  mode="contained"
+                  mode="contained-tonal"
                   icon="camera-outline"
                   style={styles.button}
                   contentStyle={styles.buttonContent}
+                  buttonColor="#EADDFF"
+                  textColor="#21005D"
                   onPress={takePicture}
                   disabled={loading}
                 >
@@ -693,10 +695,12 @@ const selectFromFile = async () => {
                 </View>
               ) : (
                 <Button
-                  mode="contained-tonal"
+                  mode="contained"
                   icon="magic-staff"
                   style={[styles.analyzeButton, isDesktopLayout && styles.analyzeButtonDesktop]}
                   contentStyle={styles.buttonContent}
+                  buttonColor="#6750A4"
+                  textColor="#FFFFFF"
                   onPress={handleAnalyzeMenu}
                   disabled={!canAnalyzeMenu}
                 >

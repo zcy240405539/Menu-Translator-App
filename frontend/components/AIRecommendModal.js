@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   View,
@@ -112,13 +112,13 @@ export default function AIRecommendModal({
     }
   };
 
-  const handleDietToggle = (dietKey) => {
-    if (selectedDiets.includes(dietKey)) {
-      setSelectedDiets(selectedDiets.filter((k) => k !== dietKey));
-    } else {
-      setSelectedDiets([...selectedDiets, dietKey]);
-    }
-  };
+  const handleDietToggle = useCallback((dietKey) => {
+    setSelectedDiets((prev) =>
+      prev.includes(dietKey)
+        ? prev.filter((k) => k !== dietKey)
+        : [...prev, dietKey]
+    );
+  }, []);
 
   const handleGenerate = async () => {
     let adShown = false;
@@ -493,8 +493,14 @@ export default function AIRecommendModal({
                   mode="contained"
                   icon="brain"
                   onPress={handleGenerate}
+                  loading={loading}
+                  disabled={loading}
+                  buttonColor="#6750A4"
+                  textColor="#FFFFFF"
+                  rippleColor="rgba(255, 255, 255, 0.18)"
                   style={styles.generateBtn}
                   contentStyle={styles.btnContent}
+                  labelStyle={styles.generateBtnLabel}
                 >
                   {t.recommend.generateBtn}
                 </Button>
@@ -629,6 +635,11 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
     maxWidth: Platform.OS === "web" ? 320 : "100%",
+    backgroundColor: "#6750A4",
+  },
+  generateBtnLabel: {
+    color: "#FFFFFF",
+    fontWeight: "800",
   },
   btnContent: {
     height: 52,
