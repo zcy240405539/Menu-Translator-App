@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 // 如果你用手机 Expo Go 测试，要改成电脑局域网 IP：
 // const API_BASE_URL = "http://192.168.x.x:8000";
 //const API_BASE_URL = "http://127.0.0.1:8000";
@@ -74,7 +76,7 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
   let uploadFile;
 
   // Expo Web: uri 是 blob:http://...，必须转 Blob
-  if (typeof window !== "undefined") {
+  if (Platform.OS === "web") {
     const fileResponse = await fetch(file.uri);
     const blob = await fileResponse.blob();
 
@@ -392,7 +394,7 @@ export async function uploadAvatar(file) {
   const fileName = file.name || "avatar.jpg";
   const mimeType = file.mimeType || file.type || "image/jpeg";
 
-  if (typeof window !== "undefined") {
+  if (Platform.OS === "web") {
     const fileResponse = await fetch(file.uri);
     const blob = await fileResponse.blob();
     formData.append("file", new File([blob], fileName, { type: mimeType }));

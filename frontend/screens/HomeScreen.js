@@ -504,6 +504,7 @@ const selectFromFile = async () => {
     t.home.featureDocuments,
     t.home.featureTranslation,
     t.home.featureOrderList,
+    t.home.featureAiRecommend,
   ];
 
   return (
@@ -685,6 +686,9 @@ const selectFromFile = async () => {
 
               {loading ? (
                 <View style={styles.loadingBox}>
+                  <Text style={styles.holdOnText}>
+                    {t.home.holdOnText}
+                  </Text>
                   <ActivityIndicator size="large" />
                   <Text style={styles.loadingText}>
                     {t.home.analyzingMenu}

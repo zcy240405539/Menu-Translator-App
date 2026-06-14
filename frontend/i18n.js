@@ -22,7 +22,7 @@ export const SOURCE_LANGUAGES = [
 
 export const translations = {
   en: {
-    appTitle: "AI Menu Assistant",
+    appTitle: "AI Menu",
 
     home: {
       heroKicker: "Start translating",
@@ -32,6 +32,7 @@ export const translations = {
       featureDocuments: "Photos, PDFs, websites",
       featureTranslation: "AI dish translation",
       featureOrderList: "Order list ready",
+      featureAiRecommend: "AI Smart Recommendation",
       toolKicker: "Upload menu",
       toolTitle: "Start with your menu",
       targetLanguage: "Target language",
@@ -52,6 +53,7 @@ export const translations = {
       fileSelectionFailed: "File selection failed",
       analyzeMenu: "Analyze Menu",
       analyzingMenu: "Analyzing menu...",
+      holdOnText: "Hold on, I am analyzing for you...",
       noMenuTitle: "No Menu",
       noMenuMessage: "Please take a picture or select a menu file first.",
       noUrlTitle: "No Link",
@@ -196,6 +198,7 @@ export const translations = {
       featureDocuments: "支持照片、PDF、网页",
       featureTranslation: "AI 菜品翻译",
       featureOrderList: "待点列表同步",
+      featureAiRecommend: "AI智能推荐",
       toolKicker: "上传菜单",
       toolTitle: "从菜单开始",
       targetLanguage: "目标语言",
@@ -216,6 +219,7 @@ export const translations = {
       fileSelectionFailed: "文件选择失败",
       analyzeMenu: "分析菜单",
       analyzingMenu: "正在分析菜单...",
+      holdOnText: "请稍候，我正在为您分析菜单...",
       noMenuTitle: "未选择菜单",
       noMenuMessage: "请先拍摄或选择一个菜单文件。",
       noUrlTitle: "未输入链接",
@@ -360,6 +364,7 @@ export const translations = {
       featureDocuments: "支援照片、PDF、網頁",
       featureTranslation: "AI 菜品翻譯",
       featureOrderList: "待點清單同步",
+      featureAiRecommend: "AI智能推薦",
       toolKicker: "上傳菜單",
       toolTitle: "從菜單開始",
       targetLanguage: "目標語言",
@@ -380,6 +385,7 @@ export const translations = {
       fileSelectionFailed: "檔案選擇失敗",
       analyzeMenu: "分析菜單",
       analyzingMenu: "正在分析菜單...",
+      holdOnText: "請稍候，我正在為您分析菜單...",
       noMenuTitle: "未選擇菜單",
       noMenuMessage: "請先拍攝或選擇一個菜單檔案。",
       noUrlTitle: "未輸入連結",
@@ -514,7 +520,7 @@ export const translations = {
   },
 
   es: {
-    appTitle: "Asistente de Menú IA",
+    appTitle: "AI Menu",
 
     home: {
       heroKicker: "Comenzar traducción",
@@ -524,6 +530,7 @@ export const translations = {
       featureDocuments: "Fotos, PDFs, sitios web",
       featureTranslation: "Traducción de platos con IA",
       featureOrderList: "Lista de pedido lista",
+      featureAiRecommend: "Recomendación de IA",
       toolKicker: "Subir menú",
       toolTitle: "Empieza con tu menú",
       targetLanguage: "Idioma destino",
@@ -544,6 +551,7 @@ export const translations = {
       fileSelectionFailed: "Fallo al seleccionar archivo",
       analyzeMenu: "Analizar Menú",
       analyzingMenu: "Analizando menú...",
+      holdOnText: "Espera, estoy analizando para ti...",
       noMenuTitle: "Sin Menú",
       noMenuMessage: "Tome una foto o seleccione un archivo de menú primero.",
       noUrlTitle: "Sin Enlace",
