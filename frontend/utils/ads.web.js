@@ -9,6 +9,8 @@ export const AD_UNIT_IDS = {
   interstitial: "web-test-interstitial",
   bottomBanner: "web-test-banner",
   itemBanner: "web-test-banner",
+  recommendInterstitial: "web-test-interstitial",
+  recommendBanner: "web-test-banner",
 };
 
 export const InterstitialAd = null;
