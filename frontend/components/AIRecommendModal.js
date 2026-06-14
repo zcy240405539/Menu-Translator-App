@@ -7,7 +7,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
+  Pressable,
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
