@@ -401,7 +401,7 @@ def search_wikimedia_images(query: str) -> list[dict]:
             "format": "json",
             "origin": "*",
             "generator": "search",
-            "gsrsearch": f'{query} food dish filetype:bitmap',
+            "gsrsearch": query,
             "gsrnamespace": 6,
             "gsrlimit": IMAGE_SEARCH_PER_SOURCE,
             "prop": "imageinfo",
@@ -679,7 +679,13 @@ def generate_dish_image_with_openai(dish: dict):
     return None
 
 
-def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh: bool = False):
+def get_or_create_dish_image(
+    db,
+    dish: dict,
+    normalized_name: str,
+    force_refresh: bool = False,
+    rejected_urls: list[str] | None = None
+):
     normalized_name = normalize_dish_name(normalized_name)
 
     if not is_cacheable_normalized_name(normalized_name):
@@ -693,62 +699,133 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
         .first()
     )
 
+    # Compile rejected URLs from database and parameter
+    db_rejected = list(existing.rejected_urls or []) if (existing and existing.rejected_urls) else []
+    param_rejected = rejected_urls or []
+    all_rejected = list(set(db_rejected + param_rejected))
+
     queries = build_image_search_queries(dish)
     query = queries[0] if queries else build_image_search_query(dish)
     cache_prompt_candidates = {f"{IMAGE_SEARCH_VERSION}|{candidate}" for candidate in queries}
 
+    # If cache is still valid and not rejected
     if existing and existing.image_url and not force_refresh and existing.image_prompt in cache_prompt_candidates:
-        existing.cuisine = resolve_dish_cuisine(dish)
-        db.commit()
-        return existing.image_url
+        if existing.image_url not in all_rejected:
+            existing.cuisine = resolve_dish_cuisine(dish)
+            db.commit()
+            return existing.image_url
 
-    matched_query = query
     uploaded = None
-    source_type = "web_found"
+    source_type = None
+    matched_query = query
 
-    web_candidate, matched_query, match_score = find_best_web_image(dish, queries)
-    if web_candidate:
-        uploaded = web_candidate
-        source_type = web_candidate.get("source_type") or "web_found"
-        print(
-            "Selected dish image:",
-            {
-                "dish": dish.get("original_name") or normalized_name,
-                "query": matched_query,
-                "source": source_type,
-                "score": match_score,
-                "title": web_candidate.get("title"),
-            },
-        )
+    # Step 1: Wikimedia Commons API using the original name in the menu's source language
+    original_name = dish.get("original_name") or dish.get("name") or ""
+    original_name = strip_menu_code_and_price(original_name).strip()
 
-        if source_type == "pexels_found":
-            uploaded = upload_remote_image_to_supabase(
-                image_url=web_candidate["image_url"],
-                dish_name=dish.get("original_name") or normalized_name,
-                source_folder="web_found",
-            )
-            uploaded["source_type"] = source_type
-    elif existing and existing.image_url and not force_refresh:
-        existing.cuisine = resolve_dish_cuisine(dish)
-        db.commit()
-        return existing.image_url
-    else:
+    if original_name:
+        print(f"[ImageSearch] Step 1: Querying Wikimedia Commons for: {original_name}")
+        try:
+            wikimedia_candidates = search_wikimedia_images(original_name)
+            best_cand = None
+            best_score = -999.0
+            for cand in wikimedia_candidates:
+                url = cand.get("image_url")
+                if all_rejected and url in all_rejected:
+                    continue
+                score = score_image_candidate(cand, dish, original_name)
+                cand["match_score"] = score
+                if score > best_score:
+                    best_cand = cand
+                    best_score = score
+            
+            if best_cand and best_score >= IMAGE_SEARCH_MIN_SCORE:
+                uploaded = best_cand
+                source_type = best_cand.get("source_type") or "wikimedia_found"
+                matched_query = original_name
+                print(f"[ImageSearch] Wikimedia success: {uploaded['image_url']} (score: {best_score})")
+        except Exception as wikimedia_err:
+            print(f"[ImageSearch] Wikimedia query failed: {wikimedia_err}")
+
+    # Step 2: If Wikimedia Commons fails, query Pexels and Unsplash concurrently
+    if not uploaded:
+        print("[ImageSearch] Step 2: Querying Pexels and Unsplash concurrently")
+        searchers = [search_pexels_images, search_unsplash_images]
+        executor = ThreadPoolExecutor(max_workers=IMAGE_SEARCH_WORKERS)
+        future_map = {
+            executor.submit(searcher, q): (searcher.__name__, q)
+            for q in queries
+            for searcher in searchers
+        }
+
+        best_cand = None
+        best_q = None
+        best_score = -999.0
+
+        try:
+            for future in as_completed(future_map, timeout=IMAGE_SEARCH_TIMEOUT_SECONDS):
+                searcher_name, q = future_map[future]
+                try:
+                    candidates = future.result()
+                except Exception as error:
+                    print(f"[ImageSearch] {searcher_name} query failed: {error}")
+                    continue
+
+                for candidate in candidates:
+                    url = candidate.get("image_url")
+                    if all_rejected and url in all_rejected:
+                        continue
+                    score = score_image_candidate(candidate, dish, q)
+                    candidate["match_score"] = score
+                    if score > best_score:
+                        best_cand = candidate
+                        best_q = q
+                        best_score = score
+
+                if best_score >= IMAGE_SEARCH_EARLY_SCORE:
+                    break
+        except TimeoutError:
+            print("[ImageSearch] Pexels/Unsplash concurrent search timed out with partial results")
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
+
+        if best_cand and best_score >= IMAGE_SEARCH_MIN_SCORE:
+            uploaded = best_cand
+            source_type = best_cand.get("source_type") or "web_found"
+            matched_query = best_q
+            print(f"[ImageSearch] Pexels/Unsplash success: {uploaded['image_url']} (score: {best_score})")
+
+            # Pexels images must be downloaded and uploaded to Supabase
+            if source_type == "pexels_found":
+                try:
+                    sup_uploaded = upload_remote_image_to_supabase(
+                        image_url=best_cand["image_url"],
+                        dish_name=dish.get("original_name") or normalized_name,
+                        source_folder="web_found",
+                    )
+                    sup_uploaded["source_type"] = source_type
+                    uploaded = sup_uploaded
+                except Exception as upload_err:
+                    print(f"[ImageSearch] Uploading Pexels image to Supabase failed: {upload_err}")
+                    pass
+
+    # Step 3: If both fail, generate image via OpenAI DALL-E
+    if not uploaded:
+        print("[ImageSearch] Step 3: Generating dish image via OpenAI")
         generated = generate_dish_image_with_openai(dish)
-        if not generated:
-            return None
+        if generated:
+            if generated.get("bytes"):
+                uploaded = upload_image_bytes_to_supabase(
+                    image_bytes=generated["bytes"],
+                    dish_name=dish.get("original_name") or normalized_name,
+                    content_type=generated.get("content_type") or "image/png",
+                    source_folder="generated",
+                )
+            else:
+                uploaded = generated
 
-        if generated.get("bytes"):
-            uploaded = upload_image_bytes_to_supabase(
-                image_bytes=generated["bytes"],
-                dish_name=dish.get("original_name") or normalized_name,
-                content_type=generated.get("content_type") or "image/png",
-                source_folder="generated",
-            )
-        else:
-            uploaded = generated
-
-        matched_query = generated.get("prompt") or query
-        source_type = "generated_ai"
+            matched_query = generated.get("prompt") or query
+            source_type = "generated_ai"
 
     if uploaded is None:
         return None
@@ -756,7 +833,6 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
     if source_type not in {"unsplash_found", "wikimedia_found", "openverse_found"} and not uploaded.get("local_image_path"):
         uploaded["local_image_path"] = ""
 
-    # Search API results should keep their source image URLs.
     uploaded["thumbnail_url"] = uploaded["image_url"]
     stored_prompt = f"{IMAGE_SEARCH_VERSION}|{matched_query}"
 
@@ -768,6 +844,7 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
         existing.thumbnail_url = uploaded["image_url"]
         existing.image_prompt = stored_prompt
         existing.source_type = source_type
+        existing.rejected_urls = all_rejected
         record = existing
     else:
         record = DishImage(
@@ -779,6 +856,7 @@ def get_or_create_dish_image(db, dish: dict, normalized_name: str, force_refresh
             thumbnail_url=uploaded["image_url"],
             image_prompt=stored_prompt,
             source_type=source_type,
+            rejected_urls=all_rejected,
         )
         db.add(record)
 

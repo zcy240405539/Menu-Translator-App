@@ -53,6 +53,8 @@ class DishDetailRequest(BaseModel):
     cuisine: Optional[str] = None
     image_prompt: Optional[str] = None
     section_heading_original: Optional[str] = None
+    refresh_image: Optional[bool] = False
+    reject_image_url: Optional[str] = None
 
 
 class RecommendRequest(BaseModel):

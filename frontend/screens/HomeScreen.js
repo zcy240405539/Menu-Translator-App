@@ -10,6 +10,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { saveMenuHistory } from "../storage/menuStorage";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
@@ -63,6 +64,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [menuUrl, setMenuUrl] = useState("");
+  const insets = useSafeAreaInsets();
 
   const lang = targetLang;
   const t = getText(lang);
@@ -508,7 +510,7 @@ const selectFromFile = async () => {
   ];
 
   return (
-    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom }]}>
       <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
         <Appbar.Content title={shouldHideAppTitle ? "" : t.appTitle} />
         <Appbar.Action icon="share-variant" onPress={handleShare} />

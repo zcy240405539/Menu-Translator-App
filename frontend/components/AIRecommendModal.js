@@ -8,6 +8,7 @@ import {
   Platform,
   useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
   Appbar,
@@ -68,6 +69,7 @@ export default function AIRecommendModal({
   const isWeb = Platform.OS === "web";
   const isDesktopLayout = isWeb && width >= 900;
   const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
+  const insets = useSafeAreaInsets();
 
   // Populate guest/user preferences when modal is opened
   useEffect(() => {
@@ -181,7 +183,7 @@ export default function AIRecommendModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom }]}>
           <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
             <Appbar.BackAction onPress={onClose} />
             <Appbar.Content title={shouldHideAppTitle ? "" : t.recommend.title} />

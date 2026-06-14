@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView, Platform, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Appbar,
   Card,
@@ -98,6 +99,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   const [cameFromRecommend, setCameFromRecommend] = useState(false);
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width >= 768;
+  const insets = useSafeAreaInsets();
 
   const handleShare = () => {
     if (onShare) {
@@ -304,7 +306,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   };
 
   return (
-    <Surface style={styles.screen}>
+    <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         <Appbar.BackAction onPress={onBack} />
         <Appbar.Content title={t.result.title} />

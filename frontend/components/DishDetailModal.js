@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   Platform,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
   Appbar,
@@ -93,6 +94,32 @@ export default function DishDetailModal({
   const [detail, setDetail] = useState(null);
   const [detailKey, setDetailKey] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  const handleRejectImage = async () => {
+    if (!dish) return;
+    try {
+      setLoadingDetail(true);
+      const baseName = dish.original_name || dish.translated_name || dish.name || "";
+      const currentImg = mergedDish?.image_url || mergedDish?.thumbnail_url || dish.image_url || dish.thumbnail_url;
+      const remoteDetail = await getDishDetail(
+        baseName,
+        targetLang,
+        dish.source_language || menuInfo?.source_language || "auto",
+        dish,
+        true,
+        currentImg
+      );
+      setDetail(remoteDetail);
+      if (cacheKey) {
+        await AsyncStorage.setItem(cacheKey, JSON.stringify(remoteDetail));
+      }
+    } catch (err) {
+      console.warn("Reject/refresh image failed:", err);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
 
   const handleOpenHistory = () => {
     onClose();
@@ -234,7 +261,7 @@ export default function DishDetailModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={styles.screen}>
+        <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
           <Appbar.Header mode="center-aligned" style={styles.appbar}>
             <Appbar.BackAction onPress={onClose} />
             <Appbar.Content title={title || t.description} />
@@ -277,7 +304,7 @@ export default function DishDetailModal({
                         <Image source={{ uri: imageUrl }} style={styles.webDishImage} />
                       ) : (
                         <View style={styles.defaultImageBox}>
-                          <Text style={styles.defaultImageIcon}>🍽️</Text>
+                           <Text style={styles.defaultImageIcon}>🍽️</Text>
                           <Text style={styles.defaultImageText}>
                             {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
                           </Text>
@@ -293,6 +320,19 @@ export default function DishDetailModal({
                         </View>
                       )}
                     </View>
+                    {!!imageUrl && (
+                      <Card.Content style={{ paddingVertical: 10, alignItems: "center" }}>
+                        <Button
+                          mode="outlined"
+                          icon="image-off"
+                          textColor="#6750A4"
+                          onPress={handleRejectImage}
+                          style={{ borderRadius: 100 }}
+                        >
+                          {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "圖片不符合？换一张" : "图片不符合？换一张") : "Not matching? Change"}
+                        </Button>
+                      </Card.Content>
+                    )}
                   </Card>
                 </View>
 
@@ -439,11 +479,25 @@ export default function DishDetailModal({
                       {t.original}: {mergedDish.original_name || t.unknown}
                     </Text>
 
-                    {!!price && (
-                      <Chip style={styles.priceChip} textStyle={styles.priceText}>
-                        {t.price}: {price}
-                      </Chip>
-                    )}
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 8 }}>
+                      {!!price && (
+                        <Chip style={styles.priceChip} textStyle={styles.priceText}>
+                          {t.price}: {price}
+                        </Chip>
+                      )}
+                      {!!imageUrl && (
+                        <Button
+                          mode="text"
+                          compact
+                          icon="image-off"
+                          textColor="#6750A4"
+                          onPress={handleRejectImage}
+                          style={{ margin: 0 }}
+                        >
+                          {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "圖片不符合？换一张" : "图片不符合？换一张") : "Not matching? Change"}
+                        </Button>
+                      )}
+                    </View>
                   </Card.Content>
                 </Card>
 
@@ -499,15 +553,6 @@ export default function DishDetailModal({
                   </Card.Content>
                 </Card>
 
-                {BannerAd && (
-                  <View style={styles.adContainer}>
-                    <BannerAd
-                      unitId={AD_UNIT_IDS.itemBanner}
-                      size={BannerAdSize.BANNER}
-                    />
-                  </View>
-                )}
-
                 <Button
                   mode="contained-tonal"
                   icon="cart-plus"
@@ -530,6 +575,15 @@ export default function DishDetailModal({
                 >
                   {t.close}
                 </Button>
+
+                {BannerAd && (
+                  <View style={styles.adContainer}>
+                    <BannerAd
+                      unitId={AD_UNIT_IDS.itemBanner}
+                      size={BannerAdSize.BANNER}
+                    />
+                  </View>
+                )}
               </>
             )}
           </ScrollView>

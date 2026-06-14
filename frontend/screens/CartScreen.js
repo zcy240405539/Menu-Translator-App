@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, FlatList, Platform, TouchableRipple } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Appbar,
   Card,
@@ -26,6 +27,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   const [items, setItems] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
+  const insets = useSafeAreaInsets();
 
   const loadCart = async () => {
     const data = await getCartItems();
@@ -53,7 +55,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   }, 0);
 
   return (
-    <Surface style={styles.screen}>
+    <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         {hasMenuResult ? (
           <>

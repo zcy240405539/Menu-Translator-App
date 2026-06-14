@@ -189,7 +189,9 @@ export async function getDishDetail(
   dishName,
   targetLang = "zh",
   sourceLang = "auto",
-  dishContext = {}
+  dishContext = {},
+  refreshImage = false,
+  rejectImageUrl = null
 ) {
   const res = await fetch(`${API_BASE_URL}/dish/detail`, {
     method: "POST",
@@ -205,6 +207,8 @@ export async function getDishDetail(
       cuisine: dishContext.cuisine,
       image_prompt: dishContext.image_prompt,
       section_heading_original: dishContext.section_heading_original,
+      refresh_image: refreshImage,
+      reject_image_url: rejectImageUrl,
     }),
   });
 

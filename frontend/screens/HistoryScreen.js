@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, FlatList } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as DocumentPicker from "expo-document-picker";
 import {
   Appbar,
@@ -38,6 +39,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
   const [history, setHistory] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
+  const insets = useSafeAreaInsets();
 
   const loadHistory = async () => {
     const data = await getMenuHistory();
@@ -49,7 +51,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
   }, []);
 
   return (
-    <Surface style={styles.screen}>
+    <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         {hasMenuResult ? (
           <>

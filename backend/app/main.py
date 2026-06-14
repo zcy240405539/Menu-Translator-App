@@ -92,6 +92,13 @@ def ensure_database_schema_compatibility():
         except Exception as ex:
             db.rollback()
             print(f"Warning: could not alter menu_categories constraint: {ex}")
+            
+        try:
+            db.execute(text("ALTER TABLE dish_images ADD COLUMN IF NOT EXISTS rejected_urls JSONB DEFAULT '[]'::jsonb"))
+            db.commit()
+        except Exception as ex:
+            db.rollback()
+            print(f"Warning: could not add rejected_urls to dish_images: {ex}")
     except Exception as e:
         print(f"Error ensuring database schema compatibility: {e}")
     finally:
@@ -1137,6 +1144,7 @@ def dish_detail(
 
         cached = None
         cached_image = None
+        rejected_urls = []
 
         if is_cacheable:
             cached = (
@@ -1153,6 +1161,17 @@ def dish_detail(
                 .filter(DishImage.normalized_name == normalized_name)
                 .first()
             )
+
+            if cached_image:
+                rejected_list = list(cached_image.rejected_urls or [])
+                if request.refresh_image and request.reject_image_url:
+                    if request.reject_image_url not in rejected_list:
+                        rejected_list.append(request.reject_image_url)
+                        cached_image.rejected_urls = rejected_list
+                        db.commit()
+                rejected_urls = rejected_list
+
+        force_refresh = bool(request.refresh_image)
 
         if cached:
             dish_payload = {
@@ -1177,15 +1196,21 @@ def dish_detail(
                 "section_heading_original": request.section_heading_original,
             }
 
-            image_url = cached_image.image_url if cached_image else None
-            thumbnail_url = cached_image.thumbnail_url if cached_image else None
-            image_source = cached_image.source_type if cached_image else None
+            image_url = cached_image.image_url if (cached_image and not force_refresh) else None
+            if image_url and image_url in rejected_urls:
+                image_url = None
+                force_refresh = True
+
+            thumbnail_url = cached_image.thumbnail_url if (cached_image and not force_refresh) else None
+            image_source = cached_image.source_type if (cached_image and not force_refresh) else None
 
             if not image_url:
                 image_url = get_or_create_dish_image(
                     db=db,
                     dish=dish_payload,
                     normalized_name=normalized_name,
+                    force_refresh=True,
+                    rejected_urls=rejected_urls,
                 )
                 thumbnail_url = image_url
                 image_source = "web_found_or_generated" if image_url else None
@@ -1274,11 +1299,22 @@ def dish_detail(
 
         image_url = None
         if is_cacheable:
-            image_url = get_or_create_dish_image(
-                db=db,
-                dish=dish_payload,
-                normalized_name=normalized_name,
-            )
+            curr_cached_image = db.query(DishImage).filter(DishImage.normalized_name == normalized_name).first()
+            curr_url = curr_cached_image.image_url if curr_cached_image else None
+            if force_refresh or (curr_url and curr_url in rejected_urls):
+                image_url = get_or_create_dish_image(
+                    db=db,
+                    dish=dish_payload,
+                    normalized_name=normalized_name,
+                    force_refresh=True,
+                    rejected_urls=rejected_urls,
+                )
+            else:
+                image_url = get_or_create_dish_image(
+                    db=db,
+                    dish=dish_payload,
+                    normalized_name=normalized_name,
+                )
 
         return {
             **result,

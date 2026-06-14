@@ -42,6 +42,7 @@ class DishImage(Base):
     thumbnail_url = Column(Text)
     image_prompt = Column(Text)
     source_type = Column(Text, default="preset")
+    rejected_urls = Column(JSONB, default=list, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     __table_args__ = (
