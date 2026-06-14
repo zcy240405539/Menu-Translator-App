@@ -487,15 +487,26 @@ export default function AIRecommendModal({
                   </Text>
                 )}
 
-                <Button
-                  mode="contained"
-                  icon="brain"
-                  onPress={handleGenerate}
-                  style={styles.generateBtn}
-                  contentStyle={styles.btnContent}
-                >
-                  {t.recommend.generateBtn}
-                </Button>
+                <View style={[styles.generateBtnContainer, loading && { opacity: 0.7 }]}>
+                  <Pressable
+                    accessibilityRole="button"
+                    disabled={loading}
+                    onPress={handleGenerate}
+                    style={({ pressed }) => [
+                      styles.generateBtn,
+                      pressed && !loading && { opacity: 0.8 }
+                    ]}
+                  >
+                    {loading ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" style={{ marginRight: 8 }} />
+                    ) : (
+                      <MaterialCommunityIcons name="brain" size={24} color="#FFFFFF" style={{ marginRight: 8 }} />
+                    )}
+                    <Text style={styles.generateBtnLabel}>
+                      {t.recommend.generateBtn}
+                    </Text>
+                  </Pressable>
+                </View>
               </ScrollView>
             )}
           </KeyboardContainer>
@@ -621,14 +632,24 @@ const styles = StyleSheet.create({
   dietChipSelected: {
     backgroundColor: "#6750A4",
   },
-  generateBtn: {
-    borderRadius: 100,
+  generateBtnContainer: {
     marginTop: 12,
     alignSelf: Platform.OS === "web" ? "center" : "stretch",
     width: Platform.OS === "web" ? 320 : "auto",
   },
-  btnContent: {
-    height: 52,
+  generateBtn: {
+    backgroundColor: "#6750A4",
+    borderRadius: 100,
+    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  generateBtnLabel: {
+    color: "#FFFFFF",
+    fontWeight: "800",
+    fontSize: 16,
   },
   recommendationText: {
     color: "#625B71",
