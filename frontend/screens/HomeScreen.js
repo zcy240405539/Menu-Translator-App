@@ -526,8 +526,7 @@ const selectFromFile = async () => {
       >
         <View style={[styles.homeLayout, isDesktopLayout && styles.homeLayoutDesktop]}>
           <View style={[styles.heroPanel, isDesktopLayout && styles.heroPanelDesktop]}>
-            <Text style={styles.heroKicker}>{t.home.heroKicker}</Text>
-            <Text variant="displaySmall" style={[styles.title, isDesktopLayout && styles.titleDesktop]}>
+            <Text style={[styles.title, isDesktopLayout && styles.titleDesktop]}>
               {t.home.heroTitle}
             </Text>
 
@@ -793,13 +792,15 @@ const styles = StyleSheet.create({
   title: {
     textAlign: "left",
     fontWeight: "800",
-    color: "#1D1B20",
+    color: "#6D50B3",
+    fontSize: 24,
+    lineHeight: 32,
     marginBottom: 10,
   },
   titleDesktop: {
     textAlign: "left",
-    fontSize: 48,
-    lineHeight: 56,
+    fontSize: 32,
+    lineHeight: 40,
     maxWidth: 620,
   },
   subtitle: {
@@ -821,19 +822,21 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   featurePill: {
-    minWidth: 148,
+    width: "48%",
+    minWidth: 140,
     flexGrow: 1,
     borderWidth: 1,
     borderColor: "#E7E0EC",
     borderRadius: 8,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 14,
+    paddingHorizontal: 10,
     paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
   },
   featurePillDesktop: {
-    maxWidth: 186,
+    width: "48%",
+    maxWidth: "48%",
   },
   featureNumber: {
     color: "#6D50B3",
@@ -846,6 +849,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     lineHeight: 19,
+    flex: 1,
+    flexWrap: "wrap",
   },
   toolKicker: {
     color: "#6D50B3",

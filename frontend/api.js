@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import * as FileSystem from "expo-file-system";
 
 // 如果你用手机 Expo Go 测试，要改成电脑局域网 IP：
 // const API_BASE_URL = "http://192.168.x.x:8000";
@@ -73,25 +74,46 @@ export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto"
     file.type ||
     "application/octet-stream";
 
-  let uploadFile;
+  // Convert file URI to Blob for both Web and Native to support modern fetch polyfills
+  try {
+    let blob;
+    if (Platform.OS === "web") {
+      const fileResponse = await fetch(file.uri);
+      blob = await fileResponse.blob();
+    } else {
+      // Read local file as base64 and convert to Blob to bypass Android fetch local file limitations
+      const base64 = await FileSystem.readAsStringAsync(file.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      const dataUri = `data:${mimeType};base64,${base64}`;
+      const fileResponse = await fetch(dataUri);
+      blob = await fileResponse.blob();
+    }
 
-  // Expo Web: uri 是 blob:http://...，必须转 Blob
-  if (Platform.OS === "web") {
-    const fileResponse = await fetch(file.uri);
-    const blob = await fileResponse.blob();
+    // Attach name, type, and bytes helper to satisfy Expo's spec-compliant fetch serialization
+    if (blob) {
+      blob.name = fileName;
+      blob.type = mimeType;
+      blob.bytes = async () => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve(new Uint8Array(reader.result));
+          };
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(blob);
+        });
+      };
+    }
 
-    uploadFile = new File([blob], fileName, {
-      type: mimeType,
-    });
-
-    formData.append("file", uploadFile);
-  } else {
-    // Expo Go / Native
-    formData.append("file", JSON.parse(JSON.stringify({
+    formData.append("file", blob, fileName);
+  } catch (err) {
+    console.warn("Failed to convert file to Blob, trying legacy format:", err);
+    formData.append("file", {
       uri: file.uri,
       name: fileName,
       type: mimeType,
-    })));
+    });
   }
 
   const startRes = await fetch(
@@ -394,16 +416,45 @@ export async function uploadAvatar(file) {
   const fileName = file.name || "avatar.jpg";
   const mimeType = file.mimeType || file.type || "image/jpeg";
 
-  if (Platform.OS === "web") {
-    const fileResponse = await fetch(file.uri);
-    const blob = await fileResponse.blob();
-    formData.append("file", new File([blob], fileName, { type: mimeType }));
-  } else {
-    formData.append("file", JSON.parse(JSON.stringify({
+  // Convert avatar file URI to Blob for both Web and Native
+  try {
+    let blob;
+    if (Platform.OS === "web") {
+      const fileResponse = await fetch(file.uri);
+      blob = await fileResponse.blob();
+    } else {
+      const base64 = await FileSystem.readAsStringAsync(file.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      const dataUri = `data:${mimeType};base64,${base64}`;
+      const fileResponse = await fetch(dataUri);
+      blob = await fileResponse.blob();
+    }
+
+    // Attach name, type, and bytes helper to satisfy Expo's spec-compliant fetch serialization
+    if (blob) {
+      blob.name = fileName;
+      blob.type = mimeType;
+      blob.bytes = async () => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve(new Uint8Array(reader.result));
+          };
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(blob);
+        });
+      };
+    }
+
+    formData.append("file", blob, fileName);
+  } catch (err) {
+    console.warn("Failed to convert avatar to Blob, trying legacy format:", err);
+    formData.append("file", {
       uri: file.uri,
       name: fileName,
       type: mimeType,
-    })));
+    });
   }
 
   const res = await fetch(`${API_BASE_URL}/auth/avatar`, {
