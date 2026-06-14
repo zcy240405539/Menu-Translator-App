@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 // 如果你用手机 Expo Go 测试，要改成电脑局域网 IP：
 // const API_BASE_URL = "http://192.168.x.x:8000";
