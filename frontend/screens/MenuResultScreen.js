@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { View, StyleSheet, SectionList, Platform } from "react-native";
+import { View, StyleSheet, ScrollView, Platform, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Appbar,
   Card,
@@ -96,6 +97,9 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   const [selectedDish, setSelectedDish] = useState(null);
   const [showRecommend, setShowRecommend] = useState(false);
   const [cameFromRecommend, setCameFromRecommend] = useState(false);
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+  const insets = useSafeAreaInsets();
 
   const handleShare = () => {
     if (onShare) {
@@ -302,7 +306,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   };
 
   return (
-    <Surface style={styles.screen}>
+    <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         <Appbar.BackAction onPress={onBack} />
         <Appbar.Content title={t.result.title} />
@@ -312,89 +316,88 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
       </Appbar.Header>
 
-      <SectionList
-        sections={sections}
-        keyExtractor={(item, index) => item.id?.toString() || String(index)}
-        renderItem={renderDish}
-        stickySectionHeadersEnabled={false}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <>
-            <Card mode="elevated" style={styles.summaryCard}>
-              <Card.Content>
-                <Text variant="headlineSmall" style={styles.summaryTitle}>
-                  {parsedResult?.business_name || t.result.title}
-                </Text>
-
-                <Text variant="bodyMedium" style={styles.summarySubtitle}>
-                  {restaurantType} · {sourceLanguage} · {items.length} {t.result.items}
-                </Text>
-
-                <Button
-                  mode="contained"
-                  icon="brain"
-                  onPress={() => setShowRecommend(true)}
-                  style={styles.recommendBtn}
-                >
-                  {t.result.aiRecommendBtn || "AI智能推荐"}
-                </Button>
-              </Card.Content>
-            </Card>
-          </>
-        }                           
-        renderSectionHeader={({ section }) => (
-          <View style={styles.sectionHeader}>
-            <Text variant="titleLarge" style={styles.sectionTitle}>
-              {section.title}
+      <ScrollView contentContainerStyle={styles.listContent}>
+        <Card mode="elevated" style={styles.summaryCard}>
+          <Card.Content>
+            <Text variant="headlineSmall" style={styles.summaryTitle}>
+              {parsedResult?.business_name || t.result.title}
             </Text>
-          </View>
-        )}
-        ListEmptyComponent={
+
+            <Text variant="bodyMedium" style={styles.summarySubtitle}>
+              {restaurantType} · {sourceLanguage} · {items.length} {t.result.items}
+            </Text>
+
+            <Button
+              mode="contained"
+              icon="brain"
+              onPress={() => setShowRecommend(true)}
+              style={styles.recommendBtn}
+            >
+              {t.result.aiRecommendBtn || "AI智能推荐"}
+            </Button>
+          </Card.Content>
+        </Card>
+
+        {sections.length === 0 && (
           <Card mode="outlined" style={styles.emptyCard}>
             <Card.Content>
               <Text style={styles.emptyText}>{t.result.empty}</Text>
             </Card.Content>
           </Card>
-        }
-        ListFooterComponent={
-          <>
-            {menuPricing.map((pricing, index) => (
-              <TouchableRipple
-                key={`pricing-${index}`}
-                borderless
-                style={styles.ripple}
-                onPress={() => openPricingDetail(pricing)}
-              >
-                <Card mode="elevated" style={styles.pricingCard}>
-                  <Card.Content>
-                    <View style={styles.pricingHeader}>
-                      <Text style={styles.pricingTitle}>{pricing.label}</Text>
+        )}
 
-                      {!!pricing.price && (
-                        <Chip compact style={styles.priceChip} textStyle={styles.priceText}>
-                          {formatPrice(pricing.price, {
-                            sourceLanguage,
-                            currency: parsedResult?.currency,
-                            targetLanguage: targetLang,
-                          })}
-                        </Chip>
-                      )}
-                    </View>
+        {sections.map((section) => (
+          <View key={section.key || section.title}>
+            <View style={styles.sectionHeader}>
+              <Text variant="titleLarge" style={styles.sectionTitle}>
+                {section.title}
+              </Text>
+            </View>
+            <View style={isDesktop ? styles.gridContainer : undefined}>
+              {section.data.map((item, index) => (
+                <View key={item.id?.toString() || String(index)} style={isDesktop ? styles.gridItem : undefined}>
+                  {renderDish({ item })}
+                </View>
+              ))}
+            </View>
+          </View>
+        ))}
 
-                    {!!pricing.description && (
-                      <Text style={styles.pricingDescription}>{pricing.description}</Text>
-                    )}
+        {menuPricing.map((pricing, index) => (
+          <TouchableRipple
+            key={`pricing-${index}`}
+            borderless
+            style={styles.ripple}
+            onPress={() => openPricingDetail(pricing)}
+          >
+            <Card mode="elevated" style={styles.pricingCard}>
+              <Card.Content>
+                <View style={styles.pricingHeader}>
+                  <Text style={styles.pricingTitle}>{pricing.label}</Text>
 
-                    {!!pricing.applies_to && (
-                      <Text style={styles.pricingApplies}>{pricing.applies_to}</Text>
-                    )}
-                  </Card.Content>
-                </Card>
-              </TouchableRipple>
-            ))}
-          </>
-        }
-      />
+                  {!!pricing.price && (
+                    <Chip compact style={styles.priceChip} textStyle={styles.priceText}>
+                      {formatPrice(pricing.price, {
+                        sourceLanguage,
+                        currency: parsedResult?.currency,
+                        targetLanguage: targetLang,
+                      })}
+                    </Chip>
+                  )}
+                </View>
+
+                {!!pricing.description && (
+                  <Text style={styles.pricingDescription}>{pricing.description}</Text>
+                )}
+
+                {!!pricing.applies_to && (
+                  <Text style={styles.pricingApplies}>{pricing.applies_to}</Text>
+                )}
+              </Card.Content>
+            </Card>
+          </TouchableRipple>
+        ))}
+      </ScrollView>
 
       <AIRecommendModal
         visible={showRecommend}
@@ -465,7 +468,7 @@ const styles = StyleSheet.create({
     backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
     elevation: 0,
     width: "100%",
-    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    maxWidth: Platform.OS === 'web' ? 800 : '100%',
     alignSelf: "center",
   },
   listContent: {
@@ -474,6 +477,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
     maxWidth: 960,
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -6,
+  },
+  gridItem: {
+    width: '33.33%',
+    paddingHorizontal: 6,
   },
   summaryCard: {
     borderRadius: 28,

@@ -36,7 +36,7 @@ const DIET_OPTIONS = [
 ];
 
 const ACCOUNT_DELETION_URL = `${
-  process.env.EXPO_PUBLIC_API_BASE_URL || "https://ai-menu-app.onrender.com"
+  process.env.EXPO_PUBLIC_API_BASE_URL || "https://menu-translator-app.onrender.com"
 }`.replace(/\/$/, "") + "/account-deletion";
 
 export default function AccountProfileModal({

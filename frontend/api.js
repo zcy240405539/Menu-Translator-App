@@ -1,17 +1,27 @@
+import { Platform } from "react-native";
+import * as FileSystem from "expo-file-system/legacy";
+
 // 如果你用手机 Expo Go 测试，要改成电脑局域网 IP：
 // const API_BASE_URL = "http://192.168.x.x:8000";
 //const API_BASE_URL = "http://127.0.0.1:8000";
 //const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const getApiBaseUrl = () => {
-  if (typeof window !== "undefined" && window.location && window.location.hostname) {
-    if (
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1"
-    ) {
-      return "http://127.0.0.1:8000";
+  if (process.env.EXPO_PUBLIC_API_BASE_URL) {
+    return process.env.EXPO_PUBLIC_API_BASE_URL;
+  }
+  if (Platform.OS !== "web") {
+    return "http://192.168.0.56:8000";
+  } else {
+    if (typeof window !== "undefined" && window.location && window.location.hostname) {
+      if (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      ) {
+        return "http://192.168.0.56:8000";
+      }
     }
   }
-  return process.env.EXPO_PUBLIC_API_BASE_URL || "https://ai-menu-app.onrender.com";
+  return "https://menu-translator-app.onrender.com";
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -62,52 +72,63 @@ async function pollParseTask(taskId) {
 }
 
 export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto") {
-  const formData = new FormData();
+  const url = `${API_BASE_URL}/menus/parse/start?target_lang=${encodeURIComponent(targetLang)}&source_lang=${encodeURIComponent(sourceLang)}`;
 
-  const fileName = file.name || "menu-upload";
+  if (Platform.OS === "web") {
+    const formData = new FormData();
+    const fileName = file.name || "menu-upload";
+    const mimeType = file.mimeType || file.type || "application/octet-stream";
 
-  const mimeType =
-    file.mimeType ||
-    file.type ||
-    "application/octet-stream";
-
-  let uploadFile;
-
-  // Expo Web: uri 是 blob:http://...，必须转 Blob
-  if (typeof window !== "undefined") {
     const fileResponse = await fetch(file.uri);
     const blob = await fileResponse.blob();
-
-    uploadFile = new File([blob], fileName, {
-      type: mimeType,
-    });
-
+    const uploadFile = new File([blob], fileName, { type: mimeType });
     formData.append("file", uploadFile);
-  } else {
-    // Expo Go / Native
-    formData.append("file", {
-      uri: file.uri,
-      name: fileName,
-      type: mimeType,
-    });
-  }
 
-  const startRes = await fetch(
-    `${API_BASE_URL}/menus/parse/start?target_lang=${encodeURIComponent(targetLang)}&source_lang=${encodeURIComponent(sourceLang)}`,
-    {
+    const startRes = await fetch(url, {
       method: "POST",
       body: formData,
+    });
+
+    if (!startRes.ok) {
+      const text = await startRes.text();
+      console.log("Start parse failed:", startRes.status, text);
+      throw new Error(`Failed to start menu analysis: ${startRes.status}`);
     }
-  );
 
-  if (!startRes.ok) {
-    const text = await startRes.text();
-    console.log("Start parse failed:", startRes.status, text);
-    throw new Error(`Failed to start menu analysis: ${startRes.status}`);
+    const startData = await startRes.json();
+    return pollParseTask(startData.task_id);
+  } else {
+    // Native (Android/iOS): Use expo-file-system's native Multipart upload task.
+    // This completely bypasses the JS-side FormData and fetch serialization issues.
+    const headers = getHeaders(true);
+
+    const uploadTask = FileSystem.createUploadTask(
+      url,
+      file.uri,
+      {
+        httpMethod: "POST",
+        fieldName: "file",
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        headers: headers,
+      }
+    );
+
+    const result = await uploadTask.uploadAsync();
+
+    if (!result || result.status < 200 || result.status >= 300) {
+      console.log("Start native parse failed:", result?.status, result?.body);
+      throw new Error(`Failed to start menu analysis: ${result?.status || 'Unknown error'} (URL: ${url})`);
+    }
+
+    let startData;
+    try {
+      startData = JSON.parse(result.body);
+    } catch (err) {
+      console.log("Parse native JSON failed:", result.body);
+      throw new Error(`JSON Parse error: ${err.message} (Status: ${result.status}, Body: ${result.body || '(empty)'}, URL: ${url})`);
+    }
+    return pollParseTask(startData.task_id);
   }
-
-  const startData = await startRes.json();
-  return pollParseTask(startData.task_id);
 }
 
 export async function parseMenuUrl(menuUrl, targetLang = "zh", sourceLang = "auto") {
@@ -168,7 +189,9 @@ export async function getDishDetail(
   dishName,
   targetLang = "zh",
   sourceLang = "auto",
-  dishContext = {}
+  dishContext = {},
+  refreshImage = false,
+  rejectImageUrl = null
 ) {
   const res = await fetch(`${API_BASE_URL}/dish/detail`, {
     method: "POST",
@@ -184,6 +207,8 @@ export async function getDishDetail(
       cuisine: dishContext.cuisine,
       image_prompt: dishContext.image_prompt,
       section_heading_original: dishContext.section_heading_original,
+      refresh_image: refreshImage,
+      reject_image_url: rejectImageUrl,
     }),
   });
 
@@ -388,33 +413,64 @@ export async function saveUserCart(items) {
 }
 
 export async function uploadAvatar(file) {
-  const formData = new FormData();
-  const fileName = file.name || "avatar.jpg";
-  const mimeType = file.mimeType || file.type || "image/jpeg";
+  const url = `${API_BASE_URL}/auth/avatar`;
 
-  if (typeof window !== "undefined") {
+  if (Platform.OS === "web") {
+    const formData = new FormData();
+    const fileName = file.name || "avatar.jpg";
+    const mimeType = file.mimeType || file.type || "image/jpeg";
+
     const fileResponse = await fetch(file.uri);
     const blob = await fileResponse.blob();
     formData.append("file", new File([blob], fileName, { type: mimeType }));
-  } else {
-    formData.append("file", {
-      uri: file.uri,
-      name: fileName,
-      type: mimeType,
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: formData,
     });
-  }
 
-  const res = await fetch(`${API_BASE_URL}/auth/avatar`, {
-    method: "POST",
-    headers: getHeaders(true),
-    body: formData,
-  });
+    if (!res.ok) {
+      const errMsg = await getErrorMessage(res);
+      throw new Error(errMsg || "Failed to upload avatar");
+    }
+    return await res.json();
+  } else {
+    // Native (Android/iOS): Use expo-file-system
+    const headers = getHeaders(true);
 
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to upload avatar");
+    const uploadTask = FileSystem.createUploadTask(
+      url,
+      file.uri,
+      {
+        httpMethod: "POST",
+        fieldName: "file",
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        headers: headers,
+      }
+    );
+
+    const result = await uploadTask.uploadAsync();
+
+    if (!result || result.status < 200 || result.status >= 300) {
+      let errMsg = "Failed to upload avatar";
+      try {
+        const payload = JSON.parse(result.body);
+        if (payload?.detail) {
+          errMsg = payload.detail;
+        } else if (payload?.message) {
+          errMsg = payload.message;
+        }
+      } catch (err) {
+        if (result?.body) {
+          errMsg = result.body;
+        }
+      }
+      throw new Error(errMsg);
+    }
+
+    return JSON.parse(result.body);
   }
-  return await res.json();
 }
 
 export async function logout() {
@@ -448,6 +504,16 @@ export async function getGoogleAuthUrl(redirectTo) {
   if (!res.ok) {
     const errMsg = await getErrorMessage(res);
     throw new Error(errMsg || "Failed to get Google Auth URL");
+  }
+  return await res.json();
+}
+
+
+export async function getUnitTranslations() {
+  const res = await fetch(`${API_BASE_URL}/i18n/units`);
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to fetch unit translations");
   }
   return await res.json();
 }

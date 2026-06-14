@@ -42,6 +42,7 @@ class DishImage(Base):
     thumbnail_url = Column(Text)
     image_prompt = Column(Text)
     source_type = Column(Text, default="preset")
+    rejected_urls = Column(JSONB, default=list, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     __table_args__ = (
@@ -193,3 +194,16 @@ class NoiseKeyword(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     keyword = Column(Text, nullable=False, unique=True)
+
+
+class UnitTranslation(Base):
+    __tablename__ = "unit_translations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_unit = Column(Text, nullable=False)
+    target_lang = Column(Text, nullable=False)
+    translated_unit = Column(Text, nullable=False)
+    __table_args__ = (
+        UniqueConstraint("source_unit", "target_lang", name="unique_unit_lang"),
+    )
+

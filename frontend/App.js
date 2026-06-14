@@ -8,9 +8,9 @@ import MenuResultScreen from "./screens/MenuResultScreen";
 import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
-import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken } from "./api";
+import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken, getUnitTranslations } from "./api";
 import { Platform, Share, Alert, LogBox, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
-import { detectUserCurrency } from "./utils/price";
+import { detectUserCurrency, setUnitTranslations } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
 import AccountProfileModal from "./components/AccountProfileModal";
@@ -197,6 +197,13 @@ function AppContent() {
     async function initializeApp() {
       // Detect user currency based on IP (non-blocking)
       detectUserCurrency().catch((err) => console.log("Failed to detect user currency:", err));
+
+      // Fetch and cache unit translations from DB (non-blocking)
+      getUnitTranslations()
+        .then((translations) => {
+          setUnitTranslations(translations);
+        })
+        .catch((err) => console.log("Failed to load unit translations from DB:", err));
 
       let oauthToken = null;
       

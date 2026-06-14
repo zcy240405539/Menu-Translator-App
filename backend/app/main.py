@@ -20,7 +20,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.core.database import get_db, engine, Base
-from app.core.models import DishCache, DishImage, MenuCategory, User, UserCartState, UserMenuHistory, UserSubscription
+from app.core.models import DishCache, DishImage, MenuCategory, User, UserCartState, UserMenuHistory, UserSubscription, UnitTranslation
 from app.core.schemas import (
     SubscriptionResponse,
     AnalyzeTextRequest,
@@ -92,6 +92,13 @@ def ensure_database_schema_compatibility():
         except Exception as ex:
             db.rollback()
             print(f"Warning: could not alter menu_categories constraint: {ex}")
+            
+        try:
+            db.execute(text("ALTER TABLE dish_images ADD COLUMN IF NOT EXISTS rejected_urls JSONB DEFAULT '[]'::jsonb"))
+            db.commit()
+        except Exception as ex:
+            db.rollback()
+            print(f"Warning: could not add rejected_urls to dish_images: {ex}")
     except Exception as e:
         print(f"Error ensuring database schema compatibility: {e}")
     finally:
@@ -678,6 +685,70 @@ def load_local_ocr_functions():
     return extract_layout_blocks_from_image, extract_text_from_image
 
 
+def is_price_segment(text: str) -> bool:
+    t = text.strip()
+    if not t:
+        return False
+    t_clean = re.sub(r"\s+", "", t)
+    
+    # Contains a number
+    if not re.search(r"\d", t):
+        return False
+        
+    # Just a number (possibly with decimal and currency prefix/suffix)
+    if re.match(r"^[￥¥$€£]?\d+(?:\.\d+)?[元块刀]?$", t_clean):
+        return True
+        
+    # Ends with common currency units or measure words
+    price_units = r"(元|块|刀|usd|cny|eur|gbp|each|serving|pcs|份|位|人|只|隻|条|條|碗|盘|盤|杯|瓶|斤|两|兩|pot|basin|bowl|plate|cup|bottle|jin|liang|porción|tazón|pieza|taza|botella|plato|persona|gl|glass|oz|ml|l)"
+    if re.search(price_units + r"\s*$", t.lower()):
+        return True
+        
+    # Contains a slash followed by a unit (e.g. /份, /serving, /each)
+    if re.search(r"/\s*\w+", t) or re.search(r"/\s*[\u4e00-\u9fa5]", t):
+        return True
+        
+    # Starts with size keywords and contains number
+    size_keywords = r"^(大份|小份|中份|大|小|中|large|medium|small|lg|md|sm|regular|reg|double|single|slice|each|per)"
+    if re.search(size_keywords, t.lower()):
+        return True
+        
+    # Contains common option structure like "12in: 13", "12": 13"
+    if re.search(r"\w+in\s*:\s*\d+", t.lower()) or re.search(r"\d+in\s*:\s*\d+", t.lower()):
+        return True
+
+    return False
+
+
+def split_joined_line(text: str) -> list[str]:
+    segments = [s.strip() for s in text.split("|")]
+    segments = [s for s in segments if s]
+    if not segments:
+        return []
+        
+    items = []
+    current_item = []
+    has_price = False
+    
+    for seg in segments:
+        is_pr = is_price_segment(seg)
+        if is_pr:
+            current_item.append(seg)
+            has_price = True
+        else:
+            if has_price:
+                items.append(" | ".join(current_item))
+                current_item = [seg]
+                has_price = False
+            else:
+                current_item.append(seg)
+                
+    if current_item:
+        items.append(" | ".join(current_item))
+        
+    return items
+
+
 def vision_layout_to_ocr_blocks(vision_result: dict) -> list[dict]:
     lines = vision_result.get("layout_lines") or []
     if not lines:
@@ -718,19 +789,41 @@ def vision_layout_to_ocr_blocks(vision_result: dict) -> list[dict]:
             x = 0.0
 
         combined_text = " | ".join(part for part in parts if part)
-
-        blocks.append({
-            "text": combined_text,
-            "line_role": role,
-            "x_min": x * 100,
-            "y_min": y * 40,
-            "x_max": x * 100 + 100,
-            "y_max": y * 40 + 20,
-            "center_x": x * 100 + 50,
-            "center_y": y * 40 + 10,
-            "confidence": 0.9,
-            "ocr_lang": "openrouter_vision",
-        })
+        
+        split_items = split_joined_line(combined_text)
+        N = len(split_items)
+        
+        if N > 1:
+            total_width = 100.0
+            sub_width = total_width / N
+            for k, split_text in enumerate(split_items):
+                x_start = x * 100 + k * sub_width
+                x_end = x_start + sub_width
+                blocks.append({
+                    "text": split_text,
+                    "line_role": role,
+                    "x_min": x_start,
+                    "y_min": y * 40,
+                    "x_max": x_end,
+                    "y_max": y * 40 + 20,
+                    "center_x": x_start + sub_width / 2.0,
+                    "center_y": y * 40 + 10,
+                    "confidence": 0.9,
+                    "ocr_lang": "openrouter_vision",
+                })
+        else:
+            blocks.append({
+                "text": combined_text,
+                "line_role": role,
+                "x_min": x * 100,
+                "y_min": y * 40,
+                "x_max": x * 100 + 100,
+                "y_max": y * 40 + 20,
+                "center_x": x * 100 + 50,
+                "center_y": y * 40 + 10,
+                "confidence": 0.9,
+                "ocr_lang": "openrouter_vision",
+            })
 
     return blocks
 
@@ -1137,6 +1230,7 @@ def dish_detail(
 
         cached = None
         cached_image = None
+        rejected_urls = []
 
         if is_cacheable:
             cached = (
@@ -1153,6 +1247,17 @@ def dish_detail(
                 .filter(DishImage.normalized_name == normalized_name)
                 .first()
             )
+
+            if cached_image:
+                rejected_list = list(cached_image.rejected_urls or [])
+                if request.refresh_image and request.reject_image_url:
+                    if request.reject_image_url not in rejected_list:
+                        rejected_list.append(request.reject_image_url)
+                        cached_image.rejected_urls = rejected_list
+                        db.commit()
+                rejected_urls = rejected_list
+
+        force_refresh = bool(request.refresh_image)
 
         if cached:
             dish_payload = {
@@ -1177,15 +1282,21 @@ def dish_detail(
                 "section_heading_original": request.section_heading_original,
             }
 
-            image_url = cached_image.image_url if cached_image else None
-            thumbnail_url = cached_image.thumbnail_url if cached_image else None
-            image_source = cached_image.source_type if cached_image else None
+            image_url = cached_image.image_url if (cached_image and not force_refresh) else None
+            if image_url and image_url in rejected_urls:
+                image_url = None
+                force_refresh = True
+
+            thumbnail_url = cached_image.thumbnail_url if (cached_image and not force_refresh) else None
+            image_source = cached_image.source_type if (cached_image and not force_refresh) else None
 
             if not image_url:
                 image_url = get_or_create_dish_image(
                     db=db,
                     dish=dish_payload,
                     normalized_name=normalized_name,
+                    force_refresh=True,
+                    rejected_urls=rejected_urls,
                 )
                 thumbnail_url = image_url
                 image_source = "web_found_or_generated" if image_url else None
@@ -1274,11 +1385,22 @@ def dish_detail(
 
         image_url = None
         if is_cacheable:
-            image_url = get_or_create_dish_image(
-                db=db,
-                dish=dish_payload,
-                normalized_name=normalized_name,
-            )
+            curr_cached_image = db.query(DishImage).filter(DishImage.normalized_name == normalized_name).first()
+            curr_url = curr_cached_image.image_url if curr_cached_image else None
+            if force_refresh or (curr_url and curr_url in rejected_urls):
+                image_url = get_or_create_dish_image(
+                    db=db,
+                    dish=dish_payload,
+                    normalized_name=normalized_name,
+                    force_refresh=True,
+                    rejected_urls=rejected_urls,
+                )
+            else:
+                image_url = get_or_create_dish_image(
+                    db=db,
+                    dish=dish_payload,
+                    normalized_name=normalized_name,
+                )
 
         return {
             **result,
@@ -1538,6 +1660,7 @@ def run_menu_parse_task(
         timings = {}
 
         image_hash = calculate_image_hash(file_bytes)
+        print("Calculated image_hash:", image_hash)
         db = SessionLocal()
 
         try:
@@ -2108,6 +2231,19 @@ def languages():
         "default_target_language": DEFAULT_TARGET_LANGUAGE,
         "languages": get_language_options(),
     }
+
+
+@app.get("/i18n/units")
+def get_unit_translations(db: Session = Depends(get_db)):
+    translations = db.query(UnitTranslation).all()
+    return [
+        {
+            "source_unit": t.source_unit,
+            "target_lang": t.target_lang,
+            "translated_unit": t.translated_unit
+        }
+        for t in translations
+    ]
 
 
 def merge_images_vertically(image_bytes_list: list[bytes]) -> bytes:

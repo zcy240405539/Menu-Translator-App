@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   View,
@@ -8,6 +8,7 @@ import {
   Platform,
   useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
   Appbar,
@@ -69,6 +70,7 @@ export default function AIRecommendModal({
   const isWeb = Platform.OS === "web";
   const isDesktopLayout = isWeb && width >= 900;
   const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
+  const insets = useSafeAreaInsets();
 
   // Populate guest/user preferences when modal is opened
   useEffect(() => {
@@ -110,13 +112,13 @@ export default function AIRecommendModal({
     }
   };
 
-  const handleDietToggle = (dietKey) => {
-    if (selectedDiets.includes(dietKey)) {
-      setSelectedDiets(selectedDiets.filter((k) => k !== dietKey));
-    } else {
-      setSelectedDiets([...selectedDiets, dietKey]);
-    }
-  };
+  const handleDietToggle = useCallback((dietKey) => {
+    setSelectedDiets((prev) =>
+      prev.includes(dietKey)
+        ? prev.filter((k) => k !== dietKey)
+        : [...prev, dietKey]
+    );
+  }, []);
 
   const handleGenerate = async () => {
     let adShown = false;
@@ -250,7 +252,7 @@ export default function AIRecommendModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom }]}>
           <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
             <Appbar.BackAction onPress={onClose} />
             <Appbar.Content title={shouldHideAppTitle ? "" : t.recommend.title} />
@@ -539,7 +541,7 @@ const styles = StyleSheet.create({
     backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
     elevation: 0,
     width: "100%",
-    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    maxWidth: Platform.OS === 'web' ? 800 : '100%',
     alignSelf: "center",
   },
   appbarDesktop: {
@@ -604,12 +606,12 @@ const styles = StyleSheet.create({
   },
   formField: {
     flexGrow: 1,
-    flexBasis: 320,
     minWidth: 260,
+    width: Platform.OS === 'web' ? 'auto' : '100%',
   },
   formFieldWide: {
     flexGrow: 1,
-    flexBasis: "100%",
+    width: '100%',
   },
   label: {
     fontWeight: "700",
@@ -634,8 +636,14 @@ const styles = StyleSheet.create({
   },
   generateBtnContainer: {
     marginTop: 12,
-    alignSelf: Platform.OS === "web" ? "center" : "stretch",
-    width: Platform.OS === "web" ? 320 : "auto",
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: Platform.OS === "web" ? 320 : "100%",
+    backgroundColor: "#6750A4",
+  },
+  generateBtnLabel: {
+    color: "#FFFFFF",
+    fontWeight: "800",
   },
   generateBtn: {
     backgroundColor: "#6750A4",

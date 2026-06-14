@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, FlatList, Platform, TouchableRipple } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Appbar,
   Card,
@@ -26,6 +27,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   const [items, setItems] = useState([]);
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
+  const insets = useSafeAreaInsets();
 
   const loadCart = async () => {
     const data = await getCartItems();
@@ -53,7 +55,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   }, 0);
 
   return (
-    <Surface style={styles.screen}>
+    <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <Appbar.Header mode="center-aligned" style={styles.appbar}>
         {hasMenuResult ? (
           <>
@@ -190,7 +192,7 @@ const styles = StyleSheet.create({
     backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
     elevation: 0,
     width: "100%",
-    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    maxWidth: Platform.OS === 'web' ? 800 : '100%',
     alignSelf: "center",
   },
   content: {
@@ -239,16 +241,16 @@ const styles = StyleSheet.create({
   },
   priceContainer: {
     backgroundColor: "#E8DEF8",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
     alignSelf: "flex-start",
-    maxHeight: 28,
+    maxHeight: 24,
   },
   priceText: {
     color: "#6750A4",
     fontWeight: "700",
-    fontSize: 14,
+    fontSize: 12,
   },
   quantityRow: {
     flexDirection: "row",
@@ -258,9 +260,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   quantityBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "#6750A4",
     alignItems: "center",
@@ -268,11 +270,11 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   quantityBtnText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
     color: "#6750A4",
     textAlign: "center",
-    lineHeight: Platform.OS === 'web' ? 24 : 26,
+    lineHeight: Platform.OS === 'web' ? 20 : 22,
   },
   quantityText: {
     fontSize: 18,

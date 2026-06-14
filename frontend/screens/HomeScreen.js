@@ -10,6 +10,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { saveMenuHistory } from "../storage/menuStorage";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
@@ -63,6 +64,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [menuUrl, setMenuUrl] = useState("");
+  const insets = useSafeAreaInsets();
 
   const lang = targetLang;
   const t = getText(lang);
@@ -194,7 +196,7 @@ const selectFromFile = async () => {
   try {
     const result = await DocumentPicker.getDocumentAsync({
       type: DOCUMENT_PICKER_TYPES,
-      copyToCacheDirectory: true,
+      copyToCacheDirectory: false,
     });
 
     if (result.canceled) {
@@ -504,10 +506,11 @@ const selectFromFile = async () => {
     t.home.featureDocuments,
     t.home.featureTranslation,
     t.home.featureOrderList,
+    t.home.featureAiRecommend,
   ];
 
   return (
-    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop]}>
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom }]}>
       <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
         <Appbar.Content title={shouldHideAppTitle ? "" : t.appTitle} />
         <Appbar.Action icon="share-variant" onPress={handleShare} />
@@ -525,8 +528,7 @@ const selectFromFile = async () => {
       >
         <View style={[styles.homeLayout, isDesktopLayout && styles.homeLayoutDesktop]}>
           <View style={[styles.heroPanel, isDesktopLayout && styles.heroPanelDesktop]}>
-            <Text style={styles.heroKicker}>{t.home.heroKicker}</Text>
-            <Text variant="displaySmall" style={[styles.title, isDesktopLayout && styles.titleDesktop]}>
+            <Text style={[styles.title, isDesktopLayout && styles.titleDesktop]}>
               {t.home.heroTitle}
             </Text>
 
@@ -547,10 +549,6 @@ const selectFromFile = async () => {
           <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop]}>
             <Card.Content style={styles.toolContent}>
               <View>
-                <Text style={styles.toolKicker}>{t.home.toolKicker}</Text>
-                <Text variant="headlineSmall" style={styles.toolTitle}>
-                  {t.home.toolTitle}
-                </Text>
               </View>
 
               <View style={styles.languageRow}>
@@ -617,10 +615,12 @@ const selectFromFile = async () => {
 
               <View style={styles.inputActions}>
                 <Button
-                  mode="contained"
+                  mode="contained-tonal"
                   icon="camera-outline"
                   style={styles.button}
                   contentStyle={styles.buttonContent}
+                  buttonColor="#EADDFF"
+                  textColor="#21005D"
                   onPress={takePicture}
                   disabled={loading}
                 >
@@ -685,6 +685,9 @@ const selectFromFile = async () => {
 
               {loading ? (
                 <View style={styles.loadingBox}>
+                  <Text style={styles.holdOnText}>
+                    {t.home.holdOnText}
+                  </Text>
                   <ActivityIndicator size="large" />
                   <Text style={styles.loadingText}>
                     {t.home.analyzingMenu}
@@ -692,10 +695,12 @@ const selectFromFile = async () => {
                 </View>
               ) : (
                 <Button
-                  mode="contained-tonal"
+                  mode="contained"
                   icon="magic-staff"
                   style={[styles.analyzeButton, isDesktopLayout && styles.analyzeButtonDesktop]}
                   contentStyle={styles.buttonContent}
+                  buttonColor="#6750A4"
+                  textColor="#FFFFFF"
                   onPress={handleAnalyzeMenu}
                   disabled={!canAnalyzeMenu}
                 >
@@ -724,7 +729,7 @@ const styles = StyleSheet.create({
     backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
     elevation: 0,
     width: "100%",
-    maxWidth: Platform.OS === 'web' ? 960 : '100%',
+    maxWidth: Platform.OS === 'web' ? 800 : '100%',
     alignSelf: "center",
   },
   appbarDesktop: {
@@ -793,13 +798,15 @@ const styles = StyleSheet.create({
   title: {
     textAlign: "left",
     fontWeight: "800",
-    color: "#1D1B20",
+    color: "#6D50B3",
+    fontSize: 24,
+    lineHeight: 32,
     marginBottom: 10,
   },
   titleDesktop: {
     textAlign: "left",
-    fontSize: 48,
-    lineHeight: 56,
+    fontSize: 32,
+    lineHeight: 40,
     maxWidth: 620,
   },
   subtitle: {
@@ -821,29 +828,35 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   featurePill: {
-    minWidth: 148,
+    width: "48%",
+    minWidth: 140,
     flexGrow: 1,
     borderWidth: 1,
     borderColor: "#E7E0EC",
     borderRadius: 8,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 14,
+    paddingHorizontal: 10,
     paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
   },
   featurePillDesktop: {
-    maxWidth: 186,
+    width: "48%",
+    maxWidth: "48%",
   },
   featureNumber: {
     color: "#6D50B3",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "800",
-    marginBottom: 6,
+    marginRight: 8,
   },
   featureText: {
     color: "#1D1B20",
     fontSize: 14,
     fontWeight: "700",
     lineHeight: 19,
+    flex: 1,
+    flexWrap: "wrap",
   },
   toolKicker: {
     color: "#6D50B3",
