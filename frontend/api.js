@@ -508,3 +508,13 @@ export async function getGoogleAuthUrl(redirectTo) {
   return await res.json();
 }
 
+
+export async function getUnitTranslations() {
+  const res = await fetch(`${API_BASE_URL}/i18n/units`);
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to fetch unit translations");
+  }
+  return await res.json();
+}
+

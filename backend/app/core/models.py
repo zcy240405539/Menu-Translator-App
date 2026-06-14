@@ -194,3 +194,16 @@ class NoiseKeyword(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     keyword = Column(Text, nullable=False, unique=True)
+
+
+class UnitTranslation(Base):
+    __tablename__ = "unit_translations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_unit = Column(Text, nullable=False)
+    target_lang = Column(Text, nullable=False)
+    translated_unit = Column(Text, nullable=False)
+    __table_args__ = (
+        UniqueConstraint("source_unit", "target_lang", name="unique_unit_lang"),
+    )
+
