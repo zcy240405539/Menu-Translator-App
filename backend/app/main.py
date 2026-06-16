@@ -16,7 +16,7 @@ from fastapi import (
     Depends, Body,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.core.database import get_db, engine, Base
@@ -121,6 +121,17 @@ app.mount(
     StaticFiles(directory=str(STATIC_DIR)),
     name="static",
 )
+
+
+@app.get("/app-ads.txt", response_class=PlainTextResponse)
+def app_ads_txt():
+    for path in [Path(__file__).parent / "app-ads.txt", Path(__file__).parent.parent / "app-ads.txt"]:
+        if path.exists():
+            try:
+                return path.read_text(encoding="utf-8")
+            except Exception as e:
+                print(f"Error reading app-ads.txt: {e}")
+    return "google.com, pub-8286400764174465, DIRECT, f08c47fec0942fa0"
 
 
 @app.get("/account-deletion", response_class=HTMLResponse)
