@@ -7,6 +7,7 @@ from pathlib import Path
 from io import BytesIO
 from PIL import Image
 from typing import List
+from urllib.parse import urlparse
 from fastapi import (
     BackgroundTasks,
     FastAPI,
@@ -714,16 +715,40 @@ def get_effective_document_provider(
 
 
 def get_requested_structure_provider(structure_provider: str | None = None) -> str:
-    return (structure_provider or os.getenv("MENU_STRUCTURE_PROVIDER", "openrouter") or "openrouter").strip().lower()
+    return (structure_provider or os.getenv("MENU_STRUCTURE_PROVIDER", "auto") or "auto").strip().lower()
+
+
+def _is_pdf_url(url: str | None = None) -> bool:
+    if not url:
+        return False
+    return Path(urlparse(str(url)).path or "").suffix.lower() == ".pdf"
+
+
+def get_effective_structure_provider(
+    structure_provider: str | None = None,
+    source_url: str | None = None,
+    content_type: str | None = None,
+    file_name: str | None = None,
+) -> str:
+    provider = get_requested_structure_provider(structure_provider)
+    if provider in {"gemini", "google_gemini", "official_gemini", "google"}:
+        return "gemini"
+    if provider in {"openrouter", "router", "or"}:
+        return "openrouter"
+    if provider not in {"auto", ""}:
+        return provider
+
+    if source_url and not _is_pdf_url(source_url):
+        return "gemini"
+    if _is_pdf_url(source_url):
+        return "openrouter"
+    if is_image_content(content_type or "", file_name or ""):
+        return "openrouter"
+    return "openrouter"
 
 
 def is_gemini_structure_provider(structure_provider: str | None = None) -> bool:
-    return get_requested_structure_provider(structure_provider) in {
-        "gemini",
-        "google_gemini",
-        "official_gemini",
-        "google",
-    }
+    return get_effective_structure_provider(structure_provider) == "gemini"
 
 
 def call_menu_structure_parser(
@@ -731,21 +756,41 @@ def call_menu_structure_parser(
     target_lang: str,
     source_lang: str,
     structure_provider: str | None = None,
+    source_url: str | None = None,
+    content_type: str | None = None,
+    file_name: str | None = None,
 ) -> dict:
-    if is_gemini_structure_provider(structure_provider):
+    effective_provider = get_effective_structure_provider(
+        structure_provider=structure_provider,
+        source_url=source_url,
+        content_type=content_type,
+        file_name=file_name,
+    )
+    if effective_provider == "gemini":
         from app.services.gemini_menu_service import call_gemini_for_menu
 
-        return call_gemini_for_menu(
-            ocr_text=extracted_markdown,
-            target_lang=target_lang,
-            source_lang=source_lang,
-        )
+        try:
+            result = call_gemini_for_menu(
+                ocr_text=extracted_markdown,
+                target_lang=target_lang,
+                source_lang=source_lang,
+            )
+            if isinstance(result, dict):
+                result["_structure_provider_used"] = "gemini"
+            return result
+        except Exception as exc:
+            if get_requested_structure_provider(structure_provider) != "auto":
+                raise
+            print(f"Gemini structure parser failed in auto mode; falling back to OpenRouter: {exc}")
 
-    return call_openrouter_for_menu(
+    result = call_openrouter_for_menu(
         ocr_text=extracted_markdown,
         target_lang=target_lang,
         source_lang=source_lang,
     )
+    if isinstance(result, dict):
+        result["_structure_provider_used"] = "openrouter"
+    return result
 
 
 def call_menu_layout_structure_parser(
@@ -754,7 +799,8 @@ def call_menu_layout_structure_parser(
     source_lang: str,
     structure_provider: str | None = None,
 ) -> dict:
-    if is_gemini_structure_provider(structure_provider):
+    effective_provider = get_effective_structure_provider(structure_provider)
+    if effective_provider == "gemini":
         from app.services.gemini_menu_service import call_gemini_for_menu_layout
 
         return call_gemini_for_menu_layout(
@@ -1259,6 +1305,8 @@ async def parse_menu(
             target_lang=target_lang,
             source_lang=source_lang,
             structure_provider=structure_provider,
+            content_type=mime_type,
+            file_name=file_name,
         )
         result = translate_menu_result_with_google(
             result,
@@ -1277,7 +1325,11 @@ async def parse_menu(
             }
         ]
         result["parser"] = parser_name
-        result["structure_provider"] = get_requested_structure_provider(structure_provider)
+        result["structure_provider"] = result.pop("_structure_provider_used", None) or get_effective_structure_provider(
+            structure_provider=structure_provider,
+            content_type=mime_type,
+            file_name=file_name,
+        )
         result["ocr_provider"] = ocr_provider or get_requested_ocr_provider() or "auto"
         result["document_provider"] = get_effective_document_provider(
             document_provider,
@@ -1318,6 +1370,7 @@ async def parse_menu_url(
             target_lang=request.target_lang,
             source_lang=request.source_lang,
             structure_provider=structure_provider,
+            source_url=safe_url,
         )
         result = translate_menu_result_with_google(
             result,
@@ -1336,7 +1389,10 @@ async def parse_menu_url(
             }
         ]
         result["parser"] = "url_markitdown_openrouter"
-        result["structure_provider"] = get_requested_structure_provider(structure_provider)
+        result["structure_provider"] = result.pop("_structure_provider_used", None) or get_effective_structure_provider(
+            structure_provider=structure_provider,
+            source_url=safe_url,
+        )
         result["document_provider"] = get_effective_document_provider(
             document_provider,
             extracted_markdown,
@@ -1843,7 +1899,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 12
+MENU_CACHE_SCHEMA_VERSION = 13
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
@@ -1878,12 +1934,18 @@ def run_menu_parse_task(
         ocr_provider = task.get("ocr_provider")
         document_provider = task.get("document_provider")
         structure_provider = task.get("structure_provider")
+        effective_structure_provider = get_effective_structure_provider(
+            structure_provider=structure_provider,
+            source_url=source_url,
+            content_type=content_type,
+            file_name=file_name,
+        )
 
         cache_material = file_bytes + (
             f"|schema={MENU_CACHE_SCHEMA_VERSION}"
             f"|ocr={ocr_provider or ''}"
             f"|document={document_provider or ''}"
-            f"|structure={structure_provider or ''}"
+            f"|structure={effective_structure_provider}"
         ).encode("utf-8")
         image_hash = calculate_image_hash(cache_material)
         print("Calculated image_hash:", image_hash)
@@ -1981,6 +2043,9 @@ def run_menu_parse_task(
                 target_lang=target_lang,
                 source_lang=source_lang,
                 structure_provider=structure_provider,
+                source_url=source_url,
+                content_type=content_type,
+                file_name=file_name,
             )
             result = translate_menu_result_with_google(
                 result,
@@ -1993,7 +2058,7 @@ def run_menu_parse_task(
                 result = {}
 
             result["parser"] = parser_name
-            result["structure_provider"] = get_requested_structure_provider(structure_provider)
+            result["structure_provider"] = result.pop("_structure_provider_used", None) or effective_structure_provider
             result["ocr_provider"] = ocr_provider or get_requested_ocr_provider() or "auto"
             result["document_provider"] = get_effective_document_provider(
                 document_provider,
