@@ -8,6 +8,8 @@ OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.5-flash-lite")
 OPENROUTER_VISION_MODEL = os.getenv("OPENROUTER_VISION_MODEL", "google/gemini-2.5-flash-lite")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+LAYOUT_MAX_TOKENS = int(os.getenv("LAYOUT_MAX_TOKENS", os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "6500")))
+VISION_MAX_TOKENS = int(os.getenv("VISION_MAX_TOKENS", os.getenv("OPENROUTER_VISION_MAX_TOKENS", "4000")))
 
 GOOGLE_CLOUD_API = os.getenv("GOOGLE_CLOUD_API")
 GOOGLE_CLOUD_PROJECT_ID = (

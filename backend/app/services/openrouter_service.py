@@ -5,11 +5,15 @@ import base64
 import os
 import time
 from pathlib import Path
-from app.core.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VISION_MODEL
+from app.core.config import (
+    LAYOUT_MAX_TOKENS,
+    OPENROUTER_API_KEY,
+    OPENROUTER_MODEL,
+    OPENROUTER_VISION_MODEL,
+    VISION_MAX_TOKENS,
+)
 OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash-lite")
 OPENROUTER_DETAIL_MODEL = os.getenv("OPENROUTER_DETAIL_MODEL", OPENROUTER_LAYOUT_MODEL)
-OPENROUTER_LAYOUT_MAX_TOKENS = int(os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "4500"))
-OPENROUTER_VISION_MAX_TOKENS = int(os.getenv("OPENROUTER_VISION_MAX_TOKENS", "4000"))
 OPENROUTER_LAYOUT_TIMEOUT = int(os.getenv("OPENROUTER_LAYOUT_TIMEOUT", "45"))
 OPENROUTER_VISION_TIMEOUT = int(os.getenv("OPENROUTER_VISION_TIMEOUT", "45"))
 OPENROUTER_MAX_RETRIES = max(1, int(os.getenv("OPENROUTER_MAX_RETRIES", "2")))
@@ -305,7 +309,7 @@ Malformed content:
             }
         ],
         "temperature": 0,
-        "max_tokens": min(OPENROUTER_VISION_MAX_TOKENS, 1800),
+        "max_tokens": min(VISION_MAX_TOKENS, 1800),
         "reasoning": {"enabled": False},
     }
 
@@ -754,7 +758,7 @@ JSON schema:
     payload = _build_payload(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        max_tokens=OPENROUTER_LAYOUT_MAX_TOKENS,
+        max_tokens=LAYOUT_MAX_TOKENS,
         model=selected_model,
     )
 
@@ -1504,7 +1508,7 @@ JSON schema:
         ],
         #"temperature": 0.1,
         "temperature": 0,
-        "max_tokens": OPENROUTER_VISION_MAX_TOKENS,
+        "max_tokens": VISION_MAX_TOKENS,
         "reasoning": {"enabled": False},
     }
 

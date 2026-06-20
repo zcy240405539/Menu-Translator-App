@@ -4,7 +4,7 @@ import time
 
 import requests
 
-from app.core.config import GEMINI_API_KEY, GEMINI_MODEL
+from app.core.config import GEMINI_API_KEY, GEMINI_MODEL, LAYOUT_MAX_TOKENS
 from app.core.i18n_service import get_language_name, normalize_lang
 from app.services.openrouter_service import (
     _compact_ocr_blocks,
@@ -18,7 +18,6 @@ from app.services.openrouter_service import (
 GEMINI_GENERATE_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 GEMINI_MENU_STRUCTURE_MODEL = os.getenv("GEMINI_MENU_STRUCTURE_MODEL", GEMINI_MODEL)
 GEMINI_MENU_STRUCTURE_TIMEOUT = int(os.getenv("GEMINI_MENU_STRUCTURE_TIMEOUT", "45"))
-GEMINI_MENU_MAX_OUTPUT_TOKENS = int(os.getenv("GEMINI_MENU_MAX_OUTPUT_TOKENS", "12000"))
 GEMINI_MENU_MAX_RETRIES = max(1, int(os.getenv("GEMINI_MENU_MAX_RETRIES", "2")))
 
 
@@ -29,7 +28,7 @@ def is_gemini_menu_configured() -> bool:
 def _post_gemini_generate(
     system_prompt: str,
     user_prompt: str,
-    max_output_tokens: int = GEMINI_MENU_MAX_OUTPUT_TOKENS,
+    max_output_tokens: int = LAYOUT_MAX_TOKENS,
     timeout: int = GEMINI_MENU_STRUCTURE_TIMEOUT,
 ) -> str:
     if not GEMINI_API_KEY:
@@ -111,7 +110,7 @@ Malformed JSON:
         repaired = _post_gemini_generate(
             "You repair malformed JSON and return JSON only.",
             repair_prompt,
-            max_output_tokens=min(GEMINI_MENU_MAX_OUTPUT_TOKENS, 8000),
+            max_output_tokens=min(LAYOUT_MAX_TOKENS, 8000),
             timeout=GEMINI_MENU_STRUCTURE_TIMEOUT,
         )
         try:
@@ -286,5 +285,5 @@ Layout rules:
 {_menu_json_contract(target_lang, source_lang)}
 """
 
-    content = _post_gemini_generate(system_prompt, user_prompt, max_output_tokens=GEMINI_MENU_MAX_OUTPUT_TOKENS)
+    content = _post_gemini_generate(system_prompt, user_prompt, max_output_tokens=LAYOUT_MAX_TOKENS)
     return _finalize_menu_result(_parse_gemini_json(content, "layout"), ocr_blocks=ocr_blocks, prompt_name="layout")
