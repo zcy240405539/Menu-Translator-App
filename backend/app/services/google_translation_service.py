@@ -23,7 +23,8 @@ GOOGLE_TRANSLATION_TIMEOUT = int(os.getenv("GOOGLE_CLOUD_TRANSLATION_TIMEOUT", "
 GOOGLE_TRANSLATION_BATCH_SIZE = max(1, int(os.getenv("GOOGLE_CLOUD_TRANSLATION_BATCH_SIZE", "80")))
 GOOGLE_TRANSLATION_MIME_TYPE = os.getenv("GOOGLE_CLOUD_TRANSLATION_MIME_TYPE", "text/plain")
 GOOGLE_TRANSLATION_SCOPES = ["https://www.googleapis.com/auth/cloud-translation"]
-_ACCESS_TOKEN_CACHE = {"token": None, "expires_at": 0}
+GOOGLE_CLOUD_PLATFORM_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
+_ACCESS_TOKEN_CACHE = {}
 
 
 def is_google_translation_configured() -> bool:
@@ -95,12 +96,14 @@ def _clean_text(value) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()
 
 
-def get_google_access_token() -> str:
+def get_google_access_token(scopes: list[str] | tuple[str, ...] | None = None) -> str:
     if GOOGLE_CLOUD_ACCESS_TOKEN:
         return GOOGLE_CLOUD_ACCESS_TOKEN
 
-    cached_token = _ACCESS_TOKEN_CACHE.get("token")
-    if cached_token and float(_ACCESS_TOKEN_CACHE.get("expires_at") or 0) > time.time() + 60:
+    requested_scopes = tuple(scopes or GOOGLE_TRANSLATION_SCOPES)
+    cached = _ACCESS_TOKEN_CACHE.get(requested_scopes) or {}
+    cached_token = cached.get("token")
+    if cached_token and float(cached.get("expires_at") or 0) > time.time() + 60:
         return str(cached_token)
 
     try:
@@ -115,20 +118,22 @@ def get_google_access_token() -> str:
         info = json.loads(GOOGLE_APPLICATION_CREDENTIALS_JSON)
         credentials = service_account.Credentials.from_service_account_info(
             info,
-            scopes=GOOGLE_TRANSLATION_SCOPES,
+            scopes=list(requested_scopes),
         )
     elif GOOGLE_APPLICATION_CREDENTIALS:
         credentials = service_account.Credentials.from_service_account_file(
             GOOGLE_APPLICATION_CREDENTIALS,
-            scopes=GOOGLE_TRANSLATION_SCOPES,
+            scopes=list(requested_scopes),
         )
     else:
         raise RuntimeError("No Cloud Translation Advanced v3 credentials configured.")
 
     credentials.refresh(Request())
-    _ACCESS_TOKEN_CACHE["token"] = credentials.token
     expiry = getattr(credentials, "expiry", None)
-    _ACCESS_TOKEN_CACHE["expires_at"] = expiry.timestamp() if expiry else time.time() + 3000
+    _ACCESS_TOKEN_CACHE[requested_scopes] = {
+        "token": credentials.token,
+        "expires_at": expiry.timestamp() if expiry else time.time() + 3000,
+    }
     return credentials.token
 
 

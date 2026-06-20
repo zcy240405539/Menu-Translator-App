@@ -9,7 +9,7 @@ from app.core.config import (
     GOOGLE_DOCUMENT_AI_LOCATION,
     GOOGLE_DOCUMENT_AI_PROCESSOR_ID,
 )
-from app.services.google_translation_service import get_google_access_token
+from app.services.google_translation_service import GOOGLE_CLOUD_PLATFORM_SCOPES, get_google_access_token
 
 
 DOCUMENT_AI_TIMEOUT = int(os.getenv("GOOGLE_DOCUMENT_AI_TIMEOUT", "45"))
@@ -35,7 +35,7 @@ def _document_ai_endpoint(path: str) -> str:
 
 def _document_ai_headers() -> dict:
     return {
-        "Authorization": f"Bearer {get_google_access_token()}",
+        "Authorization": f"Bearer {get_google_access_token(scopes=GOOGLE_CLOUD_PLATFORM_SCOPES)}",
         "Content-Type": "application/json",
     }
 

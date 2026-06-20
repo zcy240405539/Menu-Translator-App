@@ -4,7 +4,7 @@ import os
 import requests
 
 from app.core.config import GOOGLE_CLOUD_API
-from app.services.google_translation_service import get_google_access_token
+from app.services.google_translation_service import GOOGLE_CLOUD_PLATFORM_SCOPES, get_google_access_token
 
 
 GOOGLE_VISION_TIMEOUT = int(os.getenv("GOOGLE_VISION_TIMEOUT", "20"))
@@ -13,7 +13,7 @@ GOOGLE_VISION_MAX_RESULTS = int(os.getenv("GOOGLE_VISION_MAX_RESULTS", "1"))
 
 def _vision_headers() -> dict:
     return {
-        "Authorization": f"Bearer {get_google_access_token()}",
+        "Authorization": f"Bearer {get_google_access_token(scopes=GOOGLE_CLOUD_PLATFORM_SCOPES)}",
         "Content-Type": "application/json",
     }
 
