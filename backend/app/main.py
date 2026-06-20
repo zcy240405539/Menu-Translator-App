@@ -703,6 +703,16 @@ def should_use_vision_ocr(ocr_provider: str | None = None) -> bool:
     return is_render_runtime()
 
 
+def get_effective_document_provider(
+    document_provider: str | None = None,
+    extracted_markdown: str = "",
+) -> str:
+    provider = (document_provider or os.getenv("DOCUMENT_TEXT_PROVIDER", "auto") or "auto").strip().lower()
+    if provider in {"auto", ""} and str(extracted_markdown or "").lstrip().startswith("# Document AI"):
+        return "document_ai"
+    return provider or "auto"
+
+
 def load_local_ocr_functions():
     from app.services.ocr_service import extract_layout_blocks_from_image, extract_text_from_image
 
@@ -1203,7 +1213,10 @@ async def parse_menu(
         ]
         result["parser"] = parser_name
         result["ocr_provider"] = ocr_provider or get_requested_ocr_provider() or "auto"
-        result["document_provider"] = document_provider or os.getenv("DOCUMENT_TEXT_PROVIDER", "auto")
+        result["document_provider"] = get_effective_document_provider(
+            document_provider,
+            extracted_markdown,
+        )
         result["extracted_text_format"] = "markdown"
         result["extracted_text_preview"] = extracted_markdown[:12000]
         result["source_lang_request"] = source_lang
@@ -1255,7 +1268,10 @@ async def parse_menu_url(
             }
         ]
         result["parser"] = "url_markitdown_openrouter"
-        result["document_provider"] = document_provider or os.getenv("DOCUMENT_TEXT_PROVIDER", "auto")
+        result["document_provider"] = get_effective_document_provider(
+            document_provider,
+            extracted_markdown,
+        )
         result["source_url"] = safe_url
         result["extracted_text_format"] = "markdown"
         result["extracted_text_preview"] = extracted_markdown[:12000]
@@ -1758,7 +1774,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 9
+MENU_CACHE_SCHEMA_VERSION = 10
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
@@ -1906,7 +1922,10 @@ def run_menu_parse_task(
 
             result["parser"] = parser_name
             result["ocr_provider"] = ocr_provider or get_requested_ocr_provider() or "auto"
-            result["document_provider"] = document_provider or os.getenv("DOCUMENT_TEXT_PROVIDER", "auto")
+            result["document_provider"] = get_effective_document_provider(
+                document_provider,
+                extracted_markdown,
+            )
             result["extracted_text_format"] = "markdown"
             result["extracted_text_preview"] = extracted_markdown[:12000]
             if source_url:

@@ -572,7 +572,9 @@ def extract_markdown_from_pdf_bytes(
     document_provider: str | None = None,
 ) -> str:
     provider = (document_provider or DOCUMENT_TEXT_PROVIDER or "auto").strip().lower()
-    if provider in {"document_ai", "google_document_ai", "google", "cloud_document_ai"}:
+    document_ai_requested = provider in {"document_ai", "google_document_ai", "google", "cloud_document_ai"}
+    document_ai_auto = provider in {"auto", ""}
+    if document_ai_requested or document_ai_auto:
         try:
             from app.services.google_document_ai_service import (
                 document_ai_result_to_markdown,
@@ -593,7 +595,7 @@ def extract_markdown_from_pdf_bytes(
                     ).strip()
                 return markdown
         except Exception as exc:
-            if provider not in {"auto", ""}:
+            if document_ai_requested:
                 raise
             print("Document AI extraction skipped:", exc)
 
