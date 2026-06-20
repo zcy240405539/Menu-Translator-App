@@ -14,6 +14,16 @@ from app.services.google_translation_service import get_google_access_token
 
 DOCUMENT_AI_TIMEOUT = int(os.getenv("GOOGLE_DOCUMENT_AI_TIMEOUT", "45"))
 DOCUMENT_AI_MAX_PAGES = int(os.getenv("GOOGLE_DOCUMENT_AI_MAX_PAGES", "5"))
+DOCUMENT_AI_AUTO_CREATE_PROCESSOR = os.getenv("GOOGLE_DOCUMENT_AI_AUTO_CREATE_PROCESSOR", "true").lower() in {
+    "1",
+    "true",
+    "yes",
+}
+DOCUMENT_AI_PROCESSOR_TYPE = os.getenv("GOOGLE_DOCUMENT_AI_PROCESSOR_TYPE", "OCR_PROCESSOR").strip()
+DOCUMENT_AI_PROCESSOR_DISPLAY_NAME = os.getenv(
+    "GOOGLE_DOCUMENT_AI_PROCESSOR_DISPLAY_NAME",
+    "Menu Translator OCR",
+).strip()
 
 
 def _document_ai_endpoint(path: str) -> str:
@@ -37,6 +47,35 @@ def _processor_parent() -> str:
 
 def _processor_path(processor_id: str) -> str:
     return f"{_processor_parent()}/processors/{processor_id}"
+
+
+def _create_document_ai_processor() -> str | None:
+    if not DOCUMENT_AI_AUTO_CREATE_PROCESSOR:
+        return None
+    if not DOCUMENT_AI_PROCESSOR_TYPE:
+        return None
+
+    try:
+        response = requests.post(
+            _document_ai_endpoint(f"{_processor_parent()}/processors"),
+            headers=_document_ai_headers(),
+            json={
+                "type": DOCUMENT_AI_PROCESSOR_TYPE,
+                "displayName": DOCUMENT_AI_PROCESSOR_DISPLAY_NAME or "Menu Translator OCR",
+            },
+            timeout=DOCUMENT_AI_TIMEOUT,
+        )
+        response.raise_for_status()
+    except Exception as exc:
+        print("Document AI processor creation failed:", exc)
+        return None
+
+    processor = response.json() or {}
+    name = processor.get("name") or ""
+    processor_id = name.rstrip("/").split("/")[-1] or None
+    if processor_id:
+        print("Document AI processor created:", processor_id)
+    return processor_id
 
 
 @lru_cache(maxsize=1)
@@ -69,7 +108,7 @@ def resolve_document_ai_processor_id() -> str | None:
 
     selected = (preferred or enabled or processors or [None])[0]
     if not selected:
-        return None
+        return _create_document_ai_processor()
     name = selected.get("name") or ""
     return name.rstrip("/").split("/")[-1] or None
 
