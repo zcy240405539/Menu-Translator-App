@@ -564,6 +564,42 @@ def _pdf_vision_markdown(file_bytes: bytes, target_lang: str, source_lang: str) 
     return "\n".join(parts).strip()
 
 
+def _pdf_google_vision_markdown(file_bytes: bytes) -> str:
+    try:
+        from app.services.google_vision_service import extract_layout_blocks_from_image_with_google_vision
+        from app.services.pdf_service import pdf_bytes_to_images
+    except Exception as exc:
+        print("PDF Google Cloud Vision OCR unavailable:", exc)
+        return ""
+
+    parts = ["# Google Cloud Vision PDF menu text", ""]
+    try:
+        page_images = pdf_bytes_to_images(file_bytes, max_pages=PDF_VISION_MAX_PAGES)
+        for page_index, image_bytes in enumerate(page_images, start=1):
+            ocr_blocks = extract_layout_blocks_from_image_with_google_vision(
+                image_bytes=image_bytes,
+                mime_type="image/jpeg",
+            )
+            parts.append(f"## Page {page_index}")
+            for block in sorted(
+                ocr_blocks,
+                key=lambda item: (
+                    float(item.get("page") or 1),
+                    float(item.get("center_y") or item.get("y_min") or 0),
+                    float(item.get("center_x") or item.get("x_min") or 0),
+                ),
+            ):
+                text = re.sub(r"\s+", " ", str(block.get("text") or "")).strip()
+                if text:
+                    parts.append(f"- {text}")
+            parts.append("")
+    except Exception as exc:
+        print("PDF Google Cloud Vision OCR failed:", exc)
+        return ""
+
+    return "\n".join(parts).strip()
+
+
 def extract_markdown_from_pdf_bytes(
     file_bytes: bytes,
     target_lang: str = "zh",
@@ -597,6 +633,19 @@ def extract_markdown_from_pdf_bytes(
             if document_ai_requested:
                 raise
             print("Document AI extraction skipped:", exc)
+
+    google_vision_requested = provider in {
+        "google_vision",
+        "cloud_vision",
+        "google_cloud_vision",
+        "vision_api",
+        "cloud_vision_api",
+    }
+    if google_vision_requested:
+        google_vision_text = _pdf_google_vision_markdown(file_bytes)
+        if google_vision_text:
+            return google_vision_text
+        raise ValueError("Google Cloud Vision returned no readable PDF text.")
 
     vision_text = _pdf_vision_markdown(file_bytes, target_lang=target_lang, source_lang=source_lang)
     text_layer = _pdf_text_layer_markdown(file_bytes)
