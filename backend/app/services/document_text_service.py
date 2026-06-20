@@ -6,7 +6,7 @@ import tempfile
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
-from urllib.parse import urljoin, urlparse
+from urllib.parse import parse_qsl, urlencode, urljoin, urlparse, urlunparse
 
 import requests
 
@@ -329,6 +329,32 @@ def _find_candidate_menu_links(html: str, base_url: str) -> list[str]:
     return ranked
 
 
+def _menu_url_variants(original_url: str, final_url: str) -> list[str]:
+    parsed_original = urlparse(original_url)
+    parsed_final = urlparse(final_url)
+    original_path = (parsed_original.path or "").rstrip("/")
+    final_path = (parsed_final.path or "").rstrip("/")
+
+    if not re.search(r"/menus?$", original_path, re.IGNORECASE):
+        return []
+    if original_path == final_path and parsed_original.query:
+        return []
+
+    query = dict(parse_qsl(parsed_original.query, keep_blank_values=True))
+    query.setdefault("menu_parse", "1")
+    variant = urlunparse(
+        (
+            parsed_original.scheme,
+            parsed_original.netloc,
+            parsed_original.path,
+            parsed_original.params,
+            urlencode(query),
+            "",
+        )
+    )
+    return [variant]
+
+
 def _should_try_menu_fallback(primary_text: str, html: str) -> bool:
     if not html:
         return False
@@ -346,7 +372,8 @@ def extract_markdown_from_url(
     target_lang: str = "zh",
     source_lang: str = "auto",
 ) -> str:
-    response = _fetch_public_url(url)
+    safe_url = validate_public_http_url(url)
+    response = _fetch_public_url(safe_url)
     primary_text = _extract_markdown_from_response(
         response,
         target_lang=target_lang,
@@ -359,8 +386,14 @@ def extract_markdown_from_url(
 
     if is_html:
         primary_score = _menu_signal_score(primary_text)
-        for candidate_url in _find_candidate_menu_links(html, response.url):
+        candidate_urls = [
+            *_menu_url_variants(safe_url, response.url),
+            *_find_candidate_menu_links(html, response.url),
+        ]
+        for candidate_url in candidate_urls:
             try:
+                if validate_public_http_url(candidate_url) == response.url:
+                    continue
                 candidate_response = _fetch_public_url(candidate_url)
                 candidate_text = _extract_markdown_from_response(
                     candidate_response,
