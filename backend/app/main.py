@@ -713,6 +713,63 @@ def get_effective_document_provider(
     return provider or "auto"
 
 
+def get_requested_structure_provider(structure_provider: str | None = None) -> str:
+    return (structure_provider or os.getenv("MENU_STRUCTURE_PROVIDER", "openrouter") or "openrouter").strip().lower()
+
+
+def is_gemini_structure_provider(structure_provider: str | None = None) -> bool:
+    return get_requested_structure_provider(structure_provider) in {
+        "gemini",
+        "google_gemini",
+        "official_gemini",
+        "google",
+    }
+
+
+def call_menu_structure_parser(
+    extracted_markdown: str,
+    target_lang: str,
+    source_lang: str,
+    structure_provider: str | None = None,
+) -> dict:
+    if is_gemini_structure_provider(structure_provider):
+        from app.services.gemini_menu_service import call_gemini_for_menu
+
+        return call_gemini_for_menu(
+            ocr_text=extracted_markdown,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+
+    return call_openrouter_for_menu(
+        ocr_text=extracted_markdown,
+        target_lang=target_lang,
+        source_lang=source_lang,
+    )
+
+
+def call_menu_layout_structure_parser(
+    ocr_blocks: list[dict],
+    target_lang: str,
+    source_lang: str,
+    structure_provider: str | None = None,
+) -> dict:
+    if is_gemini_structure_provider(structure_provider):
+        from app.services.gemini_menu_service import call_gemini_for_menu_layout
+
+        return call_gemini_for_menu_layout(
+            ocr_blocks=ocr_blocks,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+
+    return call_openrouter_for_menu_layout(
+        ocr_blocks=ocr_blocks,
+        target_lang=target_lang,
+        source_lang=source_lang,
+    )
+
+
 def load_local_ocr_functions():
     from app.services.ocr_service import extract_layout_blocks_from_image, extract_text_from_image
 
@@ -868,6 +925,7 @@ def parse_image_with_vision(
     source_lang: str,
     mime_type: str = "image/jpeg",
     ocr_provider: str | None = None,
+    structure_provider: str | None = None,
 ) -> tuple[dict, list[dict]]:
     if should_use_google_vision_ocr(ocr_provider):
         from app.services.google_vision_service import extract_layout_blocks_from_image_with_google_vision
@@ -900,10 +958,11 @@ def parse_image_with_vision(
         }, []
 
     try:
-        result = call_openrouter_for_menu_layout(
+        result = call_menu_layout_structure_parser(
             ocr_blocks=ocr_blocks,
             target_lang=target_lang,
             source_lang=source_lang,
+            structure_provider=structure_provider,
         )
 
         if not isinstance(result, dict):
@@ -927,7 +986,7 @@ def parse_image_with_vision(
     if vision_result.get("currency") and not result.get("currency"):
         result["currency"] = vision_result["currency"]
 
-    result["parser"] = result.get("parser") or f"{parser_prefix}_layout_openrouter"
+    result["parser"] = result.get("parser") or f"{parser_prefix}_layout_{get_requested_structure_provider(structure_provider)}"
     result["ocr_blocks"] = ocr_blocks
 
     return result, ocr_blocks
@@ -1132,12 +1191,16 @@ async def menu_layout(
 # =========================
 
 @app.post("/menus/analyze")
-def analyze_menu(request: AnalyzeTextRequest):
+def analyze_menu(
+    request: AnalyzeTextRequest,
+    structure_provider: Optional[str] = None,
+):
     try:
-        result = call_openrouter_for_menu(
-            ocr_text=request.ocr_text,
+        result = call_menu_structure_parser(
+            extracted_markdown=request.ocr_text,
             target_lang=request.target_lang,
             source_lang=getattr(request, "source_lang", "en"),
+            structure_provider=structure_provider,
         )
         result = translate_menu_result_with_google(
             result,
@@ -1161,6 +1224,7 @@ async def parse_menu(
     source_lang: str = "auto",
     ocr_provider: Optional[str] = None,
     document_provider: Optional[str] = None,
+    structure_provider: Optional[str] = None,
 ):
     try:
         file_bytes = await file.read()
@@ -1190,10 +1254,11 @@ async def parse_menu(
         if not extracted_markdown:
             raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
 
-        result = call_openrouter_for_menu(
-            ocr_text=extracted_markdown,
+        result = call_menu_structure_parser(
+            extracted_markdown=extracted_markdown,
             target_lang=target_lang,
             source_lang=source_lang,
+            structure_provider=structure_provider,
         )
         result = translate_menu_result_with_google(
             result,
@@ -1212,6 +1277,7 @@ async def parse_menu(
             }
         ]
         result["parser"] = parser_name
+        result["structure_provider"] = get_requested_structure_provider(structure_provider)
         result["ocr_provider"] = ocr_provider or get_requested_ocr_provider() or "auto"
         result["document_provider"] = get_effective_document_provider(
             document_provider,
@@ -1233,6 +1299,7 @@ async def parse_menu(
 async def parse_menu_url(
     request: MenuUrlParseRequest,
     document_provider: Optional[str] = None,
+    structure_provider: Optional[str] = None,
 ):
     try:
         safe_url = validate_public_http_url(request.url)
@@ -1246,10 +1313,11 @@ async def parse_menu_url(
         if not extracted_markdown:
             raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
 
-        result = call_openrouter_for_menu(
-            ocr_text=extracted_markdown,
+        result = call_menu_structure_parser(
+            extracted_markdown=extracted_markdown,
             target_lang=request.target_lang,
             source_lang=request.source_lang,
+            structure_provider=structure_provider,
         )
         result = translate_menu_result_with_google(
             result,
@@ -1268,6 +1336,7 @@ async def parse_menu_url(
             }
         ]
         result["parser"] = "url_markitdown_openrouter"
+        result["structure_provider"] = get_requested_structure_provider(structure_provider)
         result["document_provider"] = get_effective_document_provider(
             document_provider,
             extracted_markdown,
@@ -1774,7 +1843,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 11
+MENU_CACHE_SCHEMA_VERSION = 12
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
@@ -1808,11 +1877,13 @@ def run_menu_parse_task(
         source_url = task.get("source_url")
         ocr_provider = task.get("ocr_provider")
         document_provider = task.get("document_provider")
+        structure_provider = task.get("structure_provider")
 
         cache_material = file_bytes + (
             f"|schema={MENU_CACHE_SCHEMA_VERSION}"
             f"|ocr={ocr_provider or ''}"
             f"|document={document_provider or ''}"
+            f"|structure={structure_provider or ''}"
         ).encode("utf-8")
         image_hash = calculate_image_hash(cache_material)
         print("Calculated image_hash:", image_hash)
@@ -1905,10 +1976,11 @@ def run_menu_parse_task(
                 raise ValueError("No readable menu text was extracted.")
 
             analysis_started_at = time.perf_counter()
-            result = call_openrouter_for_menu(
-                ocr_text=extracted_markdown,
+            result = call_menu_structure_parser(
+                extracted_markdown=extracted_markdown,
                 target_lang=target_lang,
                 source_lang=source_lang,
+                structure_provider=structure_provider,
             )
             result = translate_menu_result_with_google(
                 result,
@@ -1921,6 +1993,7 @@ def run_menu_parse_task(
                 result = {}
 
             result["parser"] = parser_name
+            result["structure_provider"] = get_requested_structure_provider(structure_provider)
             result["ocr_provider"] = ocr_provider or get_requested_ocr_provider() or "auto"
             result["document_provider"] = get_effective_document_provider(
                 document_provider,
@@ -2289,6 +2362,7 @@ async def start_parse_menu(
     source_lang: str = "auto",
     ocr_provider: Optional[str] = None,
     document_provider: Optional[str] = None,
+    structure_provider: Optional[str] = None,
 ):
     try:
         if not file:
@@ -2313,6 +2387,7 @@ async def start_parse_menu(
             "source_lang": source_lang,
             "ocr_provider": ocr_provider,
             "document_provider": document_provider,
+            "structure_provider": structure_provider,
         }
 
         background_tasks.add_task(
@@ -2341,6 +2416,7 @@ async def start_parse_menu_url(
     request: MenuUrlParseRequest,
     background_tasks: BackgroundTasks,
     document_provider: Optional[str] = None,
+    structure_provider: Optional[str] = None,
 ):
     try:
         safe_url = validate_public_http_url(request.url)
@@ -2356,6 +2432,7 @@ async def start_parse_menu_url(
             "source_lang": request.source_lang,
             "source_url": safe_url,
             "document_provider": document_provider,
+            "structure_provider": structure_provider,
         }
 
         background_tasks.add_task(
