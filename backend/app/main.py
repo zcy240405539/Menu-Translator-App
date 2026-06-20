@@ -1044,7 +1044,26 @@ def extract_image_markdown_for_analysis(
     target_lang: str,
     mime_type: str = "image/jpeg",
     ocr_provider: str | None = None,
+    document_provider: str | None = None,
 ) -> tuple[str, list[dict], str]:
+    provider = (document_provider or "").strip().lower()
+    if provider in {"document_ai", "google_document_ai", "google_document", "cloud_document_ai"}:
+        from app.services.google_document_ai_service import (
+            document_ai_result_to_markdown,
+            process_document_with_document_ai,
+        )
+
+        result = process_document_with_document_ai(
+            file_bytes=file_bytes,
+            mime_type=mime_type or "image/jpeg",
+        )
+        ocr_blocks = result.get("blocks") or []
+        return (
+            document_ai_result_to_markdown(result),
+            ocr_blocks,
+            "image_google_document_ai_markdown_openrouter",
+        )
+
     if should_use_google_vision_ocr(ocr_provider):
         from app.services.google_vision_service import extract_layout_blocks_from_image_with_google_vision
 
@@ -1284,6 +1303,7 @@ async def parse_menu(
                 target_lang=target_lang,
                 mime_type=mime_type,
                 ocr_provider=ocr_provider,
+                document_provider=document_provider,
             )
         else:
             extracted_markdown = extract_markdown_from_file_bytes(
@@ -1899,7 +1919,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 13
+MENU_CACHE_SCHEMA_VERSION = 14
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
@@ -2018,6 +2038,7 @@ def run_menu_parse_task(
                     target_lang=target_lang,
                     mime_type=content_type or "image/jpeg",
                     ocr_provider=ocr_provider,
+                    document_provider=document_provider,
                 )
 
             else:
