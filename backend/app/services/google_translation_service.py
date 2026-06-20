@@ -23,6 +23,18 @@ def is_google_translation_configured() -> bool:
     return bool(GOOGLE_CLOUD_API and GOOGLE_CLOUD_PROJECT_ID)
 
 
+def _has_google_api_key() -> bool:
+    return bool(GOOGLE_CLOUD_API)
+
+
+def google_translation_provider_name() -> str:
+    if is_google_translation_configured():
+        return "google_cloud_translation_v3"
+    if _has_google_api_key():
+        return "google_cloud_translation_v2_key_fallback"
+    return "google_cloud_translation_not_configured"
+
+
 def _google_language_code(lang: str | None, *, source: bool = False) -> str | None:
     normalized = normalize_lang(lang, "auto" if source else "zh")
     if source and normalized == "auto":
@@ -66,6 +78,37 @@ def _chunks(values: list[str], size: int) -> Iterable[list[str]]:
 
 def _clean_text(value) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()
+
+
+def _translate_texts_v2(
+    texts: list[str],
+    target_code: str,
+    source_code: str | None,
+) -> dict[str, str]:
+    endpoint = "https://translation.googleapis.com/language/translate/v2"
+    translations: dict[str, str] = {}
+
+    for batch in _chunks(texts, GOOGLE_TRANSLATION_BATCH_SIZE):
+        payload = {
+            "q": batch,
+            "target": target_code,
+            "format": "text",
+        }
+        if source_code:
+            payload["source"] = source_code
+
+        response = requests.post(
+            endpoint,
+            params={"key": GOOGLE_CLOUD_API},
+            data=payload,
+            timeout=GOOGLE_TRANSLATION_TIMEOUT,
+        )
+        response.raise_for_status()
+        entries = response.json().get("data", {}).get("translations") or []
+        for source, entry in zip(batch, entries):
+            translations[source] = _clean_text(entry.get("translatedText") or source)
+
+    return translations
 
 
 def _load_database_glossary(texts: list[str], target_lang: str, source_lang: str) -> dict[str, str]:
@@ -134,6 +177,16 @@ def translate_texts(
         return {text: text for text in cleaned}
 
     if not is_google_translation_configured():
+        if _has_google_api_key():
+            v2_translations = _translate_texts_v2(
+                pending,
+                target_code=target_code,
+                source_code=source_code,
+            )
+            return {
+                text: glossary_overrides.get(text) or v2_translations.get(text) or text
+                for text in cleaned
+            }
         return {text: glossary_overrides.get(text, text) for text in cleaned}
 
     endpoint = f"https://translation.googleapis.com/v3/{_translation_parent()}:translateText"
@@ -218,7 +271,7 @@ def translate_menu_result_with_google(
             target_lang=target_lang,
             source_lang=source_lang,
         )
-        provider = "google_cloud_translation_v3" if is_google_translation_configured() else "google_cloud_translation_not_configured"
+        provider = google_translation_provider_name()
     except Exception as exc:
         print("Google Cloud Translation failed:", exc)
         translation_map = {}
