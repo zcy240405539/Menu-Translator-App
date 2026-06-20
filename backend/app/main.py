@@ -714,6 +714,24 @@ def get_effective_document_provider(
     return provider or "auto"
 
 
+def should_use_image_document_ai(
+    document_provider: str | None = None,
+    ocr_provider: str | None = None,
+) -> bool:
+    provider = (document_provider or "").strip().lower()
+    if provider in {"document_ai", "google_document_ai", "google_document", "cloud_document_ai"}:
+        return True
+    if provider in {"none", "off", "false", "disabled", "markitdown", "auto"}:
+        return False
+
+    requested_ocr_provider = (ocr_provider or "").strip().lower()
+    if requested_ocr_provider and requested_ocr_provider not in {"auto"}:
+        return False
+
+    default_provider = os.getenv("IMAGE_DOCUMENT_PROVIDER", "document_ai").strip().lower()
+    return default_provider in {"document_ai", "google_document_ai", "google_document", "cloud_document_ai"}
+
+
 def get_requested_structure_provider(structure_provider: str | None = None) -> str:
     return (structure_provider or os.getenv("MENU_STRUCTURE_PROVIDER", "auto") or "auto").strip().lower()
 
@@ -1046,23 +1064,25 @@ def extract_image_markdown_for_analysis(
     ocr_provider: str | None = None,
     document_provider: str | None = None,
 ) -> tuple[str, list[dict], str]:
-    provider = (document_provider or "").strip().lower()
-    if provider in {"document_ai", "google_document_ai", "google_document", "cloud_document_ai"}:
+    if should_use_image_document_ai(document_provider=document_provider, ocr_provider=ocr_provider):
         from app.services.google_document_ai_service import (
             document_ai_result_to_markdown,
             process_document_with_document_ai,
         )
 
-        result = process_document_with_document_ai(
-            file_bytes=file_bytes,
-            mime_type=mime_type or "image/jpeg",
-        )
-        ocr_blocks = result.get("blocks") or []
-        return (
-            document_ai_result_to_markdown(result),
-            ocr_blocks,
-            "image_google_document_ai_markdown_openrouter",
-        )
+        try:
+            result = process_document_with_document_ai(
+                file_bytes=file_bytes,
+                mime_type=mime_type or "image/jpeg",
+            )
+            ocr_blocks = result.get("blocks") or []
+            return (
+                document_ai_result_to_markdown(result),
+                ocr_blocks,
+                "image_google_document_ai_markdown_openrouter",
+            )
+        except Exception as exc:
+            print("Image Document AI extraction failed. Falling back to configured OCR:", exc)
 
     if should_use_google_vision_ocr(ocr_provider):
         from app.services.google_vision_service import extract_layout_blocks_from_image_with_google_vision
@@ -1919,7 +1939,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 14
+MENU_CACHE_SCHEMA_VERSION = 15
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
