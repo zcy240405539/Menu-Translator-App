@@ -16,3 +16,4 @@ paddlepaddle==3.2.0
 paddleocr==3.3.2
 opencv-python-headless
 markitdown[pdf,docx,xlsx,xls,pptx]
+google-auth

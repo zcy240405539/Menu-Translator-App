@@ -1,10 +1,15 @@
 import os
+import json
 import re
+import time
 from typing import Iterable
 
 import requests
 
 from app.core.config import (
+    GOOGLE_APPLICATION_CREDENTIALS,
+    GOOGLE_APPLICATION_CREDENTIALS_JSON,
+    GOOGLE_CLOUD_ACCESS_TOKEN,
     GOOGLE_CLOUD_API,
     GOOGLE_CLOUD_LOCATION,
     GOOGLE_CLOUD_PROJECT_ID,
@@ -17,14 +22,24 @@ from app.core.i18n_service import normalize_lang
 GOOGLE_TRANSLATION_TIMEOUT = int(os.getenv("GOOGLE_CLOUD_TRANSLATION_TIMEOUT", "12"))
 GOOGLE_TRANSLATION_BATCH_SIZE = max(1, int(os.getenv("GOOGLE_CLOUD_TRANSLATION_BATCH_SIZE", "80")))
 GOOGLE_TRANSLATION_MIME_TYPE = os.getenv("GOOGLE_CLOUD_TRANSLATION_MIME_TYPE", "text/plain")
+GOOGLE_TRANSLATION_SCOPES = ["https://www.googleapis.com/auth/cloud-translation"]
+_ACCESS_TOKEN_CACHE = {"token": None, "expires_at": 0}
 
 
 def is_google_translation_configured() -> bool:
-    return bool(GOOGLE_CLOUD_API and GOOGLE_CLOUD_PROJECT_ID)
+    return bool(GOOGLE_CLOUD_PROJECT_ID and _has_v3_credentials())
 
 
 def _has_google_api_key() -> bool:
     return bool(GOOGLE_CLOUD_API)
+
+
+def _has_v3_credentials() -> bool:
+    return bool(
+        GOOGLE_CLOUD_ACCESS_TOKEN
+        or GOOGLE_APPLICATION_CREDENTIALS_JSON
+        or GOOGLE_APPLICATION_CREDENTIALS
+    )
 
 
 def google_translation_provider_name() -> str:
@@ -78,6 +93,85 @@ def _chunks(values: list[str], size: int) -> Iterable[list[str]]:
 
 def _clean_text(value) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()
+
+
+def _get_google_access_token() -> str:
+    if GOOGLE_CLOUD_ACCESS_TOKEN:
+        return GOOGLE_CLOUD_ACCESS_TOKEN
+
+    cached_token = _ACCESS_TOKEN_CACHE.get("token")
+    if cached_token and float(_ACCESS_TOKEN_CACHE.get("expires_at") or 0) > time.time() + 60:
+        return str(cached_token)
+
+    try:
+        from google.auth.transport.requests import Request
+        from google.oauth2 import service_account
+    except Exception as exc:
+        raise RuntimeError(
+            "google-auth is required for Cloud Translation Advanced v3 service account auth."
+        ) from exc
+
+    if GOOGLE_APPLICATION_CREDENTIALS_JSON:
+        info = json.loads(GOOGLE_APPLICATION_CREDENTIALS_JSON)
+        credentials = service_account.Credentials.from_service_account_info(
+            info,
+            scopes=GOOGLE_TRANSLATION_SCOPES,
+        )
+    elif GOOGLE_APPLICATION_CREDENTIALS:
+        credentials = service_account.Credentials.from_service_account_file(
+            GOOGLE_APPLICATION_CREDENTIALS,
+            scopes=GOOGLE_TRANSLATION_SCOPES,
+        )
+    else:
+        raise RuntimeError("No Cloud Translation Advanced v3 credentials configured.")
+
+    credentials.refresh(Request())
+    _ACCESS_TOKEN_CACHE["token"] = credentials.token
+    expiry = getattr(credentials, "expiry", None)
+    _ACCESS_TOKEN_CACHE["expires_at"] = expiry.timestamp() if expiry else time.time() + 3000
+    return credentials.token
+
+
+def _translate_texts_v3(
+    texts: list[str],
+    target_code: str,
+    source_code: str | None,
+) -> dict[str, str]:
+    endpoint = f"https://translation.googleapis.com/v3/{_translation_parent()}:translateText"
+    model = _translation_model_path()
+    glossary = _glossary_path()
+    translations: dict[str, str] = {}
+    headers = {
+        "Authorization": f"Bearer {_get_google_access_token()}",
+        "Content-Type": "application/json",
+    }
+
+    for batch in _chunks(texts, GOOGLE_TRANSLATION_BATCH_SIZE):
+        payload = {
+            "contents": batch,
+            "mimeType": GOOGLE_TRANSLATION_MIME_TYPE,
+            "targetLanguageCode": target_code,
+        }
+        if source_code:
+            payload["sourceLanguageCode"] = source_code
+        if model:
+            payload["model"] = model
+        if glossary:
+            payload["glossaryConfig"] = {"glossary": glossary}
+
+        response = requests.post(
+            endpoint,
+            headers=headers,
+            json=payload,
+            timeout=GOOGLE_TRANSLATION_TIMEOUT,
+        )
+        response.raise_for_status()
+        data = response.json()
+        translated_entries = data.get("glossaryTranslations") or data.get("translations") or []
+        for source, entry in zip(batch, translated_entries):
+            translations[source] = _clean_text(entry.get("translatedText") or source)
+
+    return translations
 
 
 def _translate_texts_v2(
@@ -189,36 +283,26 @@ def translate_texts(
             }
         return {text: glossary_overrides.get(text, text) for text in cleaned}
 
-    endpoint = f"https://translation.googleapis.com/v3/{_translation_parent()}:translateText"
-    model = _translation_model_path()
-    glossary = _glossary_path()
-
     translations: dict[str, str] = dict(glossary_overrides)
-    for batch in _chunks(pending, GOOGLE_TRANSLATION_BATCH_SIZE):
-        payload = {
-            "contents": batch,
-            "mimeType": GOOGLE_TRANSLATION_MIME_TYPE,
-            "targetLanguageCode": target_code,
-        }
-        if source_code:
-            payload["sourceLanguageCode"] = source_code
-        if model:
-            payload["model"] = model
-        if glossary:
-            payload["glossaryConfig"] = {"glossary": glossary}
-
-        response = requests.post(
-            endpoint,
-            params={"key": GOOGLE_CLOUD_API},
-            json=payload,
-            timeout=GOOGLE_TRANSLATION_TIMEOUT,
+    try:
+        translations.update(
+            _translate_texts_v3(
+                pending,
+                target_code=target_code,
+                source_code=source_code,
+            )
         )
-        response.raise_for_status()
-        data = response.json()
-        translated_entries = data.get("glossaryTranslations") or data.get("translations") or []
-
-        for source, entry in zip(batch, translated_entries):
-            translations[source] = _clean_text(entry.get("translatedText") or source)
+    except Exception as exc:
+        if not _has_google_api_key():
+            raise
+        print("Cloud Translation v3 failed, falling back to v2:", exc)
+        translations.update(
+            _translate_texts_v2(
+                pending,
+                target_code=target_code,
+                source_code=source_code,
+            )
+        )
 
     return translations
 
@@ -346,7 +430,10 @@ def translate_document_bytes(
 
     response = requests.post(
         endpoint,
-        params={"key": GOOGLE_CLOUD_API},
+        headers={
+            "Authorization": f"Bearer {_get_google_access_token()}",
+            "Content-Type": "application/json",
+        },
         json=payload,
         timeout=max(GOOGLE_TRANSLATION_TIMEOUT, 30),
     )
