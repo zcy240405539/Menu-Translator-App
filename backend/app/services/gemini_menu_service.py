@@ -18,7 +18,7 @@ from app.services.openrouter_service import (
 GEMINI_GENERATE_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 GEMINI_MENU_STRUCTURE_MODEL = os.getenv("GEMINI_MENU_STRUCTURE_MODEL", GEMINI_MODEL)
 GEMINI_MENU_STRUCTURE_TIMEOUT = int(os.getenv("GEMINI_MENU_STRUCTURE_TIMEOUT", "45"))
-GEMINI_MENU_MAX_OUTPUT_TOKENS = int(os.getenv("GEMINI_MENU_MAX_OUTPUT_TOKENS", "6500"))
+GEMINI_MENU_MAX_OUTPUT_TOKENS = int(os.getenv("GEMINI_MENU_MAX_OUTPUT_TOKENS", "12000"))
 GEMINI_MENU_MAX_RETRIES = max(1, int(os.getenv("GEMINI_MENU_MAX_RETRIES", "2")))
 
 
@@ -86,6 +86,40 @@ def _post_gemini_generate(
         return text
 
     raise last_error or RuntimeError("Gemini request failed")
+
+
+def _parse_gemini_json(content: str, prompt_name: str) -> dict:
+    try:
+        return _extract_json_from_text(content)
+    except Exception as first_error:
+        repair_prompt = f"""
+Repair this malformed restaurant menu JSON.
+
+Rules:
+- Return exactly one valid JSON object.
+- No markdown. No explanation.
+- Preserve all complete sections and menu items from the malformed JSON.
+- Drop only incomplete trailing objects or fields if necessary.
+- Keep the same top-level schema with sections/items.
+
+Parser error:
+{str(first_error)[:800]}
+
+Malformed JSON:
+{content[:24000]}
+"""
+        repaired = _post_gemini_generate(
+            "You repair malformed JSON and return JSON only.",
+            repair_prompt,
+            max_output_tokens=min(GEMINI_MENU_MAX_OUTPUT_TOKENS, 8000),
+            timeout=GEMINI_MENU_STRUCTURE_TIMEOUT,
+        )
+        try:
+            return _extract_json_from_text(repaired)
+        except Exception as repair_error:
+            raise ValueError(
+                f"Gemini {prompt_name} JSON parse failed: {first_error}; repair failed: {repair_error}"
+            ) from repair_error
 
 
 def _finalize_menu_result(result: dict, ocr_blocks: list | None = None, prompt_name: str = "markdown") -> dict:
@@ -205,7 +239,7 @@ Business info:
 """
 
     content = _post_gemini_generate(system_prompt, user_prompt)
-    return _finalize_menu_result(_extract_json_from_text(content), prompt_name="markdown")
+    return _finalize_menu_result(_parse_gemini_json(content, "markdown"), prompt_name="markdown")
 
 
 def call_gemini_for_menu_layout(
@@ -253,4 +287,4 @@ Layout rules:
 """
 
     content = _post_gemini_generate(system_prompt, user_prompt, max_output_tokens=GEMINI_MENU_MAX_OUTPUT_TOKENS)
-    return _finalize_menu_result(_extract_json_from_text(content), ocr_blocks=ocr_blocks, prompt_name="layout")
+    return _finalize_menu_result(_parse_gemini_json(content, "layout"), ocr_blocks=ocr_blocks, prompt_name="layout")
