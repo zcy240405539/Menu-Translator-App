@@ -682,8 +682,17 @@ def is_render_runtime() -> bool:
     )
 
 
-def should_use_vision_ocr() -> bool:
-    provider = os.getenv("OCR_PROVIDER", "").strip().lower()
+def get_requested_ocr_provider(ocr_provider: str | None = None) -> str:
+    return (ocr_provider or os.getenv("OCR_PROVIDER", "") or "").strip().lower()
+
+
+def should_use_google_vision_ocr(ocr_provider: str | None = None) -> bool:
+    provider = get_requested_ocr_provider(ocr_provider)
+    return provider in {"google_vision", "cloud_vision", "google-cloud-vision", "google"}
+
+
+def should_use_vision_ocr(ocr_provider: str | None = None) -> bool:
+    provider = get_requested_ocr_provider(ocr_provider)
 
     if provider in {"vision", "openrouter", "cloud"}:
         return True
@@ -848,14 +857,26 @@ def parse_image_with_vision(
     target_lang: str,
     source_lang: str,
     mime_type: str = "image/jpeg",
+    ocr_provider: str | None = None,
 ) -> tuple[dict, list[dict]]:
-    vision_result = call_openrouter_vision_for_menu(
-        image_bytes=file_bytes,
-        mime_type=mime_type,
-        target_lang=target_lang,
-        source_lang=source_lang,
-    )
-    ocr_blocks = vision_layout_to_ocr_blocks(vision_result)
+    if should_use_google_vision_ocr(ocr_provider):
+        from app.services.google_vision_service import extract_layout_blocks_from_image_with_google_vision
+
+        ocr_blocks = extract_layout_blocks_from_image_with_google_vision(
+            image_bytes=file_bytes,
+            mime_type=mime_type,
+        )
+        vision_result = {}
+        parser_prefix = "google_cloud_vision"
+    else:
+        vision_result = call_openrouter_vision_for_menu(
+            image_bytes=file_bytes,
+            mime_type=mime_type,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+        ocr_blocks = vision_layout_to_ocr_blocks(vision_result)
+        parser_prefix = "openrouter_vision"
 
     if not ocr_blocks:
         return {
@@ -864,7 +885,7 @@ def parse_image_with_vision(
             "restaurant_type": vision_result.get("restaurant_type"),
             "menu_items": [],
             "menu_pricing": vision_result.get("menu_pricing") or [],
-            "parser": "openrouter_vision_empty",
+            "parser": f"{parser_prefix}_empty",
             "ocr_blocks": [],
         }, []
 
@@ -896,7 +917,7 @@ def parse_image_with_vision(
     if vision_result.get("currency") and not result.get("currency"):
         result["currency"] = vision_result["currency"]
 
-    result["parser"] = result.get("parser") or "openrouter_vision_layout_openrouter"
+    result["parser"] = result.get("parser") or f"{parser_prefix}_layout_openrouter"
     result["ocr_blocks"] = ocr_blocks
 
     return result, ocr_blocks
@@ -907,8 +928,22 @@ def extract_image_markdown_for_analysis(
     source_lang: str,
     target_lang: str,
     mime_type: str = "image/jpeg",
+    ocr_provider: str | None = None,
 ) -> tuple[str, list[dict], str]:
-    if should_use_vision_ocr():
+    if should_use_google_vision_ocr(ocr_provider):
+        from app.services.google_vision_service import extract_layout_blocks_from_image_with_google_vision
+
+        ocr_blocks = extract_layout_blocks_from_image_with_google_vision(
+            image_bytes=file_bytes,
+            mime_type=mime_type or "image/jpeg",
+        )
+        return (
+            ocr_blocks_to_markdown(ocr_blocks, source_label="google_cloud_vision_ocr"),
+            ocr_blocks,
+            "image_google_cloud_vision_ocr_markdown_openrouter",
+        )
+
+    if should_use_vision_ocr(ocr_provider):
         vision_result = call_openrouter_vision_for_menu(
             image_bytes=file_bytes,
             mime_type=mime_type or "image/jpeg",
@@ -1007,10 +1042,20 @@ def db_test(db: Session = Depends(get_db)):
 async def menu_ocr(
     file: UploadFile = File(...),
     source_lang: str = "auto",
+    ocr_provider: Optional[str] = None,
 ):
     try:
         file_bytes = await file.read()
-        if should_use_vision_ocr():
+        if should_use_google_vision_ocr(ocr_provider):
+            from app.services.google_vision_service import call_google_vision_text_detection
+
+            vision_result = call_google_vision_text_detection(
+                image_bytes=file_bytes,
+                mime_type=file.content_type or "image/jpeg",
+            )
+            blocks = vision_result.get("blocks") or []
+            ocr_text = vision_result.get("text") or "\n".join(b["text"] for b in blocks if b.get("text"))
+        elif should_use_vision_ocr(ocr_provider):
             vision_result = call_openrouter_vision_for_menu(
                 image_bytes=file_bytes,
                 mime_type=file.content_type or "image/jpeg",
@@ -1038,10 +1083,18 @@ async def menu_ocr(
 async def menu_layout(
     file: UploadFile = File(...),
     source_lang: str = "auto",
+    ocr_provider: Optional[str] = None,
 ):
     try:
         file_bytes = await file.read()
-        if should_use_vision_ocr():
+        if should_use_google_vision_ocr(ocr_provider):
+            from app.services.google_vision_service import extract_layout_blocks_from_image_with_google_vision
+
+            blocks = extract_layout_blocks_from_image_with_google_vision(
+                image_bytes=file_bytes,
+                mime_type=file.content_type or "image/jpeg",
+            )
+        elif should_use_vision_ocr(ocr_provider):
             vision_result = call_openrouter_vision_for_menu(
                 image_bytes=file_bytes,
                 mime_type=file.content_type or "image/jpeg",
@@ -1096,6 +1149,8 @@ async def parse_menu(
     file: UploadFile = File(...),
     target_lang: str = "zh",
     source_lang: str = "auto",
+    ocr_provider: Optional[str] = None,
+    document_provider: Optional[str] = None,
 ):
     try:
         file_bytes = await file.read()
@@ -1108,6 +1163,7 @@ async def parse_menu(
                 source_lang=source_lang,
                 target_lang=target_lang,
                 mime_type=mime_type,
+                ocr_provider=ocr_provider,
             )
         else:
             extracted_markdown = extract_markdown_from_file_bytes(
@@ -1116,6 +1172,7 @@ async def parse_menu(
                 content_type=mime_type,
                 target_lang=target_lang,
                 source_lang=source_lang,
+                document_provider=document_provider,
             )
             ocr_blocks = []
             parser_name = "document_markitdown_openrouter"
@@ -1145,6 +1202,8 @@ async def parse_menu(
             }
         ]
         result["parser"] = parser_name
+        result["ocr_provider"] = ocr_provider or get_requested_ocr_provider() or "auto"
+        result["document_provider"] = document_provider or os.getenv("DOCUMENT_TEXT_PROVIDER", "auto")
         result["extracted_text_format"] = "markdown"
         result["extracted_text_preview"] = extracted_markdown[:12000]
         result["source_lang_request"] = source_lang
@@ -1158,13 +1217,17 @@ async def parse_menu(
 
 
 @app.post("/menus/parse/url")
-async def parse_menu_url(request: MenuUrlParseRequest):
+async def parse_menu_url(
+    request: MenuUrlParseRequest,
+    document_provider: Optional[str] = None,
+):
     try:
         safe_url = validate_public_http_url(request.url)
         extracted_markdown = extract_markdown_from_url(
             safe_url,
             target_lang=request.target_lang,
             source_lang=request.source_lang,
+            document_provider=document_provider,
         )
 
         if not extracted_markdown:
@@ -1192,6 +1255,7 @@ async def parse_menu_url(request: MenuUrlParseRequest):
             }
         ]
         result["parser"] = "url_markitdown_openrouter"
+        result["document_provider"] = document_provider or os.getenv("DOCUMENT_TEXT_PROVIDER", "auto")
         result["source_url"] = safe_url
         result["extracted_text_format"] = "markdown"
         result["extracted_text_preview"] = extracted_markdown[:12000]
@@ -1694,7 +1758,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 8
+MENU_CACHE_SCHEMA_VERSION = 9
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
@@ -1721,7 +1785,20 @@ def run_menu_parse_task(
         task_started_at = time.perf_counter()
         timings = {}
 
-        image_hash = calculate_image_hash(file_bytes)
+        task = MENU_TASKS[task_id]
+        content_type = task.get("content_type", "") or "image/jpeg"
+        source_lang = task.get("source_lang", source_lang) or "en"
+        file_name = task.get("file_name") or "menu"
+        source_url = task.get("source_url")
+        ocr_provider = task.get("ocr_provider")
+        document_provider = task.get("document_provider")
+
+        cache_material = file_bytes + (
+            f"|schema={MENU_CACHE_SCHEMA_VERSION}"
+            f"|ocr={ocr_provider or ''}"
+            f"|document={document_provider or ''}"
+        ).encode("utf-8")
+        image_hash = calculate_image_hash(cache_material)
         print("Calculated image_hash:", image_hash)
         db = SessionLocal()
 
@@ -1771,11 +1848,6 @@ def run_menu_parse_task(
             # =========================
             # 没命中菜单缓存，才做 OCR + 第一轮 OpenRouter
             # =========================
-            content_type = MENU_TASKS[task_id].get("content_type", "") or "image/jpeg"
-            source_lang = MENU_TASKS[task_id].get("source_lang", source_lang) or "en"
-            file_name = MENU_TASKS[task_id].get("file_name") or "menu"
-            source_url = MENU_TASKS[task_id].get("source_url")
-
             ocr_blocks = []
             extraction_started_at = time.perf_counter()
 
@@ -1785,6 +1857,7 @@ def run_menu_parse_task(
                     source_url,
                     target_lang=target_lang,
                     source_lang=source_lang,
+                    document_provider=document_provider,
                 )
                 parser_name = "url_markitdown_openrouter"
 
@@ -1795,6 +1868,7 @@ def run_menu_parse_task(
                     source_lang=source_lang,
                     target_lang=target_lang,
                     mime_type=content_type or "image/jpeg",
+                    ocr_provider=ocr_provider,
                 )
 
             else:
@@ -1805,6 +1879,7 @@ def run_menu_parse_task(
                     content_type=content_type,
                     target_lang=target_lang,
                     source_lang=source_lang,
+                    document_provider=document_provider,
                 )
                 parser_name = "document_markitdown_openrouter"
 
@@ -1830,6 +1905,8 @@ def run_menu_parse_task(
                 result = {}
 
             result["parser"] = parser_name
+            result["ocr_provider"] = ocr_provider or get_requested_ocr_provider() or "auto"
+            result["document_provider"] = document_provider or os.getenv("DOCUMENT_TEXT_PROVIDER", "auto")
             result["extracted_text_format"] = "markdown"
             result["extracted_text_preview"] = extracted_markdown[:12000]
             if source_url:
@@ -2191,6 +2268,8 @@ async def start_parse_menu(
     file: Optional[UploadFile] = File(None),
     target_lang: str = "zh",
     source_lang: str = "auto",
+    ocr_provider: Optional[str] = None,
+    document_provider: Optional[str] = None,
 ):
     try:
         if not file:
@@ -2213,6 +2292,8 @@ async def start_parse_menu(
             "content_type": content_type,
             "file_name": file_name,
             "source_lang": source_lang,
+            "ocr_provider": ocr_provider,
+            "document_provider": document_provider,
         }
 
         background_tasks.add_task(
@@ -2240,6 +2321,7 @@ async def start_parse_menu(
 async def start_parse_menu_url(
     request: MenuUrlParseRequest,
     background_tasks: BackgroundTasks,
+    document_provider: Optional[str] = None,
 ):
     try:
         safe_url = validate_public_http_url(request.url)
@@ -2254,6 +2336,7 @@ async def start_parse_menu_url(
             "file_name": "menu-url.html",
             "source_lang": request.source_lang,
             "source_url": safe_url,
+            "document_provider": document_provider,
         }
 
         background_tasks.add_task(

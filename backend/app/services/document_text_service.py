@@ -3,6 +3,7 @@ import os
 import re
 import socket
 import tempfile
+import ipaddress
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
@@ -26,6 +27,7 @@ PDF_INCLUDE_TEXT_LAYER_FALLBACK = os.getenv("PDF_INCLUDE_TEXT_LAYER_FALLBACK", "
     "true",
     "yes",
 }
+DOCUMENT_TEXT_PROVIDER = os.getenv("DOCUMENT_TEXT_PROVIDER", "auto").strip().lower()
 URL_USER_AGENT = os.getenv(
     "MARKITDOWN_USER_AGENT",
     "MenuTranslatorApp/1.0 (+https://ai-menu-app.onrender.com)",
@@ -147,6 +149,7 @@ def extract_markdown_from_file_bytes(
     content_type: str = "application/octet-stream",
     target_lang: str = "zh",
     source_lang: str = "auto",
+    document_provider: str | None = None,
 ) -> str:
     _assert_size_allowed(file_bytes)
     if _is_pdf_content(content_type, filename):
@@ -154,6 +157,8 @@ def extract_markdown_from_file_bytes(
             file_bytes=file_bytes,
             target_lang=target_lang,
             source_lang=source_lang,
+            mime_type=content_type,
+            document_provider=document_provider,
         )
 
     suffix = _safe_suffix(filename, content_type)
@@ -283,6 +288,7 @@ def _extract_markdown_from_response(
     response: requests.Response,
     target_lang: str = "zh",
     source_lang: str = "auto",
+    document_provider: str | None = None,
 ) -> str:
     content = response.content or b""
     content_type = response.headers.get("Content-Type", "")
@@ -293,6 +299,8 @@ def _extract_markdown_from_response(
             file_bytes=content,
             target_lang=target_lang,
             source_lang=source_lang,
+            mime_type=content_type or "application/pdf",
+            document_provider=document_provider,
         )
 
     if "html" in content_type.lower():
@@ -414,6 +422,7 @@ def extract_markdown_from_url(
     url: str,
     target_lang: str = "zh",
     source_lang: str = "auto",
+    document_provider: str | None = None,
 ) -> str:
     safe_url = validate_public_http_url(url)
     response = _fetch_public_url(safe_url)
@@ -421,6 +430,7 @@ def extract_markdown_from_url(
         response,
         target_lang=target_lang,
         source_lang=source_lang,
+        document_provider=document_provider,
     )
 
     content_type = response.headers.get("Content-Type", "")
@@ -442,6 +452,7 @@ def extract_markdown_from_url(
                     candidate_response,
                     target_lang=target_lang,
                     source_lang=source_lang,
+                    document_provider=document_provider,
                 )
                 candidate_score = _menu_signal_score(candidate_text)
                 candidate_host = urlparse(candidate_response.url).hostname or ""
@@ -557,7 +568,26 @@ def extract_markdown_from_pdf_bytes(
     file_bytes: bytes,
     target_lang: str = "zh",
     source_lang: str = "auto",
+    mime_type: str = "application/pdf",
+    document_provider: str | None = None,
 ) -> str:
+    provider = (document_provider or DOCUMENT_TEXT_PROVIDER or "auto").strip().lower()
+    if provider in {"document_ai", "google_document_ai", "google", "cloud_document_ai"}:
+        try:
+            from app.services.google_document_ai_service import (
+                document_ai_result_to_markdown,
+                process_document_with_document_ai,
+            )
+
+            result = process_document_with_document_ai(file_bytes, mime_type=mime_type or "application/pdf")
+            markdown = document_ai_result_to_markdown(result)
+            if markdown:
+                return markdown
+        except Exception as exc:
+            if provider not in {"auto", ""}:
+                raise
+            print("Document AI extraction skipped:", exc)
+
     vision_text = _pdf_vision_markdown(file_bytes, target_lang=target_lang, source_lang=source_lang)
     text_layer = _pdf_text_layer_markdown(file_bytes)
 

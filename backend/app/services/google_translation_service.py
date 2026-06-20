@@ -95,7 +95,7 @@ def _clean_text(value) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()
 
 
-def _get_google_access_token() -> str:
+def get_google_access_token() -> str:
     if GOOGLE_CLOUD_ACCESS_TOKEN:
         return GOOGLE_CLOUD_ACCESS_TOKEN
 
@@ -142,7 +142,7 @@ def _translate_texts_v3(
     glossary = _glossary_path()
     translations: dict[str, str] = {}
     headers = {
-        "Authorization": f"Bearer {_get_google_access_token()}",
+        "Authorization": f"Bearer {get_google_access_token()}",
         "Content-Type": "application/json",
     }
 
