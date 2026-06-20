@@ -9,7 +9,7 @@ from app.core.config import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_VIS
 OPENROUTER_LAYOUT_MODEL = os.getenv("OPENROUTER_LAYOUT_MODEL", "google/gemini-2.5-flash-lite")
 OPENROUTER_DETAIL_MODEL = os.getenv("OPENROUTER_DETAIL_MODEL", OPENROUTER_LAYOUT_MODEL)
 OPENROUTER_LAYOUT_MAX_TOKENS = int(os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "4500"))
-OPENROUTER_VISION_MAX_TOKENS = int(os.getenv("OPENROUTER_VISION_MAX_TOKENS", "2500"))
+OPENROUTER_VISION_MAX_TOKENS = int(os.getenv("OPENROUTER_VISION_MAX_TOKENS", "4000"))
 OPENROUTER_LAYOUT_TIMEOUT = int(os.getenv("OPENROUTER_LAYOUT_TIMEOUT", "45"))
 OPENROUTER_VISION_TIMEOUT = int(os.getenv("OPENROUTER_VISION_TIMEOUT", "45"))
 OPENROUTER_MAX_RETRIES = max(1, int(os.getenv("OPENROUTER_MAX_RETRIES", "2")))
@@ -549,6 +549,7 @@ def flatten_nested_menu_json(nested_result: dict) -> dict:
                 "category": category_key,
                 "section_heading_original": sec_orig,
                 "section_heading_translated": sec_trans,
+                "description_original": item.get("description_original") or item.get("description") or "",
                 "description": item.get("description") or "",
                 "ingredients": item.get("ingredients") or [],
                 "allergens": item.get("allergens") or [],
@@ -560,6 +561,91 @@ def flatten_nested_menu_json(nested_result: dict) -> dict:
             dish_counter += 1
             
     return flat_result
+
+
+PRICE_ONLY_RE = re.compile(r"^\s*(?:[$€£¥￥]\s*)?\d{1,4}(?:\.\d{1,2})?\s*$")
+SECTION_PRICE_RE = re.compile(r"^\s*(?P<label>.*[A-Za-zÀ-ÿ\u4e00-\u9fff][^\d$€£¥￥]*)\s+(?P<price>(?:[$€£¥￥]\s*)?\d{1,4}(?:\.\d{1,2})?)\s*$")
+
+
+def _is_price_only(value) -> bool:
+    return bool(PRICE_ONLY_RE.fullmatch(str(value or "").strip()))
+
+
+def _split_section_price(value: str) -> tuple[str, str | None]:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    if not text or _is_price_only(text):
+        return text, None
+
+    match = SECTION_PRICE_RE.fullmatch(text)
+    if not match:
+        return text, None
+
+    label = match.group("label").strip(" -")
+    price = match.group("price").strip()
+    if not label or _is_price_only(label):
+        return text, None
+    return label, price
+
+
+def sanitize_menu_result_structure(result: dict) -> dict:
+    if not isinstance(result, dict):
+        return result
+
+    cleaned_items = []
+    current_section = ""
+    current_section_translated = ""
+    current_section_price = None
+
+    for item in result.get("menu_items") or []:
+        original_name = re.sub(r"\s+", " ", str(item.get("original_name") or "")).strip()
+        if not original_name or _is_price_only(original_name):
+            continue
+
+        section_original = re.sub(
+            r"\s+",
+            " ",
+            str(item.get("section_heading_original") or item.get("category") or "").strip(),
+        )
+        section_translated = re.sub(
+            r"\s+",
+            " ",
+            str(item.get("section_heading_translated") or "").strip(),
+        )
+
+        section_label, section_price = _split_section_price(section_original)
+        if section_label and not _is_price_only(section_label):
+            section_original = section_label
+            current_section = section_label
+            current_section_translated = section_translated
+            current_section_price = section_price
+        elif _is_price_only(section_original):
+            price_value = section_original
+            section_original = current_section or "Other"
+            section_translated = current_section_translated
+            current_section_price = price_value
+        elif current_section and not section_original:
+            section_original = current_section
+            section_translated = current_section_translated
+
+        item_label, item_price = _split_section_price(original_name)
+        if item_price and not item.get("price"):
+            item["price"] = item_price
+            original_name = item_label
+
+        if current_section_price and not item.get("price"):
+            item["price"] = current_section_price
+
+        if _is_price_only(section_original):
+            section_original = "Other"
+
+        item["original_name"] = original_name
+        item["section_heading_original"] = section_original or "Other"
+        item["section_heading_translated"] = section_translated
+        item["category"] = re.sub(r"[^a-z0-9]+", "_", item["section_heading_original"].lower()).strip("_") or "other"
+        cleaned_items.append(item)
+
+    result["menu_items"] = cleaned_items
+    return result
 
 
 def _call_openrouter_for_menu_layout_fast(
@@ -580,7 +666,7 @@ Return exactly one valid JSON object and no markdown.
 """
 
     user_prompt = f"""
-Task: reconstruct a restaurant menu from OCR blocks and translate user-facing fields.
+Task: reconstruct a restaurant menu from OCR blocks. Do not translate user-facing fields; translation is handled by Google Cloud Translation after this step.
 Source language: {source_lang} ({source_language_name})
 Target language: {target_lang} ({target_language_name})
 
@@ -593,6 +679,9 @@ Rules:
 - Merge split headings before assigning dishes, e.g. "STARTERS +" + "SNACKS" => "STARTERS + SNACKS".
 - Assign dishes to the closest heading above them in the same column/group/box.
 - Do not infer categories from food type when a visible heading exists.
+- Never use a price-only line such as "9", "13", "$12", or "22" as section_heading_original, category, or original_name.
+- If a decorative price appears under a real heading, keep the real heading as section_heading_original and use that number as the default item price only when individual item prices are missing.
+- If a heading includes a section price, such as "VERDURAS 14", use "VERDURAS" as the section heading and "14" as the default price for items in that section.
 - Never output a section heading as a menu item unless the menu sells that heading as a set.
 - If a dish name is prefixed by a number or code (e.g., "A1.", "05.", "B12"), you MUST preserve this exact number/code prefix in both original_name and translated_name. Do not strip or omit the prefix.
 - Bilingual Menu Optimization: If the OCR text for a dish already contains both the source language (e.g. Chinese) and target language (e.g. English) texts (for example, "A1. 回锅肉 Twice-cooked pork" or "A1. 回锅肉 | Twice-cooked pork"), you MUST extract the printed target translation directly from the menu and use it for translated_name (e.g., "A1. Twice-cooked pork") and description (if present) instead of doing AI translation. original_name must be set to the printed original language name (e.g., "A1. 回锅肉").
@@ -600,11 +689,8 @@ Rules:
 - If an OCR block uses " | " separators, treat the first segment as original_name, middle segments as description, and price-like segments as price. Do not include prices in original_name or translated_name. CRITICAL: If a single line contains multiple separate dish names separated by prices (e.g., "素炒河粉 | 10元/份 | 酸辣土豆丝盖饭 | 12元/份"), do NOT treat the second dish name as a description of the first! Instead, split it into two separate menu items (e.g., item 1: "素炒河粉" with price 10元, item 2: "酸辣土豆丝盖饭" with price 12元). Only treat the middle segment as a description if it is clearly explanatory text.
 - Extract real menu items only. Exclude restaurant name, hours, address, phone, social media, notes, taxes, and decorative text.
 - original_name stays exactly in source language.
-- translated_name, description, ingredients, allergens, and section_heading_translated must be in {target_language_name}.
-- For target_lang "zh" or "zh-Hant", every translated_name and description must contain Chinese characters.
-- For target_lang "zh-Hant", use Traditional Chinese characters for all user-facing text.
-- For target_lang "zh", use Simplified Chinese characters for all user-facing text.
-- For target_lang "zh" or "zh-Hant", translate English ingredient lists instead of copying them into description, ingredients, or allergens.
+- Leave translated_name and section_heading_translated empty if you are not certain. Google Cloud Translation fills them after parsing.
+- Keep description in the original menu language as printed; put it in description_original when possible. Do not translate descriptions.
 - If the menu gives no description, keep the description empty "" or extremely short (under 10 words).
 - Keep ingredients and allergens as empty lists [] unless they are explicitly printed on the menu.
 - Keep description concise and customer-friendly. Use null for missing prices. Do not invent prices.
@@ -677,6 +763,7 @@ JSON schema:
         if "confidence" not in item:
             item["confidence"] = 0.9
 
+    result = sanitize_menu_result_structure(result)
     result = post_process_restore_prefixes(result, ocr_blocks)
     result["analysis_model"] = selected_model
     result["analysis_prompt"] = "fast"
@@ -703,7 +790,7 @@ def call_openrouter_for_menu_layout(
     source_language_name = get_language_name(source_lang)
 
     system_prompt = """
-You are a professional restaurant menu parser, food translator, and menu layout reconstruction expert.
+You are a professional restaurant menu parser and menu layout reconstruction expert.
 
 You will receive OCR blocks with text and bounding box coordinates.
 If OCR blocks contain multiple pages, reconstruct the menu across pages.
@@ -714,7 +801,7 @@ Your job:
 2. Identify columns, visual groups, bordered areas, and section headings.
 3. Assign each dish to the correct section heading based on visual position.
 4. Extract real menu items only.
-5. Translate dish names, descriptions, ingredients, and allergens into the requested target language.
+5. Preserve source menu text. Do not translate; Google Cloud Translation handles translation after parsing.
 
 Critical layout rules:
 - Use x/y coordinates to reconstruct menu layout.
@@ -726,6 +813,9 @@ Critical layout rules:
 - A heading fragment ending with "+", "&", "AND", "/", or "-" usually belongs with the nearest heading fragment beside or below it.
 - If OCR reading order mixes columns, ignore OCR order and use coordinates.
 - Do not classify only by dish type.
+- Never use a price-only line such as "9", "13", "$12", or "22" as section_heading_original, category, or original_name.
+- If a decorative price appears under a real heading, keep the real heading as section_heading_original and use that number as the default item price only when individual item prices are missing.
+- If a heading includes a section price, such as "VERDURAS 14", use "VERDURAS" as the section heading and "14" as the default price for items in that section.
 - Use actual menu section headings whenever possible.
 - Preserve the visual order of dishes.
 - If one dish row has multiple size or option price columns, keep it as one menu item.
@@ -759,15 +849,11 @@ Rules:
 
 Translation rules:
 - original_name must stay in the original menu language.
-- translated_name must be translated into {target_language_name} (if bilingual menu optimization is not triggered).
-- description must be translated into {target_language_name}.
-- ingredients must be translated into {target_language_name}.
-- allergens must be translated into {target_language_name}.
+- Do not translate in this step.
+- translated_name and section_heading_translated may be empty strings; Google Cloud Translation fills them after parsing.
+- description should preserve the printed source-language description. Prefer description_original for printed source descriptions.
+- ingredients and allergens should stay empty unless explicitly printed.
 - category must stay as a standardized English key from the allowed list.
-- If target_lang is "zh" or "zh-Hant", translated_name, description, ingredients, and allergens must use Chinese.
-- For target_lang "zh-Hant", use Traditional Chinese characters for all user-facing text.
-- For target_lang "zh", use Simplified Chinese characters for all user-facing text.
-- For target_lang "zh" or "zh-Hant", do not copy English ingredient phrases into description or ingredients.
 - If the menu gives no description, keep the description empty "" or extremely short (under 10 words).
 - Keep ingredients and allergens as empty lists [] unless they are explicitly printed on the menu.
 - Keep image_prompt extremely short (under 4 words, in English).
@@ -789,7 +875,7 @@ Category rules:
   - "HOUSE SPECIALS" => "house_specials"
   - "NOODLES & RICE" => "noodles_rice"
 - section_heading_original must contain the exact original section heading text from the menu.
-- section_heading_translated must contain the section heading translated into target language.
+- section_heading_translated may be empty; Google Cloud Translation fills it after parsing.
 - Do not infer category from dish type if visual heading is available.
 - translated_name, description, ingredients, allergens, spicy_level, image_prompt, and confidence are required for every item.
 
@@ -896,6 +982,7 @@ Output requirements:
         if "confidence" not in item:
             item["confidence"] = 0.9
 
+    result = sanitize_menu_result_structure(result)
     result = post_process_restore_prefixes(result, ocr_blocks)
     result["analysis_model"] = model or OPENROUTER_LAYOUT_MODEL
     result["analysis_prompt"] = "full"
@@ -909,13 +996,13 @@ def call_openrouter_for_menu(ocr_text: str, target_lang: str = "zh", source_lang
     source_language_name = get_language_name(source_lang)
 
     system_prompt = """
-You are a professional restaurant menu parser and food translator.
+You are a professional restaurant menu parser.
 
 Return raw JSON only.
 Do not use markdown.
 Do not invent prices.
 Extract real menu items only.
-Translate content into the requested target language.
+Do not translate content. Google Cloud Translation handles all translation after this parsing step.
 The input may be OCR text, Markdown converted from a document, Markdown converted from HTML, or ordered OCR lines converted into Markdown.
 """
 
@@ -945,17 +1032,19 @@ Rules:
 - If OCR contains mixed languages, preserve original_name exactly as printed.
 - source_language in output must use the detected or requested language code.
 - original_name must stay in the original menu language.
-- translated_name must be translated into {target_language_name}.
-- description must be translated into {target_language_name}.
-- ingredients must be translated into {target_language_name}.
-- allergens must be translated into {target_language_name}.
+- translated_name may be empty; Google Cloud Translation fills it after parsing.
+- description should preserve the printed source-language description. Prefer description_original for printed source descriptions.
+- ingredients and allergens should stay empty unless explicitly printed.
 - category must stay as a standardized English key.
 
 Category rules:
 - category must be a stable snake_case key generated from section_heading_original.
-- category must be translated into {target_language_name}.
+- category must not be translated.
 - Do not use a fixed hardcoded category list.
 - If section_heading_original is missing, create a general snake_case category based on the item group.
+- Never use a price-only line such as "9", "13", "$12", or "22" as section_heading_original, category, or original_name.
+- If a decorative price appears under a real heading, keep the real heading as section_heading_original and use that number as the default item price only when individual item prices are missing.
+- If a heading includes a section price, such as "VERDURAS 14", use "VERDURAS" as the section heading and "14" as the default price for items in that section.
 
 Business information extraction:
 - Extract restaurant/business name if visible. Put it in business_name.
@@ -989,6 +1078,8 @@ Return valid JSON only:
       "price": null,
       "category": "",
       "section_heading_original": "",
+      "section_heading_translated": "",
+      "description_original": "",
       "description": "",
       "ingredients": [],
       "allergens": [],
@@ -1000,12 +1091,13 @@ Return valid JSON only:
 }}
 """
 
-    payload = _build_payload(system_prompt=system_prompt, user_prompt=user_prompt, max_tokens=5000)
+    payload = _build_payload(system_prompt=system_prompt, user_prompt=user_prompt, max_tokens=6500)
 
     data = _post_openrouter(payload, timeout=OPENROUTER_LAYOUT_TIMEOUT)
     content = data["choices"][0]["message"]["content"]
 
-    return _extract_json_from_text(content)
+    result = _extract_json_from_text(content)
+    return sanitize_menu_result_structure(result)
 
 
 def call_openrouter_for_dish_detail(dish_name: str, target_lang: str = "zh", source_lang: str = "en") -> dict:
@@ -1350,6 +1442,7 @@ Rules:
 - For a dish row, combine the dish name, nearby description, and same-row price into one string.
 - Use " | " between name, description, and price when helpful.
 - Do not output separate price-only or description-only lines.
+- If a decorative section price appears below a heading, combine it with the heading as "HEADING | default price 9" instead of outputting "9" as its own line.
 - Remove decorative dot leaders and OCR noise such as g/m.
 
 Hard limit:

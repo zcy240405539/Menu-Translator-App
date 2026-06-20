@@ -72,6 +72,10 @@ from app.services.document_text_service import (
     ocr_blocks_to_markdown,
     validate_public_http_url,
 )
+from app.services.google_translation_service import (
+    translate_menu_result_with_google,
+    translate_texts,
+)
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -1072,6 +1076,11 @@ def analyze_menu(request: AnalyzeTextRequest):
             target_lang=request.target_lang,
             source_lang=getattr(request, "source_lang", "en"),
         )
+        result = translate_menu_result_with_google(
+            result,
+            target_lang=request.target_lang,
+            source_lang=result.get("source_language") or getattr(request, "source_lang", "en") if isinstance(result, dict) else getattr(request, "source_lang", "en"),
+        )
 
         return result
 
@@ -1105,6 +1114,8 @@ async def parse_menu(
                 file_bytes=file_bytes,
                 filename=file_name,
                 content_type=mime_type,
+                target_lang=target_lang,
+                source_lang=source_lang,
             )
             ocr_blocks = []
             parser_name = "document_markitdown_openrouter"
@@ -1116,6 +1127,11 @@ async def parse_menu(
             ocr_text=extracted_markdown,
             target_lang=target_lang,
             source_lang=source_lang,
+        )
+        result = translate_menu_result_with_google(
+            result,
+            target_lang=target_lang,
+            source_lang=result.get("source_language") or source_lang if isinstance(result, dict) else source_lang,
         )
 
         if not isinstance(result, dict):
@@ -1145,7 +1161,11 @@ async def parse_menu(
 async def parse_menu_url(request: MenuUrlParseRequest):
     try:
         safe_url = validate_public_http_url(request.url)
-        extracted_markdown = extract_markdown_from_url(safe_url)
+        extracted_markdown = extract_markdown_from_url(
+            safe_url,
+            target_lang=request.target_lang,
+            source_lang=request.source_lang,
+        )
 
         if not extracted_markdown:
             raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
@@ -1154,6 +1174,11 @@ async def parse_menu_url(request: MenuUrlParseRequest):
             ocr_text=extracted_markdown,
             target_lang=request.target_lang,
             source_lang=request.source_lang,
+        )
+        result = translate_menu_result_with_google(
+            result,
+            target_lang=request.target_lang,
+            source_lang=result.get("source_language") or request.source_lang if isinstance(result, dict) else request.source_lang,
         )
 
         if not isinstance(result, dict):
@@ -1574,18 +1599,44 @@ def resolve_category_translation_map(db, labels, target_lang, source_lang, seed_
 
     if missing_labels:
         try:
-            translated_categories = call_openrouter_translate_category_labels(
-                labels=missing_labels,
+            translated_texts = translate_texts(
+                texts=missing_labels,
                 target_lang=target_lang,
                 source_lang=source_lang,
             )
+            translated_categories = {
+                label: translated_texts.get(label)
+                for label in missing_labels
+                if translated_texts.get(label)
+            }
 
             for label, translated in translated_categories.items():
                 if is_useful_category_translation(translated, label, target_lang):
                     category_map[label] = translated
 
         except Exception as category_translate_error:
-            print("Category translation failed:", category_translate_error)
+            print("Google category translation failed:", category_translate_error)
+
+        still_missing_labels = [
+            label
+            for label in labels
+            if not is_useful_category_translation(category_map.get(label), label, target_lang)
+        ]
+
+        if still_missing_labels:
+            try:
+                translated_categories = call_openrouter_translate_category_labels(
+                    labels=still_missing_labels,
+                    target_lang=target_lang,
+                    source_lang=source_lang,
+                )
+
+                for label, translated in translated_categories.items():
+                    if is_useful_category_translation(translated, label, target_lang):
+                        category_map[label] = translated
+
+            except Exception as category_translate_error:
+                print("Fallback category translation failed:", category_translate_error)
 
     return category_map
 
@@ -1643,7 +1694,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 3
+MENU_CACHE_SCHEMA_VERSION = 4
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
@@ -1730,7 +1781,11 @@ def run_menu_parse_task(
 
             if source_url:
                 print("URL detected. Extracting Markdown with MarkItDown:", source_url)
-                extracted_markdown = extract_markdown_from_url(source_url)
+                extracted_markdown = extract_markdown_from_url(
+                    source_url,
+                    target_lang=target_lang,
+                    source_lang=source_lang,
+                )
                 parser_name = "url_markitdown_openrouter"
 
             elif is_image_content(content_type, file_name):
@@ -1748,6 +1803,8 @@ def run_menu_parse_task(
                     file_bytes=file_bytes,
                     filename=file_name,
                     content_type=content_type,
+                    target_lang=target_lang,
+                    source_lang=source_lang,
                 )
                 parser_name = "document_markitdown_openrouter"
 
@@ -1761,6 +1818,11 @@ def run_menu_parse_task(
                 ocr_text=extracted_markdown,
                 target_lang=target_lang,
                 source_lang=source_lang,
+            )
+            result = translate_menu_result_with_google(
+                result,
+                target_lang=target_lang,
+                source_lang=result.get("source_language") or source_lang if isinstance(result, dict) else source_lang,
             )
             timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
 

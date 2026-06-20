@@ -1,5 +1,6 @@
 import ipaddress
 import os
+import re
 import socket
 import tempfile
 from io import BytesIO
@@ -13,6 +14,13 @@ import requests
 MAX_MARKDOWN_INPUT_BYTES = int(os.getenv("MARKITDOWN_MAX_INPUT_BYTES", str(15 * 1024 * 1024)))
 URL_FETCH_TIMEOUT_SECONDS = int(os.getenv("MARKITDOWN_URL_TIMEOUT_SECONDS", "20"))
 URL_MAX_REDIRECTS = int(os.getenv("MARKITDOWN_URL_MAX_REDIRECTS", "5"))
+URL_MENU_FALLBACK_MAX_LINKS = int(os.getenv("URL_MENU_FALLBACK_MAX_LINKS", "3"))
+PDF_VISION_OCR_ENABLED = os.getenv("PDF_VISION_OCR_ENABLED", "true").lower() in {
+    "1",
+    "true",
+    "yes",
+}
+PDF_VISION_MAX_PAGES = int(os.getenv("PDF_VISION_MAX_PAGES", "3"))
 URL_USER_AGENT = os.getenv(
     "MARKITDOWN_USER_AGENT",
     "MenuTranslatorApp/1.0 (+https://ai-menu-app.onrender.com)",
@@ -78,6 +86,11 @@ def _safe_suffix(filename: str = "", content_type: str = "") -> str:
     }.get(content_type, ".bin")
 
 
+def _is_pdf_content(content_type: str = "", filename: str = "") -> bool:
+    content_type = (content_type or "").split(";")[0].strip().lower()
+    return content_type == "application/pdf" or Path(filename or "").suffix.lower() == ".pdf"
+
+
 def _assert_size_allowed(file_bytes: bytes) -> None:
     if len(file_bytes or b"") > MAX_MARKDOWN_INPUT_BYTES:
         raise ValueError(
@@ -89,8 +102,17 @@ def extract_markdown_from_file_bytes(
     file_bytes: bytes,
     filename: str = "menu",
     content_type: str = "application/octet-stream",
+    target_lang: str = "zh",
+    source_lang: str = "auto",
 ) -> str:
     _assert_size_allowed(file_bytes)
+    if _is_pdf_content(content_type, filename):
+        return extract_markdown_from_pdf_bytes(
+            file_bytes=file_bytes,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+
     suffix = _safe_suffix(filename, content_type)
     md = _load_markitdown()
     temp_path = None
@@ -154,10 +176,8 @@ def validate_public_http_url(url: str) -> str:
     return parsed.geturl()
 
 
-def extract_markdown_from_url(url: str) -> str:
+def _fetch_public_url(url: str) -> requests.Response:
     safe_url = validate_public_http_url(url)
-    md = _load_markitdown()
-
     response = None
     current_url = safe_url
 
@@ -213,6 +233,26 @@ def extract_markdown_from_url(url: str) -> str:
     _assert_size_allowed(content)
     response._content = content
 
+    return response
+
+
+def _extract_markdown_from_response(
+    response: requests.Response,
+    target_lang: str = "zh",
+    source_lang: str = "auto",
+) -> str:
+    content = response.content or b""
+    content_type = response.headers.get("Content-Type", "")
+    filename = urlparse(response.url).path
+
+    if _is_pdf_content(content_type, filename):
+        return extract_markdown_from_pdf_bytes(
+            file_bytes=content,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+
+    md = _load_markitdown()
     converter = getattr(md, "convert_response", None)
     if converter:
         result = converter(response)
@@ -224,6 +264,226 @@ def extract_markdown_from_url(url: str) -> str:
         raise ValueError("MarkItDown returned empty text for the URL.")
 
     return text
+
+
+def _menu_signal_score(text: str) -> int:
+    if not text:
+        return 0
+
+    score = 0
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    for line in lines:
+        lower = line.lower()
+        if re.search(r"[$€£¥￥]\s*\d{1,4}(?:\.\d{1,2})?\b", line):
+            score += 3
+        elif re.search(r"\.{3,}\s*\d{1,4}(?:\.\d{1,2})?\s*$", line):
+            score += 2
+        elif (
+            re.search(r"\b\d{1,3}(?:\.\d{1,2})?\s*$", line)
+            and not re.search(r"\b(am|pm|hours?|street|st\.?|avenue|ave\.?|road|rd\.?|suite|floor|202\d|19\d\d)\b", lower)
+        ):
+            score += 1
+        if re.search(r"\b(menu|food|wine|cocktail|brunch|breakfast|dinner|lunch)\b", line, re.IGNORECASE):
+            score += 1
+    return score
+
+
+def _find_candidate_menu_links(html: str, base_url: str) -> list[str]:
+    candidates = []
+    for match in re.finditer(r"<a\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", html or "", re.IGNORECASE | re.DOTALL):
+        href = (match.group(1) or "").strip()
+        label = re.sub(r"<[^>]+>", " ", match.group(2) or "")
+        label = re.sub(r"\s+", " ", label).strip()
+        absolute = urljoin(base_url, href)
+
+        try:
+            absolute = validate_public_http_url(absolute)
+        except ValueError:
+            continue
+
+        haystack = f"{absolute} {label}".lower()
+        if any(blocked in haystack for blocked in ["giftcard", "reservation", "privacy", "terms", "instagram", "facebook", "google.com/maps"]):
+            continue
+
+        score = 0
+        for keyword in ["menu", "order", "online", "food", "toasttab", "toast", "pdf"]:
+            if keyword in haystack:
+                score += 1
+        if score:
+            candidates.append((score, absolute))
+
+    ranked = []
+    seen = set()
+    for _, link in sorted(candidates, key=lambda pair: pair[0], reverse=True):
+        if link in seen:
+            continue
+        ranked.append(link)
+        seen.add(link)
+        if len(ranked) >= URL_MENU_FALLBACK_MAX_LINKS:
+            break
+    return ranked
+
+
+def _should_try_menu_fallback(primary_text: str, html: str) -> bool:
+    if not html:
+        return False
+
+    primary_score = _menu_signal_score(primary_text)
+    if primary_score < 8:
+        return True
+
+    non_menu_hits = len(re.findall(r"\b(hours?|location|gift cards?|subscribe)\b", primary_text or "", re.IGNORECASE))
+    return non_menu_hits > primary_score
+
+
+def extract_markdown_from_url(
+    url: str,
+    target_lang: str = "zh",
+    source_lang: str = "auto",
+) -> str:
+    response = _fetch_public_url(url)
+    primary_text = _extract_markdown_from_response(
+        response,
+        target_lang=target_lang,
+        source_lang=source_lang,
+    )
+
+    content_type = response.headers.get("Content-Type", "")
+    is_html = "html" in content_type.lower()
+    html = response.text if is_html else ""
+
+    if is_html:
+        primary_score = _menu_signal_score(primary_text)
+        for candidate_url in _find_candidate_menu_links(html, response.url):
+            try:
+                candidate_response = _fetch_public_url(candidate_url)
+                candidate_text = _extract_markdown_from_response(
+                    candidate_response,
+                    target_lang=target_lang,
+                    source_lang=source_lang,
+                )
+                candidate_score = _menu_signal_score(candidate_text)
+                candidate_host = urlparse(candidate_response.url).hostname or ""
+                if candidate_score > primary_score or (
+                    _should_try_menu_fallback(primary_text, html)
+                    and candidate_score >= max(6, primary_score // 2)
+                ) or (
+                    "toasttab" in candidate_host
+                    and candidate_score >= 6
+                ):
+                    return "\n\n".join(
+                        [
+                            "# Extracted menu text",
+                            f"Source page: {response.url}",
+                            f"Followed menu link: {candidate_response.url}",
+                            "",
+                            candidate_text,
+                        ]
+                    ).strip()
+            except Exception as exc:
+                print(f"Menu fallback link skipped: {candidate_url} -> {exc}")
+
+    return primary_text
+
+
+def _looks_like_pdf_ocr_line(text: str) -> bool:
+    return bool(text and not text.startswith("<image:") and len(text) >= 2)
+
+
+def _pdf_text_layer_markdown(file_bytes: bytes, max_pages: int = 5) -> str:
+    import fitz
+
+    doc = fitz.open(stream=file_bytes, filetype="pdf")
+    lines = ["# Extracted PDF menu text", ""]
+
+    try:
+        for page_index, page in enumerate(doc):
+            if page_index >= max_pages:
+                break
+
+            lines.append(f"## Page {page_index + 1}")
+            blocks = sorted(
+                page.get_text("blocks"),
+                key=lambda block: (
+                    round(float(block[1]) / 12),
+                    float(block[0]),
+                ),
+            )
+            for block in blocks:
+                raw_text = block[4] if len(block) > 4 else ""
+                block_lines = [
+                    re.sub(r"\s+", " ", line).strip()
+                    for line in str(raw_text or "").splitlines()
+                ]
+                block_lines = [line for line in block_lines if _looks_like_pdf_ocr_line(line)]
+                if not block_lines:
+                    continue
+
+                text = " ".join(block_lines)
+                text = re.sub(r"\.{3,}", " | ", text)
+                text = re.sub(r"\s+", " ", text).strip()
+                lines.append(f"- {text}")
+            lines.append("")
+    finally:
+        doc.close()
+
+    return "\n".join(lines).strip()
+
+
+def _pdf_vision_markdown(file_bytes: bytes, target_lang: str, source_lang: str) -> str:
+    if not PDF_VISION_OCR_ENABLED:
+        return ""
+
+    try:
+        from app.services.openrouter_service import call_openrouter_vision_for_menu
+        from app.services.pdf_service import pdf_bytes_to_images
+    except Exception as exc:
+        print("PDF vision OCR unavailable:", exc)
+        return ""
+
+    parts = ["# Vision OCR PDF menu text", ""]
+    try:
+        page_images = pdf_bytes_to_images(file_bytes, max_pages=PDF_VISION_MAX_PAGES)
+        for page_index, image_bytes in enumerate(page_images, start=1):
+            result = call_openrouter_vision_for_menu(
+                image_bytes=image_bytes,
+                mime_type="image/jpeg",
+                target_lang=target_lang,
+                source_lang=source_lang,
+            )
+            parts.append(f"## Page {page_index}")
+            if result.get("business_name"):
+                parts.append(f"Business: {result.get('business_name')}")
+            if result.get("currency"):
+                parts.append(f"Currency: {result.get('currency')}")
+            for line in result.get("ocr_lines") or []:
+                if isinstance(line, dict):
+                    text = line.get("text") or line.get("line") or line.get("content")
+                else:
+                    text = line
+                text = re.sub(r"\s+", " ", str(text or "")).strip()
+                if text:
+                    parts.append(f"- {text}")
+            parts.append("")
+    except Exception as exc:
+        print("PDF vision OCR failed:", exc)
+        return ""
+
+    return "\n".join(parts).strip()
+
+
+def extract_markdown_from_pdf_bytes(
+    file_bytes: bytes,
+    target_lang: str = "zh",
+    source_lang: str = "auto",
+) -> str:
+    vision_text = _pdf_vision_markdown(file_bytes, target_lang=target_lang, source_lang=source_lang)
+    text_layer = _pdf_text_layer_markdown(file_bytes)
+
+    if vision_text and _menu_signal_score(vision_text) >= max(6, _menu_signal_score(text_layer) // 2):
+        return "\n\n".join([vision_text, "# PDF text layer fallback", text_layer]).strip()
+
+    return text_layer or vision_text
 
 
 def ocr_blocks_to_markdown(ocr_blocks: list[dict], source_label: str = "image_ocr") -> str:

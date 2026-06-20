@@ -207,3 +207,25 @@ class UnitTranslation(Base):
         UniqueConstraint("source_unit", "target_lang", name="unique_unit_lang"),
     )
 
+
+class TranslationGlossaryTerm(Base):
+    __tablename__ = "translation_glossary_terms"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_text = Column(Text, nullable=False)
+    source_language = Column(Text)
+    target_language = Column(Text, nullable=False)
+    translated_text = Column(Text, nullable=False)
+    context = Column(Text)
+    is_active = Column(Boolean, default=True, nullable=False, server_default="true")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    __table_args__ = (
+        UniqueConstraint(
+            "source_text",
+            "source_language",
+            "target_language",
+            name="translation_glossary_terms_source_target_uc",
+        ),
+    )
+
