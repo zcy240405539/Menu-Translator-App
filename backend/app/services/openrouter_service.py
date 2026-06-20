@@ -587,6 +587,19 @@ def _split_section_price(value: str) -> tuple[str, str | None]:
     return label, price
 
 
+def _looks_like_schedule_text(value) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return False
+
+    has_time = bool(re.search(r"\b\d{1,2}(?::\d{2})?\s*(?:AM|PM)\b", text, re.IGNORECASE))
+    has_day = bool(re.search(r"\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Daily|Weekend)\b", text, re.IGNORECASE))
+    has_range = bool(re.search(r"\b\d{1,2}(?::\d{2})?\s*(?:AM|PM)?\s*[-–]\s*\d{1,2}(?::\d{2})?\s*(?:AM|PM)\b", text, re.IGNORECASE))
+    food_words = bool(re.search(r"\b(sauce|aioli|garlic|cheese|butter|bread|potato|salad|chicken|beef|pork|fish|wine|gin|rum|vodka|coffee|tea)\b", text, re.IGNORECASE))
+
+    return (has_time and (has_day or has_range)) and not food_words
+
+
 def sanitize_menu_result_structure(result: dict) -> dict:
     if not isinstance(result, dict):
         return result
@@ -599,6 +612,11 @@ def sanitize_menu_result_structure(result: dict) -> dict:
     for item in result.get("menu_items") or []:
         original_name = re.sub(r"\s+", " ", str(item.get("original_name") or "")).strip()
         if not original_name or _is_price_only(original_name):
+            continue
+        if (
+            not item.get("price")
+            and _looks_like_schedule_text(item.get("description_original") or item.get("description"))
+        ):
             continue
 
         section_original = re.sub(

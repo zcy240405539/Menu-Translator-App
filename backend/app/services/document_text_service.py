@@ -21,6 +21,11 @@ PDF_VISION_OCR_ENABLED = os.getenv("PDF_VISION_OCR_ENABLED", "true").lower() in 
     "yes",
 }
 PDF_VISION_MAX_PAGES = int(os.getenv("PDF_VISION_MAX_PAGES", "3"))
+PDF_INCLUDE_TEXT_LAYER_FALLBACK = os.getenv("PDF_INCLUDE_TEXT_LAYER_FALLBACK", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 URL_USER_AGENT = os.getenv(
     "MARKITDOWN_USER_AGENT",
     "MenuTranslatorApp/1.0 (+https://ai-menu-app.onrender.com)",
@@ -481,6 +486,8 @@ def extract_markdown_from_pdf_bytes(
     text_layer = _pdf_text_layer_markdown(file_bytes)
 
     if vision_text and _menu_signal_score(vision_text) >= max(6, _menu_signal_score(text_layer) // 2):
+        if not PDF_INCLUDE_TEXT_LAYER_FALLBACK:
+            return vision_text
         return "\n\n".join([vision_text, "# PDF text layer fallback", text_layer]).strip()
 
     return text_layer or vision_text
