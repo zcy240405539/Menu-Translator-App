@@ -72,6 +72,44 @@ def _extract_result_text(result) -> str:
     return str(text or "").strip()
 
 
+def _extract_html_markdown_fast(html: str) -> str:
+    try:
+        from bs4 import BeautifulSoup
+    except Exception:
+        return ""
+
+    soup = BeautifulSoup(html or "", "html.parser")
+    for tag in soup(["script", "style", "noscript", "svg"]):
+        tag.decompose()
+
+    lines = []
+    for tag in soup.find_all(["h1", "h2", "h3", "h4", "p", "li", "a"]):
+        text = re.sub(r"\s+", " ", tag.get_text(" ", strip=True)).strip()
+        if not text:
+            continue
+        if tag.name in {"h1", "h2"}:
+            lines.append(f"# {text}")
+        elif tag.name in {"h3", "h4"}:
+            lines.append(f"## {text}")
+        elif tag.name == "li":
+            lines.append(f"- {text}")
+        else:
+            lines.append(text)
+
+    deduped = []
+    seen_recent = set()
+    for line in lines:
+        key = line.lower()
+        if key in seen_recent:
+            continue
+        deduped.append(line)
+        seen_recent.add(key)
+        if len(seen_recent) > 400:
+            seen_recent.clear()
+
+    return "\n\n".join(deduped).strip()
+
+
 def _safe_suffix(filename: str = "", content_type: str = "") -> str:
     suffix = Path(filename or "").suffix.lower()
     if suffix and len(suffix) <= 12:
@@ -256,6 +294,11 @@ def _extract_markdown_from_response(
             target_lang=target_lang,
             source_lang=source_lang,
         )
+
+    if "html" in content_type.lower():
+        fast_text = _extract_html_markdown_fast(response.text)
+        if _menu_signal_score(fast_text) >= 6:
+            return fast_text
 
     md = _load_markitdown()
     converter = getattr(md, "convert_response", None)
