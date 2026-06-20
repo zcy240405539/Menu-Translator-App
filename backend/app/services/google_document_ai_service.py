@@ -24,6 +24,7 @@ DOCUMENT_AI_PROCESSOR_DISPLAY_NAME = os.getenv(
     "GOOGLE_DOCUMENT_AI_PROCESSOR_DISPLAY_NAME",
     "Menu Translator OCR",
 ).strip()
+DOCUMENT_AI_LAST_ERROR: str | None = None
 
 
 def _document_ai_endpoint(path: str) -> str:
@@ -50,9 +51,12 @@ def _processor_path(processor_id: str) -> str:
 
 
 def _create_document_ai_processor() -> str | None:
+    global DOCUMENT_AI_LAST_ERROR
     if not DOCUMENT_AI_AUTO_CREATE_PROCESSOR:
+        DOCUMENT_AI_LAST_ERROR = "Auto-create is disabled by GOOGLE_DOCUMENT_AI_AUTO_CREATE_PROCESSOR."
         return None
     if not DOCUMENT_AI_PROCESSOR_TYPE:
+        DOCUMENT_AI_LAST_ERROR = "GOOGLE_DOCUMENT_AI_PROCESSOR_TYPE is empty."
         return None
 
     try:
@@ -67,7 +71,9 @@ def _create_document_ai_processor() -> str | None:
         )
         response.raise_for_status()
     except Exception as exc:
-        print("Document AI processor creation failed:", exc)
+        detail = getattr(getattr(exc, "response", None), "text", None)
+        DOCUMENT_AI_LAST_ERROR = f"Processor creation failed: {exc}. {detail or ''}".strip()
+        print("Document AI processor creation failed:", DOCUMENT_AI_LAST_ERROR)
         return None
 
     processor = response.json() or {}
@@ -80,6 +86,7 @@ def _create_document_ai_processor() -> str | None:
 
 @lru_cache(maxsize=1)
 def resolve_document_ai_processor_id() -> str | None:
+    global DOCUMENT_AI_LAST_ERROR
     if GOOGLE_DOCUMENT_AI_PROCESSOR_ID:
         return GOOGLE_DOCUMENT_AI_PROCESSOR_ID
 
@@ -91,8 +98,10 @@ def resolve_document_ai_processor_id() -> str | None:
         )
         response.raise_for_status()
     except Exception as exc:
-        print("Document AI processor discovery failed:", exc)
-        return None
+        detail = getattr(getattr(exc, "response", None), "text", None)
+        DOCUMENT_AI_LAST_ERROR = f"Processor discovery failed: {exc}. {detail or ''}".strip()
+        print("Document AI processor discovery failed:", DOCUMENT_AI_LAST_ERROR)
+        return _create_document_ai_processor()
 
     processors = response.json().get("processors") or []
     enabled = [
@@ -165,7 +174,14 @@ def process_document_with_document_ai(
 ) -> dict:
     processor_id = resolve_document_ai_processor_id()
     if not processor_id:
-        raise RuntimeError("No Document AI processor is configured or discoverable.")
+        details = DOCUMENT_AI_LAST_ERROR or "No additional error details were returned."
+        raise RuntimeError(
+            "No Document AI processor is configured or discoverable. "
+            f"location={GOOGLE_DOCUMENT_AI_LOCATION or 'us'}, "
+            f"auto_create={DOCUMENT_AI_AUTO_CREATE_PROCESSOR}, "
+            f"processor_type={DOCUMENT_AI_PROCESSOR_TYPE or 'unset'}. "
+            f"{details}"
+        )
 
     endpoint = _document_ai_endpoint(f"{_processor_path(processor_id)}:process")
     payload = {
