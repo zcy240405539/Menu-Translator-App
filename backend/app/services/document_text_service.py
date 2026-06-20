@@ -573,8 +573,7 @@ def extract_markdown_from_pdf_bytes(
 ) -> str:
     provider = (document_provider or DOCUMENT_TEXT_PROVIDER or "auto").strip().lower()
     document_ai_requested = provider in {"document_ai", "google_document_ai", "google", "cloud_document_ai"}
-    document_ai_auto = provider in {"auto", ""}
-    if document_ai_requested or document_ai_auto:
+    if document_ai_requested:
         try:
             from app.services.google_document_ai_service import (
                 document_ai_result_to_markdown,
