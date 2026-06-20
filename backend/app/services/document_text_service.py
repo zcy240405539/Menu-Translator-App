@@ -582,6 +582,15 @@ def extract_markdown_from_pdf_bytes(
             result = process_document_with_document_ai(file_bytes, mime_type=mime_type or "application/pdf")
             markdown = document_ai_result_to_markdown(result)
             if markdown:
+                text_layer = _pdf_text_layer_markdown(file_bytes)
+                if text_layer and _menu_signal_score(text_layer) >= 6:
+                    return "\n\n".join(
+                        [
+                            markdown,
+                            "# PDF text layer cross-check",
+                            text_layer,
+                        ]
+                    ).strip()
                 return markdown
         except Exception as exc:
             if provider not in {"auto", ""}:
