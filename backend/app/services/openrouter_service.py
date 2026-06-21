@@ -4,7 +4,6 @@ import requests
 import base64
 import os
 import time
-from pathlib import Path
 from app.core.config import (
     LAYOUT_MAX_TOKENS,
     OPENROUTER_API_KEY,
@@ -117,24 +116,6 @@ Rules:
 
     return {}
 
-
-
-
-def get_noise_keywords():
-    from app.core.database import SessionLocal
-    from app.core.models import NoiseKeyword
-
-    db = SessionLocal()
-    try:
-        keywords = db.query(NoiseKeyword.keyword).all()
-        return [k[0] for k in keywords]
-    except Exception as e:
-        print(f"Error loading noise keywords from DB: {e}")
-        return []
-    finally:
-        db.close()
-
-
 def get_noise_keywords_for_language(source_lang: str | None = None):
     from app.core.database import SessionLocal
     from app.core.models import NoiseKeyword
@@ -203,12 +184,6 @@ def get_section_info(text: str, target_lang: str = "zh", source_lang: str | None
         return None
     finally:
         db.close()
-
-def get_target_language_name(target_lang: str) -> str:
-    return get_language_name(target_lang)
-
-def get_source_language_name(source_lang: str) -> str:
-    return get_language_name(source_lang)
 
 def _extract_json_from_text(content: str) -> dict:
     if not content:

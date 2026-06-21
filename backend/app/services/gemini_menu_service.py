@@ -123,7 +123,12 @@ Malformed JSON:
             ) from repair_error
 
 
-def _finalize_menu_result(result: dict, ocr_blocks: list | None = None, prompt_name: str = "markdown") -> dict:
+def _finalize_menu_result(
+    result: dict,
+    ocr_blocks: list | None = None,
+    prompt_name: str = "markdown",
+    analysis_model: str | None = None,
+) -> dict:
     if "menu_items" not in result and "sections" in result:
         result = flatten_nested_menu_json(result)
 
@@ -140,7 +145,7 @@ def _finalize_menu_result(result: dict, ocr_blocks: list | None = None, prompt_n
     if ocr_blocks is not None:
         result = post_process_restore_prefixes(result, ocr_blocks)
     result["analysis_provider"] = "gemini"
-    result["analysis_model"] = GEMINI_MENU_STRUCTURE_MODEL
+    result["analysis_model"] = analysis_model or GEMINI_MENU_STRUCTURE_MODEL
     result["analysis_prompt"] = prompt_name
     return result
 
@@ -245,9 +250,11 @@ Business info:
 """
 
     content = _post_gemini_generate(system_prompt, user_prompt, model=selected_model)
-    result = _finalize_menu_result(_parse_gemini_json(content, "markdown"), prompt_name="markdown")
-    result["analysis_model"] = selected_model
-    return result
+    return _finalize_menu_result(
+        _parse_gemini_json(content, "markdown"),
+        prompt_name="markdown",
+        analysis_model=selected_model,
+    )
 
 
 def call_gemini_for_menu_layout(
@@ -305,6 +312,9 @@ Layout rules:
         max_output_tokens=LAYOUT_MAX_TOKENS,
         model=selected_model,
     )
-    result = _finalize_menu_result(_parse_gemini_json(content, "layout"), ocr_blocks=ocr_blocks, prompt_name="layout")
-    result["analysis_model"] = selected_model
-    return result
+    return _finalize_menu_result(
+        _parse_gemini_json(content, "layout"),
+        ocr_blocks=ocr_blocks,
+        prompt_name="layout",
+        analysis_model=selected_model,
+    )
