@@ -718,11 +718,6 @@ def _call_openrouter_for_menu_layout_fast(
     source_language_name = get_language_name(source_lang)
     language_profile = get_language_profile(source_lang)
     language_context = build_language_prompt_context(source_lang, target_lang)
-    language_profile = get_language_profile(source_lang)
-    language_context = build_language_prompt_context(source_lang, target_lang)
-    selected_model = model or language_profile.openrouter_layout_model or OPENROUTER_LAYOUT_MODEL
-    language_profile = get_language_profile(source_lang)
-    language_context = build_language_prompt_context(source_lang, target_lang)
     selected_model = model or language_profile.openrouter_layout_model or OPENROUTER_LAYOUT_MODEL
 
     system_prompt = """
@@ -855,6 +850,9 @@ def call_openrouter_for_menu_layout(
     source_lang = normalize_lang(source_lang, "en")
     target_language_name = get_language_name(target_lang)
     source_language_name = get_language_name(source_lang)
+    language_profile = get_language_profile(source_lang)
+    language_context = build_language_prompt_context(source_lang, target_lang)
+    selected_model = model or language_profile.openrouter_layout_model or OPENROUTER_LAYOUT_MODEL
 
     system_prompt = """
 You are a professional restaurant menu parser and menu layout reconstruction expert.
@@ -1063,6 +1061,7 @@ def call_openrouter_for_menu(ocr_text: str, target_lang: str = "zh", source_lang
     source_lang = normalize_lang(source_lang, "en")
     target_language_name = get_language_name(target_lang)
     source_language_name = get_language_name(source_lang)
+    language_context = build_language_prompt_context(source_lang, target_lang)
 
     system_prompt = """
 You are a professional restaurant menu parser.
