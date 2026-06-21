@@ -640,11 +640,30 @@ def _looks_like_schedule_text(value) -> bool:
     return (has_time and (has_day or has_range)) and not food_words
 
 
+def _looks_like_language_noise_item(item: dict, source_lang: str) -> bool:
+    original_name = re.sub(r"\s+", " ", str(item.get("original_name") or "")).strip()
+    if not original_name:
+        return True
+
+    if source_lang in {"zh", "zh-Hant"}:
+        has_cjk = bool(re.search(r"[\u3400-\u9fff]", original_name))
+        isolated_latin = bool(re.fullmatch(r"[A-Za-z]{1,2}", original_name))
+        has_menu_evidence = bool(
+            item.get("price")
+            or str(item.get("description_original") or item.get("description") or "").strip()
+        )
+        if isolated_latin and not has_cjk and not has_menu_evidence:
+            return True
+
+    return False
+
+
 def sanitize_menu_result_structure(result: dict) -> dict:
     if not isinstance(result, dict):
         return result
 
     cleaned_items = []
+    source_lang = normalize_lang(result.get("source_language"), "auto")
     current_section = ""
     current_section_translated = ""
     current_section_price = None
@@ -652,6 +671,8 @@ def sanitize_menu_result_structure(result: dict) -> dict:
     for item in result.get("menu_items") or []:
         original_name = re.sub(r"\s+", " ", str(item.get("original_name") or "")).strip()
         if not original_name or _is_price_only(original_name):
+            continue
+        if _looks_like_language_noise_item(item, source_lang):
             continue
         if (
             not item.get("price")
@@ -811,6 +832,8 @@ JSON schema:
         result = flatten_nested_menu_json(result)
 
     # Populate default values for compacted fields
+    if not result.get("source_language") or result.get("source_language") == "auto":
+        result["source_language"] = source_lang
     for item in result.get("menu_items", []):
         if "description" not in item:
             item["description"] = ""
@@ -1035,6 +1058,8 @@ Output requirements:
         result = flatten_nested_menu_json(result)
 
     # Populate default values for compacted fields
+    if not result.get("source_language") or result.get("source_language") == "auto":
+        result["source_language"] = source_lang
     for item in result.get("menu_items", []):
         if "description" not in item:
             item["description"] = ""
@@ -1166,6 +1191,8 @@ Return valid JSON only:
     content = data["choices"][0]["message"]["content"]
 
     result = _extract_json_from_text(content)
+    if not result.get("source_language") or result.get("source_language") == "auto":
+        result["source_language"] = source_lang
     return sanitize_menu_result_structure(result)
 
 
