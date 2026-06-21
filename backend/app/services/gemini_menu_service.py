@@ -6,6 +6,7 @@ import requests
 
 from app.core.config import GEMINI_API_KEY, GEMINI_MODEL, LAYOUT_MAX_TOKENS
 from app.core.i18n_service import get_language_name, normalize_lang
+from app.language_modules import build_language_prompt_context, get_language_profile
 from app.services.openrouter_service import (
     _compact_ocr_blocks,
     _extract_json_from_text,
@@ -30,11 +31,12 @@ def _post_gemini_generate(
     user_prompt: str,
     max_output_tokens: int = LAYOUT_MAX_TOKENS,
     timeout: int = GEMINI_MENU_STRUCTURE_TIMEOUT,
+    model: str | None = None,
 ) -> str:
     if not GEMINI_API_KEY:
         raise RuntimeError("GEMINI_API_KEY is missing")
 
-    endpoint = GEMINI_GENERATE_URL.format(model=GEMINI_MENU_STRUCTURE_MODEL)
+    endpoint = GEMINI_GENERATE_URL.format(model=model or GEMINI_MENU_STRUCTURE_MODEL)
     payload = {
         "systemInstruction": {
             "parts": [{"text": system_prompt}],
@@ -194,6 +196,9 @@ def call_gemini_for_menu(
     source_lang = normalize_lang(source_lang, "en")
     target_language_name = get_language_name(target_lang)
     source_language_name = get_language_name(source_lang)
+    language_profile = get_language_profile(source_lang)
+    language_context = build_language_prompt_context(source_lang, target_lang)
+    selected_model = language_profile.gemini_structure_model or GEMINI_MENU_STRUCTURE_MODEL
 
     system_prompt = """
 You are a strict restaurant menu structure parser.
@@ -207,6 +212,8 @@ Target language code: {target_lang}
 Target language name: {target_language_name}
 Source language code: {source_lang}
 Source language name: {source_language_name}
+
+{language_context}
 
 Extracted menu content:
 {ocr_text}
@@ -237,8 +244,10 @@ Business info:
 {_menu_json_contract(target_lang, source_lang)}
 """
 
-    content = _post_gemini_generate(system_prompt, user_prompt)
-    return _finalize_menu_result(_parse_gemini_json(content, "markdown"), prompt_name="markdown")
+    content = _post_gemini_generate(system_prompt, user_prompt, model=selected_model)
+    result = _finalize_menu_result(_parse_gemini_json(content, "markdown"), prompt_name="markdown")
+    result["analysis_model"] = selected_model
+    return result
 
 
 def call_gemini_for_menu_layout(
@@ -250,6 +259,9 @@ def call_gemini_for_menu_layout(
     source_lang = normalize_lang(source_lang, "en")
     target_language_name = get_language_name(target_lang)
     source_language_name = get_language_name(source_lang)
+    language_profile = get_language_profile(source_lang)
+    language_context = build_language_prompt_context(source_lang, target_lang)
+    selected_model = language_profile.gemini_structure_model or GEMINI_MENU_STRUCTURE_MODEL
 
     system_prompt = """
 You are a strict restaurant menu layout reconstruction parser.
@@ -262,6 +274,8 @@ Target language code: {target_lang}
 Target language name: {target_language_name}
 Source language code: {source_lang}
 Source language name: {source_language_name}
+
+{language_context}
 
 OCR blocks with coordinates:
 {json.dumps(_compact_ocr_blocks(ocr_blocks), ensure_ascii=False)}
@@ -285,5 +299,12 @@ Layout rules:
 {_menu_json_contract(target_lang, source_lang)}
 """
 
-    content = _post_gemini_generate(system_prompt, user_prompt, max_output_tokens=LAYOUT_MAX_TOKENS)
-    return _finalize_menu_result(_parse_gemini_json(content, "layout"), ocr_blocks=ocr_blocks, prompt_name="layout")
+    content = _post_gemini_generate(
+        system_prompt,
+        user_prompt,
+        max_output_tokens=LAYOUT_MAX_TOKENS,
+        model=selected_model,
+    )
+    result = _finalize_menu_result(_parse_gemini_json(content, "layout"), ocr_blocks=ocr_blocks, prompt_name="layout")
+    result["analysis_model"] = selected_model
+    return result

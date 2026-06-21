@@ -77,6 +77,8 @@ from app.services.google_translation_service import (
     translate_menu_result_with_google,
     translate_texts,
 )
+from app.language_modules import resolve_source_language
+from app.language_modules import get_language_profile
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -104,6 +106,26 @@ def ensure_database_schema_compatibility():
         except Exception as ex:
             db.rollback()
             print(f"Warning: could not add rejected_urls to dish_images: {ex}")
+
+        try:
+            db.execute(text("ALTER TABLE noise_keywords ADD COLUMN IF NOT EXISTS source_language TEXT"))
+            db.execute(text("ALTER TABLE unit_translations ADD COLUMN IF NOT EXISTS source_language TEXT"))
+            db.execute(text("ALTER TABLE noise_keywords DROP CONSTRAINT IF EXISTS noise_keywords_keyword_key CASCADE"))
+            db.execute(text("ALTER TABLE noise_keywords DROP CONSTRAINT IF EXISTS noise_keywords_source_keyword_uc CASCADE"))
+            db.execute(text("ALTER TABLE unit_translations DROP CONSTRAINT IF EXISTS unique_unit_lang CASCADE"))
+            db.execute(text("ALTER TABLE unit_translations DROP CONSTRAINT IF EXISTS unique_unit_source_target_lang CASCADE"))
+            db.execute(text(
+                "CREATE UNIQUE INDEX IF NOT EXISTS noise_keywords_source_keyword_idx "
+                "ON noise_keywords (coalesce(source_language, ''), lower(keyword))"
+            ))
+            db.execute(text(
+                "CREATE UNIQUE INDEX IF NOT EXISTS unit_translations_source_target_idx "
+                "ON unit_translations (coalesce(source_language, ''), lower(source_unit), target_lang)"
+            ))
+            db.commit()
+        except Exception as ex:
+            db.rollback()
+            print(f"Warning: could not alter multilingual config tables: {ex}")
     except Exception as e:
         print(f"Error ensuring database schema compatibility: {e}")
     finally:
@@ -717,6 +739,7 @@ def get_effective_document_provider(
 def should_use_image_document_ai(
     document_provider: str | None = None,
     ocr_provider: str | None = None,
+    source_lang: str | None = None,
 ) -> bool:
     provider = (document_provider or "").strip().lower()
     if provider in {"document_ai", "google_document_ai", "google_document", "cloud_document_ai"}:
@@ -728,7 +751,14 @@ def should_use_image_document_ai(
     if requested_ocr_provider and requested_ocr_provider not in {"auto"}:
         return False
 
-    default_provider = os.getenv("IMAGE_DOCUMENT_PROVIDER", "document_ai").strip().lower()
+    profile = get_language_profile(source_lang or "en")
+    lang_env_key = f"IMAGE_DOCUMENT_PROVIDER_{profile.code.upper().replace('-', '_')}"
+    default_provider = (
+        os.getenv(lang_env_key)
+        or os.getenv("IMAGE_DOCUMENT_PROVIDER")
+        or profile.default_image_document_provider
+        or "document_ai"
+    ).strip().lower()
     return default_provider in {"document_ai", "google_document_ai", "google_document", "cloud_document_ai"}
 
 
@@ -1064,7 +1094,11 @@ def extract_image_markdown_for_analysis(
     ocr_provider: str | None = None,
     document_provider: str | None = None,
 ) -> tuple[str, list[dict], str]:
-    if should_use_image_document_ai(document_provider=document_provider, ocr_provider=ocr_provider):
+    if should_use_image_document_ai(
+        document_provider=document_provider,
+        ocr_provider=ocr_provider,
+        source_lang=source_lang,
+    ):
         from app.services.google_document_ai_service import (
             document_ai_result_to_markdown,
             process_document_with_document_ai,
@@ -1312,6 +1346,7 @@ async def parse_menu(
     structure_provider: Optional[str] = None,
 ):
     try:
+        requested_source_lang = source_lang
         file_bytes = await file.read()
         mime_type = file.content_type or "application/octet-stream"
         file_name = file.filename or "menu"
@@ -1340,6 +1375,12 @@ async def parse_menu(
         if not extracted_markdown:
             raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
 
+        source_lang = resolve_source_language(
+            requested_source_lang,
+            extracted_markdown=extracted_markdown,
+            ocr_blocks=ocr_blocks,
+        )
+
         result = call_menu_structure_parser(
             extracted_markdown=extracted_markdown,
             target_lang=target_lang,
@@ -1348,6 +1389,8 @@ async def parse_menu(
             content_type=mime_type,
             file_name=file_name,
         )
+        if isinstance(result, dict) and (not result.get("source_language") or result.get("source_language") == "auto"):
+            result["source_language"] = source_lang
         result = translate_menu_result_with_google(
             result,
             target_lang=target_lang,
@@ -1377,7 +1420,8 @@ async def parse_menu(
         )
         result["extracted_text_format"] = "markdown"
         result["extracted_text_preview"] = extracted_markdown[:12000]
-        result["source_lang_request"] = source_lang
+        result["source_lang_request"] = requested_source_lang
+        result["source_language_detected"] = source_lang
 
         return result
 
@@ -1405,17 +1449,24 @@ async def parse_menu_url(
         if not extracted_markdown:
             raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
 
+        detected_source_lang = resolve_source_language(
+            request.source_lang,
+            extracted_markdown=extracted_markdown,
+        )
+
         result = call_menu_structure_parser(
             extracted_markdown=extracted_markdown,
             target_lang=request.target_lang,
-            source_lang=request.source_lang,
+            source_lang=detected_source_lang,
             structure_provider=structure_provider,
             source_url=safe_url,
         )
+        if isinstance(result, dict) and (not result.get("source_language") or result.get("source_language") == "auto"):
+            result["source_language"] = detected_source_lang
         result = translate_menu_result_with_google(
             result,
             target_lang=request.target_lang,
-            source_lang=result.get("source_language") or request.source_lang if isinstance(result, dict) else request.source_lang,
+            source_lang=result.get("source_language") or detected_source_lang if isinstance(result, dict) else detected_source_lang,
         )
 
         if not isinstance(result, dict):
@@ -1441,6 +1492,7 @@ async def parse_menu_url(
         result["extracted_text_format"] = "markdown"
         result["extracted_text_preview"] = extracted_markdown[:12000]
         result["source_lang_request"] = request.source_lang
+        result["source_language_detected"] = detected_source_lang
 
         return result
 
@@ -1939,7 +1991,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 15
+MENU_CACHE_SCHEMA_VERSION = 16
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 
 def run_menu_parse_task(
@@ -1983,6 +2035,7 @@ def run_menu_parse_task(
 
         cache_material = file_bytes + (
             f"|schema={MENU_CACHE_SCHEMA_VERSION}"
+            f"|source={source_lang or ''}"
             f"|ocr={ocr_provider or ''}"
             f"|document={document_provider or ''}"
             f"|structure={effective_structure_provider}"
@@ -2078,20 +2131,30 @@ def run_menu_parse_task(
             if not extracted_markdown:
                 raise ValueError("No readable menu text was extracted.")
 
+            detected_source_lang = resolve_source_language(
+                source_lang,
+                extracted_markdown=extracted_markdown,
+                ocr_blocks=ocr_blocks,
+            )
+            requested_source_lang = source_lang
+            source_lang = detected_source_lang
+
             analysis_started_at = time.perf_counter()
             result = call_menu_structure_parser(
                 extracted_markdown=extracted_markdown,
                 target_lang=target_lang,
-                source_lang=source_lang,
+                source_lang=detected_source_lang,
                 structure_provider=structure_provider,
                 source_url=source_url,
                 content_type=content_type,
                 file_name=file_name,
             )
+            if isinstance(result, dict) and (not result.get("source_language") or result.get("source_language") == "auto"):
+                result["source_language"] = detected_source_lang
             result = translate_menu_result_with_google(
                 result,
                 target_lang=target_lang,
-                source_lang=result.get("source_language") or source_lang if isinstance(result, dict) else source_lang,
+                source_lang=result.get("source_language") or detected_source_lang if isinstance(result, dict) else detected_source_lang,
             )
             timings["analysis_seconds"] = round(time.perf_counter() - analysis_started_at, 3)
 
@@ -2107,6 +2170,8 @@ def run_menu_parse_task(
             )
             result["extracted_text_format"] = "markdown"
             result["extracted_text_preview"] = extracted_markdown[:12000]
+            result["source_lang_request"] = requested_source_lang
+            result["source_language_detected"] = detected_source_lang
             if source_url:
                 result["source_url"] = source_url
             result["ocr_blocks"] = ocr_blocks or [
@@ -2134,7 +2199,7 @@ def run_menu_parse_task(
             print("DEBUG MENU ITEMS:", len(result.get("menu_items", [])))
 
             layout_lines = result.get("menu_items", []) or []
-            source_language = result.get("source_language") or source_lang
+            source_language = result.get("source_language") or detected_source_lang
             menu_items = layout_lines
 
             for item in menu_items:
@@ -2597,6 +2662,7 @@ def get_unit_translations(db: Session = Depends(get_db)):
     return [
         {
             "source_unit": t.source_unit,
+            "source_language": t.source_language,
             "target_lang": t.target_lang,
             "translated_unit": t.translated_unit
         }

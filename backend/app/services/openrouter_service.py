@@ -33,6 +33,7 @@ VISION_FALLBACK_MODELS = [
     if model.strip()
 ]
 from app.core.i18n_service import get_language_name, normalize_lang
+from app.language_modules import build_language_prompt_context, get_language_profile
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
@@ -134,7 +135,32 @@ def get_noise_keywords():
         db.close()
 
 
-def get_section_info(text: str, target_lang: str = "zh"):
+def get_noise_keywords_for_language(source_lang: str | None = None):
+    from app.core.database import SessionLocal
+    from app.core.models import NoiseKeyword
+
+    profile = get_language_profile(source_lang)
+    db = SessionLocal()
+    try:
+        query = db.query(NoiseKeyword.keyword)
+        if hasattr(NoiseKeyword, "source_language"):
+            query = query.filter(
+                (
+                    NoiseKeyword.source_language == None  # noqa: E711
+                ) | (
+                    NoiseKeyword.source_language == profile.code
+                )
+            )
+        keywords = [k[0] for k in query.all()]
+        return list(dict.fromkeys([*keywords, *profile.default_noise_keywords]))
+    except Exception as e:
+        print(f"Error loading language noise keywords from DB: {e}")
+        return list(profile.default_noise_keywords)
+    finally:
+        db.close()
+
+
+def get_section_info(text: str, target_lang: str = "zh", source_lang: str | None = None):
     if not text:
         return None
 
@@ -142,18 +168,28 @@ def get_section_info(text: str, target_lang: str = "zh"):
     from app.core.models import MenuCategory
 
     target_lang = normalize_lang(target_lang)
+    source_lang = normalize_lang(source_lang, "auto")
     key = text.upper().strip()
     key_no_space = key.replace(" ", "")
 
     db = SessionLocal()
     try:
-        category = db.query(MenuCategory).filter(
+        category_query = db.query(MenuCategory).filter(
             (MenuCategory.normalized_key == key.lower()) |
             (MenuCategory.normalized_key == key_no_space.lower()) |
             (MenuCategory.original_label.ilike(text.strip()))
         ).filter(
             MenuCategory.target_language == target_lang
-        ).first()
+        )
+        if source_lang != "auto":
+            category_query = category_query.filter(
+                (
+                    MenuCategory.source_language == source_lang
+                ) | (
+                    MenuCategory.source_language == None  # noqa: E711
+                )
+            )
+        category = category_query.first()
 
         if not category:
             return None
@@ -680,7 +716,14 @@ def _call_openrouter_for_menu_layout_fast(
     source_lang = normalize_lang(source_lang, "en")
     target_language_name = get_language_name(target_lang)
     source_language_name = get_language_name(source_lang)
-    selected_model = model or OPENROUTER_LAYOUT_MODEL
+    language_profile = get_language_profile(source_lang)
+    language_context = build_language_prompt_context(source_lang, target_lang)
+    language_profile = get_language_profile(source_lang)
+    language_context = build_language_prompt_context(source_lang, target_lang)
+    selected_model = model or language_profile.openrouter_layout_model or OPENROUTER_LAYOUT_MODEL
+    language_profile = get_language_profile(source_lang)
+    language_context = build_language_prompt_context(source_lang, target_lang)
+    selected_model = model or language_profile.openrouter_layout_model or OPENROUTER_LAYOUT_MODEL
 
     system_prompt = """
 You are a fast, accurate restaurant menu OCR parser.
@@ -691,6 +734,8 @@ Return exactly one valid JSON object and no markdown.
 Task: reconstruct a restaurant menu from OCR blocks. Do not translate user-facing fields; translation is handled by Google Cloud Translation after this step.
 Source language: {source_lang} ({source_language_name})
 Target language: {target_lang} ({target_language_name})
+
+{language_context}
 
 OCR blocks:
 {json.dumps(_compact_ocr_blocks(ocr_blocks), ensure_ascii=False)}
@@ -861,6 +906,8 @@ Reconstruct the menu layout first, then extract menu items.
 Source language code: {source_lang}
 Source language name: {source_language_name}
 
+{language_context}
+
 Rules:
 - If source_lang is not "auto", treat the menu source language as {source_language_name}.
 - If OCR contains mixed languages, preserve original_name exactly as printed.
@@ -977,7 +1024,7 @@ Output requirements:
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         max_tokens=6000,
-        model=model or OPENROUTER_LAYOUT_MODEL,
+        model=selected_model,
     )
 
     data = _post_openrouter(payload, timeout=OPENROUTER_LAYOUT_TIMEOUT)
@@ -1006,7 +1053,7 @@ Output requirements:
 
     result = sanitize_menu_result_structure(result)
     result = post_process_restore_prefixes(result, ocr_blocks)
-    result["analysis_model"] = model or OPENROUTER_LAYOUT_MODEL
+    result["analysis_model"] = selected_model
     result["analysis_prompt"] = "full"
     return result
 
@@ -1038,6 +1085,7 @@ Extracted menu content:
 Source language code: {source_lang}
 Source language name: {source_language_name}
 
+{language_context}
 
 Dish name extraction rules:
 - original_name must contain only the bold/menu item name, not ingredients or modifiers after commas.
@@ -1430,8 +1478,13 @@ def call_openrouter_vision_for_menu(
     source_lang = normalize_lang(source_lang, "auto")
     target_language_name = get_language_name(target_lang)
     source_language_name = get_language_name(source_lang)
+    language_profile = get_language_profile(source_lang if source_lang != "auto" else "en")
+    language_context = build_language_prompt_context(language_profile.code, target_lang)
 
-    vision_model = OPENROUTER_VISION_MODEL
+    vision_model = (
+        os.getenv(f"OPENROUTER_VISION_MODEL_{language_profile.code.upper().replace('-', '_')}")
+        or OPENROUTER_VISION_MODEL
+    )
 
     image_base64 = base64.b64encode(image_bytes).decode("utf-8")
     image_data_url = f"data:{mime_type};base64,{image_base64}"
@@ -1443,6 +1496,8 @@ Source language code: {source_lang}
 Source language name: {source_language_name}
 Target language code: {target_lang}
 Target language name: {target_language_name}
+
+{language_context}
 
 Return only valid raw JSON. No markdown. No explanation.
 If reaching the limit, stop early and close the JSON correctly.
@@ -1592,11 +1647,11 @@ def extract_dish_candidates_from_ocr_blocks(
 
     def is_noise(text):
         upper = text.upper()
-        noise_keywords = get_noise_keywords()
-        return any(k in upper for k in noise_keywords)
+        noise_keywords = get_noise_keywords_for_language(source_lang)
+        return any(str(k or "").upper() in upper for k in noise_keywords)
 
     def looks_like_section(text):
-        return get_section_info(text, target_lang) is not None
+        return get_section_info(text, target_lang, source_lang=source_lang) is not None
 
     def extract_name_price(text):
         original = text.strip()
@@ -1644,7 +1699,8 @@ def extract_dish_candidates_from_ocr_blocks(
         if looks_like_section(text):
             section_info = get_section_info(
                 text,
-                target_lang
+                target_lang,
+                source_lang=source_lang,
             )
             current_section_original = text.upper().strip()
             current_section = (
