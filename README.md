@@ -1,6 +1,6 @@
 # AI Menu Translator & Food Analyzer
 
-An AI-powered multilingual restaurant menu translation and food analysis system built with FastAPI, React Native (Expo), PaddleOCR, and OpenRouter.
+An AI-powered multilingual restaurant menu translation and food analysis system built with FastAPI, React Native (Expo), Google Document AI / Cloud Vision, Google Cloud Translation, Gemini, OpenRouter, and local OCR fallback.
 
 Users can:
 - Scan restaurant menu images and PDFs
@@ -15,9 +15,10 @@ Users can:
 
 # Features
 
-- Multi-language menu OCR
-- AI-powered menu layout reconstruction and parsing
+- Source-language routed menu OCR
+- AI-powered menu layout reconstruction and parsing with language-specific modules
 - English, simplified Chinese, traditional Chinese, and Spanish translation support
+- Google Cloud Translation v3 support
 - Dish detail generation
 - Dish image search with Pexels, Unsplash, Wikimedia Commons, and OpenAI image fallback
 - PostgreSQL dish, category, and menu parse cache
@@ -42,8 +43,12 @@ Users can:
 
 ## Backend
 - FastAPI
-- PaddleOCR
+- Google Document AI
+- Google Cloud Vision
+- Google Cloud Translation v3
+- Gemini API
 - OpenRouter API
+- PaddleOCR fallback
 - SQLAlchemy
 - Supabase Python client
 - PyMuPDF
@@ -67,11 +72,17 @@ Users can:
 ```text
 User Upload
     ↓
-Image/PDF normalization
+Image / PDF / URL / document / text normalization
     ↓
-PaddleOCR or OpenRouter Vision OCR
+Google Document AI / Cloud Vision / OpenRouter Vision / local OCR fallback
     ↓
-OpenRouter layout parsing
+Source-language detection
+    ↓
+Language module routing: backend/app/language_modules/{en,zh,es}
+    ↓
+Gemini or OpenRouter menu structure parsing
+    ↓
+Google Cloud Translation v3
     ↓
 PostgreSQL menu, dish, and category cache
     ↓
@@ -102,10 +113,20 @@ menu-translator-app/
 │  │  │  ├─ i18n_service.py
 │  │  │  ├─ models.py
 │  │  │  └─ schemas.py
+│  │  ├─ language_modules/
+│  │  │  ├─ en/
+│  │  │  ├─ es/
+│  │  │  └─ zh/
 │  │  └─ services/
 │  │     ├─ auth_service.py
+│  │     ├─ app_config_service.py
 │  │     ├─ category_service.py
 │  │     ├─ dish_cache_service.py
+│  │     ├─ document_text_service.py
+│  │     ├─ gemini_menu_service.py
+│  │     ├─ google_document_ai_service.py
+│  │     ├─ google_translation_service.py
+│  │     ├─ google_vision_service.py
 │  │     ├─ image_service.py
 │  │     ├─ menu_cache_service.py
 │  │     ├─ menu_layout_service.py
@@ -179,14 +200,27 @@ npx expo start -c
 # Environment Variables
 ```
 OPENROUTER_API_KEY=XXXXXXX
-OPENROUTER_MODEL=google/gemini-2.5-flash
-OPENROUTER_LAYOUT_MODEL=google/gemini-2.5-flash
-OPENROUTER_DETAIL_MODEL=google/gemini-2.5-flash
+OPENROUTER_MODEL=google/gemini-2.5-flash-lite
+OPENROUTER_LAYOUT_MODEL=google/gemini-2.5-flash-lite
+OPENROUTER_DETAIL_MODEL=google/gemini-2.5-flash-lite
 OPENROUTER_USE_FAST_MENU_PROMPT=true
 OPENROUTER_LAYOUT_TIMEOUT=45
 OPENROUTER_MAX_RETRIES=2
-OPENROUTER_VISION_MODEL=google/gemini-2.5-flash
+OPENROUTER_VISION_MODEL=google/gemini-2.5-flash-lite
 OPENROUTER_VISION_FALLBACK_MODELS=google/gemini-2.5-flash,google/gemini-2.5-flash-lite
+GEMINI_API_KEY=XXXXXXX
+GEMINI_MODEL=gemini-2.5-flash-lite
+GEMINI_MENU_STRUCTURE_MODEL=gemini-2.5-flash-lite
+LAYOUT_MAX_TOKENS=6500
+VISION_MAX_TOKENS=4000
+GOOGLE_CLOUD_API=XXXXXXX
+GOOGLE_CLOUD_PROJECT_ID=XXXXXXX
+GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account", "...":"..."}
+GOOGLE_DOCUMENT_AI_LOCATION=us
+GOOGLE_DOCUMENT_AI_PROCESSOR_ID=XXXXXXX
+GOOGLE_CLOUD_LOCATION=global
+GOOGLE_CLOUD_TRANSLATION_GLOSSARY_ID=optional
+GOOGLE_CLOUD_TRANSLATION_MODEL=optional
 DATABASE_URL=XXXXXXX
 SUPABASE_URL=https://XXXXXX.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=XXXXXX
@@ -253,6 +287,11 @@ EXPO_PUBLIC_API_BASE_URL=https://ai-menu-app.onrender.com
 ```GET /i18n/languages```
 
 # Database Schema
+## app_config_entries
+Stores:
+```
+runtime backend config flags and tunables
+```
 ## dish_cache
 Stores:
 ```
@@ -287,6 +326,31 @@ normalized category keys
 source labels
 translated labels
 target language
+```
+## noise_keywords
+Stores:
+```
+source-language-specific OCR and parser noise words
+```
+## translation_glossary_terms
+Stores:
+```
+source and target glossary terms for menu translation
+```
+## unit_translations
+Stores:
+```
+source-language-specific unit names and translations
+```
+## user_cart_state
+Stores:
+```
+per-user saved cart state
+```
+## user_menu_history
+Stores:
+```
+per-user parsed menu history
 ```
 ## users
 Stores:
@@ -336,7 +400,7 @@ Implementation steps:
 3. Preserve and display OCR bounding boxes and confidence scores so downstream parsing can use layout, columns, sections, and low-confidence warnings.
 4. Add a dedicated OCR-block cache when useful, separate from the current full menu parse cache.
 5. Improve PDF handling so multi-page PDFs can be processed, merged, and debugged page by page.
-6. Add OCR timing logs and confidence metrics to compare preprocessing strategies, PaddleOCR settings, and OpenRouter Vision models.
+6. Add OCR timing logs and confidence metrics to compare preprocessing strategies, Document AI, Cloud Vision, local OCR, and vision models.
 7. Add fallback logic for failed or low-confidence OCR, such as rerunning with alternate preprocessing, OCR provider, or language settings.
 
 ## 2. Harden Chinese OCR and Chinese-to-English Translation
