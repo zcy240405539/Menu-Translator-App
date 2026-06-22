@@ -30,6 +30,7 @@ backend/test-*-layout.json
 frontend/*.log
 AGENTS.md
 AGENT.md
+ARCHITECTURE.md
 backend/app/__pycache__/
 frontend/android/
 

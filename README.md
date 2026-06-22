@@ -83,6 +83,11 @@ Supabase Storage
     ↓
 Frontend rendering, sharing, recommendation, cart, and history
 ```
+
+## Local Agent Handoff Docs
+
+`AGENT.md` and `ARCHITECTURE.md` are local, gitignored AI-agent handoff files. Agents should update `AGENT.md` after each project task and check whether `README.md` also needs a committed update.
+
 ## APP Structure
 ```
 menu-translator-app/
