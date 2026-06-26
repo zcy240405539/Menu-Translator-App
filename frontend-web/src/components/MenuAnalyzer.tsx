@@ -45,25 +45,29 @@ export default function MenuAnalyzer() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
     try {
-      let resultData;
+      let taskId = "";
 
       if (selectedFile) {
-        // Handle File Upload
+        // Handle File Upload - start task
         const formData = new FormData();
         formData.append("file", selectedFile);
         formData.append("source_lang", sourceLang);
         formData.append("target_lang", targetLang);
 
-        const res = await fetch(`${apiUrl}/menus/parse`, {
+        const res = await fetch(`${apiUrl}/menus/parse/start`, {
           method: "POST",
           body: formData,
         });
 
-        if (!res.ok) throw new Error("Failed to parse menu from file");
-        resultData = await res.json();
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.detail || "Failed to start parsing from file");
+        }
+        const data = await res.json();
+        taskId = data.task_id;
       } else if (menuUrl) {
-        // Handle URL
-        const res = await fetch(`${apiUrl}/menus/parse/url`, {
+        // Handle URL - start task
+        const res = await fetch(`${apiUrl}/menus/parse/url/start`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -75,15 +79,42 @@ export default function MenuAnalyzer() {
           }),
         });
 
-        if (!res.ok) throw new Error("Failed to parse menu from URL");
-        resultData = await res.json();
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.detail || "Failed to start parsing from URL");
+        }
+        const data = await res.json();
+        taskId = data.task_id;
       }
 
-      if (resultData && resultData.image_hash) {
-        // Redirect to result page
-        router.push(`/?menu_hash=${resultData.image_hash}&lang=${targetLang}`);
-      } else {
-        throw new Error("No parsed data received");
+      if (taskId) {
+        // Polling loop
+        let isDone = false;
+        let resultData = null;
+        while (!isDone) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const statusRes = await fetch(`${apiUrl}/menus/parse/status/${taskId}`);
+          
+          if (!statusRes.ok) {
+            throw new Error("Failed to check parse status");
+          }
+          
+          const statusData = await statusRes.json();
+          if (statusData.status === "done") {
+            isDone = true;
+            resultData = statusData.result;
+          } else if (statusData.status === "error") {
+            throw new Error(statusData.error || "Parsing failed on server");
+          }
+          // if status is 'queued' or 'processing', we just loop again
+        }
+
+        if (resultData && resultData.image_hash) {
+          // Redirect to result page
+          router.push(`/?menu_hash=${resultData.image_hash}&lang=${targetLang}`);
+        } else {
+          throw new Error("Parsed data did not contain an image hash.");
+        }
       }
     } catch (err: any) {
       console.error(err);
@@ -189,7 +220,7 @@ export default function MenuAnalyzer() {
           </div>
         </div>
 
-        {error && <p className="text-red-500 text-sm text-center font-medium">{error}</p>}
+        {error && <p className="text-red-500 text-sm text-center font-medium px-4">{error}</p>}
 
         <Button 
           disabled={!isAnalyzeEnabled || isAnalyzing}
