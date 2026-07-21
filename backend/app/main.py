@@ -809,7 +809,7 @@ def call_menu_structure_parser(
     def short_error(exc: Exception | str) -> str:
         return re.sub(r"\s+", " ", str(exc)).strip()[:300]
 
-    def rule_fallback(reason: Exception | str) -> dict:
+    def build_rule_result(reason: Exception | str | None = None) -> dict:
         from app.services.rule_menu_parser import parse_menu_markdown_with_rules
 
         result = parse_menu_markdown_with_rules(
@@ -819,9 +819,26 @@ def call_menu_structure_parser(
         )
         if result.get("menu_items"):
             result["_structure_provider_used"] = "rule_fallback"
-            result["analysis_error"] = short_error(reason)
+            if reason:
+                result["analysis_error"] = short_error(reason)
             return result
         raise RuntimeError(f"Menu structure parser failed and rule fallback found no items: {reason}")
+
+    def prefer_more_complete_rule_result(model_result: dict, provider_name: str) -> dict:
+        if requested_provider != "auto" or not isinstance(model_result, dict):
+            return model_result
+        model_count = len(model_result.get("menu_items") or [])
+        try:
+            rule_result = build_rule_result()
+        except Exception:
+            return model_result
+        rule_count = len(rule_result.get("menu_items") or [])
+        if rule_count >= max(20, int(model_count * 1.35)) and rule_count - model_count >= 10:
+            rule_result["analysis_error"] = (
+                f"{provider_name} returned {model_count} items; rule fallback found {rule_count} items."
+            )
+            return rule_result
+        return model_result
 
     effective_provider = get_effective_structure_provider(
         structure_provider=structure_provider,
@@ -840,11 +857,17 @@ def call_menu_structure_parser(
             )
             if isinstance(result, dict):
                 result["_structure_provider_used"] = "gemini"
-            return result
+            return prefer_more_complete_rule_result(result, "Gemini")
         except Exception as exc:
             if requested_provider != "auto":
                 raise
             print(f"Gemini structure parser failed in auto mode; falling back to OpenRouter: {short_error(exc)}")
+            try:
+                rule_result = build_rule_result(exc)
+                if len(rule_result.get("menu_items") or []) >= 20:
+                    return rule_result
+            except Exception:
+                pass
 
     try:
         result = call_openrouter_for_menu(
@@ -854,12 +877,12 @@ def call_menu_structure_parser(
         )
         if isinstance(result, dict):
             result["_structure_provider_used"] = "openrouter"
-        return result
+        return prefer_more_complete_rule_result(result, "OpenRouter")
     except Exception as exc:
         if requested_provider != "auto":
             raise
         print(f"OpenRouter structure parser failed in auto mode; using rule fallback: {short_error(exc)}")
-        return rule_fallback(exc)
+        return build_rule_result(exc)
 
 
 def call_menu_layout_structure_parser(
@@ -2012,7 +2035,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 20
+MENU_CACHE_SCHEMA_VERSION = 21
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
     "MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE",
