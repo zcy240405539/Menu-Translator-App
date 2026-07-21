@@ -144,6 +144,9 @@ def _translate_texts_v3(
     target_code: str,
     source_code: str | None,
 ) -> dict[str, str]:
+    if not texts:
+        return {}
+
     endpoint = f"https://translation.googleapis.com/v3/{_translation_parent()}:translateText"
     model = _translation_model_path()
     glossary = _glossary_path()
@@ -281,6 +284,9 @@ def translate_texts(
     source_lang = normalize_lang(source_lang, "auto")
     glossary_overrides = _load_database_glossary(cleaned, target_lang, source_lang)
     pending = [text for text in cleaned if text not in glossary_overrides]
+
+    if not pending:
+        return {text: glossary_overrides.get(text, text) for text in cleaned}
 
     target_code = _google_language_code(target_lang)
     source_code = _google_language_code(source_lang, source=True)
