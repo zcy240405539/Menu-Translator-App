@@ -26,6 +26,7 @@ class LanguageProfile:
     bilingual_rules: tuple[str, ...] = ()
     section_noise_rules: tuple[str, ...] = ()
     unit_rules: tuple[str, ...] = ()
+    section_terms: tuple[str, ...] = ()
     cuisine_hints: tuple[str, ...] = ()
     detection_stopwords: tuple[str, ...] = ()
     detection_regexes: tuple[str, ...] = ()
@@ -111,7 +112,13 @@ def detect_source_language(
         for pattern in profile.detection_regexes:
             scores[code] += len(re.findall(pattern, compact, flags=re.IGNORECASE)) * 1.5
 
-    if scores["es"] >= max(2.0, scores["en"] + 1.0):
+    spanish_marks = len(re.findall(r"[áéíóúüñ¿¡]", compact, flags=re.IGNORECASE))
+    spanish_function_words = len(
+        re.findall(r"(?<![a-zÀ-ÿ])(?:con|de|del|la|el|los|las)(?![a-zÀ-ÿ])", compact)
+    )
+    if scores["es"] >= max(3.0, scores["en"] + 2.0) and (
+        spanish_marks >= 2 or spanish_function_words >= 3
+    ):
         return "es"
     return "en"
 

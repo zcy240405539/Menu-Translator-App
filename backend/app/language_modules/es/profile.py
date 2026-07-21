@@ -31,6 +31,14 @@ PROFILE = LanguageProfile(
     unit_rules=(
         "Treat copa, vaso, botella, caña, pinta, ración, media ración, unidad, ud, kg, g, and ml as units or serving options.",
     ),
+    section_terms=(
+        "tapas", "raciones", "bocadillos", "bocadillos & montaditos",
+        "bocadillos & orontaditos", "montaditos", "verduras", "pescados",
+        "carnes", "ensaladas", "postres", "bebidas", "vinos", "vino", "cerveza",
+        "cocteles", "cócteles", "vermut", "spritz", "gin tonic", "sherry",
+        "wine by the glass", "on draft", "n/a beverages",
+        "espumoso", "white", "rosé / orange", "rose / orange", "red",
+    ),
     bilingual_rules=(
         "If Spanish and English names are printed together, original_name should be the Spanish item name and translated_name may use the printed English name.",
     ),

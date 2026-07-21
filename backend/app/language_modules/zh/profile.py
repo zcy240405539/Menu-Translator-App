@@ -31,6 +31,10 @@ PROFILE = LanguageProfile(
     unit_rules=(
         "Treat 份, 位, 例, 个, 只, 串, 碗, 杯, 斤, 两, 盘, 锅, 袋, 盒, 瓶, 听, 扎, 大份, 小份 as units or size options.",
     ),
+    section_terms=(
+        "菜单", "招牌", "特色", "推荐", "主食", "小吃", "饮品", "汤", "热菜", "凉菜",
+        "套餐", "烧烤", "海鲜", "肉类", "蔬菜", "甜品", "酒水", "茶", "咖啡",
+    ),
     bilingual_rules=(
         "For bilingual Chinese-English rows, original_name should be the printed Chinese dish name and translated_name may use the printed English translation.",
         "If a line uses separators such as /, |, ·, or spaces between Chinese and English, preserve both sides but do not merge two different dishes.",

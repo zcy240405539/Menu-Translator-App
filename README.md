@@ -221,11 +221,13 @@ GOOGLE_DOCUMENT_AI_PROCESSOR_ID=XXXXXXX
 GOOGLE_CLOUD_LOCATION=global
 GOOGLE_CLOUD_TRANSLATION_GLOSSARY_ID=optional
 GOOGLE_CLOUD_TRANSLATION_MODEL=optional
+GOOGLE_CLOUD_TRANSLATION_WORKERS=4
 DATABASE_URL=XXXXXXX
 SUPABASE_URL=https://XXXXXX.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=XXXXXX
 SUPABASE_BUCKET=Dish_Images
 OCR_PROVIDER=auto
+DOCUMENT_TEXT_PROVIDER=auto
 OCR_AUTO_LANG_ORDER=en,ch
 OCR_AUTO_MODE=fast
 OCR_FAST_AUTO_MIN_SCORE=58
@@ -235,6 +237,7 @@ MENU_IMAGE_MAX_SIZE=1280
 MENU_IMAGE_JPEG_QUALITY=68
 OPENROUTER_VISION_TIMEOUT=45
 MENU_PARSE_INITIAL_DETAIL_LIMIT=0
+MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE=false
 APP_CONFIG_CACHE_SECONDS=300
 IMAGE_SEARCH_PER_SOURCE=4
 IMAGE_SEARCH_MIN_SCORE=30
@@ -252,6 +255,13 @@ OPENAI_IMAGE_MODEL=gpt-image-1-mini
 ENABLE_GENERATED_IMAGE_FALLBACK=true
 EXPO_PUBLIC_API_BASE_URL=https://ai-menu-app.onrender.com
 ```
+
+Current default parsing flow:
+
+- Images use the configured OCR provider, usually Google Cloud Vision.
+- PDFs use Google Document AI in `DOCUMENT_TEXT_PROVIDER=auto` when configured, then Cloud Vision/text fallback.
+- Menu structure uses official Gemini first in `MENU_STRUCTURE_PROVIDER=auto`, then OpenRouter, then the markdown rule fallback.
+- Google Cloud Translation Advanced v3 translates menu text in parallel batches.
 
 # API Endpoints
 

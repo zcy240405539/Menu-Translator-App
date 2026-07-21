@@ -2,6 +2,7 @@ import os
 import json
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Iterable
 
 import requests
@@ -21,6 +22,7 @@ from app.core.i18n_service import normalize_lang
 
 GOOGLE_TRANSLATION_TIMEOUT = int(os.getenv("GOOGLE_CLOUD_TRANSLATION_TIMEOUT", "12"))
 GOOGLE_TRANSLATION_BATCH_SIZE = max(1, int(os.getenv("GOOGLE_CLOUD_TRANSLATION_BATCH_SIZE", "80")))
+GOOGLE_TRANSLATION_WORKERS = max(1, int(os.getenv("GOOGLE_CLOUD_TRANSLATION_WORKERS", "4")))
 GOOGLE_TRANSLATION_MIME_TYPE = os.getenv("GOOGLE_CLOUD_TRANSLATION_MIME_TYPE", "text/plain")
 GOOGLE_TRANSLATION_SCOPES = ["https://www.googleapis.com/auth/cloud-translation"]
 GOOGLE_CLOUD_PLATFORM_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
@@ -151,7 +153,7 @@ def _translate_texts_v3(
         "Content-Type": "application/json",
     }
 
-    for batch in _chunks(texts, GOOGLE_TRANSLATION_BATCH_SIZE):
+    def translate_batch(batch: list[str]) -> dict[str, str]:
         payload = {
             "contents": batch,
             "mimeType": GOOGLE_TRANSLATION_MIME_TYPE,
@@ -173,8 +175,19 @@ def _translate_texts_v3(
         response.raise_for_status()
         data = response.json()
         translated_entries = data.get("glossaryTranslations") or data.get("translations") or []
+        batch_translations = {}
         for source, entry in zip(batch, translated_entries):
-            translations[source] = _clean_text(entry.get("translatedText") or source)
+            batch_translations[source] = _clean_text(entry.get("translatedText") or source)
+        return batch_translations
+
+    batches = list(_chunks(texts, GOOGLE_TRANSLATION_BATCH_SIZE))
+    if len(batches) == 1:
+        return translate_batch(batches[0])
+
+    with ThreadPoolExecutor(max_workers=min(GOOGLE_TRANSLATION_WORKERS, len(batches))) as executor:
+        futures = [executor.submit(translate_batch, batch) for batch in batches]
+        for future in as_completed(futures):
+            translations.update(future.result())
 
     return translations
 

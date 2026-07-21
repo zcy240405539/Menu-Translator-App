@@ -786,12 +786,8 @@ def get_effective_structure_provider(
     if provider not in {"auto", ""}:
         return provider
 
-    if source_url and not _is_pdf_url(source_url):
+    if os.getenv("GEMINI_API_KEY"):
         return "gemini"
-    if _is_pdf_url(source_url):
-        return "openrouter"
-    if is_image_content(content_type or "", file_name or ""):
-        return "openrouter"
     return "openrouter"
 
 
@@ -808,6 +804,25 @@ def call_menu_structure_parser(
     content_type: str | None = None,
     file_name: str | None = None,
 ) -> dict:
+    requested_provider = get_requested_structure_provider(structure_provider)
+
+    def short_error(exc: Exception | str) -> str:
+        return re.sub(r"\s+", " ", str(exc)).strip()[:300]
+
+    def rule_fallback(reason: Exception | str) -> dict:
+        from app.services.rule_menu_parser import parse_menu_markdown_with_rules
+
+        result = parse_menu_markdown_with_rules(
+            extracted_markdown=extracted_markdown,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+        if result.get("menu_items"):
+            result["_structure_provider_used"] = "rule_fallback"
+            result["analysis_error"] = short_error(reason)
+            return result
+        raise RuntimeError(f"Menu structure parser failed and rule fallback found no items: {reason}")
+
     effective_provider = get_effective_structure_provider(
         structure_provider=structure_provider,
         source_url=source_url,
@@ -827,18 +842,24 @@ def call_menu_structure_parser(
                 result["_structure_provider_used"] = "gemini"
             return result
         except Exception as exc:
-            if get_requested_structure_provider(structure_provider) != "auto":
+            if requested_provider != "auto":
                 raise
-            print(f"Gemini structure parser failed in auto mode; falling back to OpenRouter: {exc}")
+            print(f"Gemini structure parser failed in auto mode; falling back to OpenRouter: {short_error(exc)}")
 
-    result = call_openrouter_for_menu(
-        ocr_text=extracted_markdown,
-        target_lang=target_lang,
-        source_lang=source_lang,
-    )
-    if isinstance(result, dict):
-        result["_structure_provider_used"] = "openrouter"
-    return result
+    try:
+        result = call_openrouter_for_menu(
+            ocr_text=extracted_markdown,
+            target_lang=target_lang,
+            source_lang=source_lang,
+        )
+        if isinstance(result, dict):
+            result["_structure_provider_used"] = "openrouter"
+        return result
+    except Exception as exc:
+        if requested_provider != "auto":
+            raise
+        print(f"OpenRouter structure parser failed in auto mode; using rule fallback: {short_error(exc)}")
+        return rule_fallback(exc)
 
 
 def call_menu_layout_structure_parser(
@@ -1991,8 +2012,12 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 16
+MENU_CACHE_SCHEMA_VERSION = 20
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
+MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
+    "MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE",
+    "false",
+).lower() in {"1", "true", "yes"}
 
 def run_menu_parse_task(
     task_id: str,
@@ -2336,18 +2361,6 @@ def run_menu_parse_task(
             for item in enriched_items:
                 if item.get("cache_hit"):
                     item["cuisine"] = resolve_dish_cuisine(item, menu_cuisine)
-                    try:
-                        upsert_dish_cache(
-                            db=db,
-                            dish=item,
-                            target_lang=target_lang,
-                            commit=False,
-                        )
-                        dish_cache_changed = True
-                    except Exception as cache_error:
-                        db.rollback()
-                        dish_cache_changed = False
-                        print("Cached dish cuisine refresh failed:", cache_error)
                     final_items.append(item)
                     continue
 
@@ -2371,19 +2384,19 @@ def run_menu_parse_task(
                     f"{cuisine} {restaurant_type} dish for {dish_name}"
                 ).strip()
 
-                # 不管 OpenRouter 成功失败，都写入数据库
-                try:
-                    upsert_dish_cache(
-                        db=db,
-                        dish=item,
-                        target_lang=target_lang,
-                        commit=False,
-                    )
-                    dish_cache_changed = True
-                except Exception as cache_error:
-                    db.rollback()
-                    dish_cache_changed = False
-                    print("Dish cache upsert failed:", cache_error)
+                if detail or MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE:
+                    try:
+                        upsert_dish_cache(
+                            db=db,
+                            dish=item,
+                            target_lang=target_lang,
+                            commit=False,
+                        )
+                        dish_cache_changed = True
+                    except Exception as cache_error:
+                        db.rollback()
+                        dish_cache_changed = False
+                        print("Dish cache upsert failed:", cache_error)
 
                 final_items.append(item)
 
@@ -2434,20 +2447,10 @@ def run_menu_parse_task(
             )
 
             category_records_changed = False
-            for item in enriched_items:
-                original_category = original_category_by_id.get(item.get("id"), {})
-                section_original = (
-                    original_category.get("section_heading_original")
-                    or item.get("section_heading_original")
-                    or original_category.get("category")
-                    or item.get("category")
-                    or "Other"
-                )
-
+            category_record_by_label = {}
+            for section_original in all_category_originals:
                 section_translated = (
                     category_translation_map.get(section_original)
-                    or original_category.get("section_heading_translated")
-                    or item.get("section_heading_translated")
                     or section_original
                 )
 
@@ -2461,12 +2464,7 @@ def run_menu_parse_task(
                         commit=False,
                     )
                     category_records_changed = True
-
-                    item["category_id"] = category_record.id
-                    item["category_key"] = category_record.normalized_key
-                    item["category_display_name"] = category_record.translated_label
-                    item["section_heading_original"] = category_record.original_label
-                    item["section_heading_translated"] = category_record.translated_label
+                    category_record_by_label[section_original] = category_record
 
                 except Exception as category_error:
                     db.rollback()
@@ -2480,6 +2478,23 @@ def run_menu_parse_task(
                     db.rollback()
                     print("Final category batch flush failed:", category_flush_error)
 
+            for item in enriched_items:
+                original_category = original_category_by_id.get(item.get("id"), {})
+                section_original = (
+                    original_category.get("section_heading_original")
+                    or item.get("section_heading_original")
+                    or original_category.get("category")
+                    or item.get("category")
+                    or "Other"
+                )
+                category_record = category_record_by_label.get(section_original)
+                if not category_record:
+                    continue
+                item["category_id"] = category_record.id
+                item["category_key"] = category_record.normalized_key
+                item["category_display_name"] = category_record.translated_label
+                item["section_heading_original"] = category_record.original_label
+                item["section_heading_translated"] = category_record.translated_label
 
             result["menu_items"] = enriched_items or menu_items
             result["ocr_blocks"] = result.get("ocr_blocks", ocr_blocks)

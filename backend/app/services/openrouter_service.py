@@ -545,25 +545,33 @@ def flatten_nested_menu_json(nested_result: dict) -> dict:
         "menu_pricing": nested_result.get("menu_pricing") or []
     }
     
-    dish_counter = 1
-    for section in nested_result.get("sections", []):
+    def add_section_items(section: dict, parent_original: str = "", parent_translated: str = "") -> None:
+        nonlocal dish_counter
         sec_orig = (section.get("section_heading_original") or "").strip()
         sec_trans = (section.get("section_heading_translated") or "").strip()
-        
+        active_orig = sec_orig or parent_original or "Other"
+        active_trans = sec_trans or parent_translated
+
         # category key is a normalized snake_case of sec_orig
-        category_key = re.sub(r'[^a-z0-9]+', '_', sec_orig.lower()).strip('_')
+        category_key = re.sub(r'[^a-z0-9]+', '_', active_orig.lower()).strip('_')
         if not category_key:
             category_key = "other"
-            
+
         for item in section.get("items", []):
+            if not isinstance(item, dict):
+                continue
+            if item.get("items") or item.get("section_heading_original"):
+                add_section_items(item, active_orig, active_trans)
+                continue
+
             flat_item = {
                 "id": f"dish_{dish_counter:03d}",
                 "original_name": item.get("original_name") or "",
                 "translated_name": item.get("translated_name") or "",
                 "price": item.get("price"),
                 "category": category_key,
-                "section_heading_original": sec_orig,
-                "section_heading_translated": sec_trans,
+                "section_heading_original": active_orig,
+                "section_heading_translated": active_trans,
                 "description_original": item.get("description_original") or item.get("description") or "",
                 "description": item.get("description") or "",
                 "ingredients": item.get("ingredients") or [],
@@ -574,6 +582,11 @@ def flatten_nested_menu_json(nested_result: dict) -> dict:
             }
             flat_result["menu_items"].append(flat_item)
             dish_counter += 1
+
+    dish_counter = 1
+    for section in nested_result.get("sections", []):
+        if isinstance(section, dict):
+            add_section_items(section)
             
     return flat_result
 

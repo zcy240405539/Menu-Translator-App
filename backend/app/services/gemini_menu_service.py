@@ -133,6 +133,8 @@ def _finalize_menu_result(
         result = flatten_nested_menu_json(result)
 
     for item in result.get("menu_items", []) or []:
+        item.setdefault("translated_name", "")
+        item.setdefault("section_heading_translated", "")
         item.setdefault("description", "")
         item.setdefault("description_original", item.get("description") or "")
         item.setdefault("ingredients", [])
@@ -168,24 +170,13 @@ Return exactly one valid JSON object with this shape:
     "notes": [],
     "description": ""
   }},
-  "sections": [
+  "menu_items": [
     {{
+      "original_name": "",
+      "price": null,
       "section_heading_original": "VISIBLE SECTION HEADING",
-      "section_heading_translated": "",
-      "items": [
-        {{
-          "original_name": "",
-          "translated_name": "",
-          "price": null,
-          "description_original": "",
-          "description": "",
-          "ingredients": [],
-          "allergens": [],
-          "spicy_level": 0,
-          "image_prompt": "",
-          "confidence": 0.9
-        }}
-      ]
+      "description_original": "",
+      "confidence": 0.9
     }}
   ]
 }}
@@ -224,6 +215,8 @@ Extracted menu content:
 {ocr_text}
 
 Structure rules:
+- Return a flat menu_items array. Do not return nested sections.
+- Every item must include its visible section in section_heading_original.
 - Use actual visible menu section headings as section_heading_original.
 - Do not classify by food type if a visible section heading exists.
 - Do not use a dish name as its own section unless it is the only item sold as a set under that heading.
@@ -236,10 +229,9 @@ Structure rules:
 - If a price appears right after a section heading and many following items lack prices, treat it as a section default price.
 - If a heading includes a section price, such as "VERDURAS 14", use "VERDURAS" as section heading and "14" as default price.
 - Preserve original_name exactly as printed. Do not translate it.
-- Leave translated_name and section_heading_translated empty if not printed.
 - Preserve printed descriptions in description_original. Do not invent descriptions.
 - Use null for missing prices. Do not invent prices.
-- Keep ingredients and allergens empty unless explicitly printed.
+- Omit translated_name, section_heading_translated, ingredients, allergens, image_prompt, and description unless they are explicitly printed.
 - Process the full menu, including drinks, coffee, tea, dessert, brunch, sides, pastries, and happy hour.
 
 Business info:
@@ -288,6 +280,8 @@ OCR blocks with coordinates:
 {json.dumps(_compact_ocr_blocks(ocr_blocks), ensure_ascii=False)}
 
 Layout rules:
+- Return a flat menu_items array. Do not return nested sections.
+- Every item must include its visible section in section_heading_original.
 - Use coordinates to preserve columns, visual groups, section headings, item order, and page order.
 - Assign each dish to the closest visible section heading above it in the same column/group/box.
 - Do not infer categories from food type when a visible heading exists.
@@ -297,9 +291,9 @@ Layout rules:
 - If a heading includes a section price, such as "VERDURAS 14", use "VERDURAS" as heading and "14" as default price.
 - If one line contains multiple dish/price pairs, split them into separate items.
 - Preserve original_name exactly as printed. Do not translate it.
-- Leave translated_name and section_heading_translated empty if not printed.
 - Preserve printed descriptions in description_original.
 - Use null for missing prices. Do not invent prices.
+- Omit translated_name, section_heading_translated, ingredients, allergens, image_prompt, and description unless they are explicitly printed.
 - Extract the whole menu, including drinks, coffee, tea, dessert, brunch, sides, pastries, and happy hour.
 - Exclude restaurant name, hours, footer notes, social media, policies, reservations, login, and cart text from menu_items.
 

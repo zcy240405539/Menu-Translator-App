@@ -3,7 +3,6 @@ import os
 import re
 import socket
 import tempfile
-import ipaddress
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
@@ -600,6 +599,39 @@ def _pdf_google_vision_markdown(file_bytes: bytes) -> str:
     return "\n".join(parts).strip()
 
 
+def _pdf_document_ai_markdown(file_bytes: bytes, mime_type: str = "application/pdf") -> str:
+    from app.services.google_document_ai_service import (
+        document_ai_result_to_markdown,
+        process_document_with_document_ai,
+    )
+
+    result = process_document_with_document_ai(file_bytes, mime_type=mime_type or "application/pdf")
+    markdown = document_ai_result_to_markdown(result)
+    if not markdown:
+        return ""
+
+    text_layer = _pdf_text_layer_markdown(file_bytes)
+    if text_layer and _menu_signal_score(text_layer) >= 6:
+        return "\n\n".join(
+            [
+                markdown,
+                "# PDF text layer cross-check",
+                text_layer,
+            ]
+        ).strip()
+    return markdown
+
+
+def _document_ai_configured() -> bool:
+    try:
+        from app.services.google_document_ai_service import is_document_ai_available
+
+        return is_document_ai_available()
+    except Exception as exc:
+        print("Document AI availability check failed:", exc)
+        return False
+
+
 def extract_markdown_from_pdf_bytes(
     file_bytes: bytes,
     target_lang: str = "zh",
@@ -608,26 +640,12 @@ def extract_markdown_from_pdf_bytes(
     document_provider: str | None = None,
 ) -> str:
     provider = (document_provider or DOCUMENT_TEXT_PROVIDER or "auto").strip().lower()
+    auto_provider = provider in {"auto", ""}
     document_ai_requested = provider in {"document_ai", "google_document_ai", "google", "cloud_document_ai"}
-    if document_ai_requested:
+    if document_ai_requested or (auto_provider and _document_ai_configured()):
         try:
-            from app.services.google_document_ai_service import (
-                document_ai_result_to_markdown,
-                process_document_with_document_ai,
-            )
-
-            result = process_document_with_document_ai(file_bytes, mime_type=mime_type or "application/pdf")
-            markdown = document_ai_result_to_markdown(result)
+            markdown = _pdf_document_ai_markdown(file_bytes, mime_type=mime_type)
             if markdown:
-                text_layer = _pdf_text_layer_markdown(file_bytes)
-                if text_layer and _menu_signal_score(text_layer) >= 6:
-                    return "\n\n".join(
-                        [
-                            markdown,
-                            "# PDF text layer cross-check",
-                            text_layer,
-                        ]
-                    ).strip()
                 return markdown
         except Exception as exc:
             if document_ai_requested:
@@ -647,8 +665,26 @@ def extract_markdown_from_pdf_bytes(
             return google_vision_text
         raise ValueError("Google Cloud Vision returned no readable PDF text.")
 
+    if auto_provider:
+        google_vision_text = _pdf_google_vision_markdown(file_bytes)
+        text_layer = _pdf_text_layer_markdown(file_bytes)
+        if google_vision_text and _menu_signal_score(google_vision_text) > _menu_signal_score(text_layer):
+            return google_vision_text
+        return text_layer or google_vision_text
+
+    if provider in {"text", "text_layer", "pdf_text", "pymupdf", "markitdown"}:
+        return _pdf_text_layer_markdown(file_bytes)
+
+    if provider not in {"vision", "openrouter", "openrouter_vision", "vision_model"}:
+        return _pdf_text_layer_markdown(file_bytes)
+
     vision_text = _pdf_vision_markdown(file_bytes, target_lang=target_lang, source_lang=source_lang)
     text_layer = _pdf_text_layer_markdown(file_bytes)
+
+    if vision_text and provider in {"vision", "openrouter", "openrouter_vision", "vision_model"}:
+        if PDF_INCLUDE_TEXT_LAYER_FALLBACK and text_layer:
+            return "\n\n".join([vision_text, "# PDF text layer fallback", text_layer]).strip()
+        return vision_text
 
     if vision_text and _menu_signal_score(vision_text) >= max(6, _menu_signal_score(text_layer) // 2):
         if not PDF_INCLUDE_TEXT_LAYER_FALLBACK:

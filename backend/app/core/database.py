@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from dotenv import load_dotenv
 import os
 
-load_dotenv()
+from app.core import config  # noqa: F401 - loads .env consistently for all services
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 

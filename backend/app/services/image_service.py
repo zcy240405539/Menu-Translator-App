@@ -28,7 +28,16 @@ WIKIMEDIA_USER_AGENT = os.getenv(
     "MenuTranslatorApp/1.0 (image-search)",
 )
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1-mini")
+
+
+def normalize_openai_image_model(model: str | None) -> str:
+    value = (model or "gpt-image-1-mini").strip()
+    if value.startswith(("gpt-image-", "dall-e-")) and ":" in value:
+        return value.split(":", 1)[0]
+    return value
+
+
+OPENAI_IMAGE_MODEL = normalize_openai_image_model(os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1-mini"))
 ENABLE_GENERATED_IMAGE_FALLBACK = os.getenv(
     "ENABLE_GENERATED_IMAGE_FALLBACK",
     "true",
@@ -133,6 +142,43 @@ def fuzzy_token_overlap(left: set[str], right: set[str]) -> int:
     return overlap
 
 
+def has_food_context(text_lower: str, cuisine: str) -> bool:
+    food_terms = {
+        "food",
+        "dish",
+        "cuisine",
+        "meal",
+        "plate",
+        "plated",
+        "restaurant",
+        "sandwich",
+        "toast",
+        "pizza",
+        "pasta",
+        "noodle",
+        "rice",
+        "soup",
+        "salad",
+        "taco",
+        "burger",
+        "dumpling",
+        "cake",
+        "bread",
+        "chicken",
+        "beef",
+        "pork",
+        "fish",
+        "seafood",
+        "cheese",
+        "sauce",
+        "cocktail",
+        "wine",
+    }
+    return any(term in text_lower for term in food_terms) or (
+        cuisine != "Other" and cuisine.lower() in text_lower
+    )
+
+
 def get_dish_names_for_search(dish: dict) -> list[str]:
     original = strip_menu_code_and_price(dish.get("original_name") or dish.get("name") or "")
     translated = strip_menu_code_and_price(dish.get("translated_name") or "")
@@ -161,6 +207,30 @@ def get_dish_names_for_search(dish: dict) -> list[str]:
                 if alias and alias.lower() not in {existing.lower() for existing in names}:
                     names.append(alias)
     return names
+
+
+def get_dish_evidence_tokens(dish: dict) -> set[str]:
+    values: list[str] = []
+    values.extend(get_dish_names_for_search(dish))
+    values.extend(
+        str(dish.get(key) or "")
+        for key in (
+            "description",
+            "translated_description",
+            "category",
+            "section_heading_original",
+        )
+    )
+    ingredients = dish.get("ingredients") or []
+    if isinstance(ingredients, list):
+        values.extend(str(item or "") for item in ingredients)
+    else:
+        values.append(str(ingredients or ""))
+
+    tokens: set[str] = set()
+    for value in values:
+        tokens |= tokenize_for_image_match(value)
+    return tokens
 
 
 def build_image_search_query(dish: dict) -> str:
@@ -227,6 +297,7 @@ def score_image_candidate(candidate: dict, dish: dict, query: str) -> float:
     names = get_dish_names_for_search(dish)
     name_tokens = set()
     exact_name_hit = False
+    exact_name_token_counts = []
 
     for name in names:
         if not name:
@@ -234,6 +305,7 @@ def score_image_candidate(candidate: dict, dish: dict, query: str) -> float:
         name_lower = name.lower()
         if name_lower in title_lower:
             exact_name_hit = True
+            exact_name_token_counts.append(len(tokenize_for_image_match(name)))
         name_tokens |= tokenize_for_image_match(name)
 
     candidate_tokens = tokenize_for_image_match(title)
@@ -241,15 +313,17 @@ def score_image_candidate(candidate: dict, dish: dict, query: str) -> float:
     overlap = fuzzy_token_overlap(name_tokens, candidate_tokens)
     cuisine = resolve_dish_cuisine(dish)
     lookup_text = " ".join(names).lower()
+    evidence_overlap = fuzzy_token_overlap(get_dish_evidence_tokens(dish), candidate_tokens)
 
     source_score_bonus = get_image_source_score_bonus()
     score = source_score_bonus.get(source_type, 8)
     score += min(overlap, 6) * 7
+    score += min(max(evidence_overlap - overlap, 0), 4) * 3
     if exact_name_hit:
         score += 34
     if cuisine != "Other" and cuisine.lower() in title_lower:
         score += 8
-    if any(term in title_lower for term in ["food", "dish", "cuisine", "meal", "plate", "plated"]):
+    if has_food_context(title_lower, cuisine):
         score += 6
     negative_image_terms = get_negative_image_terms()
     if any(term in title_lower for term in negative_image_terms):
@@ -259,6 +333,9 @@ def score_image_candidate(candidate: dict, dish: dict, query: str) -> float:
             score -= 34
     if not exact_name_hit and overlap == 0 and len(query_tokens & candidate_tokens) < 2:
         score -= 16
+    weak_single_word_match = exact_name_hit and max(exact_name_token_counts or [0]) <= 1
+    if weak_single_word_match and evidence_overlap <= 1 and not has_food_context(title_lower, cuisine):
+        score -= 38
     if candidate.get("width") and candidate.get("height"):
         try:
             width = float(candidate["width"])

@@ -31,6 +31,16 @@ PROFILE = LanguageProfile(
     unit_rules=(
         "Treat oz, lb, lbs, pc, pcs, each, cup, bowl, pint, quart, bottle, glass, side, and add-on as units or options.",
     ),
+    section_terms=(
+        "breakfast", "brunch", "lunch", "dinner", "food", "dessert", "desserts",
+        "drinks", "beverages", "cocktails", "beer", "wine", "coffee", "tea",
+        "happy hour", "appetizers", "starters", "salads", "sandwiches", "sides",
+        "tapas", "raciones", "bocadillos", "bocadillos & montaditos",
+        "bocadillos & orontaditos", "montaditos", "verduras", "pescados",
+        "carnes", "spritz", "vermut", "gin tonic", "on draft", "sherry",
+        "wine by the glass", "n/a beverages",
+        "espumoso", "white", "rosé / orange", "rose / orange", "red",
+    ),
     bilingual_rules=(
         "If an English menu includes another language in parentheses, keep the printed English item name as original_name unless the requested source language is that other language.",
     ),
