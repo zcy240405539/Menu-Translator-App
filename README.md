@@ -238,6 +238,7 @@ MENU_IMAGE_JPEG_QUALITY=68
 OPENROUTER_VISION_TIMEOUT=45
 MENU_PARSE_INITIAL_DETAIL_LIMIT=0
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE=false
+MENU_STRUCTURE_RULE_FAST_PATH_MIN_ITEMS=20
 APP_CONFIG_CACHE_SECONDS=300
 IMAGE_SEARCH_PER_SOURCE=4
 IMAGE_SEARCH_MIN_SCORE=30
@@ -260,7 +261,7 @@ Current default parsing flow:
 
 - Images use the configured OCR provider, usually Google Cloud Vision.
 - PDFs use Google Document AI in `DOCUMENT_TEXT_PROVIDER=auto` when configured, then Cloud Vision/text fallback.
-- Menu structure uses official Gemini first in `MENU_STRUCTURE_PROVIDER=auto`, then OpenRouter, then the markdown rule fallback.
+- Menu structure uses the markdown rule fast path when it can already extract enough items, otherwise official Gemini first in `MENU_STRUCTURE_PROVIDER=auto`, then OpenRouter, then the rule fallback.
 - Google Cloud Translation Advanced v3 translates menu text in parallel batches.
 
 # API Endpoints

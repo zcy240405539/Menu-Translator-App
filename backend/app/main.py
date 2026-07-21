@@ -829,7 +829,7 @@ def call_menu_structure_parser(
             return model_result
         model_count = len(model_result.get("menu_items") or [])
         try:
-            rule_result = build_rule_result()
+            rule_result = preflight_rule_result or build_rule_result()
         except Exception:
             return model_result
         rule_count = len(rule_result.get("menu_items") or [])
@@ -839,6 +839,16 @@ def call_menu_structure_parser(
             )
             return rule_result
         return model_result
+
+    preflight_rule_result = None
+    if requested_provider == "auto":
+        try:
+            preflight_rule_result = build_rule_result()
+            min_rule_items = int(os.getenv("MENU_STRUCTURE_RULE_FAST_PATH_MIN_ITEMS", "20"))
+            if len(preflight_rule_result.get("menu_items") or []) >= min_rule_items:
+                return preflight_rule_result
+        except Exception:
+            preflight_rule_result = None
 
     effective_provider = get_effective_structure_provider(
         structure_provider=structure_provider,
@@ -2035,7 +2045,7 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 21
+MENU_CACHE_SCHEMA_VERSION = 22
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
     "MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE",
