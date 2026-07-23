@@ -17,6 +17,11 @@ type ParseStatus = {
   error?: string;
 };
 
+type MenuAnalyzerProps = {
+  targetLang: string;
+  onTargetLangChange: (lang: string) => void;
+};
+
 function apiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
 }
@@ -26,9 +31,8 @@ async function readError(response: Response, fallback: string) {
   return body?.detail || fallback;
 }
 
-export default function MenuAnalyzer() {
+export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAnalyzerProps) {
   const [sourceLang, setSourceLang] = useState("auto");
-  const [targetLang, setTargetLang] = useState("en");
   const [menuUrl, setMenuUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -37,6 +41,11 @@ export default function MenuAnalyzer() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const handleTargetLangChange = (value: string | null) => {
+    const nextLang = value || "en";
+    onTargetLangChange(nextLang);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -152,7 +161,7 @@ export default function MenuAnalyzer() {
           </div>
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">Target language</label>
-            <Select value={targetLang} onValueChange={(v) => setTargetLang(v || "en")}>
+            <Select value={targetLang} onValueChange={handleTargetLangChange}>
               <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700">
                 <SelectValue placeholder="Select Target" />
               </SelectTrigger>

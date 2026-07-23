@@ -77,19 +77,19 @@ const deletionSections: LegalSection[] = [
 
 export function LegalDocument({ kind }: LegalDocumentProps) {
   const isDeletion = kind === "account-deletion";
-  const title = isDeletion ? "Delete your AnyMenu account" : "Privacy Policy";
+  const title = isDeletion ? "Delete your AIMenuAPP account" : "Privacy Policy";
   const subtitle = isDeletion
     ? "Request deletion of your account and associated account data."
-    : "AnyMenu - Last updated: June 10, 2026";
+    : "AIMenuAPP - Last updated: June 10, 2026";
   const sections = isDeletion ? deletionSections : privacySections;
 
   return (
     <main className="min-h-screen bg-[#fbf8f4] px-4 py-10">
       <article className="mx-auto max-w-4xl rounded-3xl border border-purple-100 bg-white p-6 shadow-sm md:p-10">
         <Link href="/" className="mb-8 inline-flex text-sm font-semibold text-purple-700 hover:text-purple-800">
-          Back to AnyMenu
+          Back to AIMenuAPP
         </Link>
-        <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-purple-700">AnyMenu</p>
+        <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-purple-700">AIMenuAPP</p>
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-950">{title}</h1>
         <p className="mt-3 text-lg text-gray-600">{subtitle}</p>
 
@@ -102,7 +102,7 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
           </a>
         ) : (
           <p className="mt-8 text-base leading-7 text-gray-700">
-            AnyMenu helps users translate and understand restaurant menus from photos, files, documents, and menu links.
+            AIMenuAPP helps users translate and understand restaurant menus from photos, files, documents, and menu links.
             This Privacy Policy explains what information we collect, how we use it, and the choices available to users.
           </p>
         )}

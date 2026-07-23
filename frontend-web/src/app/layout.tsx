@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AnyMenu - Translate Menus & Order with Ease",
-  description: "AnyMenu instantly translates menus in 50+ languages and helps you build your order.",
+  title: "AIMenuAPP - Translate Menus & Order with Ease",
+  description: "AIMenuAPP instantly translates menus in 50+ languages and helps you build your order.",
   other: {
     "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465",
   },

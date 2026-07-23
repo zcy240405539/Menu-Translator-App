@@ -6,6 +6,14 @@ import { Globe, Utensils, Smartphone, CheckCircle, ArrowLeft, Share2, History, S
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
 
+const DEFAULT_TARGET_LANG = "en";
+const TARGET_LANGUAGE_OPTIONS = [
+  { value: "en", label: "English" },
+  { value: "zh-cn", label: "Simplified Chinese" },
+  { value: "zh-Hant", label: "Traditional Chinese" },
+  { value: "es", label: "Spanish" },
+];
+
 type MenuItem = {
   original_name?: string | null;
   translated_name?: string | null;
@@ -103,12 +111,25 @@ function dishPrice(item: MenuItem, currency?: string | null) {
   return `${value} ${currency}`;
 }
 
+function hasStoredSession() {
+  try {
+    return [window.localStorage, window.sessionStorage].some((storage) =>
+      Array.from({ length: storage.length }, (_, index) => storage.key(index) || "").some((key) =>
+        /auth|session|token/i.test(key) && Boolean(storage.getItem(key))
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
 export default function Home() {
   const [menuHash, setMenuHash] = useState("");
-  const [lang, setLang] = useState("zh-cn");
+  const [lang, setLang] = useState(DEFAULT_TARGET_LANG);
   const [menuData, setMenuData] = useState<MenuData | null>(null);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [menuError, setMenuError] = useState("");
+  const [hasUserSession, setHasUserSession] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -116,9 +137,10 @@ export default function Home() {
       if (cancelled) return;
       const params = new URLSearchParams(window.location.search);
       const hash = params.get("menu_hash") || "";
-      const nextLang = params.get("lang") || "zh-cn";
+      const nextLang = params.get("lang") || DEFAULT_TARGET_LANG;
       setMenuHash(hash);
       setLang(nextLang);
+      setHasUserSession(hasStoredSession());
 
       if (!hash) {
         setMenuData(null);
@@ -144,27 +166,65 @@ export default function Home() {
     };
   }, []);
 
+  const handleHeaderLanguageChange = (nextLang: string) => {
+    setLang(nextLang);
+    if (!menuHash) return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("lang", nextLang);
+    window.history.replaceState({}, "", url.toString());
+
+    setIsLoadingMenu(true);
+    setMenuError("");
+    fetchCachedMenu(menuHash, nextLang)
+      .then((data) => {
+        setMenuData(data);
+        if (!data) setMenuError("Menu result is not available yet. Please refresh in a moment.");
+      })
+      .finally(() => setIsLoadingMenu(false));
+  };
+
   const sections = useMemo(() => displaySections(menuData), [menuData]);
   const itemCount = sections.reduce((total, section) => total + section.items.length, 0);
   const showResultView = Boolean(menuHash);
+  const showSavedMenuLinks = showResultView || hasUserSession;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf8f4] font-sans">
       <header className="sticky top-0 z-50 w-full border-b border-purple-100/70 bg-white/90 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex flex-1 items-center justify-center gap-2 md:justify-start">
-            <span className="text-xl font-bold text-[#5f259f]">AnyMenu</span>
+            <span className="text-xl font-bold text-[#5f259f]">AIMenuAPP</span>
           </Link>
           <div className="hidden items-center space-x-6 text-gray-700 md:flex">
+            <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center transition-colors hover:text-purple-600" aria-label="Select language">
+              <Globe className="h-5 w-5" />
+              <select
+                aria-label="Select language"
+                className="absolute inset-0 cursor-pointer opacity-0"
+                value={lang}
+                onChange={(event) => handleHeaderLanguageChange(event.target.value)}
+              >
+                {TARGET_LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Link href="/" className="transition-colors hover:text-purple-600" aria-label="Share">
               <Share2 className="h-5 w-5" />
             </Link>
-            <Link href="/" className="transition-colors hover:text-purple-600" aria-label="History">
-              <History className="h-5 w-5" />
-            </Link>
-            <Link href="/" className="transition-colors hover:text-purple-600" aria-label="Cart">
-              <ShoppingCart className="h-5 w-5" />
-            </Link>
+            {showSavedMenuLinks && (
+              <>
+                <Link href="/" className="transition-colors hover:text-purple-600" aria-label="History">
+                  <History className="h-5 w-5" />
+                </Link>
+                <Link href="/" className="transition-colors hover:text-purple-600" aria-label="Cart">
+                  <ShoppingCart className="h-5 w-5" />
+                </Link>
+              </>
+            )}
             <Link href="/" className="transition-colors hover:text-purple-600" aria-label="Account">
               <User className="h-5 w-5" />
             </Link>
@@ -261,7 +321,7 @@ export default function Home() {
                 </div>
 
                 <div className="mx-auto w-full max-w-md lg:ml-auto">
-                  <MenuAnalyzer />
+                  <MenuAnalyzer targetLang={lang} onTargetLangChange={setLang} />
                 </div>
               </div>
             </div>
@@ -305,8 +365,8 @@ export default function Home() {
 
       <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
         <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
-          <span className="text-lg font-bold text-gray-700">AnyMenu</span>
-          <p className="text-sm">© {new Date().getFullYear()} AnyMenu. All rights reserved.</p>
+          <span className="text-lg font-bold text-gray-700">AIMenuAPP</span>
+          <p className="text-sm">© {new Date().getFullYear()} AIMenuAPP. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/privacy-policy" className="text-sm transition-colors hover:text-purple-600">
               Privacy Policy

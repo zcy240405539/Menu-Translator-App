@@ -1,6 +1,6 @@
-# AnyMenu Web Frontend
+# AIMenuAPP Web Frontend
 
-Next.js App Router frontend for the browser version of AnyMenu.
+Next.js App Router frontend for the browser version of AIMenuAPP.
 
 ## Local Development
 
