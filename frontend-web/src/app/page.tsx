@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Globe, Utensils, Smartphone, CheckCircle, ArrowLeft, Share2, History, ShoppingCart, User } from "lucide-react";
 import Image from "next/image";
@@ -135,6 +135,7 @@ export default function Home() {
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [menuError, setMenuError] = useState("");
   const [hasUserSession, setHasUserSession] = useState(false);
+  const [shareHref, setShareHref] = useState("/");
   const text = getText(lang);
 
   useEffect(() => {
@@ -154,6 +155,7 @@ export default function Home() {
       setMenuHash(hash);
       setLang(nextLang);
       setHasUserSession(hasStoredSession());
+      setShareHref(window.location.href);
 
       if (!hash) {
         setMenuData(null);
@@ -187,6 +189,7 @@ export default function Home() {
     const url = new URL(window.location.href);
     url.searchParams.set("lang", normalizedLang);
     window.history.replaceState({}, "", url.toString());
+    setShareHref(url.toString());
 
     if (!menuHash) return;
 
@@ -200,7 +203,8 @@ export default function Home() {
       .finally(() => setIsLoadingMenu(false));
   };
 
-  const handleShare = async () => {
+  const handleShare = async (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     const shareUrl = window.location.href;
     try {
       if (navigator.share) {
@@ -212,19 +216,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Share failed:", error);
-    }
-  };
-
-  const handleAccountClick = async () => {
-    try {
-      const redirectTo = `${window.location.origin}${window.location.pathname}${window.location.search}`;
-      const res = await fetch(`${apiBaseUrl()}/auth/google/url?redirect_to=${encodeURIComponent(redirectTo)}`);
-      const data = (await res.json()) as { url?: string };
-      if (!res.ok || !data.url) throw new Error("Missing Google sign-in URL");
-      window.location.href = data.url;
-    } catch (error) {
-      console.error("Account sign in failed:", error);
-      window.alert(text.nav.accountLoginFailed);
     }
   };
 
@@ -263,9 +254,9 @@ export default function Home() {
                 ))}
               </select>
             </label>
-            <button type="button" className="transition-colors hover:text-purple-600" aria-label={text.nav.share} onClick={handleShare}>
+            <a href={shareHref} className="transition-colors hover:text-purple-600" aria-label={text.nav.share} onClick={handleShare}>
               <Share2 className="h-5 w-5" />
-            </button>
+            </a>
             {showSavedMenuLinks && (
               <>
                 <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.history}>
@@ -276,9 +267,9 @@ export default function Home() {
                 </Link>
               </>
             )}
-            <button type="button" className="transition-colors hover:text-purple-600" aria-label={text.nav.account} onClick={handleAccountClick}>
+            <Link href={`/login${langQuery}`} className="transition-colors hover:text-purple-600" aria-label={text.nav.account}>
               <User className="h-5 w-5" />
-            </button>
+            </Link>
           </div>
         </div>
       </header>

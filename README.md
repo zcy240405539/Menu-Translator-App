@@ -172,6 +172,7 @@ menu-translator-app/
    ├─ src/
    │  ├─ app/
    │  │  ├─ page.tsx
+   │  │  ├─ login/
    │  │  ├─ privacy-policy/
    │  │  └─ account-deletion/
    │  └─ components/
