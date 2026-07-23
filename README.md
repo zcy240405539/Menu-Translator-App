@@ -172,6 +172,8 @@ menu-translator-app/
    ├─ src/
    │  ├─ app/
    │  │  ├─ page.tsx
+   │  │  ├─ cart/
+   │  │  ├─ history/
    │  │  ├─ login/
    │  │  ├─ privacy-policy/
    │  │  └─ account-deletion/

@@ -229,6 +229,8 @@ export default function Home() {
   const showResultView = Boolean(menuHash);
   const showSavedMenuLinks = showResultView || hasUserSession;
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
+  const historyHref = `/history${langQuery}`;
+  const cartHref = `/cart${langQuery}`;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf8f4] font-sans">
@@ -259,10 +261,10 @@ export default function Home() {
             </a>
             {showSavedMenuLinks && (
               <>
-                <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.history}>
+                <Link href={historyHref} className="transition-colors hover:text-purple-600" aria-label={text.nav.history}>
                   <History className="h-5 w-5" />
                 </Link>
-                <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.cart}>
+                <Link href={cartHref} className="transition-colors hover:text-purple-600" aria-label={text.nav.cart}>
                   <ShoppingCart className="h-5 w-5" />
                 </Link>
               </>

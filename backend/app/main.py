@@ -583,6 +583,39 @@ def save_user_menu_history(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/user/menu-history")
+def get_user_menu_history(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    limit: int = 20,
+):
+    records = (
+        db.query(UserMenuHistory)
+        .filter(UserMenuHistory.user_id == current_user.id)
+        .order_by(UserMenuHistory.updated_at.desc())
+        .limit(max(1, min(limit, 50)))
+        .all()
+    )
+    return {
+        "items": [
+            {
+                "id": record.id,
+                "menu_hash": record.menu_hash,
+                "source_uri": record.source_uri,
+                "target_language": record.target_language,
+                "source_language": record.source_language,
+                "business_name": record.business_name,
+                "restaurant_type": record.restaurant_type,
+                "currency": record.currency,
+                "item_count": len((record.menu_result or {}).get("menu_items") or []),
+                "updated_at": record.updated_at.isoformat() if record.updated_at else None,
+                "created_at": record.created_at.isoformat() if record.created_at else None,
+            }
+            for record in records
+        ]
+    }
+
+
 @app.get("/user/cart")
 def get_user_cart(
     current_user: User = Depends(get_current_user),

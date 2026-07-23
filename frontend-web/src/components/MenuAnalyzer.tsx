@@ -14,6 +14,7 @@ type ParseStatus = {
   result?: {
     image_hash?: string;
     hash?: string;
+    [key: string]: unknown;
   };
   error?: string;
 };
@@ -53,6 +54,16 @@ function apiBaseUrl() {
 async function readError(response: Response, fallback: string) {
   const body = await response.json().catch(() => null) as { detail?: string } | null;
   return body?.detail || fallback;
+}
+
+async function saveHistory(apiUrl: string, result: ParseStatus["result"], sourceUri: string, targetLang: string) {
+  const token = window.localStorage.getItem("menu_app_token") || window.sessionStorage.getItem("menu_app_token");
+  if (!token || !result) return;
+  await fetch(`${apiUrl}/user/menu-history`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ menu_result: result, source_uri: sourceUri, target_lang: targetLang }),
+  }).catch((error) => console.warn("Save menu history failed:", error));
 }
 
 export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: MenuAnalyzerProps) {
@@ -150,6 +161,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
 
       const menuHash = resultData.image_hash || resultData.hash;
       if (!menuHash) throw new Error(text.noHash);
+      await saveHistory(apiUrl, resultData, menuUrl || selectedFile?.name || "", targetLang);
       window.location.assign(`/?menu_hash=${menuHash}&lang=${encodeURIComponent(targetLang)}`);
     } catch (err: unknown) {
       console.error(err);
