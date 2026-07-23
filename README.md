@@ -40,6 +40,9 @@ Users can:
 - React Native Paper
 - AsyncStorage
 - React Native Google Mobile Ads
+- Next.js web frontend in `frontend-web/`
+- Tailwind CSS
+- Google AdSense
 
 ## Backend
 - FastAPI
@@ -165,6 +168,18 @@ menu-translator-app/
       ├─ DishDetailModal.js
       ├─ LoginRegisterModal.js
       └─ ShareDialog.js
+└─ frontend-web/
+   ├─ src/
+   │  ├─ app/
+   │  │  ├─ page.tsx
+   │  │  ├─ privacy-policy/
+   │  │  └─ account-deletion/
+   │  └─ components/
+   │     ├─ MenuAnalyzer.tsx
+   │     └─ ads/
+   ├─ public/
+   │  └─ ads.txt
+   └─ package.json
 ```
 
 # Screenshots
@@ -195,6 +210,23 @@ python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 npm install
 npx expo start -c
+```
+
+# Web Frontend Setup
+```
+cd frontend-web
+npm install
+npm run dev
+```
+
+Set `NEXT_PUBLIC_API_URL` to the FastAPI backend base URL. For local development, use `http://127.0.0.1:8000`.
+
+For Render Static Site deployment:
+
+```text
+Root Directory: frontend-web
+Build Command: npm ci && npm run build
+Publish Directory: out
 ```
 
 # Environment Variables
@@ -255,6 +287,10 @@ OPENAI_API_KEY=XXXXXXX
 OPENAI_IMAGE_MODEL=gpt-image-1-mini
 ENABLE_GENERATED_IMAGE_FALLBACK=true
 EXPO_PUBLIC_API_BASE_URL=https://ai-menu-app.onrender.com
+NEXT_PUBLIC_API_URL=https://menu-translator-app.onrender.com
+NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-8286400764174465
+NEXT_PUBLIC_ADSENSE_ANALYZE_SLOT=your_adsense_ad_unit_slot
+NEXT_PUBLIC_ADSENSE_TEST=false
 ```
 
 Current default parsing flow:

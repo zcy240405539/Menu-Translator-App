@@ -17,9 +17,11 @@ export const metadata: Metadata = {
   title: "AnyMenu - Translate Menus & Order with Ease",
   description: "AnyMenu instantly translates menus in 50+ languages and helps you build your order.",
   other: {
-    "google-adsense-account": "ca-pub-8286400764174465",
+    "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465",
   },
 };
+
+const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465";
 
 export default function RootLayout({
   children,
@@ -32,12 +34,14 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <Script
-          id="adsbygoogle-init"
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8286400764174465"
-        />
+        {adsenseClient && (
+          <Script
+            id="adsbygoogle-init"
+            strategy="afterInteractive"
+            crossOrigin="anonymous"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+          />
+        )}
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

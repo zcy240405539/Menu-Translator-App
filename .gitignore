@@ -14,10 +14,14 @@ frontend/.env
 
 # Expo
 frontend/node_modules/
+frontend-web/node_modules/
 backend/app/node_modules/
 frontend/.expo/
+frontend-web/.next/
+frontend-web/out/
 frontend/dist/
 frontend/web-build/
+frontend-web/.env*
 
 # Local runtime/test artifacts
 backend/*.log
