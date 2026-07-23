@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Globe, Utensils, Smartphone, CheckCircle, ArrowLeft, Share2, History, ShoppingCart, User } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
 import {
@@ -11,6 +12,7 @@ import {
   getInitialLanguage,
   getText,
   htmlLanguage,
+  languageLabel,
   languageShortLabel,
   normalizeLanguage,
   saveLanguage,
@@ -139,6 +141,13 @@ export default function Home() {
     let cancelled = false;
     queueMicrotask(() => {
       if (cancelled) return;
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const oauthToken = hashParams.get("access_token");
+      if (oauthToken) {
+        window.localStorage.setItem("menu_app_token", oauthToken);
+        window.history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
+      }
+
       const params = new URLSearchParams(window.location.search);
       const hash = params.get("menu_hash") || "";
       const nextLang = normalizeLanguage(params.get("lang") || getInitialLanguage());
@@ -191,6 +200,34 @@ export default function Home() {
       .finally(() => setIsLoadingMenu(false));
   };
 
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "AI Menu APP", text: text.nav.shareMessage, url: shareUrl });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        window.location.href = `mailto:?subject=${encodeURIComponent("AI Menu APP")}&body=${encodeURIComponent(shareUrl)}`;
+      }
+    } catch (error) {
+      console.error("Share failed:", error);
+    }
+  };
+
+  const handleAccountClick = async () => {
+    try {
+      const redirectTo = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+      const res = await fetch(`${apiBaseUrl()}/auth/google/url?redirect_to=${encodeURIComponent(redirectTo)}`);
+      const data = (await res.json()) as { url?: string };
+      if (!res.ok || !data.url) throw new Error("Missing Google sign-in URL");
+      window.location.href = data.url;
+    } catch (error) {
+      console.error("Account sign in failed:", error);
+      window.alert(text.nav.accountLoginFailed);
+    }
+  };
+
   useEffect(() => {
     document.documentElement.lang = htmlLanguage(lang);
     document.title = text.metaTitle;
@@ -200,13 +237,15 @@ export default function Home() {
   const itemCount = sections.reduce((total, section) => total + section.items.length, 0);
   const showResultView = Boolean(menuHash);
   const showSavedMenuLinks = showResultView || hasUserSession;
+  const langQuery = `?lang=${encodeURIComponent(lang)}`;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf8f4] font-sans">
       <header className="sticky top-0 z-50 w-full border-b border-purple-100/70 bg-white/90 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex flex-1 items-center justify-center gap-2 md:justify-start">
-            <span className="text-xl font-bold text-[#5f259f]">AIMenuAPP</span>
+            <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md" priority />
+            <span className="text-xl font-bold text-[#5f259f]">AI Menu APP</span>
           </Link>
           <div className="hidden items-center space-x-6 text-gray-700 md:flex">
             <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center transition-colors hover:text-purple-600" aria-label={text.nav.language}>
@@ -219,14 +258,14 @@ export default function Home() {
               >
                 {LANGUAGES.map((option) => (
                   <option key={option.code} value={option.code}>
-                    {option.label}
+                    {languageLabel(lang, option.code)}
                   </option>
                 ))}
               </select>
             </label>
-            <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.share}>
+            <button type="button" className="transition-colors hover:text-purple-600" aria-label={text.nav.share} onClick={handleShare}>
               <Share2 className="h-5 w-5" />
-            </Link>
+            </button>
             {showSavedMenuLinks && (
               <>
                 <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.history}>
@@ -237,9 +276,9 @@ export default function Home() {
                 </Link>
               </>
             )}
-            <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.account}>
+            <button type="button" className="transition-colors hover:text-purple-600" aria-label={text.nav.account} onClick={handleAccountClick}>
               <User className="h-5 w-5" />
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -256,7 +295,7 @@ export default function Home() {
                   <CardTitle className="flex flex-col gap-2 text-2xl text-purple-950 sm:flex-row sm:items-center sm:justify-between">
                     <span>{menuData?.business_name || text.result.restaurantMenu}</span>
                     <span className="w-fit rounded-full bg-purple-200/60 px-3 py-1 text-sm font-normal text-purple-800">
-                      {isLoadingMenu ? text.result.loading : `${itemCount} ${text.result.dishes}`} · {languageShortLabel(lang)}
+                      {isLoadingMenu ? text.result.loading : `${itemCount} ${text.result.dishes}`} · {languageShortLabel(lang, lang)}
                     </span>
                   </CardTitle>
                   {menuData?.restaurant_type && <p className="text-purple-700">{menuData.restaurant_type}</p>}
@@ -377,13 +416,13 @@ export default function Home() {
 
       <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
         <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
-          <span className="text-lg font-bold text-gray-700">AIMenuAPP</span>
-          <p className="text-sm">© {new Date().getFullYear()} AIMenuAPP. {text.footer.rights}</p>
+          <span className="text-lg font-bold text-gray-700">AI Menu APP</span>
+          <p className="text-sm">© {new Date().getFullYear()} AI Menu APP. {text.footer.rights}</p>
           <div className="flex gap-6">
-            <Link href="/privacy-policy" className="text-sm transition-colors hover:text-purple-600">
+            <Link href={`/privacy-policy${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.privacy}
             </Link>
-            <Link href="/account-deletion" className="text-sm transition-colors hover:text-purple-600">
+            <Link href={`/account-deletion${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.deletion}
             </Link>
           </div>

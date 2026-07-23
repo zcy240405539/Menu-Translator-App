@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Camera, FileUp, Link as LinkIcon, Wand2, Loader2, Globe } from "lucide-react";
+import { Camera, FileUp, Link as LinkIcon, Wand2, Loader2 } from "lucide-react";
 import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
-import { LANGUAGES, SOURCE_LANGUAGES, languageShortLabel, sourceLanguageShortLabel, type WebLanguageCode } from "@/lib/i18n";
+import { LANGUAGES, SOURCE_LANGUAGES, languageLabel, languageShortLabel, sourceLanguageLabel, type WebLanguageCode } from "@/lib/i18n";
 
 type ParseStatus = {
   status?: "queued" | "processing" | "done" | "error";
@@ -169,17 +169,14 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
             <label className="text-sm font-semibold text-gray-700">{text.sourceLanguage}</label>
             <Select value={sourceLang} onValueChange={(v) => setSourceLang(v || "auto")}>
               <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700">
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-purple-500" />
-                  <span data-slot="select-value" className="flex flex-1 text-left">
-                    {sourceLang === "auto" ? text.autoDetect : sourceLanguageShortLabel(sourceLang)}
-                  </span>
-                </div>
+                <span data-slot="select-value" className="flex flex-1 text-left">
+                  {sourceLanguageLabel(targetLang, sourceLang, true)}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {SOURCE_LANGUAGES.map((option) => (
                   <SelectItem key={option.code} value={option.code}>
-                    {option.code === "auto" ? text.autoDetect : option.label}
+                    {sourceLanguageLabel(targetLang, option.code)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -190,13 +187,13 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
             <Select value={targetLang} onValueChange={handleTargetLangChange}>
               <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700">
                 <span data-slot="select-value" className="flex flex-1 text-left">
-                  {languageShortLabel(targetLang)}
+                  {languageShortLabel(targetLang, targetLang)}
                 </span>
               </SelectTrigger>
               <SelectContent>
                 {LANGUAGES.map((option) => (
                   <SelectItem key={option.code} value={option.code}>
-                    {option.label}
+                    {languageLabel(targetLang, option.code)}
                   </SelectItem>
                 ))}
               </SelectContent>
