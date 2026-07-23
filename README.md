@@ -22,6 +22,7 @@ Users can:
 - Dish detail generation
 - Dish image search with Pexels, Unsplash, Wikimedia Commons, and OpenAI image fallback
 - PostgreSQL dish, category, and menu parse cache
+- DB-backed restaurant cuisine/type display labels
 - Supabase Auth user accounts, profile preferences, avatars, and subscription records
 - AI recommendation module
 - Shareable cached menu URLs

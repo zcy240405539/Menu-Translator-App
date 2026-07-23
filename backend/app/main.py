@@ -65,7 +65,7 @@ from app.services.dish_cache_service import (
 )
 from app.services.image_service import get_or_create_dish_image
 from app.services.category_service import get_or_create_menu_category, normalize_category_key
-from app.core.i18n_service import get_language_options, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
+from app.core.i18n_service import get_language_options, normalize_lang, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
 from app.services.document_text_service import (
     extract_markdown_from_file_bytes,
     extract_markdown_from_url,
@@ -126,6 +126,15 @@ def ensure_database_schema_compatibility():
         except Exception as ex:
             db.rollback()
             print(f"Warning: could not alter multilingual config tables: {ex}")
+
+        try:
+            seed_sql_path = Path(__file__).resolve().parents[1] / "migrations" / "20260723_restaurant_type_display_labels.sql"
+            if seed_sql_path.exists():
+                db.execute(text(seed_sql_path.read_text(encoding="utf-8")))
+                db.commit()
+        except Exception as ex:
+            db.rollback()
+            print(f"Warning: could not seed restaurant type display labels: {ex}")
     except Exception as e:
         print(f"Error ensuring database schema compatibility: {e}")
     finally:
@@ -1290,6 +1299,12 @@ def get_cached_menu(image_hash: str, target_lang: str = "zh", db: Session = Depe
     result["currency"] = record.currency
     result["business_description"] = record.business_description or {}
     result["image_hash"] = record.image_hash
+    apply_restaurant_type_display(
+        db=db,
+        result=result,
+        target_lang=target_lang,
+        source_lang=result.get("source_language") or record.source_language or "en",
+    )
     return result
 # =========================
 # DB TEST
@@ -1509,6 +1524,12 @@ async def parse_menu(
         result["extracted_text_preview"] = extracted_markdown[:12000]
         result["source_lang_request"] = requested_source_lang
         result["source_language_detected"] = source_lang
+        apply_restaurant_type_display(
+            db=db,
+            result=result,
+            target_lang=target_lang,
+            source_lang=result.get("source_language") or source_lang,
+        )
 
         return result
 
@@ -1580,6 +1601,12 @@ async def parse_menu_url(
         result["extracted_text_preview"] = extracted_markdown[:12000]
         result["source_lang_request"] = request.source_lang
         result["source_language_detected"] = detected_source_lang
+        apply_restaurant_type_display(
+            db=db,
+            result=result,
+            target_lang=request.target_lang,
+            source_lang=result.get("source_language") or detected_source_lang,
+        )
 
         return result
 
@@ -2073,6 +2100,67 @@ def apply_category_records_to_items(db, items, target_lang, source_lang, seed_ma
     return items or []
 
 
+def target_language_candidates(target_lang: str) -> list[str]:
+    candidates = []
+    for value in (target_lang, normalize_lang(target_lang, "zh")):
+        if value and value not in candidates:
+            candidates.append(value)
+    if "zh" in candidates and "zh-cn" not in candidates:
+        candidates.append("zh-cn")
+    return candidates
+
+
+def get_menu_category_display_label(db, original_label: str, target_lang: str) -> str | None:
+    if not original_label:
+        return None
+
+    label_candidates = [original_label]
+    suffix_stripped = re.sub(r"\s+cuisine$", "", original_label, flags=re.IGNORECASE).strip()
+    if suffix_stripped and suffix_stripped not in label_candidates:
+        label_candidates.append(suffix_stripped)
+
+    keys = [normalize_category_key(label) for label in label_candidates]
+    languages = target_language_candidates(target_lang)
+    records = (
+        db.query(MenuCategory)
+        .filter(
+            MenuCategory.normalized_key.in_(keys),
+            MenuCategory.target_language.in_(languages),
+        )
+        .all()
+    )
+
+    for label in label_candidates:
+        for language in languages:
+            for record in records:
+                if record.target_language == language and record.original_label == label and record.translated_label:
+                    return record.translated_label
+
+    for language in languages:
+        for record in records:
+            if record.target_language == language and record.translated_label:
+                return record.translated_label
+
+    return None
+
+
+def apply_restaurant_type_display(db, result: dict, target_lang: str, source_lang: str) -> dict:
+    if not isinstance(result, dict):
+        return result
+
+    original_type = str(result.get("restaurant_type_original") or result.get("restaurant_type") or "").strip()
+    if not original_type:
+        return result
+
+    display_label = get_menu_category_display_label(db, original_type, target_lang)
+    if not display_label:
+        return result
+
+    result["restaurant_type_original"] = original_type
+    result["restaurant_type"] = display_label
+    return result
+
+
 # =========================
 # Async Tasks
 # =========================
@@ -2163,6 +2251,12 @@ def run_menu_parse_task(
                     except Exception as category_error:
                         print("Cached menu category sync failed:", category_error)
 
+                    apply_restaurant_type_display(
+                        db=db,
+                        result=result,
+                        target_lang=target_lang,
+                        source_lang=result.get("source_language") or source_lang,
+                    )
                     result["cache_summary"] = {
                         "menu_cache_hit": True,
                         "total_items": len(result.get("menu_items", [])),
@@ -2576,6 +2670,12 @@ def run_menu_parse_task(
             result["cache_schema_version"] = MENU_CACHE_SCHEMA_VERSION
             timings["total_seconds"] = round(time.perf_counter() - task_started_at, 3)
             result["timings"] = timings
+            apply_restaurant_type_display(
+                db=db,
+                result=result,
+                target_lang=target_lang,
+                source_lang=result.get("source_language") or source_lang,
+            )
 
             upsert_menu_cache(
                 db=db,
