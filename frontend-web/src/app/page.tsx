@@ -240,6 +240,22 @@ export default function Home() {
     }
   };
 
+  const handleHomeClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const url = new URL("/", window.location.origin);
+    url.searchParams.set("lang", lang);
+    window.history.pushState({}, "", url.toString());
+    setMenuHash("");
+    setMenuData(null);
+    setMenuError("");
+    setIsLoadingMenu(false);
+    setSelectedDish(null);
+    setShowRecommendation(false);
+    setShareHref(url.toString());
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleOpenRecommendation = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     if (!menuHash) return;
@@ -270,6 +286,7 @@ export default function Home() {
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
   const historyHref = `/history${langQuery}`;
   const cartHref = `/cart${langQuery}`;
+  const homeHref = `/${langQuery}`;
   const recommendHref = `/?menu_hash=${encodeURIComponent(menuHash)}&lang=${encodeURIComponent(lang)}&show_recommend=1`;
   const actionItems = useMemo(
     () => sections.flatMap((section, sectionIndex) =>
@@ -282,10 +299,10 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-[#fbf8f4] font-sans">
       <header className="sticky top-0 z-50 w-full border-b border-purple-100/70 bg-white/90 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href={`/${langQuery}`} className="group flex flex-1 items-center justify-center gap-2 rounded-md transition-all hover:opacity-90 md:justify-start">
+          <a href={homeHref} onClick={handleHomeClick} className="group flex flex-1 items-center justify-center gap-2 rounded-md transition-all hover:opacity-90 md:justify-start">
             <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md transition-shadow group-hover:shadow-md" priority />
             <span className="text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700">AI Menu APP</span>
-          </Link>
+          </a>
           <div className="hidden items-center space-x-6 text-gray-700 md:flex">
             <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center transition-colors hover:text-purple-600" aria-label={text.nav.language}>
               <Globe className="h-5 w-5" />

@@ -5,6 +5,7 @@ import { Loader2, ShoppingCart, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
 import { getText, type WebLanguageCode } from "@/lib/i18n";
 
 export type ResultMenuItem = {
@@ -275,6 +276,7 @@ export function RecommendationDialog({
   const [taste, setTaste] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showAd, setShowAd] = useState(false);
   const [recommendation, setRecommendation] = useState("");
   const [recommendedItems, setRecommendedItems] = useState<{ id?: string | number; reason?: string }[]>([]);
 
@@ -282,6 +284,7 @@ export function RecommendationDialog({
     if (open) {
       queueMicrotask(() => {
         setError("");
+        setShowAd(false);
         setRecommendation("");
         setRecommendedItems([]);
       });
@@ -306,6 +309,7 @@ export function RecommendationDialog({
     event.preventDefault();
     setLoading(true);
     setError("");
+    setShowAd(true);
     try {
       const allergyList = allergies.split(/[,，]/).map((item) => item.trim()).filter(Boolean);
       const res = await fetch(`${apiBaseUrl()}/menus/recommend`, {
@@ -382,6 +386,12 @@ export function RecommendationDialog({
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                 {loading ? text.result.generatingRecommendation : text.result.generateRecommendation}
               </Button>
+              {showAd && (
+                <AdSenseSlot
+                  className="mt-4 rounded-xl border border-purple-100 bg-purple-50/40 p-3"
+                  label={text.analyzer.ad}
+                />
+              )}
             </div>
           </form>
 
