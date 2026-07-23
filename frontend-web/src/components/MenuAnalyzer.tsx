@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Camera, FileUp, Link as LinkIcon, Wand2, Loader2, Globe } from "lucide-react";
 import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
+import { LANGUAGES, SOURCE_LANGUAGES, languageShortLabel, sourceLanguageShortLabel, type WebLanguageCode } from "@/lib/i18n";
 
 type ParseStatus = {
   status?: "queued" | "processing" | "done" | "error";
@@ -18,8 +19,31 @@ type ParseStatus = {
 };
 
 type MenuAnalyzerProps = {
-  targetLang: string;
+  targetLang: WebLanguageCode;
   onTargetLangChange: (lang: string) => void;
+  text: {
+    sourceLanguage: string;
+    targetLanguage: string;
+    autoDetect: string;
+    takePicture: string;
+    changePicture: string;
+    selectFromFile: string;
+    changeFile: string;
+    selected: string;
+    menuLink: string;
+    analyzeMenu: string;
+    analyzing: string;
+    noInput: string;
+    startFileFailed: string;
+    startUrlFailed: string;
+    noTask: string;
+    timeout: string;
+    statusFailed: string;
+    parseFailed: string;
+    noHash: string;
+    unknownError: string;
+    ad: string;
+  };
 };
 
 function apiBaseUrl() {
@@ -31,7 +55,7 @@ async function readError(response: Response, fallback: string) {
   return body?.detail || fallback;
 }
 
-export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAnalyzerProps) {
+export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: MenuAnalyzerProps) {
   const [sourceLang, setSourceLang] = useState("auto");
   const [menuUrl, setMenuUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -63,7 +87,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAna
 
   const handleAnalyze = async () => {
     if (!selectedFile && !menuUrl) {
-      setError("Please select a file, take a picture, or enter a URL.");
+      setError(text.noInput);
       return;
     }
 
@@ -87,7 +111,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAna
           method: "POST",
           body: formData,
         });
-        if (!res.ok) throw new Error(await readError(res, "Failed to start parsing from file"));
+        if (!res.ok) throw new Error(await readError(res, text.startFileFailed));
         taskId = ((await res.json()) as { task_id?: string }).task_id || "";
       } else {
         const res = await fetch(`${apiUrl}/menus/parse/url/start`, {
@@ -99,37 +123,37 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAna
             target_lang: targetLang,
           }),
         });
-        if (!res.ok) throw new Error(await readError(res, "Failed to start parsing from URL"));
+        if (!res.ok) throw new Error(await readError(res, text.startUrlFailed));
         taskId = ((await res.json()) as { task_id?: string }).task_id || "";
       }
 
-      if (!taskId) throw new Error("Server did not return a parse task.");
+      if (!taskId) throw new Error(text.noTask);
 
       let resultData: ParseStatus["result"];
       const startedAt = Date.now();
       while (!resultData) {
         if (Date.now() - startedAt > 120000) {
-          throw new Error("Parsing is still running. Please try again in a moment.");
+          throw new Error(text.timeout);
         }
 
         await new Promise((resolve) => setTimeout(resolve, 2000));
         const statusRes = await fetch(`${apiUrl}/menus/parse/status/${taskId}`);
-        if (!statusRes.ok) throw new Error("Failed to check parse status");
+        if (!statusRes.ok) throw new Error(text.statusFailed);
 
         const statusData = (await statusRes.json()) as ParseStatus;
         if (statusData.status === "done") {
           resultData = statusData.result;
         } else if (statusData.status === "error") {
-          throw new Error(statusData.error || "Parsing failed on server");
+          throw new Error(statusData.error || text.parseFailed);
         }
       }
 
       const menuHash = resultData.image_hash || resultData.hash;
-      if (!menuHash) throw new Error("Parsed data did not contain a menu hash.");
+      if (!menuHash) throw new Error(text.noHash);
       window.location.assign(`/?menu_hash=${menuHash}&lang=${encodeURIComponent(targetLang)}`);
     } catch (err: unknown) {
       console.error(err);
-      setError(err instanceof Error ? err.message : "An error occurred during analysis.");
+      setError(err instanceof Error ? err.message : text.unknownError);
     } finally {
       setIsAnalyzing(false);
     }
@@ -142,34 +166,39 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAna
       <CardContent className="space-y-6 p-8">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Source language</label>
+            <label className="text-sm font-semibold text-gray-700">{text.sourceLanguage}</label>
             <Select value={sourceLang} onValueChange={(v) => setSourceLang(v || "auto")}>
               <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700">
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-purple-500" />
-                  <SelectValue placeholder="Select Source" />
+                  <span data-slot="select-value" className="flex flex-1 text-left">
+                    {sourceLang === "auto" ? text.autoDetect : sourceLanguageShortLabel(sourceLang)}
+                  </span>
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="auto">Auto Detect</SelectItem>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="zh-cn">Simplified Chinese</SelectItem>
-                <SelectItem value="zh-Hant">Traditional Chinese</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
+                {SOURCE_LANGUAGES.map((option) => (
+                  <SelectItem key={option.code} value={option.code}>
+                    {option.code === "auto" ? text.autoDetect : option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Target language</label>
+            <label className="text-sm font-semibold text-gray-700">{text.targetLanguage}</label>
             <Select value={targetLang} onValueChange={handleTargetLangChange}>
               <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700">
-                <SelectValue placeholder="Select Target" />
+                <span data-slot="select-value" className="flex flex-1 text-left">
+                  {languageShortLabel(targetLang)}
+                </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="zh-cn">Simplified Chinese</SelectItem>
-                <SelectItem value="zh-Hant">Traditional Chinese</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
+                {LANGUAGES.map((option) => (
+                  <SelectItem key={option.code} value={option.code}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -190,7 +219,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAna
             onClick={() => cameraInputRef.current?.click()}
           >
             <Camera className="mr-2 h-5 w-5" />
-            {selectedFile?.type.startsWith("image/") ? "Change Picture" : "Take Picture"}
+            {selectedFile?.type.startsWith("image/") ? text.changePicture : text.takePicture}
           </Button>
 
           <input
@@ -206,19 +235,19 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAna
             onClick={() => fileInputRef.current?.click()}
           >
             <FileUp className="mr-2 h-5 w-5" />
-            {selectedFile && !selectedFile.type.startsWith("image/") ? "Change File" : "Select from File"}
+            {selectedFile && !selectedFile.type.startsWith("image/") ? text.changeFile : text.selectFromFile}
           </Button>
 
           {selectedFile && (
             <p className="truncate px-4 text-center text-sm font-medium text-green-600">
-              Selected: {selectedFile.name}
+              {text.selected}: {selectedFile.name}
             </p>
           )}
 
           <div className="relative">
             <LinkIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <Input
-              placeholder="Menu webpage or share link"
+              placeholder={text.menuLink}
               className="h-14 rounded-xl border-gray-300 pl-12"
               value={menuUrl}
               onChange={handleUrlChange}
@@ -237,12 +266,12 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAna
           {isAnalyzing ? (
             <>
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Analyzing...
+              {text.analyzing}
             </>
           ) : (
             <>
               <Wand2 className="mr-2 h-5 w-5" />
-              Analyze Menu
+              {text.analyzeMenu}
             </>
           )}
         </Button>
@@ -250,7 +279,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange }: MenuAna
         {showAnalyzeAd && (
           <AdSenseSlot
             className="rounded-xl border border-purple-100 bg-purple-50/40 p-3"
-            label="Advertisement"
+            label={text.ad}
           />
         )}
       </CardContent>

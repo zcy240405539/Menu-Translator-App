@@ -5,14 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Globe, Utensils, Smartphone, CheckCircle, ArrowLeft, Share2, History, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
-
-const DEFAULT_TARGET_LANG = "en";
-const TARGET_LANGUAGE_OPTIONS = [
-  { value: "en", label: "English" },
-  { value: "zh-cn", label: "Simplified Chinese" },
-  { value: "zh-Hant", label: "Traditional Chinese" },
-  { value: "es", label: "Spanish" },
-];
+import {
+  DEFAULT_LANGUAGE,
+  LANGUAGES,
+  getInitialLanguage,
+  getText,
+  htmlLanguage,
+  languageShortLabel,
+  normalizeLanguage,
+  saveLanguage,
+  type WebLanguageCode,
+} from "@/lib/i18n";
 
 type MenuItem = {
   original_name?: string | null;
@@ -66,22 +69,22 @@ async function fetchCachedMenu(menuHash: string, lang: string): Promise<MenuData
   return null;
 }
 
-function sectionTitle(item: MenuItem) {
+function sectionTitle(item: MenuItem, otherLabel: string) {
   return (
     item.category_display_name ||
     item.section_heading_translated ||
     item.section_heading_original ||
     item.category ||
-    "Other"
+    otherLabel
   );
 }
 
-function displaySections(menuData: MenuData | null): DisplaySection[] {
+function displaySections(menuData: MenuData | null, otherLabel: string): DisplaySection[] {
   if (!menuData) return [];
   if (menuData.sections?.length) {
     return menuData.sections
       .map((section) => ({
-        title: section.category_name || section.section_heading_translated || section.section_heading_original || "Other",
+        title: section.category_name || section.section_heading_translated || section.section_heading_original || otherLabel,
         originalTitle: section.section_heading_original || undefined,
         items: section.items || [],
       }))
@@ -90,14 +93,14 @@ function displaySections(menuData: MenuData | null): DisplaySection[] {
 
   const grouped = new Map<string, MenuItem[]>();
   for (const item of menuData.menu_items || []) {
-    const title = sectionTitle(item);
+    const title = sectionTitle(item, otherLabel);
     grouped.set(title, [...(grouped.get(title) || []), item]);
   }
   return Array.from(grouped, ([title, items]) => ({ title, items }));
 }
 
-function dishName(item: MenuItem) {
-  return item.translated_name || item.name || item.original_name || "Unnamed dish";
+function dishName(item: MenuItem, fallback: string) {
+  return item.translated_name || item.name || item.original_name || fallback;
 }
 
 function dishDescription(item: MenuItem) {
@@ -125,11 +128,12 @@ function hasStoredSession() {
 
 export default function Home() {
   const [menuHash, setMenuHash] = useState("");
-  const [lang, setLang] = useState(DEFAULT_TARGET_LANG);
+  const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
   const [menuData, setMenuData] = useState<MenuData | null>(null);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [menuError, setMenuError] = useState("");
   const [hasUserSession, setHasUserSession] = useState(false);
+  const text = getText(lang);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,7 +141,7 @@ export default function Home() {
       if (cancelled) return;
       const params = new URLSearchParams(window.location.search);
       const hash = params.get("menu_hash") || "";
-      const nextLang = params.get("lang") || DEFAULT_TARGET_LANG;
+      const nextLang = normalizeLanguage(params.get("lang") || getInitialLanguage());
       setMenuHash(hash);
       setLang(nextLang);
       setHasUserSession(hasStoredSession());
@@ -154,7 +158,7 @@ export default function Home() {
         .then((data) => {
           if (cancelled) return;
           setMenuData(data);
-          if (!data) setMenuError("Menu result is not available yet. Please refresh in a moment.");
+          if (!data) setMenuError(getText(nextLang).result.notAvailable);
         })
         .finally(() => {
           if (!cancelled) setIsLoadingMenu(false);
@@ -167,24 +171,32 @@ export default function Home() {
   }, []);
 
   const handleHeaderLanguageChange = (nextLang: string) => {
-    setLang(nextLang);
-    if (!menuHash) return;
+    const normalizedLang = normalizeLanguage(nextLang);
+    setLang(normalizedLang);
+    saveLanguage(normalizedLang);
 
     const url = new URL(window.location.href);
-    url.searchParams.set("lang", nextLang);
+    url.searchParams.set("lang", normalizedLang);
     window.history.replaceState({}, "", url.toString());
+
+    if (!menuHash) return;
 
     setIsLoadingMenu(true);
     setMenuError("");
-    fetchCachedMenu(menuHash, nextLang)
+    fetchCachedMenu(menuHash, normalizedLang)
       .then((data) => {
         setMenuData(data);
-        if (!data) setMenuError("Menu result is not available yet. Please refresh in a moment.");
+        if (!data) setMenuError(getText(normalizedLang).result.notAvailable);
       })
       .finally(() => setIsLoadingMenu(false));
   };
 
-  const sections = useMemo(() => displaySections(menuData), [menuData]);
+  useEffect(() => {
+    document.documentElement.lang = htmlLanguage(lang);
+    document.title = text.metaTitle;
+  }, [lang, text.metaTitle]);
+
+  const sections = useMemo(() => displaySections(menuData, text.result.other), [menuData, text.result.other]);
   const itemCount = sections.reduce((total, section) => total + section.items.length, 0);
   const showResultView = Boolean(menuHash);
   const showSavedMenuLinks = showResultView || hasUserSession;
@@ -197,35 +209,35 @@ export default function Home() {
             <span className="text-xl font-bold text-[#5f259f]">AIMenuAPP</span>
           </Link>
           <div className="hidden items-center space-x-6 text-gray-700 md:flex">
-            <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center transition-colors hover:text-purple-600" aria-label="Select language">
+            <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center transition-colors hover:text-purple-600" aria-label={text.nav.language}>
               <Globe className="h-5 w-5" />
               <select
-                aria-label="Select language"
+                aria-label={text.nav.language}
                 className="absolute inset-0 cursor-pointer opacity-0"
                 value={lang}
                 onChange={(event) => handleHeaderLanguageChange(event.target.value)}
               >
-                {TARGET_LANGUAGE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
+                {LANGUAGES.map((option) => (
+                  <option key={option.code} value={option.code}>
                     {option.label}
                   </option>
                 ))}
               </select>
             </label>
-            <Link href="/" className="transition-colors hover:text-purple-600" aria-label="Share">
+            <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.share}>
               <Share2 className="h-5 w-5" />
             </Link>
             {showSavedMenuLinks && (
               <>
-                <Link href="/" className="transition-colors hover:text-purple-600" aria-label="History">
+                <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.history}>
                   <History className="h-5 w-5" />
                 </Link>
-                <Link href="/" className="transition-colors hover:text-purple-600" aria-label="Cart">
+                <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.cart}>
                   <ShoppingCart className="h-5 w-5" />
                 </Link>
               </>
             )}
-            <Link href="/" className="transition-colors hover:text-purple-600" aria-label="Account">
+            <Link href="/" className="transition-colors hover:text-purple-600" aria-label={text.nav.account}>
               <User className="h-5 w-5" />
             </Link>
           </div>
@@ -237,21 +249,21 @@ export default function Home() {
           <section className="min-h-screen w-full bg-[#fbf8f4] py-10">
             <div className="container mx-auto max-w-5xl px-4">
               <Link href="/" className="mb-6 inline-flex items-center gap-2 font-medium text-purple-700 hover:text-purple-800">
-                <ArrowLeft className="h-4 w-4" /> Back to Home
+                <ArrowLeft className="h-4 w-4" /> {text.result.backHome}
               </Link>
               <Card className="border-purple-100 bg-white shadow-lg">
                 <CardHeader className="border-b bg-purple-50/60">
                   <CardTitle className="flex flex-col gap-2 text-2xl text-purple-950 sm:flex-row sm:items-center sm:justify-between">
-                    <span>{menuData?.business_name || "Restaurant Menu"}</span>
+                    <span>{menuData?.business_name || text.result.restaurantMenu}</span>
                     <span className="w-fit rounded-full bg-purple-200/60 px-3 py-1 text-sm font-normal text-purple-800">
-                      {isLoadingMenu ? "Loading" : `${itemCount} dishes`} · {lang.toUpperCase()}
+                      {isLoadingMenu ? text.result.loading : `${itemCount} ${text.result.dishes}`} · {languageShortLabel(lang)}
                     </span>
                   </CardTitle>
                   {menuData?.restaurant_type && <p className="text-purple-700">{menuData.restaurant_type}</p>}
                 </CardHeader>
                 <CardContent className="p-6">
                   {isLoadingMenu ? (
-                    <p className="py-12 text-center text-gray-500">Loading menu result...</p>
+                    <p className="py-12 text-center text-gray-500">{text.result.loadingResult}</p>
                   ) : sections.length > 0 ? (
                     <div className="space-y-8">
                       {sections.map((section) => (
@@ -264,7 +276,7 @@ export default function Home() {
                           </div>
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             {section.items.map((item, index) => {
-                              const name = dishName(item);
+                              const name = dishName(item, text.result.unnamedDish);
                               const originalName = item.original_name && item.original_name !== name ? item.original_name : "";
                               const price = dishPrice(item, menuData?.currency);
                               return (
@@ -287,7 +299,7 @@ export default function Home() {
                       ))}
                     </div>
                   ) : (
-                    <p className="py-12 text-center text-gray-500">{menuError || "No menu items found."}</p>
+                    <p className="py-12 text-center text-gray-500">{menuError || text.result.noItems}</p>
                   )}
                 </CardContent>
               </Card>
@@ -299,19 +311,19 @@ export default function Home() {
               <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-8">
                 <div className="space-y-10">
                   <div className="space-y-6">
-                    <p className="text-sm font-bold uppercase tracking-[0.2em] text-purple-700">Start translating</p>
+                    <p className="text-sm font-bold uppercase tracking-[0.2em] text-purple-700">{text.home.kicker}</p>
                     <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-[#5f259f] md:text-5xl lg:text-[3.5rem]">
-                      Translate menus,
+                      {text.home.titleLines[0]}
                       <br />
-                      order with ease
+                      {text.home.titleLines[1]}
                     </h1>
                     <p className="max-w-lg text-lg leading-relaxed text-gray-600 md:text-xl">
-                      Upload photos, PDFs, websites, or delivery app links to get clear dish names, descriptions, and ingredients.
+                      {text.home.subtitle}
                     </p>
                   </div>
 
                   <div className="grid max-w-md grid-cols-2 gap-4">
-                    {["Photos/PDF/Web", "AI Translation", "Order Ready", "Smart Suggestions"].map((label, index) => (
+                    {text.home.steps.map((label, index) => (
                       <div key={label} className="flex items-center gap-3 rounded-xl border border-purple-100 bg-white px-4 py-3 shadow-sm">
                         <span className="font-bold text-purple-700">{String(index + 1).padStart(2, "0")}</span>
                         <span className="text-sm font-medium text-gray-800">{label}</span>
@@ -321,7 +333,7 @@ export default function Home() {
                 </div>
 
                 <div className="mx-auto w-full max-w-md lg:ml-auto">
-                  <MenuAnalyzer targetLang={lang} onTargetLangChange={setLang} />
+                  <MenuAnalyzer targetLang={lang} onTargetLangChange={handleHeaderLanguageChange} text={text.analyzer} />
                 </div>
               </div>
             </div>
@@ -332,18 +344,18 @@ export default function Home() {
           <section id="features" className="w-full border-t border-purple-100 bg-white py-20">
             <div className="container mx-auto max-w-6xl px-4">
               <div className="mb-12 text-center">
-                <h2 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Key Features</h2>
+                <h2 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{text.features.title}</h2>
                 <p className="mx-auto max-w-[700px] text-lg text-gray-600">
-                  Your smart AI menu translator helps you understand local dishes anywhere in the world.
+                  {text.features.subtitle}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {[
-                  { icon: Globe, title: "Translate Menus", desc: "Translate supported menus between English, Chinese, and Spanish.", color: "text-blue-600", bg: "bg-blue-100" },
-                  { icon: Utensils, title: "Detailed Descriptions", desc: "Get clear explanations of unfamiliar dishes and ingredients.", color: "text-purple-600", bg: "bg-purple-100" },
-                  { icon: CheckCircle, title: "Order with Ease", desc: "Build a clear list of chosen dishes to show the waiter.", color: "text-amber-600", bg: "bg-amber-100" },
-                  { icon: Smartphone, title: "All Menu Types", desc: "Photos, PDFs, and menu links route to the same backend parser.", color: "text-pink-600", bg: "bg-pink-100" },
+                  { icon: Globe, ...text.features.cards[0], color: "text-blue-600", bg: "bg-blue-100" },
+                  { icon: Utensils, ...text.features.cards[1], color: "text-purple-600", bg: "bg-purple-100" },
+                  { icon: CheckCircle, ...text.features.cards[2], color: "text-amber-600", bg: "bg-amber-100" },
+                  { icon: Smartphone, ...text.features.cards[3], color: "text-pink-600", bg: "bg-pink-100" },
                 ].map((feature) => (
                   <Card key={feature.title} className="border-0 bg-gray-50/70 shadow-sm">
                     <CardHeader className="items-center pb-2 text-center">
@@ -366,13 +378,13 @@ export default function Home() {
       <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
         <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
           <span className="text-lg font-bold text-gray-700">AIMenuAPP</span>
-          <p className="text-sm">© {new Date().getFullYear()} AIMenuAPP. All rights reserved.</p>
+          <p className="text-sm">© {new Date().getFullYear()} AIMenuAPP. {text.footer.rights}</p>
           <div className="flex gap-6">
             <Link href="/privacy-policy" className="text-sm transition-colors hover:text-purple-600">
-              Privacy Policy
+              {text.footer.privacy}
             </Link>
             <Link href="/account-deletion" className="text-sm transition-colors hover:text-purple-600">
-              Account Deletion
+              {text.footer.deletion}
             </Link>
           </div>
         </div>
