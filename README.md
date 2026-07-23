@@ -25,6 +25,7 @@ Users can:
 - DB-backed restaurant cuisine/type display labels
 - Supabase Auth user accounts, profile preferences, avatars, and subscription records
 - AI recommendation module
+- Web result page dish-detail dialog and AI recommendation form
 - Shareable cached menu URLs
 - Native ad plumbing with web-safe fallbacks
 - Context-aware price and currency formatting

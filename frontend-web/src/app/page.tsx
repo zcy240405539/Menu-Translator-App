@@ -2,10 +2,11 @@
 
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Globe, Utensils, Smartphone, CheckCircle, ArrowLeft, Share2, History, ShoppingCart, User } from "lucide-react";
+import { Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
+import { DishDetailDialog, RecommendationDialog } from "@/components/MenuResultDialogs";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
@@ -20,6 +21,7 @@ import {
 } from "@/lib/i18n";
 
 type MenuItem = {
+  id?: string | number | null;
   original_name?: string | null;
   translated_name?: string | null;
   name?: string | null;
@@ -30,6 +32,14 @@ type MenuItem = {
   section_heading_translated?: string | null;
   description?: string | null;
   description_original?: string | null;
+  source_language?: string | null;
+  currency?: string | null;
+  cuisine?: string | null;
+  image_url?: string | null;
+  thumbnail_url?: string | null;
+  ingredients?: unknown;
+  allergens?: unknown;
+  spicy_level?: string | number | null;
 };
 
 type NestedSection = {
@@ -48,6 +58,7 @@ type DisplaySection = {
 type MenuData = {
   business_name?: string | null;
   restaurant_type?: string | null;
+  source_language?: string | null;
   currency?: string | null;
   menu_items?: MenuItem[];
   sections?: NestedSection[];
@@ -116,6 +127,12 @@ function dishPrice(item: MenuItem, currency?: string | null) {
   return `${value} ${currency}`;
 }
 
+function actionDish(item: MenuItem, sectionIndex: number, itemIndex: number, sectionTitle: string): MenuItem {
+  if (item.id !== null && item.id !== undefined && item.id !== "") return item;
+  const name = item.original_name || item.translated_name || item.name || "dish";
+  return { ...item, id: `${sectionIndex}-${itemIndex}-${sectionTitle}-${name}` };
+}
+
 function hasStoredSession() {
   try {
     return [window.localStorage, window.sessionStorage].some((storage) =>
@@ -136,6 +153,8 @@ export default function Home() {
   const [menuError, setMenuError] = useState("");
   const [hasUserSession, setHasUserSession] = useState(false);
   const [shareHref, setShareHref] = useState("/");
+  const [selectedDish, setSelectedDish] = useState<MenuItem | null>(null);
+  const [showRecommendation, setShowRecommendation] = useState(false);
   const text = getText(lang);
 
   useEffect(() => {
@@ -151,11 +170,13 @@ export default function Home() {
 
       const params = new URLSearchParams(window.location.search);
       const hash = params.get("menu_hash") || "";
+      const openRecommendation = params.get("show_recommend") === "1";
       const nextLang = normalizeLanguage(params.get("lang") || getInitialLanguage());
       setMenuHash(hash);
       setLang(nextLang);
       setHasUserSession(hasStoredSession());
       setShareHref(window.location.href);
+      setShowRecommendation(Boolean(hash && openRecommendation));
 
       if (!hash) {
         setMenuData(null);
@@ -219,6 +240,24 @@ export default function Home() {
     }
   };
 
+  const handleOpenRecommendation = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    if (!menuHash) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("show_recommend", "1");
+    window.history.pushState({}, "", url.toString());
+    setShareHref(url.toString());
+    setShowRecommendation(true);
+  };
+
+  const handleCloseRecommendation = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("show_recommend");
+    window.history.replaceState({}, "", url.toString());
+    setShareHref(url.toString());
+    setShowRecommendation(false);
+  };
+
   useEffect(() => {
     document.documentElement.lang = htmlLanguage(lang);
     document.title = text.metaTitle;
@@ -231,14 +270,21 @@ export default function Home() {
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
   const historyHref = `/history${langQuery}`;
   const cartHref = `/cart${langQuery}`;
+  const recommendHref = `/?menu_hash=${encodeURIComponent(menuHash)}&lang=${encodeURIComponent(lang)}&show_recommend=1`;
+  const actionItems = useMemo(
+    () => sections.flatMap((section, sectionIndex) =>
+      section.items.map((item, itemIndex) => actionDish(item, sectionIndex, itemIndex, section.title))
+    ),
+    [sections]
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf8f4] font-sans">
       <header className="sticky top-0 z-50 w-full border-b border-purple-100/70 bg-white/90 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex flex-1 items-center justify-center gap-2 md:justify-start">
-            <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md" priority />
-            <span className="text-xl font-bold text-[#5f259f]">AI Menu APP</span>
+          <Link href={`/${langQuery}`} className="group flex flex-1 items-center justify-center gap-2 rounded-md transition-all hover:opacity-90 md:justify-start">
+            <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md transition-shadow group-hover:shadow-md" priority />
+            <span className="text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700">AI Menu APP</span>
           </Link>
           <div className="hidden items-center space-x-6 text-gray-700 md:flex">
             <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center transition-colors hover:text-purple-600" aria-label={text.nav.language}>
@@ -280,9 +326,6 @@ export default function Home() {
         {showResultView ? (
           <section className="min-h-screen w-full bg-[#fbf8f4] py-10">
             <div className="container mx-auto max-w-5xl px-4">
-              <Link href="/" className="mb-6 inline-flex items-center gap-2 font-medium text-purple-700 hover:text-purple-800">
-                <ArrowLeft className="h-4 w-4" /> {text.result.backHome}
-              </Link>
               <Card className="border-purple-100 bg-white shadow-lg">
                 <CardHeader className="border-b bg-purple-50/60">
                   <CardTitle className="flex flex-col gap-2 text-2xl text-purple-950 sm:flex-row sm:items-center sm:justify-between">
@@ -291,14 +334,24 @@ export default function Home() {
                       {isLoadingMenu ? text.result.loading : `${itemCount} ${text.result.dishes}`} · {languageShortLabel(lang, lang)}
                     </span>
                   </CardTitle>
-                  {menuData?.restaurant_type && <p className="text-purple-700">{menuData.restaurant_type}</p>}
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    {menuData?.restaurant_type && <p className="text-purple-700">{menuData.restaurant_type}</p>}
+                    <a
+                      href={recommendHref}
+                      onClick={handleOpenRecommendation}
+                      className="inline-flex w-fit items-center gap-2 rounded-full bg-purple-700 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-purple-800"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      {text.result.recommendLink}
+                    </a>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-6">
                   {isLoadingMenu ? (
                     <p className="py-12 text-center text-gray-500">{text.result.loadingResult}</p>
                   ) : sections.length > 0 ? (
                     <div className="space-y-8">
-                      {sections.map((section) => (
+                      {sections.map((section, sectionIndex) => (
                         <div key={section.title} className="space-y-4">
                           <div>
                             <h3 className="border-b pb-2 text-xl font-bold text-gray-900">{section.title}</h3>
@@ -308,22 +361,25 @@ export default function Home() {
                           </div>
                           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             {section.items.map((item, index) => {
+                              const clickableItem = actionDish(item, sectionIndex, index, section.title);
                               const name = dishName(item, text.result.unnamedDish);
                               const originalName = item.original_name && item.original_name !== name ? item.original_name : "";
                               const price = dishPrice(item, menuData?.currency);
                               return (
-                                <Card key={`${section.title}-${name}-${index}`} className="border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
-                                  <CardContent className="flex h-full flex-col justify-between p-4">
-                                    <div>
-                                      <h4 className="text-lg font-bold text-gray-950">{name}</h4>
-                                      {originalName && <p className="mb-2 text-sm text-gray-500">{originalName}</p>}
-                                      {dishDescription(item) && (
-                                        <p className="mb-3 text-sm leading-6 text-gray-700">{dishDescription(item)}</p>
-                                      )}
-                                    </div>
-                                    {price && <div className="mt-auto font-semibold text-purple-700">{price}</div>}
-                                  </CardContent>
-                                </Card>
+                                <button key={`${section.title}-${name}-${index}`} type="button" className="h-full text-left" onClick={() => setSelectedDish(clickableItem)}>
+                                  <Card className="h-full border border-gray-100 shadow-sm transition-all hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md">
+                                    <CardContent className="flex h-full flex-col justify-between p-4">
+                                      <div>
+                                        <h4 className="text-lg font-bold text-gray-950">{name}</h4>
+                                        {originalName && <p className="mb-2 text-sm text-gray-500">{originalName}</p>}
+                                        {dishDescription(item) && (
+                                          <p className="mb-3 text-sm leading-6 text-gray-700">{dishDescription(item)}</p>
+                                        )}
+                                      </div>
+                                      {price && <div className="mt-auto font-semibold text-purple-700">{price}</div>}
+                                    </CardContent>
+                                  </Card>
+                                </button>
                               );
                             })}
                           </div>
@@ -406,6 +462,23 @@ export default function Home() {
           </section>
         )}
       </main>
+
+      <DishDetailDialog
+        item={selectedDish}
+        menuData={menuData}
+        lang={lang}
+        text={text}
+        onClose={() => setSelectedDish(null)}
+      />
+      <RecommendationDialog
+        open={showRecommendation}
+        items={actionItems}
+        menuData={menuData}
+        lang={lang}
+        text={text}
+        onClose={handleCloseRecommendation}
+        onSelectDish={(item) => setSelectedDish(item)}
+      />
 
       <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
         <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
