@@ -333,6 +333,7 @@ Current default parsing flow:
 
 - Images use the configured OCR provider, usually Google Cloud Vision.
 - PDFs use Google Document AI in `DOCUMENT_TEXT_PROVIDER=auto` when configured, then Cloud Vision/text fallback.
+- HTML menu extraction removes semantic header/navigation/footer content and preserves repeated dish names and prices across menu sections.
 - Menu structure uses the markdown rule fast path when it can already extract enough items, otherwise official Gemini first in `MENU_STRUCTURE_PROVIDER=auto`, then OpenRouter, then the rule fallback.
 - Google Cloud Translation Advanced v3 translates menu text in parallel batches.
 

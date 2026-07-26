@@ -80,7 +80,7 @@ def _extract_html_markdown_fast(html: str) -> str:
         return ""
 
     soup = BeautifulSoup(html or "", "html.parser")
-    for tag in soup(["script", "style", "noscript", "svg"]):
+    for tag in soup(["script", "style", "noscript", "svg", "header", "nav", "footer"]):
         tag.decompose()
 
     lines = []
@@ -100,6 +100,8 @@ def _extract_html_markdown_fast(html: str) -> str:
     deduped = []
     seen_recent = set()
     for line in lines:
+        if line.startswith("#"):
+            seen_recent.clear()
         key = line.lower()
         if key in seen_recent:
             continue

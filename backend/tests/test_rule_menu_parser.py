@@ -31,6 +31,7 @@ $25
     ]
     assert items[0]["section_heading_original"] == "BREAKFAST"
     assert items[-1]["section_heading_original"] == "FOOD"
+    assert items[0]["price"] == "$3 - $9"
     assert items[1]["price"] == "$14"
 
 

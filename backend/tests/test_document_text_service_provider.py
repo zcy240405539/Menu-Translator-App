@@ -6,6 +6,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app.services import document_text_service
 
 
+def test_html_extraction_keeps_repeated_prices_in_distinct_items():
+    html = """
+    <h2>Breakfast</h2>
+    <h3>First dish</h3><p>$14</p>
+    <h3>Second dish</h3><p>$14</p>
+    <footer><h3>Company</h3><a href="/privacy">Privacy</a></footer>
+    """
+
+    markdown = document_text_service._extract_html_markdown_fast(html)
+
+    assert markdown.count("$14") == 2
+    assert "Privacy" not in markdown
+
+
 def test_pdf_auto_prefers_document_ai(monkeypatch=None):
     calls = []
 
@@ -48,6 +62,7 @@ def test_pdf_openrouter_vision_is_explicit(monkeypatch=None):
 
 
 if __name__ == "__main__":
+    test_html_extraction_keeps_repeated_prices_in_distinct_items()
     test_pdf_auto_prefers_document_ai()
     test_pdf_openrouter_vision_is_explicit()
     print("document text provider checks passed")

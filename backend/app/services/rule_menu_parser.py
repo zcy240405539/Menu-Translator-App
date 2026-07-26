@@ -6,14 +6,19 @@ from app.core.i18n_service import normalize_lang
 from app.language_modules import get_language_profile
 
 
+PRICE_NUMBER_PATTERN = r"\d{1,4}(?:[.,]\d{1,2})?"
+PRICE_VALUE_PATTERN = rf"(?:[$€£¥￥]\s*)?{PRICE_NUMBER_PATTERN}"
+PRICE_RANGE_PATTERN = rf"{PRICE_VALUE_PATTERN}(?:\s*[-–—]\s*{PRICE_VALUE_PATTERN})?"
 PRICE_ONLY_RE = re.compile(
-    r"^\s*(?:[$€£¥￥]\s*)?\d{1,4}(?:[.,]\d{1,2})?(?:\s+\d{1,4}(?:[.,]\d{1,2})?){0,3}\s*$"
+    rf"^\s*{PRICE_RANGE_PATTERN}(?:\s+{PRICE_NUMBER_PATTERN}){{0,3}}\s*$"
 )
 TRAILING_PRICE_RE = re.compile(
-    r"^(?P<body>.+?)\s*(?:\||\.{2,}|[-–])?\s*(?P<price>(?:[$€£¥￥]\s*)?\d{1,4}(?:[.,]\d{1,2})?(?:\s+\d{1,4}(?:[.,]\d{1,2})?){0,3})\s*$"
+    rf"^(?P<body>.+?)\s*(?:\||\.{{2,}}|[-–])?\s*"
+    rf"(?P<price>{PRICE_RANGE_PATTERN}(?:\s+{PRICE_NUMBER_PATTERN}){{0,3}})\s*$"
 )
 SECTION_PRICE_RE = re.compile(
-    r"^(?P<label>.*[A-Za-zÀ-ÿ\u3400-\u9fff][^\d$€£¥￥]*)\s+(?P<price>(?:[$€£¥￥]\s*)?\d{1,4}(?:[.,]\d{1,2})?)$"
+    rf"^(?P<label>.*[A-Za-zÀ-ÿ\u3400-\u9fff][^\d$€£¥￥]*)\s+"
+    rf"(?P<price>{PRICE_RANGE_PATTERN})$"
 )
 HEADING_RE = re.compile(r"^(?P<marks>#{1,6})\s+(?P<text>.+)$")
 BULLET_RE = re.compile(r"^\s*(?:[-*•]\s+|\d+[.)]\s+)")

@@ -2166,7 +2166,7 @@ def apply_restaurant_type_display(db, result: dict, target_lang: str, source_lan
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 22
+MENU_CACHE_SCHEMA_VERSION = 23
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
     "MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE",
