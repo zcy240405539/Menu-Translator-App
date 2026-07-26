@@ -23,6 +23,7 @@ import {
   Text,
   TextInput,
   Snackbar,
+  useTheme,
 } from "react-native-paper";
 
 import { addDishToCart } from "../storage/cartStorage";
@@ -56,6 +57,7 @@ export default function AIRecommendModal({
   onOpenLogin,
   onOpenProfile,
 }) {
+  const theme = useTheme();
   const [people, setPeople] = useState("");
   const [selectedDiets, setSelectedDiets] = useState([]);
   const [budget, setBudget] = useState("");
@@ -254,8 +256,8 @@ export default function AIRecommendModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom }]}>
-          <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
+        <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
+          <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop, { backgroundColor: theme.colors.background }]}>
             <Appbar.BackAction onPress={onClose} />
             <Appbar.Content title={shouldHideAppTitle ? "" : t.recommend.title} />
             <Appbar.Action icon="share-variant" onPress={handleShare} />
@@ -284,12 +286,12 @@ export default function AIRecommendModal({
               // 推荐结果页面
               <View style={{ flex: 1 }}>
                 <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
-                <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop]}>
+                <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop, { backgroundColor: theme.colors.surface }]}>
                   <Card.Content>
-                    <Text variant="titleMedium" style={styles.sectionTitle}>
+                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                       {t.recommend.suggestionTitle}
                     </Text>
-                    <Text variant="bodyMedium" style={styles.recommendationText}>
+                    <Text variant="bodyMedium" style={[styles.recommendationText, { color: theme.colors.onSurface }]}>
                       {recommendationText}
                     </Text>
                   </Card.Content>
@@ -297,7 +299,7 @@ export default function AIRecommendModal({
 
                 {matchedItems.length > 0 && (
                   <View style={styles.itemsSection}>
-                    <Text variant="titleMedium" style={styles.sectionTitle}>
+                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                       {t.recommend.recommendedItemsTitle}
                     </Text>
 
@@ -316,16 +318,16 @@ export default function AIRecommendModal({
                         <Card
                           key={dish.id}
                           mode="elevated"
-                          style={[styles.dishCard, isDesktopLayout && styles.dishCardDesktop]}
+                          style={[styles.dishCard, isDesktopLayout && styles.dishCardDesktop, { backgroundColor: theme.colors.surfaceVariant }]}
                           onPress={() => onPressDish && onPressDish(dish)}
                         >
                           <Card.Content>
                             <View style={styles.dishHeader}>
                               <View style={styles.dishNameBox}>
-                                <Text variant="titleMedium" style={styles.dishName}>
+                                <Text variant="titleMedium" style={[styles.dishName, { color: theme.colors.onSurface }]}>
                                   {displayName}
                                 </Text>
-                                <Text variant="bodySmall" style={styles.dishOriginalName}>
+                                <Text variant="bodySmall" style={[styles.dishOriginalName, { color: theme.colors.onSurfaceVariant }]}>
                                   {displayOriginalName}
                                 </Text>
                               </View>
@@ -335,7 +337,7 @@ export default function AIRecommendModal({
                                 </Chip>
                               )}
                             </View>
-                            <Text variant="bodyMedium" style={styles.reasonText}>
+                            <Text variant="bodyMedium" style={[styles.reasonText, { color: theme.colors.onSurfaceVariant }]}>
                               💡 {reason}
                             </Text>
 
@@ -393,9 +395,9 @@ export default function AIRecommendModal({
             ) : (
               // 选项输入表单页面
               <ScrollView contentContainerStyle={[styles.content, isDesktopLayout && styles.contentDesktop]}>
-                <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop]}>
+                <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop, { backgroundColor: theme.colors.surface }]}>
                   <Card.Content style={isDesktopLayout ? styles.formCardContentDesktop : undefined}>
-                    <Text variant="bodyMedium" style={styles.introText}>
+                    <Text variant="bodyMedium" style={[styles.introText, { color: theme.colors.onSurfaceVariant }]}>
                       {isChineseLanguage(targetLang)
                         ? "告诉 AI 您的偏好，为您生成定制的配餐方案和推荐菜品。"
                         : "Tell AI your preferences and get a customized recommendation."}

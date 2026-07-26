@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
-import { getText, type WebLanguageCode } from "@/lib/i18n";
+import { getText, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 export type ResultMenuItem = {
   id?: string | number | null;
@@ -132,8 +132,8 @@ export function DishDetailDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           dish_name: baseName,
-          target_lang: lang,
-          source_lang: item.source_language || menuData?.source_language || "auto",
+          target_lang: toBackendLanguage(lang),
+          source_lang: toBackendLanguage(item.source_language || menuData?.source_language || "auto"),
           original_name: item.original_name,
           translated_name: item.translated_name || item.name,
           description: item.description || item.description_original,
@@ -322,7 +322,7 @@ export function RecommendationDialog({
           allergies: allergyList.length ? allergyList : null,
           budget: budget || null,
           taste: taste || null,
-          target_lang: lang,
+          target_lang: toBackendLanguage(lang),
         }),
       });
       if (!res.ok) throw new Error(text.result.recommendationError);

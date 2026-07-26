@@ -8,6 +8,7 @@ import {
   Surface,
   Button,
   Chip,
+  useTheme,
 } from "react-native-paper";
 
 import {
@@ -28,6 +29,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   const loadCart = async () => {
     const data = await getCartItems();
@@ -55,8 +57,8 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   }, 0);
 
   return (
-    <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
-      <Appbar.Header mode="center-aligned" style={styles.appbar}>
+    <Surface style={[styles.screen, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
+      <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
         {hasMenuResult ? (
           <>
             <Appbar.Action icon="close" onPress={onBackToResult} />
@@ -80,12 +82,12 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
       </Appbar.Header>
 
       <View style={styles.content}>
-        <Card mode="elevated" style={styles.summaryCard}>
+        <Card mode="elevated" style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Text variant="headlineSmall" style={styles.title}>
+            <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
               {isChinese ? (isTraditional ? "我的待點列表" : "我的待点列表") : "My Order List"}
             </Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
               {items.length} {isChinese ? "道菜" : "items"} · {isChinese ? (isTraditional ? "總計" : "总计") : "Total"}: {cartCurrencySymbol}{total.toFixed(2)}
             </Text>
           </Card.Content>
@@ -95,7 +97,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
           data={items}
           keyExtractor={(item) => item.cartId}
           renderItem={({ item }) => (
-            <Card mode="elevated" style={styles.card}>
+            <Card mode="elevated" style={[styles.card, { backgroundColor: theme.colors.surface }]}>
               <Card.Content>
                 <View style={styles.row}>
                   <View style={styles.nameBox}>
@@ -103,12 +105,12 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
                       {getDishName(item.dish)}
                     </Text>
 
-                    <Text style={styles.original}>
+                    <Text style={[styles.original, { color: theme.colors.onSurfaceVariant }]}>
                       {item.dish?.original_name}
                     </Text>
 
                     {!!item.menuInfo?.restaurant_type && (
-                      <Text style={styles.restaurant}>
+                      <Text style={[styles.restaurant, { color: theme.colors.onSurfaceVariant }]}>
                         {item.menuInfo.restaurant_type}
                       </Text>
                     )}
@@ -173,7 +175,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
             </Card>
           )}
           ListEmptyComponent={
-            <Text style={styles.empty}>
+            <Text style={[styles.empty, { color: theme.colors.onSurfaceVariant }]}>
               {isChinese ? (isTraditional ? "還沒有加入任何菜品" : "还没有加入任何菜品") : "No dishes added yet"}
             </Text>
           }

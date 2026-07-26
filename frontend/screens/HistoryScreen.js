@@ -9,6 +9,7 @@ import {
   Surface,
   Button,
   Chip,
+  useTheme,
 } from "react-native-paper";
 
 import {
@@ -40,6 +41,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
   const isChinese = isChineseLanguage(targetLang);
   const isTraditional = targetLang === "zh-Hant";
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   const loadHistory = async () => {
     const data = await getMenuHistory();
@@ -51,8 +53,8 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
   }, []);
 
   return (
-    <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
-      <Appbar.Header mode="center-aligned" style={styles.appbar}>
+    <Surface style={[styles.screen, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
+      <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
         {hasMenuResult ? (
           <>
             <Appbar.Action icon="close" onPress={onBackToResult} />
@@ -82,20 +84,20 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
         renderItem={({ item }) => (
           <Card
             mode="elevated"
-            style={styles.card}
+            style={[styles.card, { backgroundColor: theme.colors.surface }]}
             onPress={() => onOpenMenu(item)}
           >
             <Card.Content>
-              <Text variant="titleMedium" style={styles.title}>
+              <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
                 {item.business_name || item.restaurant_type || "Restaurant"}
               </Text>
 
-              <Text style={styles.subtitle}>
+              <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
                 {item.source_language} · {item.menu_items?.length || 0}{" "}
                 {isChinese ? "道菜" : "items"}
               </Text>
 
-              <Text style={styles.date}>
+              <Text style={[styles.date, { color: theme.colors.onSurfaceVariant }]}>
                 {new Date(item.createdAt).toLocaleString()}
               </Text>
 
@@ -106,7 +108,7 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
           </Card>
         )}
         ListEmptyComponent={
-          <Text style={styles.empty}>
+          <Text style={[styles.empty, { color: theme.colors.onSurfaceVariant }]}>
             {isChinese ? (isTraditional ? "暫無歷史菜單" : "暂无历史菜单") : "No menu history yet"}
           </Text>
         }

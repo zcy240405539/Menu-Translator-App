@@ -21,6 +21,16 @@ export function normalizeLanguage(lang?: string | null): WebLanguageCode {
   return "en";
 }
 
+export function toBackendLanguage(lang?: string | null) {
+  const value = String(lang || "").trim();
+  const normalized = value.toLowerCase();
+  if (!normalized || normalized === "auto") return "auto";
+  if (normalized === "zh" || normalized === "zh-cn" || normalized === "zh-hans") return "zh";
+  if (["zh-tw", "zh-hk", "zh-hant"].includes(normalized)) return "zh-Hant";
+  if (normalized === "en" || normalized === "es") return normalized;
+  return value;
+}
+
 export function getInitialLanguage(): WebLanguageCode {
   if (typeof window === "undefined") return DEFAULT_LANGUAGE;
 
@@ -78,6 +88,7 @@ export const webText = {
       history: "History",
       cart: "Cart",
       account: "Account",
+      settings: "Settings",
       accountLoginFailed: "Unable to open sign in. Please try again.",
     },
     home: {
@@ -91,6 +102,8 @@ export const webText = {
       subtitle: "Sign in to save menu history and order lists.",
       email: "Email",
       password: "Password",
+      showPassword: "Show password",
+      hidePassword: "Hide password",
       signIn: "Sign in",
       signingIn: "Signing in...",
       google: "Continue with Google",
@@ -190,8 +203,23 @@ export const webText = {
     },
     footer: {
       privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      settings: "Settings",
       deletion: "Account Deletion",
       rights: "All rights reserved.",
+    },
+    settings: {
+      title: "Settings",
+      subtitle: "Manage how AI Menu APP works for you.",
+      language: "Page language",
+      languageDescription: "Use the same language across the website.",
+      account: "Account",
+      accountDescription: "Sign in to access saved menus and order lists.",
+      legal: "Legal",
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      deletion: "Account Deletion",
+      backHome: "Back to home",
     },
     legal: {
       back: "Back to AI Menu APP",
@@ -290,6 +318,7 @@ export const webText = {
       history: "历史",
       cart: "购物车",
       account: "账号",
+      settings: "设置",
       accountLoginFailed: "无法打开登录，请稍后再试。",
     },
     home: {
@@ -303,6 +332,8 @@ export const webText = {
       subtitle: "登录后可以保存菜单历史和点餐清单。",
       email: "邮箱",
       password: "密码",
+      showPassword: "显示密码",
+      hidePassword: "隐藏密码",
       signIn: "登录",
       signingIn: "正在登录...",
       google: "使用 Google 继续",
@@ -402,8 +433,23 @@ export const webText = {
     },
     footer: {
       privacy: "隐私政策",
+      terms: "服务条款",
+      settings: "设置",
       deletion: "删除账号",
       rights: "保留所有权利。",
+    },
+    settings: {
+      title: "设置",
+      subtitle: "管理 AI Menu APP 的网页使用方式。",
+      language: "页面语言",
+      languageDescription: "在整个网站使用同一种语言。",
+      account: "账号",
+      accountDescription: "登录后访问保存的菜单和点餐清单。",
+      legal: "法律信息",
+      privacy: "隐私政策",
+      terms: "服务条款",
+      deletion: "删除账号",
+      backHome: "返回首页",
     },
     legal: {
       back: "返回 AI Menu APP",
@@ -502,6 +548,7 @@ export const webText = {
       history: "歷史",
       cart: "購物車",
       account: "帳號",
+      settings: "設定",
       accountLoginFailed: "無法開啟登入，請稍後再試。",
     },
     home: {
@@ -515,6 +562,8 @@ export const webText = {
       subtitle: "登入後可以保存菜單歷史和點餐清單。",
       email: "信箱",
       password: "密碼",
+      showPassword: "顯示密碼",
+      hidePassword: "隱藏密碼",
       signIn: "登入",
       signingIn: "正在登入...",
       google: "使用 Google 繼續",
@@ -614,8 +663,23 @@ export const webText = {
     },
     footer: {
       privacy: "隱私政策",
+      terms: "服務條款",
+      settings: "設定",
       deletion: "刪除帳號",
       rights: "保留所有權利。",
+    },
+    settings: {
+      title: "設定",
+      subtitle: "管理 AI Menu APP 的網頁使用方式。",
+      language: "頁面語言",
+      languageDescription: "在整個網站使用同一種語言。",
+      account: "帳號",
+      accountDescription: "登入後存取已儲存的菜單和點餐清單。",
+      legal: "法律資訊",
+      privacy: "隱私政策",
+      terms: "服務條款",
+      deletion: "刪除帳號",
+      backHome: "返回首頁",
     },
     legal: {
       back: "返回 AI Menu APP",
@@ -714,6 +778,7 @@ export const webText = {
       history: "Historial",
       cart: "Carrito",
       account: "Cuenta",
+      settings: "Ajustes",
       accountLoginFailed: "No se pudo abrir el inicio de sesión. Inténtalo de nuevo.",
     },
     home: {
@@ -727,6 +792,8 @@ export const webText = {
       subtitle: "Inicia sesión para guardar historial de menús y listas de pedido.",
       email: "Correo electrónico",
       password: "Contraseña",
+      showPassword: "Mostrar contraseña",
+      hidePassword: "Ocultar contraseña",
       signIn: "Iniciar sesión",
       signingIn: "Iniciando sesión...",
       google: "Continuar con Google",
@@ -826,8 +893,23 @@ export const webText = {
     },
     footer: {
       privacy: "Política de privacidad",
+      terms: "Términos del servicio",
+      settings: "Ajustes",
       deletion: "Eliminar cuenta",
       rights: "Todos los derechos reservados.",
+    },
+    settings: {
+      title: "Ajustes",
+      subtitle: "Configura cómo funciona AI Menu APP para ti.",
+      language: "Idioma de la página",
+      languageDescription: "Usa el mismo idioma en todo el sitio web.",
+      account: "Cuenta",
+      accountDescription: "Inicia sesión para acceder a menús y listas guardados.",
+      legal: "Legal",
+      privacy: "Política de privacidad",
+      terms: "Términos del servicio",
+      deletion: "Eliminar cuenta",
+      backHome: "Volver al inicio",
     },
     legal: {
       back: "Volver a AI Menu APP",

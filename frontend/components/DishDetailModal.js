@@ -21,6 +21,7 @@ import {
   Surface,
   Text,
   Snackbar,
+  useTheme,
 } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -64,9 +65,10 @@ function normalizeKey(text) {
 }
 
 function InfoSection({ title, children }) {
+  const theme = useTheme();
   return (
     <View style={styles.infoSection}>
-      <Text variant="titleMedium" style={styles.sectionTitle}>
+      <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
         {title}
       </Text>
       <View style={styles.sectionContent}>{children}</View>
@@ -88,6 +90,7 @@ export default function DishDetailModal({
   onOpenLogin,
   onOpenProfile,
 }) {
+  const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const isLargeScreen = Platform.OS === 'web' && windowWidth > 768;
   const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -261,10 +264,10 @@ export default function DishDetailModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
-          <Appbar.Header mode="center-aligned" style={styles.appbar}>
+        <Surface style={[styles.screen, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
+          <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
             <Appbar.BackAction onPress={onClose} />
-            <Appbar.Content title={title || t.description} />
+            <Appbar.Content title={isLargeScreen ? (title || t.description) : ""} />
             <Appbar.Action icon="share-variant" onPress={handleShare} />
             <Appbar.Action icon="history" onPress={handleOpenHistory} />
             <Appbar.Action icon="cart-outline" onPress={handleOpenCart} />
@@ -298,14 +301,14 @@ export default function DishDetailModal({
                     </Card>
                   )}
 
-                  <Card mode="elevated" style={styles.heroCard}>
+                  <Card mode="elevated" style={[styles.heroCard, { backgroundColor: theme.colors.surface }]}>
                     <View style={styles.webImagePlaceholder}>
                       {imageUrl ? (
                         <Image source={{ uri: imageUrl }} style={styles.webDishImage} />
                       ) : (
-                        <View style={styles.defaultImageBox}>
+                        <View style={[styles.defaultImageBox, { backgroundColor: theme.colors.surfaceVariant }]}>
                            <Text style={styles.defaultImageIcon}>🍽️</Text>
-                          <Text style={styles.defaultImageText}>
+                          <Text style={[styles.defaultImageText, { color: theme.colors.onSurfaceVariant }]}>
                             {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
                           </Text>
                         </View>
@@ -314,7 +317,7 @@ export default function DishDetailModal({
                       {loadingDetail && (
                         <View style={styles.imageLoadingOverlay}>
                           <ActivityIndicator animating size="small" />
-                          <Text style={styles.imageLoadingText}>
+                          <Text style={[styles.imageLoadingText, { color: theme.colors.onSurfaceVariant }]}>
                             {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在載入詳情..." : "正在加载详情...") : "Loading details..."}
                           </Text>
                         </View>
@@ -338,13 +341,13 @@ export default function DishDetailModal({
 
                 {/* Right Column: Title, Details, Action Buttons */}
                 <View style={styles.webRightColumn}>
-                  <Card mode="elevated" style={styles.webDetailCard}>
+                  <Card mode="elevated" style={[styles.webDetailCard, { backgroundColor: theme.colors.surface }]}>
                     <Card.Content>
-                      <Text variant="headlineSmall" style={styles.title}>
+                      <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
                         {title}
                       </Text>
 
-                      <Text variant="bodyMedium" style={styles.original}>
+                      <Text variant="bodyMedium" style={[styles.original, { color: theme.colors.onSurfaceVariant }]}>
                         {t.original}: {mergedDish.original_name || t.unknown}
                       </Text>
 
@@ -357,7 +360,7 @@ export default function DishDetailModal({
                       <Divider style={{ marginVertical: 16 }} />
 
                       <InfoSection title={t.description}>
-                        <Text variant="bodyMedium" style={styles.text}>
+                        <Text variant="bodyMedium" style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>
                           {description || t.unknown}
                         </Text>
                       </InfoSection>
@@ -374,7 +377,7 @@ export default function DishDetailModal({
                             ))}
                           </View>
                         ) : (
-                          <Text style={styles.text}>{t.unknown}</Text>
+                          <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>{t.unknown}</Text>
                         )}
                       </InfoSection>
 
@@ -390,7 +393,7 @@ export default function DishDetailModal({
                             ))}
                           </View>
                         ) : (
-                          <Text style={styles.text}>{t.none}</Text>
+                          <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>{t.none}</Text>
                         )}
                       </InfoSection>
 
@@ -448,14 +451,14 @@ export default function DishDetailModal({
                   </Card>
                 )}
 
-                <Card mode="elevated" style={styles.heroCard}>
+                <Card mode="elevated" style={[styles.heroCard, { backgroundColor: theme.colors.surface }]}>
                   <View style={styles.imagePlaceholder}>
                     {imageUrl ? (
                       <Image source={{ uri: imageUrl }} style={styles.dishImage} />
                     ) : (
-                      <View style={styles.defaultImageBox}>
+                      <View style={[styles.defaultImageBox, { backgroundColor: theme.colors.surfaceVariant }]}>
                         <Text style={styles.defaultImageIcon}>🍽️</Text>
-                        <Text style={styles.defaultImageText}>
+                        <Text style={[styles.defaultImageText, { color: theme.colors.onSurfaceVariant }]}>
                           {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
                         </Text>
                       </View>
@@ -464,18 +467,18 @@ export default function DishDetailModal({
                     {loadingDetail && (
                       <View style={styles.imageLoadingOverlay}>
                         <ActivityIndicator animating size="small" />
-                        <Text style={styles.imageLoadingText}>
+                        <Text style={[styles.imageLoadingText, { color: theme.colors.onSurfaceVariant }]}>
                           {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在載入詳情..." : "正在加载详情...") : "Loading details..."}
                         </Text>
                       </View>
                     )}
                   </View>
                   <Card.Content>
-                    <Text variant="headlineSmall" style={styles.title}>
+                    <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
                       {title}
                     </Text>
 
-                    <Text variant="bodyMedium" style={styles.original}>
+                    <Text variant="bodyMedium" style={[styles.original, { color: theme.colors.onSurfaceVariant }]}>
                       {t.original}: {mergedDish.original_name || t.unknown}
                     </Text>
 
@@ -501,10 +504,10 @@ export default function DishDetailModal({
                   </Card.Content>
                 </Card>
 
-                <Card mode="elevated" style={styles.detailCard}>
+                <Card mode="elevated" style={[styles.detailCard, { backgroundColor: theme.colors.surface }]}>
                   <Card.Content>
                     <InfoSection title={t.description}>
-                      <Text variant="bodyMedium" style={styles.text}>
+                      <Text variant="bodyMedium" style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>
                         {description || t.unknown}
                       </Text>
                     </InfoSection>
@@ -521,7 +524,7 @@ export default function DishDetailModal({
                           ))}
                         </View>
                       ) : (
-                        <Text style={styles.text}>{t.unknown}</Text>
+                        <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>{t.unknown}</Text>
                       )}
                     </InfoSection>
 
@@ -537,7 +540,7 @@ export default function DishDetailModal({
                           ))}
                         </View>
                       ) : (
-                        <Text style={styles.text}>{t.none}</Text>
+                        <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>{t.none}</Text>
                       )}
                     </InfoSection>
 

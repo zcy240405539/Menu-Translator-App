@@ -9,6 +9,7 @@ import {
   Chip,
   TouchableRipple,
   Button,
+  useTheme,
 } from "react-native-paper";
 
 import DishDetailModal from "../components/DishDetailModal";
@@ -93,13 +94,14 @@ function getSectionTitle(category, categoryItems, targetLang) {
   );
 }
 
-export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile }) {
+export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, onOpenSettings }) {
   const [selectedDish, setSelectedDish] = useState(null);
   const [showRecommend, setShowRecommend] = useState(false);
   const [cameFromRecommend, setCameFromRecommend] = useState(false);
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width >= 768;
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   const handleShare = () => {
     if (onShare) {
@@ -274,15 +276,15 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         style={styles.ripple}
         onPress={() => setSelectedDish(item)}
       >
-        <Card mode="elevated" style={styles.dishCard}>
+        <Card mode="elevated" style={[styles.dishCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <View style={styles.cardHeader}>
               <View style={styles.nameBox}>
-                <Text variant="titleMedium" style={styles.name}>
+                <Text variant="titleMedium" style={[styles.name, { color: theme.colors.onSurface }]}>
                   {displayName}
                 </Text>
 
-                <Text variant="bodySmall" style={styles.originalName}>
+                <Text variant="bodySmall" style={[styles.originalName, { color: theme.colors.onSurfaceVariant }]}>
                   {item.original_name || t.result.originalUnavailable}
                 </Text>
               </View>
@@ -295,7 +297,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
             </View>
 
             {!!displayDescription && (
-              <Text variant="bodyMedium" style={styles.description} numberOfLines={2}>
+              <Text variant="bodyMedium" style={[styles.description, { color: theme.colors.onSurfaceVariant }]} numberOfLines={2}>
                 {displayDescription}
               </Text>
             )}
@@ -306,10 +308,11 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   };
 
   return (
-    <Surface style={[styles.screen, { paddingBottom: insets.bottom }]}>
-      <Appbar.Header mode="center-aligned" style={styles.appbar}>
+    <Surface style={[styles.screen, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
+      <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
         <Appbar.BackAction onPress={onBack} />
-        <Appbar.Content title={t.result.title} />
+        <Appbar.Content title={isDesktop ? t.result.title : ""} />
+        <Appbar.Action icon="cog-outline" accessibilityLabel={t.settings.title} onPress={onOpenSettings} />
         <Appbar.Action icon="share-variant" onPress={handleShare} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
@@ -317,13 +320,13 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.listContent}>
-        <Card mode="elevated" style={styles.summaryCard}>
+        <Card mode="elevated" style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Text variant="headlineSmall" style={styles.summaryTitle}>
+            <Text variant="headlineSmall" style={[styles.summaryTitle, { color: theme.colors.onSurface }]}>
               {parsedResult?.business_name || t.result.title}
             </Text>
 
-            <Text variant="bodyMedium" style={styles.summarySubtitle}>
+            <Text variant="bodyMedium" style={[styles.summarySubtitle, { color: theme.colors.onSurfaceVariant }]}>
               {restaurantType} · {sourceLanguage} · {items.length} {t.result.items}
             </Text>
 
@@ -339,9 +342,9 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         </Card>
 
         {sections.length === 0 && (
-          <Card mode="outlined" style={styles.emptyCard}>
+          <Card mode="outlined" style={[styles.emptyCard, { backgroundColor: theme.colors.surface }]}>
             <Card.Content>
-              <Text style={styles.emptyText}>{t.result.empty}</Text>
+              <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>{t.result.empty}</Text>
             </Card.Content>
           </Card>
         )}
@@ -349,7 +352,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         {sections.map((section) => (
           <View key={section.key || section.title}>
             <View style={styles.sectionHeader}>
-              <Text variant="titleLarge" style={styles.sectionTitle}>
+              <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 {section.title}
               </Text>
             </View>
@@ -370,10 +373,10 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
             style={styles.ripple}
             onPress={() => openPricingDetail(pricing)}
           >
-            <Card mode="elevated" style={styles.pricingCard}>
+            <Card mode="elevated" style={[styles.pricingCard, { backgroundColor: theme.colors.surface }]}>
               <Card.Content>
                 <View style={styles.pricingHeader}>
-                  <Text style={styles.pricingTitle}>{pricing.label}</Text>
+                  <Text style={[styles.pricingTitle, { color: theme.colors.onSurface }]}>{pricing.label}</Text>
 
                   {!!pricing.price && (
                     <Chip compact style={styles.priceChip} textStyle={styles.priceText}>
@@ -387,11 +390,11 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
                 </View>
 
                 {!!pricing.description && (
-                  <Text style={styles.pricingDescription}>{pricing.description}</Text>
+                  <Text style={[styles.pricingDescription, { color: theme.colors.onSurfaceVariant }]}>{pricing.description}</Text>
                 )}
 
                 {!!pricing.applies_to && (
-                  <Text style={styles.pricingApplies}>{pricing.applies_to}</Text>
+                  <Text style={[styles.pricingApplies, { color: theme.colors.onSurfaceVariant }]}>{pricing.applies_to}</Text>
                 )}
               </Card.Content>
             </Card>

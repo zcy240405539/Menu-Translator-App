@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Globe } from "lucide-react";
 import { DEFAULT_LANGUAGE, LANGUAGES, getInitialLanguage, getText, languageLabel, normalizeLanguage, saveLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { getLegalDocument, type LegalKind } from "@/lib/legalDocuments";
 
 const SUPPORT_EMAIL = "support@agentscottystudio.com";
 const ACCOUNT_DELETION_MAILTO =
@@ -11,7 +12,7 @@ const ACCOUNT_DELETION_MAILTO =
   "&body=Please%20delete%20my%20AI%20Menu%20APP%20account.%0A%0ARegistered%20email%3A%20%0AUsername%20if%20known%3A%20%0A";
 
 type LegalDocumentProps = {
-  kind: "privacy" | "account-deletion";
+  kind: LegalKind | "account-deletion";
 };
 
 export function LegalDocument({ kind }: LegalDocumentProps) {
@@ -19,7 +20,8 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
   const isDeletion = kind === "account-deletion";
   const text = getText(lang);
   const legal = text.legal;
-  const documentText = isDeletion ? legal.deletion : legal.privacy;
+  const legalDocument = isDeletion ? null : getLegalDocument(lang, kind as LegalKind);
+  const documentText = isDeletion ? legal.deletion : legalDocument!;
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -73,7 +75,7 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
           </a>
         ) : (
           <p className="mt-8 text-base leading-7 text-gray-700">
-            {legal.privacy.intro}
+            {legalDocument?.intro}
           </p>
         )}
 

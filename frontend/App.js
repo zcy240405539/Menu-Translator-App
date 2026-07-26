@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as Localization from "expo-localization";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { MD3LightTheme, PaperProvider } from "react-native-paper";
+import { PaperProvider } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import HomeScreen from "./screens/HomeScreen";
 import MenuResultScreen from "./screens/MenuResultScreen";
@@ -9,12 +9,16 @@ import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
 import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken, getUnitTranslations } from "./api";
-import { Platform, Share, Alert, LogBox, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Share, Alert, LogBox, Linking, ScrollView, StatusBar, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { detectUserCurrency, setUnitTranslations } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
 import AccountProfileModal from "./components/AccountProfileModal";
+import OnboardingModal from "./components/OnboardingModal";
+import SettingsModal from "./components/SettingsModal";
 import { getCartItems, setCartCloudSyncHandler, setCartItems } from "./storage/cartStorage";
+import { getLegalContent } from "./legalContent";
+import { resolveTheme, THEME_MODES, THEME_STORAGE_KEY } from "./theme";
 
 // Ignore third-party deprecation and platform-specific fallback warnings
 LogBox.ignoreLogs([
@@ -32,7 +36,9 @@ const STATIC_POLICY_ROUTES = {
   "/account-deletion": "account-deletion",
   "/home/privacy-policy": "privacy-policy",
   "/privacy-policy": "privacy-policy",
+  "/terms-of-service": "terms",
 };
+const ONBOARDING_STORAGE_KEY = "menu_app_onboarding_v1";
 
 function getStaticPolicyRoute() {
   if (Platform.OS !== "web" || typeof window === "undefined") return null;
@@ -44,10 +50,16 @@ function getStaticPolicyRoute() {
 
 function StaticPolicyPage({ route }) {
   const isAccountDeletion = route === "account-deletion";
-  const title = isAccountDeletion ? "Delete your AI Menu APP account" : "Privacy Policy";
+  const params = Platform.OS === "web" && typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search)
+    : null;
+  const targetLang = mapUrlLangToInternal(params?.get("lang")) || getInitialLanguage();
+  const legal = getLegalContent(targetLang);
+  const document = route === "terms" ? legal.terms : legal.privacy;
+  const title = isAccountDeletion ? "Delete your AI Menu APP account" : document.title;
   const subtitle = isAccountDeletion
     ? "Request deletion of your account and associated account data."
-    : "AI Menu APP - Last updated: June 10, 2026";
+    : `${legal.common.brand} - ${legal.common.updated}`;
   const sections = isAccountDeletion
     ? [
         {
@@ -71,43 +83,7 @@ function StaticPolicyPage({ route }) {
           ],
         },
       ]
-    : [
-        {
-          heading: "Information we collect",
-          items: [
-            "Account information, such as username, email address, optional phone number, and authentication identifiers.",
-            "Profile preferences, such as dietary preferences, allergies, budget, and taste preferences when users choose to provide them.",
-            "User-provided menu content, including menu photos, PDFs, documents, text, webpages, and delivery app share links.",
-            "Generated menu results, including translated dish names, descriptions, ingredients, allergens, prices, menu history, and order list items.",
-            "Technical data such as app interactions, diagnostics, device or advertising identifiers, and network request metadata.",
-          ],
-        },
-        {
-          heading: "How we use information",
-          items: [
-            "To provide menu OCR, translation, dish explanation, image matching, and AI recommendation features.",
-            "To save account profiles, menu history, and order list data for signed-in users.",
-            "To improve reliability, prevent abuse, debug errors, and maintain app security.",
-            "To show advertising and measure ad performance where ads are enabled.",
-            "To respond to support, account deletion, and privacy requests.",
-          ],
-        },
-        {
-          heading: "Third-party services",
-          items: [
-            "The app may process data through service providers used for hosting, database storage, authentication, AI model processing, image retrieval, analytics, and advertising.",
-            "These providers may include Render, Supabase, OpenRouter, OpenAI, Google AdMob, Pexels, Unsplash, and Wikimedia Commons depending on enabled features.",
-          ],
-        },
-        {
-          heading: "Your choices",
-          items: [
-            "You can avoid signing in and use supported features without an account where available.",
-            "You can request account deletion at /account-deletion.",
-            "You can contact us for privacy questions or deletion requests.",
-          ],
-        },
-      ];
+    : document.sections;
 
   return (
     <ScrollView style={policyStyles.screen} contentContainerStyle={policyStyles.container}>
@@ -125,11 +101,7 @@ function StaticPolicyPage({ route }) {
             Email account deletion request
           </Text>
         ) : (
-          <Text style={policyStyles.body}>
-            AI Menu APP helps users translate and understand restaurant menus from photos, files,
-            documents, and menu links. This Privacy Policy explains what information we collect,
-            how we use it, and the choices available to users.
-          </Text>
+          <Text style={policyStyles.body}>{document.intro}</Text>
         )}
 
         {sections.map((section) => (
@@ -183,15 +155,24 @@ function getSharedMenuUrlFromAppUrl(urlString) {
   }
 }
 
-function AppContent() {
+function AppContent({ themeMode, onThemeModeChange }) {
   const [screen, setScreen] = useState("home");
   const [menuResult, setMenuResult] = useState(null);
   const [targetLang, setTargetLang] = useState(getInitialLanguage());
   const [languageInitialized, setLanguageInitialized] = useState(false);
+  const [appInitialized, setAppInitialized] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [incomingMenuUrl, setIncomingMenuUrl] = useState("");
+
+  useEffect(() => {
+    AsyncStorage.getItem(ONBOARDING_STORAGE_KEY)
+      .then((value) => setShowOnboarding(!value))
+      .catch((err) => console.warn("Unable to load onboarding state:", err));
+  }, []);
 
   useEffect(() => {
     async function initializeApp() {
@@ -286,6 +267,7 @@ function AppContent() {
           setScreen("home");
         }
       }
+      setAppInitialized(true);
     }
     initializeApp();
   }, []);
@@ -366,6 +348,7 @@ function AppContent() {
   // Combined app initialization is handled in the unified useEffect above.
 
   useEffect(() => {
+    if (!appInitialized) return;
     if (typeof window === "undefined" || !window.location || !window.history?.replaceState) return;
 
     const url = new URL(window.location.href);
@@ -388,7 +371,7 @@ function AppContent() {
     }
 
     window.history.replaceState({}, "", url.pathname + url.search);
-  }, [targetLang, screen, menuResult]);
+  }, [appInitialized, targetLang, screen, menuResult]);
 
   useEffect(() => {
     if (languageInitialized || hasSavedLanguage()) {
@@ -480,6 +463,7 @@ function AppContent() {
 
   const onOpenLogin = () => setShowLoginModal(true);
   const onOpenProfile = () => setShowProfileModal(true);
+  const onOpenSettings = () => setShowSettingsModal(true);
 
   if (screen === "cart") {
     screenComponent = (
@@ -495,6 +479,7 @@ function AppContent() {
         hasMenuResult={menuResult !== null}
         onBackToResult={() => setScreen("result")}
         onGoHome={() => setScreen("home")}
+        onOpenSettings={onOpenSettings}
       />
     );
   } else if (screen === "history") {
@@ -516,6 +501,7 @@ function AppContent() {
         hasMenuResult={menuResult !== null}
         onBackToResult={() => setScreen("result")}
         onGoHome={() => setScreen("home")}
+        onOpenSettings={onOpenSettings}
       />
     );
   } else if (screen === "result" && menuResult) {
@@ -530,6 +516,7 @@ function AppContent() {
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
+        onOpenSettings={onOpenSettings}
       />
     );
   } else {
@@ -547,6 +534,7 @@ function AppContent() {
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
+        onOpenSettings={onOpenSettings}
         initialMenuUrl={incomingMenuUrl}
       />
     );
@@ -576,35 +564,60 @@ function AppContent() {
         onUpdateUser={handleUpdateUser}
         onLogout={handleLogout}
       />
+      <SettingsModal
+        visible={showSettingsModal}
+        targetLang={targetLang}
+        themeMode={themeMode}
+        onThemeModeChange={onThemeModeChange}
+        onReplayOnboarding={() => setShowOnboarding(true)}
+        onClose={() => setShowSettingsModal(false)}
+      />
+      <OnboardingModal
+        visible={showOnboarding}
+        targetLang={targetLang}
+        onComplete={async () => {
+          await AsyncStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
+          setShowOnboarding(false);
+        }}
+      />
     </>
   );
 }
 
-
-const theme = {
-  ...MD3LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    primary: "#6750A4",
-    onPrimary: "#FFFFFF",
-    primaryContainer: "#EADDFF",
-    onPrimaryContainer: "#21005D",
-    secondaryContainer: "#E8DEF8",
-    onSecondaryContainer: "#1D192B",
-    surface: "#FDF8F3",
-    background: "#FDF8F3",
-    onSurface: "#1D1B20",
-    outline: "#79747E",
-  },
-};
-
 export default function App() {
   const staticPolicyRoute = getStaticPolicyRoute();
+  const systemColorScheme = useColorScheme();
+  const [themeMode, setThemeMode] = useState("system");
+  const theme = resolveTheme(themeMode, systemColorScheme);
+
+  useEffect(() => {
+    AsyncStorage.getItem(THEME_STORAGE_KEY)
+      .then((savedMode) => {
+        if (THEME_MODES.includes(savedMode)) setThemeMode(savedMode);
+      })
+      .catch((err) => console.warn("Unable to load theme preference:", err));
+  }, []);
+
+  const handleThemeModeChange = (nextMode) => {
+    if (!THEME_MODES.includes(nextMode)) return;
+    setThemeMode(nextMode);
+    AsyncStorage.setItem(THEME_STORAGE_KEY, nextMode).catch((err) =>
+      console.warn("Unable to save theme preference:", err)
+    );
+  };
 
   return (
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
-        {staticPolicyRoute ? <StaticPolicyPage route={staticPolicyRoute} /> : <AppContent />}
+        <StatusBar
+          barStyle={theme.dark ? "light-content" : "dark-content"}
+          backgroundColor={theme.colors.background}
+        />
+        {staticPolicyRoute ? (
+          <StaticPolicyPage route={staticPolicyRoute} />
+        ) : (
+          <AppContent themeMode={themeMode} onThemeModeChange={handleThemeModeChange} />
+        )}
       </PaperProvider>
     </SafeAreaProvider>
   );

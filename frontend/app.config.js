@@ -3,12 +3,12 @@ module.exports = {
     name: "AI Menu APP",
     slug: "ai-menu-app",
     scheme: "aimenuapp",
-    version: "2.2",
+    version: "2.3",
     orientation: "portrait",
     icon: "./assets/favicon.png",
     android: {
       package: "com.agentscottystudio.aimenuapp",
-      versionCode: 4,
+      versionCode: 5,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF"
@@ -20,6 +20,7 @@ module.exports = {
     },
     plugins: [
       "expo-localization",
+      "expo-font",
       [
         "react-native-google-mobile-ads",
         {

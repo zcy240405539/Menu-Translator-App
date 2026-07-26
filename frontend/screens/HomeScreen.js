@@ -26,6 +26,7 @@ import {
   Portal,
   Dialog,
   TextInput,
+  useTheme,
 } from "react-native-paper";
 
 import { parseMenuFile, parseMenuUrl } from "../api";
@@ -55,7 +56,7 @@ const DOCUMENT_PICKER_TYPES = [
 
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"];
 
-export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, initialMenuUrl }) {
+export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, onOpenSettings, initialMenuUrl }) {
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sourceLang, setSourceLang] = useState("auto");
@@ -65,6 +66,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [selectedFile, setSelectedFile] = useState(null);
   const [menuUrl, setMenuUrl] = useState("");
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   const lang = targetLang;
   const t = getText(lang);
@@ -510,9 +512,10 @@ const selectFromFile = async () => {
   ];
 
   return (
-    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom }]}>
-      <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop]}>
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
+      <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop, { backgroundColor: theme.colors.background }]}>
         <Appbar.Content title={shouldHideAppTitle ? "" : t.appTitle} />
+        <Appbar.Action icon="cog-outline" accessibilityLabel={t.settings.title} onPress={onOpenSettings} />
         <Appbar.Action icon="share-variant" onPress={handleShare} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
@@ -528,25 +531,25 @@ const selectFromFile = async () => {
       >
         <View style={[styles.homeLayout, isDesktopLayout && styles.homeLayoutDesktop]}>
           <View style={[styles.heroPanel, isDesktopLayout && styles.heroPanelDesktop]}>
-            <Text style={[styles.title, isDesktopLayout && styles.titleDesktop]}>
+            <Text style={[styles.title, isDesktopLayout && styles.titleDesktop, { color: theme.colors.onSurface }]}>
               {t.home.heroTitle}
             </Text>
 
-            <Text variant="bodyLarge" style={[styles.subtitle, isDesktopLayout && styles.subtitleDesktop]}>
+            <Text variant="bodyLarge" style={[styles.subtitle, isDesktopLayout && styles.subtitleDesktop, { color: theme.colors.onSurfaceVariant }]}>
               {t.home.heroSubtitle}
             </Text>
 
             <View style={styles.featureRow}>
               {homeFeatureItems.map((item, index) => (
-                <View key={item} style={[styles.featurePill, isDesktopLayout && styles.featurePillDesktop]}>
+                <View key={item} style={[styles.featurePill, isDesktopLayout && styles.featurePillDesktop, { backgroundColor: theme.colors.surfaceVariant }]}>
                   <Text style={styles.featureNumber}>{String(index + 1).padStart(2, "0")}</Text>
-                  <Text style={styles.featureText}>{item}</Text>
+                  <Text style={[styles.featureText, { color: theme.colors.onSurface }]}>{item}</Text>
                 </View>
               ))}
             </View>
           </View>
 
-          <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop]}>
+          <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop, { backgroundColor: theme.colors.surface }]}>
             <Card.Content style={styles.toolContent}>
               <View>
               </View>

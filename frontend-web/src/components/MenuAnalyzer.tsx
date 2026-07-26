@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Camera, FileUp, Link as LinkIcon, Wand2, Loader2 } from "lucide-react";
 import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
-import { LANGUAGES, SOURCE_LANGUAGES, languageLabel, languageShortLabel, sourceLanguageLabel, type WebLanguageCode } from "@/lib/i18n";
+import { LANGUAGES, SOURCE_LANGUAGES, languageLabel, languageShortLabel, sourceLanguageLabel, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 type ParseStatus = {
   status?: "queued" | "processing" | "done" | "error";
@@ -108,14 +108,16 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
 
     try {
       const apiUrl = apiBaseUrl();
+      const backendSourceLang = toBackendLanguage(sourceLang);
+      const backendTargetLang = toBackendLanguage(targetLang);
       let taskId = "";
 
       if (selectedFile) {
         const formData = new FormData();
         formData.append("file", selectedFile);
         const params = new URLSearchParams({
-          source_lang: sourceLang,
-          target_lang: targetLang,
+          source_lang: backendSourceLang,
+          target_lang: backendTargetLang,
         });
 
         const res = await fetch(`${apiUrl}/menus/parse/start?${params.toString()}`, {
@@ -130,8 +132,8 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             url: menuUrl,
-            source_lang: sourceLang,
-            target_lang: targetLang,
+            source_lang: backendSourceLang,
+            target_lang: backendTargetLang,
           }),
         });
         if (!res.ok) throw new Error(await readError(res, text.startUrlFailed));
@@ -161,7 +163,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
 
       const menuHash = resultData.image_hash || resultData.hash;
       if (!menuHash) throw new Error(text.noHash);
-      await saveHistory(apiUrl, resultData, menuUrl || selectedFile?.name || "", targetLang);
+      await saveHistory(apiUrl, resultData, menuUrl || selectedFile?.name || "", backendTargetLang);
       window.location.assign(`/?menu_hash=${menuHash}&lang=${encodeURIComponent(targetLang)}`);
     } catch (err: unknown) {
       console.error(err);

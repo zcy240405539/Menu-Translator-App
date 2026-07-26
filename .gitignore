@@ -20,6 +20,7 @@ frontend/.expo/
 frontend-web/.next/
 frontend-web/out/
 frontend/dist/
+frontend/dist-feature-check/
 frontend/web-build/
 frontend-web/.env*
 

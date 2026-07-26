@@ -1,23 +1,14 @@
 import { Platform } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
 
-// 如果你用手机 Expo Go 测试，要改成电脑局域网 IP：
-// const API_BASE_URL = "http://192.168.x.x:8000";
-//const API_BASE_URL = "http://127.0.0.1:8000";
-//const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const getApiBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_BASE_URL) {
     return process.env.EXPO_PUBLIC_API_BASE_URL;
   }
-  if (Platform.OS !== "web") {
-    return "http://192.168.0.56:8000";
-  } else {
-    if (typeof window !== "undefined" && window.location && window.location.hostname) {
-      if (
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1"
-      ) {
-        return "http://192.168.0.56:8000";
+  if (Platform.OS === "web") {
+    if (typeof window !== "undefined" && window.location) {
+      if (["localhost", "127.0.0.1"].includes(window.location.hostname)) {
+        return "http://127.0.0.1:8000";
       }
     }
   }

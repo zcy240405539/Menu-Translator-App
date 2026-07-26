@@ -2,7 +2,7 @@
 
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles } from "lucide-react";
+import { Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
@@ -17,6 +17,7 @@ import {
   languageShortLabel,
   normalizeLanguage,
   saveLanguage,
+  toBackendLanguage,
   type WebLanguageCode,
 } from "@/lib/i18n";
 
@@ -72,7 +73,8 @@ async function fetchCachedMenu(menuHash: string, lang: string): Promise<MenuData
   if (!menuHash) return null;
   for (let attempt = 0; attempt < 6; attempt += 1) {
     try {
-      const res = await fetch(`${apiBaseUrl()}/menus/cache/${menuHash}?target_lang=${encodeURIComponent(lang)}`);
+      const targetLang = toBackendLanguage(lang);
+      const res = await fetch(`${apiBaseUrl()}/menus/cache/${menuHash}?target_lang=${encodeURIComponent(targetLang)}`);
       if (res.ok) return (await res.json()) as MenuData;
     } catch (error) {
       console.error("Error fetching menu data:", error);
@@ -303,6 +305,9 @@ export default function Home() {
             <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md transition-shadow group-hover:shadow-md" priority />
             <span className="text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700">AI Menu APP</span>
           </a>
+          <Link href={`/settings${langQuery}`} className="flex h-10 w-10 items-center justify-center text-gray-700 transition-colors hover:text-purple-600 md:hidden" aria-label={text.nav.settings}>
+            <Settings className="h-5 w-5" />
+          </Link>
           <div className="hidden items-center space-x-6 text-gray-700 md:flex">
             <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center transition-colors hover:text-purple-600" aria-label={text.nav.language}>
               <Globe className="h-5 w-5" />
@@ -332,6 +337,9 @@ export default function Home() {
                 </Link>
               </>
             )}
+            <Link href={`/settings${langQuery}`} className="transition-colors hover:text-purple-600" aria-label={text.nav.settings}>
+              <Settings className="h-5 w-5" />
+            </Link>
             <Link href={`/login${langQuery}`} className="transition-colors hover:text-purple-600" aria-label={text.nav.account}>
               <User className="h-5 w-5" />
             </Link>
@@ -501,9 +509,15 @@ export default function Home() {
         <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
           <span className="text-lg font-bold text-gray-700">AI Menu APP</span>
           <p className="text-sm">© {new Date().getFullYear()} AI Menu APP. {text.footer.rights}</p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+            <Link href={`/settings${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
+              {text.footer.settings}
+            </Link>
             <Link href={`/privacy-policy${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.privacy}
+            </Link>
+            <Link href={`/terms-of-service${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
+              {text.footer.terms}
             </Link>
             <Link href={`/account-deletion${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.deletion}

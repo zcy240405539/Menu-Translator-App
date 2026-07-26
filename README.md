@@ -28,6 +28,9 @@ Users can:
 - Web result page dish-detail dialog and AI recommendation form
 - Shareable cached menu URLs
 - Native ad plumbing with web-safe fallbacks
+- Multilingual Privacy Policy and Terms of Service on mobile and web
+- Shared settings flows with accessible password visibility controls
+- Mobile first-run walkthrough, system/light/dark themes, and Google Play rating link
 - Context-aware price and currency formatting
 - Smart token-saving architecture
 - React Native mobile app
@@ -152,6 +155,8 @@ menu-translator-app/
    ├─ app.config.js
    ├─ api.js
    ├─ i18n.js
+   ├─ legalContent.js
+   ├─ theme.js
    ├─ screens/
    │  ├─ HomeScreen.js
    │  ├─ CartScreen.js
@@ -169,6 +174,9 @@ menu-translator-app/
       ├─ AIRecommendModal.js
       ├─ DishDetailModal.js
       ├─ LoginRegisterModal.js
+      ├─ LegalDocumentModal.js
+      ├─ OnboardingModal.js
+      ├─ SettingsModal.js
       └─ ShareDialog.js
 └─ frontend-web/
    ├─ src/
@@ -178,9 +186,13 @@ menu-translator-app/
    │  │  ├─ history/
    │  │  ├─ login/
    │  │  ├─ privacy-policy/
+   │  │  ├─ terms-of-service/
+   │  │  ├─ settings/
    │  │  └─ account-deletion/
    │  └─ components/
+   │     ├─ LegalDocument.tsx
    │     ├─ MenuAnalyzer.tsx
+   │     ├─ SettingsPage.tsx
    │     └─ ads/
    ├─ public/
    │  └─ ads.txt
@@ -217,6 +229,16 @@ npm install
 npx expo start -c
 ```
 
+The mobile settings screen supports the system theme plus explicit light and dark modes. First-run onboarding state and theme preference are stored locally with AsyncStorage. Release `2.3` uses Android `versionCode` 5.
+
+Mobile legal routes are also available on Expo Web:
+
+```text
+/privacy-policy
+/terms-of-service
+/account-deletion
+```
+
 # Web Frontend Setup
 ```
 cd frontend-web
@@ -225,6 +247,15 @@ npm run dev
 ```
 
 Set `NEXT_PUBLIC_API_URL` to the FastAPI backend base URL. For local development, use `http://127.0.0.1:8000`.
+
+Web utility and legal routes:
+
+```text
+/settings
+/privacy-policy
+/terms-of-service
+/account-deletion
+```
 
 For Render Static Site deployment:
 

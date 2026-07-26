@@ -22,6 +22,7 @@ import {
   TextInput,
   IconButton,
   ActivityIndicator,
+  useTheme,
 } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile, uploadAvatar, logout } from "../api";
@@ -59,6 +60,7 @@ export default function AccountProfileModal({
   const [success, setSuccess] = useState("");
 
   const isZh = isChineseLanguage(targetLang);
+  const theme = useTheme();
 
   const t = getText(targetLang).profile || {};
   const authText = getText(targetLang).auth || {};
@@ -182,8 +184,8 @@ export default function AccountProfileModal({
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={styles.screen}>
-          <Appbar.Header style={styles.appbar} mode="center-aligned">
+        <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+          <Appbar.Header style={[styles.appbar, { backgroundColor: theme.colors.background }]} mode="center-aligned">
             <Appbar.BackAction onPress={onClose} />
             <Appbar.Content title={t.title} titleStyle={styles.appbarTitle} />
           </Appbar.Header>
@@ -194,7 +196,7 @@ export default function AccountProfileModal({
           >
             <ScrollView contentContainerStyle={styles.content}>
               {/* Profile Card */}
-              <Card style={styles.card} mode="contained">
+              <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} mode="contained">
                 <Card.Content style={styles.cardContent}>
                   
                   {/* Avatar section */}
@@ -212,7 +214,7 @@ export default function AccountProfileModal({
                         </View>
                       )}
                     </TouchableOpacity>
-                    <Text variant="bodySmall" style={styles.avatarTip}>
+                    <Text variant="bodySmall" style={[styles.avatarTip, { color: theme.colors.onSurfaceVariant }]}>
                       {t.avatarTip}
                     </Text>
                   </View>
@@ -246,7 +248,7 @@ export default function AccountProfileModal({
                   />
 
                   {/* Diet habits */}
-                  <Text style={styles.prefLabel}>{t.diets}</Text>
+                  <Text style={[styles.prefLabel, { color: theme.colors.onSurface }]}>{t.diets}</Text>
                   <View style={styles.chipRow}>
                     {DIET_OPTIONS.map((diet) => {
                       const isSelected = selectedDiets.includes(diet.key);
@@ -269,7 +271,7 @@ export default function AccountProfileModal({
                   </View>
 
                   {/* Allergies text input */}
-                  <Text style={styles.prefLabel}>{t.allergies}</Text>
+                  <Text style={[styles.prefLabel, { color: theme.colors.onSurface }]}>{t.allergies}</Text>
                   <TextInput
                     mode="outlined"
                     placeholder={t.allergiesPlaceholder}
@@ -280,7 +282,7 @@ export default function AccountProfileModal({
                   />
 
                   {/* Budget */}
-                  <Text style={styles.prefLabel}>{t.budget}</Text>
+                  <Text style={[styles.prefLabel, { color: theme.colors.onSurface }]}>{t.budget}</Text>
                   <TextInput
                     mode="outlined"
                     placeholder={t.budgetPlaceholder}
@@ -291,7 +293,7 @@ export default function AccountProfileModal({
                   />
 
                   {/* Taste */}
-                  <Text style={styles.prefLabel}>{t.taste}</Text>
+                  <Text style={[styles.prefLabel, { color: theme.colors.onSurface }]}>{t.taste}</Text>
                   <TextInput
                     mode="outlined"
                     placeholder={t.tastePlaceholder}
@@ -328,7 +330,7 @@ export default function AccountProfileModal({
                   <Divider style={styles.deleteDivider} />
 
                   <View style={styles.deleteAccountSection}>
-                    <Text variant="bodySmall" style={styles.deleteAccountHelp}>
+                    <Text variant="bodySmall" style={[styles.deleteAccountHelp, { color: theme.colors.onSurfaceVariant }]}>
                       {t.deleteAccountHelp}
                     </Text>
                     <Button

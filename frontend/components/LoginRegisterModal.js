@@ -19,6 +19,7 @@ import {
   Text,
   TextInput,
   IconButton,
+  useTheme,
 } from "react-native-paper";
 import { login, register, loginWithGoogle, passwordReset, getGoogleAuthUrl } from "../api";
 import { isChineseLanguage, getText } from "../i18n";
@@ -36,10 +37,12 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   
   // Register fields
   const [username, setUsername] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [selectedDiets, setSelectedDiets] = useState([]);
   const [allergiesText, setAllergiesText] = useState("");
@@ -52,6 +55,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   const [successMessage, setSuccessMessage] = useState("");
   
   const isZh = isChineseLanguage(targetLang);
+  const theme = useTheme();
   
   const authText = getText(targetLang).auth || {};
   const t = {
@@ -171,8 +175,8 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-        <Surface style={styles.screen}>
-          <Appbar.Header style={styles.appbar} mode="center-aligned">
+        <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+          <Appbar.Header style={[styles.appbar, { backgroundColor: theme.colors.background }]} mode="center-aligned">
             <Appbar.BackAction onPress={onClose} />
             <Appbar.Content title={t.title} titleStyle={styles.appbarTitle} />
           </Appbar.Header>
@@ -182,7 +186,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
             style={styles.keyboardView}
           >
             <ScrollView contentContainerStyle={styles.content}>
-              <Card style={styles.card} mode="contained">
+              <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} mode="contained">
                 <Card.Content style={styles.cardContent}>
                   {/* Switchable logo or text */}
                   <View style={styles.headerArea}>
@@ -210,7 +214,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
 
                   {isForgotPassword ? (
                     <>
-                      <Text style={styles.instructionText} variant="bodyMedium">
+                      <Text style={[styles.instructionText, { color: theme.colors.onSurfaceVariant }]} variant="bodyMedium">
                         {t.resetInstruction}
                       </Text>
 
@@ -285,9 +289,17 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                         mode="outlined"
                         value={password}
                         onChangeText={setPassword}
-                        secureTextEntry
+                        secureTextEntry={!showPassword}
                         style={styles.input}
                         left={<TextInput.Icon icon="lock" />}
+                        right={
+                          <TextInput.Icon
+                            icon={showPassword ? "eye-off" : "eye"}
+                            onPress={() => setShowPassword((value) => !value)}
+                            forceTextInputFocus={false}
+                            accessibilityLabel={showPassword ? t.hidePassword : t.showPassword}
+                          />
+                        }
                       />
 
                       {/* Forgot Password Link for Login Mode */}
@@ -314,9 +326,17 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                             mode="outlined"
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
-                            secureTextEntry
+                            secureTextEntry={!showConfirmPassword}
                             style={styles.input}
                             left={<TextInput.Icon icon="lock-check" />}
+                            right={
+                              <TextInput.Icon
+                                icon={showConfirmPassword ? "eye-off" : "eye"}
+                                onPress={() => setShowConfirmPassword((value) => !value)}
+                                forceTextInputFocus={false}
+                                accessibilityLabel={showConfirmPassword ? t.hidePassword : t.showPassword}
+                              />
+                            }
                           />
                           <TextInput
                             label={t.phone}

@@ -1,11 +1,12 @@
 import React from "react";
 import { View, StyleSheet, Linking, Platform, Share, Alert } from "react-native";
-import { Button, Dialog, Portal, Text } from "react-native-paper";
+import { Button, Dialog, Portal, Text, useTheme } from "react-native-paper";
 import { getText } from "../i18n";
 
 export default function ShareDialog({ visible, onClose, shareUrl, shareMessage, targetLang }) {
   const lang = targetLang || "zh";
   const t = getText(lang);
+  const theme = useTheme();
 
   const getShareTargets = () => {
     const encodedUrl = encodeURIComponent(shareUrl);
@@ -93,10 +94,10 @@ export default function ShareDialog({ visible, onClose, shareUrl, shareMessage, 
 
   return (
     <Portal>
-      <Dialog visible={visible} onDismiss={onClose} style={styles.shareDialog}>
+      <Dialog visible={visible} onDismiss={onClose} style={[styles.shareDialog, { backgroundColor: theme.colors.surface }]}>
         <Dialog.Title>{t.home.shareTitle}</Dialog.Title>
         <Dialog.Content>
-          <Text style={styles.shareSubtitle}>{t.home.shareSubtitle}</Text>
+          <Text style={[styles.shareSubtitle, { color: theme.colors.onSurfaceVariant }]}>{t.home.shareSubtitle}</Text>
           <View style={styles.shareButtonList}>
             {getShareTargets().map((target) => (
               <Button
