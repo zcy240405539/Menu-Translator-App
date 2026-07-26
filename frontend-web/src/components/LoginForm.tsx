@@ -7,7 +7,7 @@ import { Eye, EyeOff, Globe, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { DEFAULT_LANGUAGE, LANGUAGES, getInitialLanguage, getText, languageLabel, normalizeLanguage, saveLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, getText, languageLabel, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 function apiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
@@ -39,8 +39,7 @@ export default function LoginForm() {
     queueMicrotask(() => {
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const oauthToken = hashParams.get("access_token");
-      const params = new URLSearchParams(window.location.search);
-      const nextLang = normalizeLanguage(params.get("lang") || getInitialLanguage());
+      const nextLang = getPageLanguage();
       setLang(nextLang);
 
       if (oauthToken) {
@@ -52,12 +51,7 @@ export default function LoginForm() {
   }, []);
 
   const handleLanguageChange = (nextLang: string) => {
-    const normalizedLang = normalizeLanguage(nextLang);
-    setLang(normalizedLang);
-    saveLanguage(normalizedLang);
-    const url = new URL(window.location.href);
-    url.searchParams.set("lang", normalizedLang);
-    window.history.replaceState({}, "", url.toString());
+    setLang(replacePageLanguage(nextLang));
   };
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {

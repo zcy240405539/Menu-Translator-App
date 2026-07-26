@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Globe } from "lucide-react";
-import { DEFAULT_LANGUAGE, LANGUAGES, getInitialLanguage, getText, languageLabel, normalizeLanguage, saveLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, getText, languageLabel, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
 import { getLegalDocument, type LegalKind } from "@/lib/legalDocuments";
 
 const SUPPORT_EMAIL = "support@aimenu.us.kg";
@@ -25,18 +25,12 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
 
   useEffect(() => {
     queueMicrotask(() => {
-      const params = new URLSearchParams(window.location.search);
-      setLang(normalizeLanguage(params.get("lang") || getInitialLanguage()));
+      setLang(getPageLanguage());
     });
   }, []);
 
   const handleLanguageChange = (nextLang: string) => {
-    const normalizedLang = normalizeLanguage(nextLang);
-    setLang(normalizedLang);
-    saveLanguage(normalizedLang);
-    const url = new URL(window.location.href);
-    url.searchParams.set("lang", normalizedLang);
-    window.history.replaceState({}, "", url.toString());
+    setLang(replacePageLanguage(nextLang));
   };
 
   return (

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, History, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { DEFAULT_LANGUAGE, applyDocumentLanguage, getInitialLanguage, getText, normalizeLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { DEFAULT_LANGUAGE, applyDocumentLanguage, getPageLanguage, getText, normalizeLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 type Mode = "history" | "cart";
 
@@ -65,8 +65,7 @@ export default function SavedPage({ mode }: { mode: Mode }) {
 
   useEffect(() => {
     queueMicrotask(() => {
-      const params = new URLSearchParams(window.location.search);
-      const nextLang = normalizeLanguage(params.get("lang") || getInitialLanguage());
+      const nextLang = getPageLanguage();
       const token = authToken();
       const nextText = getText(nextLang);
       const nextTitle = isHistory ? nextText.nav.history : nextText.nav.cart;

@@ -7,11 +7,10 @@ import { FileText, Globe2, ShieldCheck, User, UserMinus } from "lucide-react";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
-  getInitialLanguage,
+  getPageLanguage,
   getText,
   languageLabel,
-  normalizeLanguage,
-  saveLanguage,
+  replacePageLanguage,
   type WebLanguageCode,
 } from "@/lib/i18n";
 
@@ -22,18 +21,12 @@ export default function SettingsPage() {
 
   useEffect(() => {
     queueMicrotask(() => {
-      const params = new URLSearchParams(window.location.search);
-      setLang(normalizeLanguage(params.get("lang") || getInitialLanguage()));
+      setLang(getPageLanguage());
     });
   }, []);
 
   const changeLanguage = (nextLanguage: string) => {
-    const normalized = normalizeLanguage(nextLanguage);
-    setLang(normalized);
-    saveLanguage(normalized);
-    const url = new URL(window.location.href);
-    url.searchParams.set("lang", normalized);
-    window.history.replaceState({}, "", url.toString());
+    setLang(replacePageLanguage(nextLanguage));
   };
 
   const links = [

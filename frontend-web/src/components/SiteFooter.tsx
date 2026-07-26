@@ -7,16 +7,11 @@ import {
   DEFAULT_LANGUAGE,
   LANGUAGE_CHANGE_EVENT,
   applyDocumentLanguage,
-  getInitialLanguage,
+  getPageLanguage,
   getText,
   normalizeLanguage,
   type WebLanguageCode,
 } from "@/lib/i18n";
-
-function currentLanguage() {
-  const queryLanguage = new URLSearchParams(window.location.search).get("lang");
-  return normalizeLanguage(queryLanguage || getInitialLanguage());
-}
 
 export default function SiteFooter() {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
@@ -24,7 +19,7 @@ export default function SiteFooter() {
   useEffect(() => {
     const syncLanguage = (event?: Event) => {
       const eventLanguage = event instanceof CustomEvent ? event.detail : null;
-      const nextLanguage = eventLanguage ? normalizeLanguage(eventLanguage) : currentLanguage();
+      const nextLanguage = eventLanguage ? normalizeLanguage(eventLanguage) : getPageLanguage();
       applyDocumentLanguage(nextLanguage);
       setLang(nextLanguage);
     };

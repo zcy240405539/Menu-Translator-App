@@ -17,7 +17,7 @@ import {
   languageLabel,
   languageShortLabel,
   normalizeLanguage,
-  saveLanguage,
+  replacePageLanguage,
   toBackendLanguage,
   type WebLanguageCode,
 } from "@/lib/i18n";
@@ -206,14 +206,9 @@ export default function Home() {
   }, []);
 
   const handleHeaderLanguageChange = (nextLang: string) => {
-    const normalizedLang = normalizeLanguage(nextLang);
+    const normalizedLang = replacePageLanguage(nextLang);
     setLang(normalizedLang);
-    saveLanguage(normalizedLang);
-
-    const url = new URL(window.location.href);
-    url.searchParams.set("lang", normalizedLang);
-    window.history.replaceState({}, "", url.toString());
-    setShareHref(url.toString());
+    setShareHref(window.location.href);
 
     if (!menuHash) return;
 

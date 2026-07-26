@@ -87,11 +87,25 @@ export function getInitialLanguage(): WebLanguageCode {
   return normalizeLanguage(window.navigator.language);
 }
 
+export function getPageLanguage(): WebLanguageCode {
+  if (typeof window === "undefined") return DEFAULT_LANGUAGE;
+  return normalizeLanguage(new URLSearchParams(window.location.search).get("lang") || getInitialLanguage());
+}
+
 export function saveLanguage(lang: WebLanguageCode) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem(STORAGE_KEY, lang);
     window.dispatchEvent(new CustomEvent(LANGUAGE_CHANGE_EVENT, { detail: lang }));
   }
+}
+
+export function replacePageLanguage(lang: string): WebLanguageCode {
+  const normalized = normalizeLanguage(lang);
+  saveLanguage(normalized);
+  const url = new URL(window.location.href);
+  url.searchParams.set("lang", normalized);
+  window.history.replaceState({}, "", url.toString());
+  return normalized;
 }
 
 export function htmlLanguage(lang: WebLanguageCode) {

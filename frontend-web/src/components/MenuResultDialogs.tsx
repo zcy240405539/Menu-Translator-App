@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { Loader2, ShoppingCart, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -182,9 +183,15 @@ export function DishDetailDialog({
           </button>
         </div>
         <CardContent className="grid gap-6 p-5 md:grid-cols-[280px_1fr]">
-          <div className="overflow-hidden rounded-xl bg-purple-50">
+          <div className="relative min-h-72 overflow-hidden rounded-xl bg-purple-50">
             {imageUrl ? (
-              <img src={String(imageUrl)} alt="" className="h-72 w-full object-cover md:h-full" />
+              <Image
+                src={String(imageUrl)}
+                alt=""
+                fill
+                sizes="(min-width: 768px) 280px, 100vw"
+                className="object-cover"
+              />
             ) : (
               <div className="flex h-72 items-center justify-center text-sm font-semibold text-purple-700">
                 {loading ? text.result.detailLoading : text.result.imagePending}
