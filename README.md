@@ -356,6 +356,11 @@ NEXT_PUBLIC_ADSENSE_DETAIL_SLOT=your_dish_detail_ad_unit_slot
 NEXT_PUBLIC_ADSENSE_TEST=false
 ```
 
+AdSense display slots only serve real ads after the domain is `Ready` in AdSense.
+Use `NEXT_PUBLIC_ADSENSE_TEST=true` only for local or staging diagnostics. If the
+browser reports `data-ad-status="unfilled"`, the request reached Google but no ad
+was returned; verify site approval, Policy Center, consent, and account coverage.
+
 Current default parsing flow:
 
 - Images use the configured OCR provider, usually Google Cloud Vision.

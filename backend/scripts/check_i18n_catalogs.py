@@ -13,6 +13,12 @@ CATALOGS = {
     "Web": (ROOT / "frontend-web" / "src" / "locales", {"zh": "zh-cn"}),
     "backend": (ROOT / "backend" / "app" / "i18n" / "locales", {}),
 }
+REVIEWED_LANGUAGE_NAMES = {
+    "zh": {"ja": "日语", "ko": "韩语", "ar": "阿拉伯语"},
+    "zh-Hant": {"ja": "日語", "ko": "韓語", "ar": "阿拉伯語"},
+    "ko": {"ko": "한국어", "ar": "아랍어"},
+    "ar": {"ko": "الكورية", "ar": "العربية"},
+}
 
 
 def leaf_map(value: Any, path: str = "") -> dict[str, tuple[str, Any]]:
@@ -59,6 +65,18 @@ def validate_catalog_group(name: str, directory: Path, aliases: dict[str, str]) 
                 f"{name}/{language}: too many values still match English "
                 f"({same_as_english}/{len(english)})"
             )
+
+    if name != "backend":
+        for language, expected_names in REVIEWED_LANGUAGE_NAMES.items():
+            actual_names = catalogs[language]["languageNames"]
+            for code, expected in expected_names.items():
+                assert actual_names[code] == expected, (
+                    f"{name}/{language}/languageNames.{code}: "
+                    f"expected {expected!r}, got {actual_names[code]!r}"
+                )
+        if name == "APP":
+            assert catalogs["zh"]["languageNames"]["zh-Hant"] == "繁体中文"
+            assert catalogs["zh-Hant"]["languageNames"]["zh-Hant"] == "繁體中文"
 
     print(f"{name}: {len(english)} values x {len(catalogs)} languages")
 

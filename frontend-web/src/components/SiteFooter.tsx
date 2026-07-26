@@ -50,7 +50,7 @@ export default function SiteFooter() {
         <div className="container mx-auto max-w-6xl">
           <AdSenseSlot
             slot={bannerSlot}
-            format="horizontal"
+            format="auto"
             className="min-h-24 rounded-xl border border-purple-100 bg-purple-50/30 p-3"
             label={text.analyzer.ad}
           />

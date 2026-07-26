@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import SiteFooter from "@/components/SiteFooter";
 import { getText } from "@/lib/i18n";
 import "./globals.css";
@@ -39,9 +38,8 @@ export default function RootLayout({
     >
       <head>
         {adsenseClient && (
-          <Script
-            id="adsbygoogle-init"
-            strategy="afterInteractive"
+          <script
+            async
             crossOrigin="anonymous"
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
           />

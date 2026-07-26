@@ -38,6 +38,13 @@ npm run build
   - `NEXT_PUBLIC_API_URL=https://menu-translator-app.onrender.com`
   - `NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-8286400764174465`
   - `NEXT_PUBLIC_ADSENSE_ANALYZE_SLOT=<AdSense ad unit slot id>`
+  - `NEXT_PUBLIC_ADSENSE_BANNER_SLOT=<footer display ad unit slot id>`
+  - `NEXT_PUBLIC_ADSENSE_DETAIL_SLOT=<dish dialog display ad unit slot id>`
   - `NEXT_PUBLIC_ADSENSE_TEST=false`
 
 `NEXT_PUBLIC_ADSENSE_TEST=true` is only for local or staging ad rendering checks.
+Fixed footer and dialog placements require valid display ad unit slot IDs. Real ads
+are served only after the site status is `Ready` in AdSense. A processed unit with
+`data-ad-status="unfilled"` means Google received the request but returned no ad;
+check site approval, Policy Center, consent, and AdSense coverage rather than
+changing the frontend slot markup.
