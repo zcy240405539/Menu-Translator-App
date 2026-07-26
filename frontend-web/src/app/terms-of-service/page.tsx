@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { LegalDocument } from "@/components/LegalDocument";
+import { getText } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Terms of Service | AI Menu APP",
-  description: "Terms governing the use of AI Menu APP.",
-};
+export const metadata: Metadata = getText("en").metadata.terms;
 
 export default function TermsOfServicePage() {
   return <LegalDocument kind="terms" />;

@@ -6,6 +6,7 @@ import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGE_CHANGE_EVENT,
+  applyDocumentLanguage,
   getInitialLanguage,
   getText,
   normalizeLanguage,
@@ -23,7 +24,9 @@ export default function SiteFooter() {
   useEffect(() => {
     const syncLanguage = (event?: Event) => {
       const eventLanguage = event instanceof CustomEvent ? event.detail : null;
-      setLang(eventLanguage ? normalizeLanguage(eventLanguage) : currentLanguage());
+      const nextLanguage = eventLanguage ? normalizeLanguage(eventLanguage) : currentLanguage();
+      applyDocumentLanguage(nextLanguage);
+      setLang(nextLanguage);
     };
     queueMicrotask(syncLanguage);
     window.addEventListener("popstate", syncLanguage);
@@ -55,7 +58,7 @@ export default function SiteFooter() {
       </aside>
       <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
         <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
-          <p className="text-sm">© {new Date().getFullYear()} AI Menu APP. {text.footer.rights}</p>
+          <p className="text-sm">© {new Date().getFullYear()} {text.common.brand}. {text.footer.rights}</p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <Link href={`/privacy-policy${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.privacy}

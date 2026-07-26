@@ -1,0 +1,410 @@
+{
+  "appTitle": "AI Menu APP",
+  "home": {
+    "heroKicker": "Comece a traduzir",
+    "heroTitle": "Traduza menus, faça pedidos com facilidade.",
+    "heroSubtitle": "Faça upload de fotos, PDFs, sites ou links de aplicativos de entrega para obter nomes, descrições e ingredientes claros dos pratos.",
+    "featureDocuments": "Fotos/PDF/Web",
+    "featureTranslation": "Tradução por IA",
+    "featureOrderList": "Sincronização de pedidos",
+    "featureAiRecommend": "Sugestão de IA",
+    "toolKicker": "Menu de upload",
+    "toolTitle": "Comece pelo seu menu.",
+    "targetLanguage": "Língua de destino",
+    "sourceLanguage": "Língua de origem",
+    "autoDetect": "Detecção automática",
+    "english": "Inglês",
+    "chinese": "Chinês simplificado",
+    "traditionalChinese": "Chinês tradicional",
+    "takePicture": "Tirar foto",
+    "selectFromFile": "Selecionar do arquivo",
+    "menuUrlLabel": "Página do menu ou link de compartilhamento",
+    "menuUrlPlaceholder": "Cole um URL do Yelp, DoorDash, Uber Eats ou de um menu.",
+    "selectedMenu": "Menu selecionado",
+    "pdfMenu": "Menu em PDF",
+    "documentMenu": "Menu de documentos",
+    "pdfFileSelected": "Arquivo PDF selecionado",
+    "documentFileSelected": "Arquivo de documento selecionado",
+    "fileSelectionFailed": "A seleção do arquivo falhou",
+    "analyzeMenu": "Analisar Menu",
+    "analyzingMenu": "Analisando o menu...",
+    "holdOnText": "Aguarde, estou analisando para você...",
+    "noMenuTitle": "Sem menu",
+    "noMenuMessage": "Por favor, tire uma foto ou selecione um arquivo de menu primeiro.",
+    "noUrlTitle": "Sem link",
+    "noUrlMessage": "Por favor, cole primeiro o link para compartilhar o menu na web ou o link do aplicativo de entrega.",
+    "noImageTitle": "Sem imagem",
+    "noImageMessage": "Por favor, tire uma foto ou selecione uma imagem do menu primeiro.",
+    "permissionRequired": "É necessária autorização.",
+    "cameraPermission": "É necessário obter permissão para usar a câmera.",
+    "photoPermission": "É necessário obter permissão para usar o banco de imagens.",
+    "analysisFailed": "Análise do menu falhou",
+    "unknownError": "Erro desconhecido",
+    "shareTitle": "Tradutor de menu compartilhado",
+    "shareSubtitle": "Escolha onde compartilhar a página atual.",
+    "shareMessage": "Traduza e compreenda menus com o Menu Translator.",
+    "shareFailed": "Não foi possível abrir o link de compartilhamento.",
+    "shareTargets": {
+      "wechat": "WeChat",
+      "rednote": "Rednote",
+      "weibo": "Weibo",
+      "facebook": "Facebook",
+      "x": "X / Twitter",
+      "whatsapp": "WhatsApp",
+      "email": "E-mail"
+    }
+  },
+  "result": {
+    "title": "Resultados do menu",
+    "items": "Unid",
+    "empty": "Nenhum item de menu encontrado",
+    "originalUnavailable": "Nome original indisponível",
+    "restaurantFallback": "Restaurante",
+    "sourceFallback": "Desconhecido",
+    "aiRecommendBtn": "Recomendação de IA",
+    "other": "Outro"
+  },
+  "recommend": {
+    "title": "Recomendação de IA",
+    "peopleLabel": "Número de pessoas",
+    "peoplePlaceholder": "Exemplo: 2",
+    "dietLabel": "Restrições alimentares",
+    "budgetLabel": "Orçamento",
+    "budgetPlaceholder": "Por exemplo, $50 ou Sem Limite",
+    "tasteLabel": "Preferência de sabor",
+    "tastePlaceholder": "Por exemplo: Apimentado, Suave, Menos Sal",
+    "generateBtn": "Gerar recomendação",
+    "generating": "A IA está analisando o menu...",
+    "suggestionTitle": "Sugestão de pedido",
+    "recommendedItemsTitle": "Pratos recomendados",
+    "addBtn": "Adicionar à lista de pedidos",
+    "addedBtn": "Adicionado",
+    "backBtn": "Modificar opções",
+    "closeBtn": "Fechar",
+    "error": "Não foi possível gerar a recomendação. Tente novamente.",
+    "intro": "Compartilhe suas preferências com a IA e receba recomendações personalizadas.",
+    "allergiesPlaceholder": "Exemplo: amendoim, frutos do mar (separados por vírgula)",
+    "addedMessage": "Adicionado à lista de pedidos"
+  },
+  "detail": {
+    "original": "Original",
+    "price": "Preço",
+    "description": "Descrição",
+    "ingredients": "Ingredientes",
+    "allergens": "Alérgenos",
+    "spicyLevel": "Nível de picância",
+    "imagePrompt": "Inserção de imagem",
+    "close": "Fechar",
+    "unknown": "Desconhecido",
+    "none": "Nenhum",
+    "allergyRiskTitle": "Aviso sobre risco de alergia",
+    "allergyRiskMessage": "Este prato pode conter ou entrar em contato com: {allergens}. Confirme diretamente com o restaurante antes de fazer o pedido.",
+    "preparingImage": "Preparando a imagem",
+    "loadingDetails": "Carregando detalhes...",
+    "changeImage": "Não corresponde? Alterar",
+    "addToCart": "Adicionar à lista de pedidos",
+    "addedToCart": "Adicionado à lista de pedidos"
+  },
+  "categories": {
+    "breakfast": "Café da manhã",
+    "pastries": "Pastéis",
+    "savory": "Saboroso",
+    "fromage": "Queijo",
+    "cafe": "Café e Chá",
+    "sides": "Lados",
+    "additions": "Adições",
+    "snacks": "Lanches",
+    "appetizers": "Aperitivos",
+    "mains": "Principais",
+    "dinner": "Jantar",
+    "dessert": "Sobremesa",
+    "drinks": "Bebidas",
+    "other": "Outro"
+  },
+  "auth": {
+    "resetPasswordTitle": "Redefinir senha",
+    "signInTitle": "Entrar",
+    "signUpTitle": "Criar uma conta",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirme sua senha",
+    "username": "Nome de usuário",
+    "phone": "Telefone (Opcional)",
+    "loginBtn": "Entrar",
+    "registerBtn": "Inscrever-se",
+    "switchRegister": "Não tem uma conta? Cadastre-se",
+    "switchLogin": "Já tem uma conta? Iniciar sessão",
+    "googleLogin": "Continuar com o Google",
+    "prefTitle": "Perfil alimentar e de saúde (opcional)",
+    "diets": "Hábitos alimentares",
+    "allergies": "Alergias alimentares (separadas por vírgula)",
+    "allergiesPlaceholder": "Por exemplo, amendoim, frutos do mar",
+    "budget": "Orçamento para refeições",
+    "budgetPlaceholder": "Por exemplo, 50 dólares",
+    "taste": "Preferência de sabor",
+    "tastePlaceholder": "Por exemplo, picante, leve",
+    "errorMatch": "As senhas não coincidem.",
+    "requiredFields": "Por favor, preencha todos os campos obrigatórios.",
+    "forgotPasswordLink": "Esqueceu sua senha?",
+    "resetBtn": "Enviar e-mail de redefinição",
+    "resetSuccess": "E-mail de redefinição de senha enviado. Verifique sua caixa de entrada.",
+    "backToLogin": "Voltar para Iniciar sessão",
+    "resetInstruction": "Insira seu e-mail para receber um link para redefinir sua senha.",
+    "mediaLibraryPermission": "É necessário obter permissão para acessar a biblioteca de mídia.",
+    "avatarSuccess": "Avatar atualizado com sucesso!",
+    "avatarFail": "O envio do avatar falhou. Tente novamente mais tarde.",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "resetFailed": "Falha ao enviar o e-mail de redefinição",
+    "authenticationFailed": "A autenticação falhou.",
+    "redirectUnsupported": "Não é possível abrir a página de login neste dispositivo.",
+    "googleLoginFailed": "Falha ao iniciar o login do Google"
+  },
+  "profile": {
+    "title": "Configurações de perfil",
+    "username": "Nome de usuário",
+    "email": "E-mail",
+    "phone": "Número de telefone",
+    "saveBtn": "Salvar alterações",
+    "logoutBtn": "Sair",
+    "diets": "Restrições alimentares",
+    "allergies": "Alergias alimentares",
+    "allergiesPlaceholder": "Por exemplo, amendoim, frutos do mar",
+    "budget": "Orçamento para refeições",
+    "budgetPlaceholder": "Por exemplo, 50 dólares",
+    "taste": "Preferência de sabor",
+    "tastePlaceholder": "Por exemplo, picante, leve",
+    "successMsg": "Perfil atualizado com sucesso!",
+    "avatarTip": "Toque no avatar para alterar.",
+    "deleteAccountLink": "Excluir conta",
+    "deleteAccountHelp": "Precisa excluir sua conta? Abra a página de solicitação de exclusão.",
+    "deleteAccountOpenFailed": "Não foi possível abrir a página de exclusão de conta.",
+    "updateFailed": "Falha ao atualizar o perfil"
+  },
+  "settings": {
+    "title": "Configurações",
+    "appearance": "Aparência",
+    "system": "Sistema",
+    "light": "Luz",
+    "dark": "Escuro",
+    "help": "Ajuda e feedback",
+    "replayTutorial": "Tutorial de reprodução",
+    "replayTutorialDescription": "Veja como analisar, traduzir e compreender um menu.",
+    "rateApp": "Avalie o aplicativo AI Menu",
+    "rateAppDescription": "Abra o aplicativo AI Menu no Google Play.",
+    "legal": "Jurídico",
+    "privacy": "política de Privacidade",
+    "terms": "Termos de Serviço",
+    "version": "AI Menu APP 2.3",
+    "done": "Feito"
+  },
+  "onboarding": {
+    "skip": "Pular",
+    "back": "Voltar",
+    "next": "Próximo",
+    "start": "Comece a usar gratuitamente",
+    "steps": [
+      {
+        "title": "Traga qualquer cardápio",
+        "description": "Tire uma foto, carregue uma imagem ou um PDF, ou cole o link do cardápio de um restaurante."
+      },
+      {
+        "title": "Traduza do seu jeito",
+        "description": "Escolha o idioma do menu e o idioma em que deseja lê-lo."
+      },
+      {
+        "title": "Entenda cada prato",
+        "description": "Veja categorias organizadas, detalhes dos pratos, ingredientes, preços e informações sobre alergias."
+      },
+      {
+        "title": "Faça seu pedido com confiança.",
+        "description": "Receba recomendações personalizadas, salve menus, compartilhe resultados e crie uma lista de pedidos."
+      }
+    ]
+  },
+  "legal": {
+    "common": {
+      "brand": "AI Menu APP",
+      "back": "Voltar",
+      "contact": "Contato"
+    },
+    "privacy": {
+      "title": "política de Privacidade",
+      "intro": "O aplicativo AI Menu traduz e explica cardápios de restaurantes. Esta política descreve as informações que processamos, por que as utilizamos e as opções disponíveis para você.",
+      "sections": [
+        {
+          "heading": "Informações que processamos",
+          "items": [
+            "Detalhes da conta, como nome de usuário, e-mail, número de telefone (opcional), identificadores de autenticação, preferências de perfil e avatar.",
+            "Cardápios e conteúdo relacionado que você enviar, incluindo fotos, PDFs, documentos, textos, páginas da web e links de aplicativos de entrega.",
+            "Resultados gerados, como traduções, detalhes dos pratos, recomendações, histórico do cardápio e itens da lista de pedidos.",
+            "Informações técnicas como interações com aplicativos, diagnósticos, identificadores de dispositivos ou publicidade e metadados de solicitações de rede."
+          ]
+        },
+        {
+          "heading": "Como utilizamos as informações",
+          "items": [
+            "Para fornecer recursos de OCR, tradução, organização de menus, explicações de pratos, correspondência de imagens, recomendações, compartilhamento, histórico e lista de pedidos.",
+            "Para autenticar contas, salvar preferências, manter a segurança, prevenir abusos, solucionar erros e melhorar a confiabilidade.",
+            "Para exibir e medir a publicidade onde os anúncios estão ativados e para responder a solicitações de suporte, privacidade e exclusão."
+          ]
+        },
+        {
+          "heading": "Prestadores de serviços",
+          "items": [
+            "Dependendo dos recursos ativados, os dados podem ser processados ​​por Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons e Google AdMob.",
+            "Esses fornecedores processam informações de acordo com seus próprios termos e práticas de privacidade. O conteúdo do menu pode ser enviado para serviços de IA e nuvem somente quando necessário para fornecer o recurso solicitado."
+          ]
+        },
+        {
+          "heading": "Retenção e segurança",
+          "items": [
+            "Conservamos os dados da conta enquanto a sua conta estiver ativa e mantemos dados em cache ou de diagnóstico apenas pelo tempo razoavelmente necessário para o serviço, segurança, obrigações legais e desempenho.",
+            "Utilizamos medidas de segurança razoáveis, mas nenhum serviço de internet pode garantir segurança absoluta."
+          ]
+        },
+        {
+          "heading": "Suas opções",
+          "items": [
+            "Você pode usar os recursos para convidados disponíveis sem criar uma conta, atualizar as preferências do perfil, solicitar a exclusão da conta e entrar em contato conosco para questões de privacidade.",
+            "Você pode gerenciar o consentimento para anúncios e as configurações de publicidade do dispositivo por meio dos controles disponíveis no seu dispositivo ou no aplicativo, quando necessário."
+          ]
+        },
+        {
+          "heading": "Crianças e mudanças",
+          "items": [
+            "O serviço não se destina a crianças menores de 13 anos. Podemos atualizar esta política quando o serviço ou os requisitos legais mudarem e revisaremos a data acima."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Termos de Serviço",
+      "intro": "Estes Termos regem o seu uso do aplicativo AI Menu. Ao usar o serviço, você concorda com estes Termos.",
+      "sections": [
+        {
+          "heading": "O serviço",
+          "items": [
+            "O aplicativo AI Menu utiliza OCR, tradução, busca e sistemas de IA para ajudar os usuários a entenderem os cardápios de restaurantes. Os recursos podem ser alterados, interrompidos ou descontinuados.",
+            "Você deve fornecer informações de conta precisas e é responsável pela atividade em sua conta."
+          ]
+        },
+        {
+          "heading": "IA e limitações de tradução",
+          "items": [
+            "Traduções, preços, ingredientes, informações nutricionais, imagens e recomendações podem estar incompletos ou incorretos.",
+            "Sempre confirme os detalhes do cardápio, os preços atuais, a disponibilidade e as informações para fazer o pedido com o restaurante."
+          ]
+        },
+        {
+          "heading": "Aviso sobre alergias e saúde",
+          "items": [
+            "O aplicativo AI Menu não fornece aconselhamento médico e não pode garantir que um prato esteja livre de alérgenos ou seja adequado para uma dieta.",
+            "Em caso de alergias ou restrições médicas, entre em contato com o restaurante e um profissional de saúde qualificado antes de fazer o pedido."
+          ]
+        },
+        {
+          "heading": "Seu conteúdo e uso aceitável",
+          "items": [
+            "Você mantém a propriedade do conteúdo que envia e nos concede uma licença limitada para processá-lo apenas para operar, proteger e aprimorar o serviço solicitado.",
+            "Não carregue conteúdo para o qual você não tenha permissão de uso, não faça uso indevido do serviço, não tente obter acesso não autorizado, não interrompa os sistemas e não use o serviço ilegalmente."
+          ]
+        },
+        {
+          "heading": "Anúncios, compras e contas",
+          "items": [
+            "O serviço pode exibir anúncios. Caso sejam oferecidos recursos pagos, os preços e os termos de compra aplicáveis ​​serão exibidos antes do pagamento.",
+            "Podemos suspender contas que violem estes Termos ou que ameacem usuários, o serviço ou terceiros. Você pode solicitar a exclusão da sua conta a qualquer momento."
+          ]
+        },
+        {
+          "heading": "Isenções de responsabilidade e responsabilidade",
+          "items": [
+            "O serviço é fornecido conforme disponível, sem garantias de funcionamento ininterrupto ou resultados isentos de erros, na medida permitida por lei.",
+            "Na medida permitida por lei, não nos responsabilizamos por perdas indiretas ou decisões tomadas exclusivamente com base em informações de menu geradas por IA."
+          ]
+        },
+        {
+          "heading": "Alterações e contato",
+          "items": [
+            "Podemos atualizar estes Termos e revisaremos a data acima. O uso continuado após uma atualização significa que você aceita os Termos revisados."
+          ]
+        }
+      ]
+    },
+    "deletion": {
+      "title": "Exclua sua conta do aplicativo AI Menu.",
+      "subtitle": "Solicite a exclusão da sua conta e dos dados associados a ela.",
+      "requestEmail": "Solicitação de exclusão de conta de e-mail",
+      "emailSubject": "Solicitação de exclusão de conta do aplicativo AI Menu",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "sections": [
+        {
+          "heading": "Como solicitar a exclusão",
+          "items": [
+            "Envie a solicitação a partir do endereço de e-mail cadastrado em sua conta.",
+            "Inclua seu e-mail e nome de usuário cadastrados, se disponíveis.",
+            "Analisaremos a solicitação e processaremos a exclusão da conta."
+          ]
+        },
+        {
+          "heading": "Dados excluídos",
+          "items": [
+            "Os dados do perfil da conta, a conta de autenticação, o avatar, o histórico de menus salvos, as preferências do perfil e os dados da lista de pedidos salvos associados à conta serão excluídos sempre que tecnicamente possível."
+          ]
+        },
+        {
+          "heading": "Dados que podem ser retidos",
+          "items": [
+            "Podemos reter registros de segurança, registros de transações exigidos por lei e dados anonimizados ou não vinculados ao usuário, como menus, pratos e cache de imagens, que não estejam mais associados à sua conta."
+          ]
+        }
+      ]
+    }
+  },
+  "languageNames": {
+    "auto": "Detecção automática",
+    "en": "Inglês",
+    "zh": "Chinês simplificado",
+    "zh-Hant": "Tradicional Chinês",
+    "es": "Espanhol",
+    "fr": "Francês",
+    "ja": "japonês",
+    "ko": "coreano",
+    "ru": "russo",
+    "pt": "Português",
+    "de": "Alemão",
+    "it": "italiano",
+    "ar": "árabe"
+  },
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "Contato",
+    "dishFallback": "Prato",
+    "restaurantFallback": "Restaurante",
+    "items": "Unid"
+  },
+  "dietOptions": {
+    "Vegetarian": "Vegetariano",
+    "Halal": "Halal",
+    "Kosher": "Kosher",
+    "Keto": "Keto",
+    "Gluten-Free": "Não contém gluten"
+  },
+  "cart": {
+    "title": "Lista de Pedidos",
+    "heading": "Minha lista de pedidos",
+    "shareMessage": "Confira minha lista de pedidos no aplicativo AI Menu.",
+    "items": "Unid",
+    "total": "Total",
+    "remove": "Remover",
+    "empty": "Nenhum prato adicionado ainda"
+  },
+  "history": {
+    "title": "Histórico do menu",
+    "shareMessage": "Confira meu histórico de menus no aplicativo AI Menu.",
+    "items": "Unid",
+    "open": "Toque para abrir",
+    "empty": "Ainda não há histórico de menu."
+  }
+}

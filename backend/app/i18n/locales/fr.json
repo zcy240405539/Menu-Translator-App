@@ -1,0 +1,133 @@
+{
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "Contact"
+  },
+  "errors": {
+    "missingAuthorization": "En-tête d'autorisation manquant",
+    "invalidAuthorization": "Format d'en-tête d'autorisation invalide",
+    "invalidSession": "Jeton de session invalide",
+    "serviceNotConfigured": "Le service de compte n'est pas configuré.",
+    "imageRequired": "Le fichier doit être une image",
+    "avatarUploadFailed": "Échec du chargement de l'avatar : {error}",
+    "menuCacheNotFound": "Cache du menu introuvable",
+    "noReadableText": "Aucun texte de menu lisible n'a été extrait.",
+    "menuFileRequired": "Aucun fichier de menu n'a été téléchargé.",
+    "taskNotFound": "Tâche introuvable"
+  },
+  "legal": {
+    "deletion": {
+      "emailSubject": "Demande de suppression de compte via l'application AI Menu",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "title": "Supprimez votre compte AI Menu APP",
+      "subtitle": "Demandez la suppression de votre compte et des données associées.",
+      "emailButton": "demande de suppression de compte de messagerie",
+      "sections": [
+        {
+          "heading": "Comment demander la suppression",
+          "items": [
+            "Envoyez la demande depuis l'adresse e-mail enregistrée sur votre compte.",
+            "Veuillez inclure votre adresse électronique et votre nom d'utilisateur enregistrés, le cas échéant.",
+            "Nous allons vérifier la demande et procéder à la suppression du compte."
+          ]
+        },
+        {
+          "heading": "Données supprimées",
+          "items": [
+            "Les données du profil du compte, le compte d'authentification, l'avatar, l'historique des menus enregistrés, les préférences du profil et les données de la liste des commandes enregistrées associées au compte seront supprimées lorsque cela est techniquement possible."
+          ]
+        },
+        {
+          "heading": "Données susceptibles d'être conservées",
+          "items": [
+            "Nous pouvons conserver les journaux de sécurité, les enregistrements de transactions requis par la loi, ainsi que les données anonymisées ou non liées à l'utilisateur concernant les menus, les plats et les images, qui ne sont plus associées à votre compte."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "politique de confidentialité",
+      "intro": "L'application AI Menu traduit et explique les menus des restaurants. Cette politique décrit les informations que nous traitons, pourquoi nous les utilisons et les choix dont vous disposez.",
+      "sections": [
+        {
+          "heading": "Informations que nous traitons",
+          "items": [
+            "Informations du compte telles que nom d'utilisateur, adresse e-mail, numéro de téléphone facultatif, identifiants d'authentification, préférences de profil et avatar.",
+            "Menus et contenus associés que vous soumettez, y compris photos, PDF, documents, textes, pages Web et liens vers des applications de livraison.",
+            "Traductions générées, détails des plats, recommandations, historique des menus, articles de la liste de commande, interactions avec l'application, diagnostics et identifiants d'appareil ou publicitaires."
+          ]
+        },
+        {
+          "heading": "Comment nous utilisons les informations",
+          "items": [
+            "Pour fournir des fonctionnalités de reconnaissance optique de caractères (OCR), de traduction, d'organisation des menus, d'explications des plats, de correspondance d'images, de recommandations, de partage, d'historique et de liste de commandes.",
+            "Pour authentifier les comptes, enregistrer les préférences, maintenir la sécurité, prévenir les abus, résoudre les erreurs, améliorer la fiabilité et mesurer la publicité lorsque celle-ci est activée."
+          ]
+        },
+        {
+          "heading": "prestataires de services",
+          "items": [
+            "En fonction des fonctionnalités activées, les données peuvent être traitées par Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense et Google AdMob.",
+            "Le contenu des menus est transmis aux services d'IA et de cloud uniquement lorsque cela est nécessaire pour fournir la fonctionnalité demandée. Chaque fournisseur traite les données selon ses propres conditions et politiques de confidentialité."
+          ]
+        },
+        {
+          "heading": "Rétention et sécurité",
+          "items": [
+            "Nous conservons les données de votre compte tant qu'il est actif et ne conservons les données mises en cache ou de diagnostic que dans la mesure où cela est raisonnablement nécessaire pour le service, la sécurité, les obligations légales et les performances.",
+            "Nous utilisons des mesures de sécurité raisonnables, mais aucun service internet ne peut garantir une sécurité absolue."
+          ]
+        },
+        {
+          "heading": "Vos choix et vos enfants",
+          "items": [
+            "Vous pouvez utiliser les fonctionnalités invité prises en charge, mettre à jour vos préférences de profil, gérer les contrôles publicitaires disponibles, demander la suppression de votre compte et nous contacter pour toute question relative à la confidentialité.",
+            "Ce service n'est pas destiné aux enfants de moins de 13 ans. Nous pouvons modifier cette politique et nous vous en informerons le cas échéant."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Conditions d'utilisation",
+      "intro": "Les présentes conditions générales régissent votre utilisation de l'application AI Menu. En utilisant ce service, vous acceptez ces conditions.",
+      "sections": [
+        {
+          "heading": "Le service",
+          "items": [
+            "L'application AI Menu utilise la reconnaissance optique de caractères (OCR), la traduction, la recherche et l'intelligence artificielle pour aider les utilisateurs à comprendre les menus des restaurants. Les fonctionnalités peuvent être modifiées, interrompues ou supprimées.",
+            "Vous devez fournir des informations de compte exactes et vous êtes responsable de l'activité sur votre compte."
+          ]
+        },
+        {
+          "heading": "L'IA et les limitations de la traduction",
+          "items": [
+            "Les traductions, les prix, les ingrédients, les étiquettes nutritionnelles, les images et les recommandations peuvent être incomplets ou incorrects.",
+            "Veuillez toujours vérifier auprès du restaurant les détails du menu, les prix actuels, la disponibilité et les informations de commande."
+          ]
+        },
+        {
+          "heading": "Avis relatif aux allergies et à la santé",
+          "items": [
+            "L'application AI Menu ne fournit pas de conseils médicaux et ne peut garantir qu'un plat est exempt d'allergènes ou adapté à un régime alimentaire.",
+            "En cas d'allergies ou de restrictions médicales, veuillez contacter le restaurant et un professionnel de santé qualifié avant de commander."
+          ]
+        },
+        {
+          "heading": "Votre contenu et utilisation acceptable",
+          "items": [
+            "Vous conservez la propriété du contenu que vous soumettez et nous accordez une licence limitée pour le traiter uniquement afin d'exploiter, de sécuriser et d'améliorer le service demandé.",
+            "Ne téléchargez pas de contenu pour lequel vous n'avez pas l'autorisation d'utilisation, n'utilisez pas le service de manière abusive, ne tentez pas d'y accéder sans autorisation, ne perturbez pas les systèmes et n'utilisez pas le service illégalement."
+          ]
+        },
+        {
+          "heading": "Publicité, comptes et responsabilité",
+          "items": [
+            "Le service peut afficher de la publicité. Si des fonctionnalités payantes sont proposées, les prix et les conditions d'achat seront indiqués avant le paiement. Les comptes qui enfreignent ces conditions peuvent être suspendus.",
+            "Ce service est fourni selon sa disponibilité. Dans les limites permises par la loi, nous déclinons toute responsabilité pour les pertes indirectes ou les décisions prises uniquement sur la base des informations de menu générées par l'IA.",
+            "Nous pouvons mettre à jour ces conditions. En continuant à utiliser le service après une mise à jour, vous acceptez les conditions révisées."
+          ]
+        }
+      ]
+    }
+  }
+}

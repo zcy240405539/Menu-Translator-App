@@ -28,9 +28,6 @@ LogBox.ignoreLogs([
 ]);
 
 const POLICY_SUPPORT_EMAIL = "support@aimenu.us.kg";
-const ACCOUNT_DELETION_MAILTO =
-  `mailto:${POLICY_SUPPORT_EMAIL}?subject=AI%20Menu%20APP%20Account%20Deletion%20Request` +
-  "&body=Please%20delete%20my%20AI%20Menu%20APP%20account.%0A%0ARegistered%20email%3A%20%0AUsername%20if%20known%3A%20%0A";
 
 const STATIC_POLICY_ROUTES = {
   "/account-deletion": "account-deletion",
@@ -55,50 +52,29 @@ function StaticPolicyPage({ route }) {
     : null;
   const targetLang = mapUrlLangToInternal(params?.get("lang")) || getInitialLanguage();
   const legal = getLegalContent(targetLang);
+  const deletion = legal.deletion;
   const document = route === "terms" ? legal.terms : legal.privacy;
-  const title = isAccountDeletion ? "Delete your AI Menu APP account" : document.title;
-  const subtitle = isAccountDeletion
-    ? "Request deletion of your account and associated account data."
-    : `${legal.common.brand} - ${legal.common.updated}`;
-  const sections = isAccountDeletion
-    ? [
-        {
-          heading: "How to request deletion",
-          items: [
-            "Send the request from the email address registered with your account.",
-            "Include your registered email and username if available.",
-            "We will verify the request and process account deletion.",
-          ],
-        },
-        {
-          heading: "Data deleted",
-          items: [
-            "Account profile data, authentication account, avatar, saved menu history, profile preferences, and saved order list data associated with the account will be deleted where technically feasible.",
-          ],
-        },
-        {
-          heading: "Data that may be retained",
-          items: [
-            "We may retain security logs, transaction records required by law, and anonymized or non-user-linked menu, dish, and image cache data that is no longer associated with your account.",
-          ],
-        },
-      ]
-    : document.sections;
+  const title = isAccountDeletion ? deletion.title : document.title;
+  const subtitle = isAccountDeletion ? deletion.subtitle : "";
+  const sections = isAccountDeletion ? deletion.sections : document.sections;
+  const accountDeletionMailto =
+    `mailto:${POLICY_SUPPORT_EMAIL}?subject=${encodeURIComponent(deletion.emailSubject)}` +
+    `&body=${encodeURIComponent(deletion.emailBody)}`;
 
   return (
     <ScrollView style={policyStyles.screen} contentContainerStyle={policyStyles.container}>
       <View style={policyStyles.card}>
-        <Text style={policyStyles.brand}>AI Menu APP</Text>
+        <Text style={policyStyles.brand}>{legal.common.brand}</Text>
         <Text style={policyStyles.title}>{title}</Text>
-        <Text style={policyStyles.subtitle}>{subtitle}</Text>
+        {!!subtitle && <Text style={policyStyles.subtitle}>{subtitle}</Text>}
 
         {isAccountDeletion ? (
           <Text
             accessibilityRole="link"
-            onPress={() => Linking.openURL(ACCOUNT_DELETION_MAILTO)}
+            onPress={() => Linking.openURL(accountDeletionMailto)}
             style={policyStyles.primaryLink}
           >
-            Email account deletion request
+            {deletion.requestEmail}
           </Text>
         ) : (
           <Text style={policyStyles.body}>{document.intro}</Text>
@@ -117,7 +93,7 @@ function StaticPolicyPage({ route }) {
         ))}
 
         <Text style={policyStyles.contact}>
-          Contact:{" "}
+          {legal.common.contact}:{" "}
           <Text
             accessibilityRole="link"
             onPress={() => Linking.openURL(`mailto:${POLICY_SUPPORT_EMAIL}`)}

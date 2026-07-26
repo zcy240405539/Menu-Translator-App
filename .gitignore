@@ -21,6 +21,7 @@ frontend-web/.next/
 frontend-web/out/
 frontend/dist/
 frontend/dist-feature-check/
+frontend/dist-*-check/
 frontend/web-build/
 frontend-web/.env*
 

@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import SavedPage from "@/components/SavedPage";
+import { getText } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Cart - AI Menu APP",
-  description: "Saved order list for AI Menu APP.",
-};
+export const metadata: Metadata = getText("en").metadata.cart;
 
 export default function CartPage() {
   return <SavedPage mode="cart" />;

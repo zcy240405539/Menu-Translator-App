@@ -1,0 +1,382 @@
+{
+  "metaTitle": "AI Menu APP - 翻译菜单，轻松点餐",
+  "languageNames": {
+    "en": "英语",
+    "zh-cn": "中文-简体",
+    "zh-Hant": "中文-繁体",
+    "es": "西班牙语",
+    "fr": "法语",
+    "ja": "日本人",
+    "ko": "韩国人",
+    "ru": "俄语",
+    "pt": "葡萄牙语",
+    "de": "德语",
+    "it": "意大利语",
+    "ar": "阿拉伯"
+  },
+  "languageShortNames": {
+    "en": "英语",
+    "zh-cn": "中文",
+    "zh-Hant": "中文",
+    "es": "西班牙语"
+  },
+  "nav": {
+    "language": "选择页面语言",
+    "share": "分享",
+    "shareMessage": "使用 AI Menu APP 翻译并看懂菜单。",
+    "history": "历史",
+    "cart": "购物车",
+    "account": "账号",
+    "settings": "设置",
+    "accountLoginFailed": "无法打开登录，请稍后再试。"
+  },
+  "home": {
+    "kicker": "免费开始使用",
+    "titleLines": [
+      "翻译菜单，",
+      "轻松点餐"
+    ],
+    "subtitle": "上传照片、PDF、网站或外卖分享链接，快速获得清晰的菜名、描述和配料。",
+    "steps": [
+      "照片/PDF/网页",
+      "AI 翻译",
+      "准备点餐",
+      "智能推荐"
+    ]
+  },
+  "auth": {
+    "title": "登录",
+    "subtitle": "登录后可以保存菜单历史和点餐清单。",
+    "email": "邮箱",
+    "password": "密码",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码",
+    "signIn": "登录",
+    "signingIn": "正在登录...",
+    "google": "使用 Google 继续",
+    "backHome": "返回首页",
+    "missingFields": "请输入邮箱和密码。",
+    "loginFailed": "登录失败，请检查邮箱和密码。",
+    "googleFailed": "无法打开 Google 登录。",
+    "signedIn": "已登录，正在跳转..."
+  },
+  "saved": {
+    "loading": "正在加载...",
+    "signInPrompt": "请先登录以查看保存的内容。",
+    "emptyHistory": "还没有保存的菜单历史。",
+    "emptyCart": "点餐清单为空。",
+    "openMenu": "打开菜单",
+    "quantity": "数量",
+    "updated": "更新于",
+    "loadFailed": "无法加载保存内容。",
+    "menuFallback": "菜单",
+    "dishFallback": "盘子"
+  },
+  "features": {
+    "title": "核心功能",
+    "subtitle": "智能 AI 菜单翻译器帮助你在世界各地看懂当地菜品。",
+    "cards": [
+      {
+        "title": "菜单翻译",
+        "desc": "支持所有已启用语言之间的菜单翻译。"
+      },
+      {
+        "title": "详细说明",
+        "desc": "解释陌生菜品、配料和口味。"
+      },
+      {
+        "title": "轻松点餐",
+        "desc": "整理清晰的点餐清单，方便给服务员查看。"
+      },
+      {
+        "title": "多种菜单来源",
+        "desc": "照片、PDF 和菜单链接都走同一套后端解析流程。"
+      }
+    ]
+  },
+  "result": {
+    "backHome": "返回首页",
+    "restaurantMenu": "餐厅菜单",
+    "loading": "加载中",
+    "dishes": "道菜",
+    "loadingResult": "正在加载菜单结果...",
+    "noItems": "没有找到菜单项。",
+    "notAvailable": "菜单结果暂时不可用，请稍后刷新。",
+    "other": "其他",
+    "unnamedDish": "未命名菜品",
+    "recommendLink": "AI 智能推荐",
+    "close": "关闭",
+    "detailLoading": "正在加载详情...",
+    "imagePending": "正在准备图片",
+    "description": "菜品说明",
+    "ingredients": "配料",
+    "allergens": "过敏原",
+    "spicyLevel": "辣度",
+    "unknown": "未知",
+    "none": "无",
+    "addToCart": "加入点餐清单",
+    "addedToCart": "已加入",
+    "recommendationTitle": "AI 智能推荐",
+    "peopleLabel": "用餐人数",
+    "peoplePlaceholder": "例如：2",
+    "dietLabel": "饮食限制",
+    "budgetLabel": "预算",
+    "budgetPlaceholder": "例如：50 美元或不限",
+    "allergiesLabel": "食物过敏",
+    "allergiesPlaceholder": "例如：花生、海鲜",
+    "tasteLabel": "口味偏好",
+    "tastePlaceholder": "例如：微辣、清淡、少盐",
+    "generateRecommendation": "生成推荐",
+    "generatingRecommendation": "正在生成...",
+    "recommendationSummary": "推荐方案",
+    "recommendedDishes": "推荐菜品",
+    "recommendationError": "生成推荐失败，请稍后再试。",
+    "dietOptions": {
+      "Vegetarian": "素食",
+      "Halal": "清真",
+      "Kosher": "犹太洁食",
+      "Keto": "生酮",
+      "Gluten-Free": "无麸质"
+    }
+  },
+  "analyzer": {
+    "sourceLanguage": "源语言",
+    "targetLanguage": "目标语言",
+    "autoDetect": "自动识别",
+    "takePicture": "拍照",
+    "changePicture": "更换照片",
+    "selectFromFile": "选择文件",
+    "changeFile": "更换文件",
+    "selected": "已选择",
+    "menuLink": "菜单网页或分享链接",
+    "analyzeMenu": "分析菜单",
+    "analyzing": "正在分析...",
+    "noInput": "请选择文件、拍照，或输入链接。",
+    "startFileFailed": "无法开始解析文件",
+    "startUrlFailed": "无法开始解析链接",
+    "noTask": "服务器没有返回解析任务。",
+    "timeout": "解析仍在进行，请稍后再试。",
+    "statusFailed": "无法检查解析状态",
+    "parseFailed": "服务器解析失败",
+    "noHash": "解析结果没有返回菜单哈希。",
+    "unknownError": "分析时发生错误。",
+    "ad": "广告"
+  },
+  "footer": {
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "settings": "设置",
+    "deletion": "删除账号",
+    "rights": "保留所有权利。"
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "管理 AI Menu APP 的网页使用方式。",
+    "language": "页面语言",
+    "languageDescription": "在整个网站使用同一种语言。",
+    "account": "账号",
+    "accountDescription": "登录后访问保存的菜单和点餐清单。",
+    "legal": "法律信息",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "deletion": "删除账号",
+    "backHome": "返回首页"
+  },
+  "legal": {
+    "back": "返回 AI Menu APP",
+    "brand": "AI Menu APP",
+    "contact": "联系邮箱",
+    "privacy": {
+      "title": "隐私政策",
+      "intro": "AI Menu APP 帮助用户通过照片、文件、文档和菜单链接翻译并理解餐厅菜单。本隐私政策说明我们收集哪些信息、如何使用这些信息，以及用户可以做出的选择。",
+      "sections": [
+        {
+          "heading": "我们收集的信息",
+          "items": [
+            "账号信息，例如用户名、电子邮件地址、可选电话号码和身份验证标识。",
+            "用户主动提供的资料偏好，例如饮食偏好、过敏信息、预算和口味偏好。",
+            "用户提供的菜单内容，包括菜单照片、PDF、文档、文本、网页和外卖应用分享链接。",
+            "生成的菜单结果，包括翻译后的菜名、描述、配料、过敏原、价格、菜单历史和点餐清单项目。",
+            "技术数据，例如应用交互、诊断信息、设备或广告标识符，以及网络请求元数据。"
+          ]
+        },
+        {
+          "heading": "我们如何使用信息",
+          "items": [
+            "提供菜单 OCR、翻译、菜品解释、图片匹配和 AI 推荐功能。",
+            "为登录用户保存账号资料、菜单历史和点餐清单数据。",
+            "提升可靠性、防止滥用、调试错误并维护应用安全。",
+            "在启用广告时展示广告并衡量广告效果。",
+            "回应客服、账号删除和隐私相关请求。"
+          ]
+        },
+        {
+          "heading": "第三方服务",
+          "items": [
+            "应用可能会通过托管、数据库存储、身份验证、AI 模型处理、图片检索、分析和广告等服务商处理数据。",
+            "这些服务商可能包括 Render、Supabase、OpenRouter、OpenAI、Google AdSense、Google AdMob、Pexels、Unsplash 和 Wikimedia Commons，具体取决于启用的功能。"
+          ]
+        },
+        {
+          "heading": "你的选择",
+          "items": [
+            "在可用情况下，你可以不登录账号使用支持的功能。",
+            "你可以在 /account-deletion 请求删除账号。",
+            "你可以联系我们咨询隐私问题或账号删除请求。"
+          ]
+        }
+      ]
+    },
+    "deletion": {
+      "title": "删除你的 AI Menu APP 账号",
+      "subtitle": "请求删除你的账号及相关账号数据。",
+      "emailButton": "发送账号删除请求邮件",
+      "sections": [
+        {
+          "heading": "如何请求删除",
+          "items": [
+            "请使用注册账号的电子邮件地址发送请求。",
+            "请包含你的注册邮箱和用户名（如果知道）。",
+            "我们会验证请求并处理账号删除。"
+          ]
+        },
+        {
+          "heading": "将删除的数据",
+          "items": [
+            "在技术可行范围内，我们会删除与该账号关联的账号资料、身份验证账号、头像、已保存菜单历史、个人偏好和已保存点餐清单数据。"
+          ]
+        },
+        {
+          "heading": "可能保留的数据",
+          "items": [
+            "我们可能保留安全日志、法律要求的交易记录，以及不再与你账号关联的匿名或非用户关联菜单、菜品和图片缓存数据。"
+          ]
+        }
+      ]
+    }
+  },
+  "legalDocuments": {
+    "privacy": {
+      "title": "隐私政策",
+      "intro": "AI Menu APP 用于翻译和解释餐厅菜单。本政策说明我们处理哪些信息、使用目的以及您可以进行的选择。",
+      "sections": [
+        {
+          "heading": "我们处理的信息",
+          "items": [
+            "账号资料，例如用户名、电子邮箱、可选电话号码、身份验证标识、个人偏好和头像。",
+            "您提交的菜单及相关内容，包括照片、PDF、文档、文字、网页和外卖应用链接。",
+            "生成的翻译、菜品详情、推荐、菜单历史、待点列表，以及应用交互、诊断和设备或广告标识。"
+          ]
+        },
+        {
+          "heading": "信息用途",
+          "items": [
+            "提供 OCR、翻译、菜单分类、菜品说明、图片匹配、智能推荐、分享、历史和待点列表功能。",
+            "验证账号、保存偏好、维护安全、防止滥用、排查错误、改进可靠性，并在启用广告时衡量广告。"
+          ]
+        },
+        {
+          "heading": "服务提供商",
+          "items": [
+            "根据启用的功能，数据可能由 Supabase、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Google AdSense 和 Google AdMob 处理。",
+            "菜单内容只会在提供所请求功能所需范围内发送给 AI 和云服务。各服务商依据自己的条款和隐私规则处理数据。"
+          ]
+        },
+        {
+          "heading": "保留与安全",
+          "items": [
+            "账号有效期间我们会保留账号数据；缓存或诊断数据仅在服务、安全、法律义务和性能所合理需要的期限内保留。",
+            "我们采取合理的安全措施，但任何互联网服务都无法保证绝对安全。"
+          ]
+        },
+        {
+          "heading": "您的选择与儿童保护",
+          "items": [
+            "您可以使用支持的访客功能、修改个人偏好、管理可用的广告控制、请求删除账号并联系我们处理隐私问题。",
+            "本服务不面向13岁以下儿童。我们可能更新本政策，并在需要时提供通知。"
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "服务条款",
+      "intro": "本条款适用于您对 AI Menu APP 的使用。使用本服务即表示您同意本条款。",
+      "sections": [
+        {
+          "heading": "服务内容",
+          "items": [
+            "AI Menu APP 使用 OCR、翻译、搜索和 AI 系统帮助用户理解餐厅菜单。功能可能变更、中断或停止。",
+            "您应提供准确的账号信息，并对账号下的活动负责。"
+          ]
+        },
+        {
+          "heading": "AI 与翻译限制",
+          "items": [
+            "翻译、价格、配料、饮食标签、图片和推荐可能不完整或不准确。",
+            "请始终向餐厅确认菜单内容、当前价格、供应情况和点餐信息。"
+          ]
+        },
+        {
+          "heading": "过敏与健康提示",
+          "items": [
+            "AI Menu APP 不提供医疗建议，也不能保证菜品不含过敏原或适合特定饮食。",
+            "如有过敏或医疗限制，请在点餐前联系餐厅并咨询合格的医疗专业人士。"
+          ]
+        },
+        {
+          "heading": "您的内容与合理使用",
+          "items": [
+            "您保留所提交内容的所有权，并授予我们仅为运行、保护和改进所请求服务而处理该内容的有限许可。",
+            "请勿上传无权使用的内容、滥用服务、尝试未经授权的访问、干扰系统或将服务用于违法目的。"
+          ]
+        },
+        {
+          "heading": "广告、账号与责任",
+          "items": [
+            "服务可能展示广告。如果提供付费功能，我们会在付款前显示价格和购买条款。违反本条款的账号可能被暂停。",
+            "服务按现状提供。在法律允许范围内，我们不对间接损失或仅依据 AI 菜单信息作出的决定承担责任。",
+            "我们可能更新本条款。更新后继续使用即表示接受修订后的条款。"
+          ]
+        }
+      ]
+    }
+  },
+  "common": {
+    "brand": "AI Menu APP"
+  },
+  "metaDescription": "根据照片、PDF、文本和链接翻译多语言菜单。",
+  "metadata": {
+    "home": {
+      "title": "AI菜单APP - 轻松翻译菜单并下单",
+      "description": "根据照片、PDF、文本和链接翻译多语言菜单。"
+    },
+    "login": {
+      "title": "登录 - AI 菜单 APP",
+      "description": "登录AI菜单APP。"
+    },
+    "history": {
+      "title": "历史记录 - AI 菜单应用程序",
+      "description": "AI菜单APP的已保存菜单历史记录。"
+    },
+    "cart": {
+      "title": "购物车 - AI菜单应用程序",
+      "description": "AI菜单APP的已保存订单列表。"
+    },
+    "settings": {
+      "title": "设置 | AI菜单应用",
+      "description": "管理 AI 菜单 APP 网站设置和法律信息。"
+    },
+    "privacy": {
+      "title": "隐私政策 - AI 菜单应用",
+      "description": "AI菜单APP隐私政策。"
+    },
+    "terms": {
+      "title": "服务条款 | AI菜单应用",
+      "description": "AI菜单APP使用条款。"
+    },
+    "deletion": {
+      "title": "账户删除 - AI菜单应用程序",
+      "description": "请求删除您的AI菜单APP账号。"
+    }
+  }
+}

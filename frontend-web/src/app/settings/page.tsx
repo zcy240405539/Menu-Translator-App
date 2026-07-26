@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import SettingsPage from "@/components/SettingsPage";
+import { getText } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Settings | AI Menu APP",
-  description: "Manage AI Menu APP website settings and legal information.",
-};
+export const metadata: Metadata = getText("en").metadata.settings;
 
 export default function SettingsRoute() {
   return <SettingsPage />;

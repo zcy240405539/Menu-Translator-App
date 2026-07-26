@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, History, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { DEFAULT_LANGUAGE, getInitialLanguage, getText, normalizeLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { DEFAULT_LANGUAGE, applyDocumentLanguage, getInitialLanguage, getText, normalizeLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 type Mode = "history" | "cart";
 
@@ -42,12 +42,12 @@ function authToken() {
   return window.localStorage.getItem("menu_app_token") || window.sessionStorage.getItem("menu_app_token");
 }
 
-function titleForHistory(item: HistoryItem) {
-  return item.business_name || item.restaurant_type || "Menu";
+function titleForHistory(item: HistoryItem, fallback: string) {
+  return item.business_name || item.restaurant_type || fallback;
 }
 
-function titleForCart(item: CartItem) {
-  return item.dish?.translated_name || item.dish?.name || item.dish?.original_name || "Dish";
+function titleForCart(item: CartItem, fallback: string) {
+  return item.dish?.translated_name || item.dish?.name || item.dish?.original_name || fallback;
 }
 
 export default function SavedPage({ mode }: { mode: Mode }) {
@@ -71,8 +71,8 @@ export default function SavedPage({ mode }: { mode: Mode }) {
       const nextText = getText(nextLang);
       const nextTitle = isHistory ? nextText.nav.history : nextText.nav.cart;
       setLang(nextLang);
-      document.documentElement.lang = nextLang === "zh-cn" ? "zh-CN" : nextLang;
-      document.title = `${nextTitle} - AI Menu APP`;
+      applyDocumentLanguage(nextLang);
+      document.title = `${nextTitle} - ${nextText.common.brand}`;
 
       if (!token) {
         setNeedsLogin(true);
@@ -103,7 +103,7 @@ export default function SavedPage({ mode }: { mode: Mode }) {
           </Link>
           <Link href={`/${langQuery}`} className="inline-flex items-center gap-2">
             <Image src="/ai-menu-logo.png" alt="" width={34} height={34} className="rounded-md" priority />
-            <span className="font-bold text-[#5f259f]">AI Menu APP</span>
+            <span className="font-bold text-[#5f259f]">{text.common.brand}</span>
           </Link>
         </div>
 
@@ -154,7 +154,7 @@ function HistoryRow({ item, text, lang }: { item: HistoryItem; text: ReturnType<
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-gray-50/70 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 className="font-bold text-gray-950">{titleForHistory(item)}</h2>
+        <h2 className="font-bold text-gray-950">{titleForHistory(item, text.saved.menuFallback)}</h2>
         <p className="text-sm text-gray-600">
           {item.item_count || 0} {text.result.dishes}
           {item.updated_at ? ` · ${text.saved.updated} ${new Date(item.updated_at).toLocaleDateString()}` : ""}
@@ -176,7 +176,7 @@ function CartRow({ item, text }: { item: CartItem; text: ReturnType<typeof getTe
     <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="font-bold text-gray-950">{titleForCart(item)}</h2>
+          <h2 className="font-bold text-gray-950">{titleForCart(item, text.saved.dishFallback)}</h2>
           {item.menuInfo?.business_name && <p className="text-sm text-gray-600">{item.menuInfo.business_name}</p>}
         </div>
         <span className="rounded-full bg-purple-100 px-3 py-1 text-sm font-semibold text-purple-800">

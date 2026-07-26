@@ -22,14 +22,14 @@ import {
   useTheme,
 } from "react-native-paper";
 import { login, register, loginWithGoogle, passwordReset, getGoogleAuthUrl } from "../api";
-import { isChineseLanguage, getText } from "../i18n";
+import { getText } from "../i18n";
 
 const DIET_OPTIONS = [
-  { key: "Vegetarian", labelEn: "Vegetarian", labelZh: "素食", labelEs: "Vegetariano" },
-  { key: "Halal", labelEn: "Halal", labelZh: "清真", labelEs: "Halal" },
-  { key: "Kosher", labelEn: "Kosher", labelZh: "犹太", labelEs: "Kosher" },
-  { key: "Keto", labelEn: "Keto", labelZh: "生酮", labelEs: "Keto" },
-  { key: "Gluten-Free", labelEn: "Gluten-Free", labelZh: "无麸质", labelEs: "Sin Gluten" },
+  { key: "Vegetarian" },
+  { key: "Halal" },
+  { key: "Kosher" },
+  { key: "Keto" },
+  { key: "Gluten-Free" },
 ];
 
 export default function LoginRegisterModal({ visible, targetLang, onClose, onLoginSuccess }) {
@@ -54,10 +54,10 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   
-  const isZh = isChineseLanguage(targetLang);
   const theme = useTheme();
-  
-  const authText = getText(targetLang).auth || {};
+
+  const catalog = getText(targetLang);
+  const authText = catalog.auth;
   const t = {
     ...authText,
     title: isForgotPassword 
@@ -85,7 +85,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
       await passwordReset(email);
       setSuccessMessage(t.resetSuccess);
     } catch (err) {
-      setError(err.message || "Failed to send reset email");
+      setError(err.message || t.resetFailed);
     } finally {
       setLoading(false);
     }
@@ -130,13 +130,13 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
           allergies,
           budget || null,
           taste || null,
-          "zh"
+          targetLang
         );
         onLoginSuccess(res.token, res.user);
         onClose();
       }
     } catch (err) {
-      setError(err.message || "Authentication failed");
+      setError(err.message || t.authenticationFailed);
     } finally {
       setLoading(false);
     }
@@ -161,12 +161,12 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
         if (supported) {
           await Linking.openURL(url);
         } else {
-          throw new Error("Cannot open redirect URL on this device");
+          throw new Error(t.redirectUnsupported);
         }
       }
       onClose();
     } catch (err) {
-      setError(err.message || "Failed to trigger Google OAuth");
+      setError(err.message || t.googleLoginFailed);
     } finally {
       setLoading(false);
     }
@@ -382,7 +382,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                                       selectedColor={isSelected ? "#FFFFFF" : "#625B71"}
                                       showSelectedOverlay
                                     >
-                                      {isZh ? diet.labelZh : diet.labelEn}
+                                      {catalog.dietOptions[diet.key]}
                                     </Chip>
                                   );
                                 })}

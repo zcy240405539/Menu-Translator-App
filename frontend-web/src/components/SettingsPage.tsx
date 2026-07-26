@@ -48,7 +48,7 @@ export default function SettingsPage() {
         <header className="mb-10 flex items-center justify-between gap-4">
           <Link href={`/${query}`} className="flex items-center gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-purple-600">
             <Image src="/ai-menu-logo.png" alt="" width={40} height={40} className="rounded-md" priority />
-            <span className="text-xl font-extrabold text-[#5f259f]">AI Menu APP</span>
+            <span className="text-xl font-extrabold text-[#5f259f]">{text.common.brand}</span>
           </Link>
           <Link href={`/${query}`} className="text-sm font-semibold text-purple-700 hover:text-purple-900">
             {text.settings.backHome}

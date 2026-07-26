@@ -17,7 +17,7 @@ Users can:
 
 - Source-language routed menu OCR
 - AI-powered menu layout reconstruction and parsing with language-specific modules
-- English, simplified Chinese, traditional Chinese, and Spanish translation support
+- Complete APP, web, and backend UI catalogs for all 12 supported language codes
 - Google Cloud Translation v3 support
 - Dish detail generation
 - Dish image search with Pexels, Unsplash, Wikimedia Commons, and OpenAI image fallback
@@ -119,6 +119,7 @@ menu-translator-app/
 │  │  │  ├─ config.py
 │  │  │  ├─ database.py
 │  │  │  ├─ i18n_service.py
+│  │  │  ├─ ui_i18n.py
 │  │  │  ├─ models.py
 │  │  │  └─ schemas.py
 │  │  ├─ language_modules/
@@ -147,6 +148,10 @@ menu-translator-app/
 │  │  ├─ dish_images/
 │  │  └─ generated_images/
 │  ├─ migrations/
+│  ├─ scripts/
+│  │  ├─ check_i18n_catalogs.py
+│  │  └─ generate_i18n_catalogs.py
+│  ├─ app/i18n/locales/
 │  ├─ uploads/
 │  ├─ .env
 │  └─ requirements.txt
@@ -155,6 +160,7 @@ menu-translator-app/
    ├─ app.config.js
    ├─ api.js
    ├─ i18n.js
+   ├─ locales/
    ├─ legalContent.js
    ├─ theme.js
    ├─ screens/
@@ -194,6 +200,7 @@ menu-translator-app/
    │     ├─ MenuAnalyzer.tsx
    │     ├─ SettingsPage.tsx
    │     └─ ads/
+   │  └─ locales/
    ├─ public/
    │  └─ ads.txt
    └─ package.json
@@ -239,6 +246,20 @@ Mobile legal routes are also available on Expo Web:
 /account-deletion
 ```
 
+APP copy lives in `frontend/locales/`. Web copy and route metadata live in
+`frontend-web/src/locales/`. Backend legal pages and fixed API errors live in
+`backend/app/i18n/locales/`. All three catalog sets cover `en`, `zh`, `zh-Hant`,
+`es`, `fr`, `ja`, `ko`, `ru`, `pt`, `de`, `it`, and `ar`.
+
+Regenerate missing translations with Cloud Translation and verify that every
+locale has the same keys, value types, and placeholders:
+
+```powershell
+cd backend
+python scripts/generate_i18n_catalogs.py
+python scripts/check_i18n_catalogs.py
+```
+
 # Web Frontend Setup
 ```
 cd frontend-web
@@ -256,6 +277,9 @@ Web utility and legal routes:
 /terms-of-service
 /account-deletion
 ```
+
+Backend legal routes accept `?lang=<language-code>` and also support
+`Accept-Language`. The web footer reads the copyright year at runtime.
 
 For Render Static Site deployment:
 
@@ -546,7 +570,7 @@ Implementation steps:
 
 ## Later Enhancements
 - User manage system
-- Add reviewed native UI copy for languages that currently use the English interface fallback
+- Have machine-generated legal and product copy professionally reviewed before entering jurisdictions that require certified translations
 - Restaurant recommendation engine
 - Admin dashboard for OCR quality, AI cost, ad performance, and storage usage
 - Feature of read menu from URL or QR code, translate from website

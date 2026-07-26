@@ -8,7 +8,8 @@ const ICONS = ["camera-outline", "translate", "food-apple-outline", "lightbulb-o
 export default function OnboardingModal({ visible, targetLang, onComplete }) {
   const [step, setStep] = useState(0);
   const theme = useTheme();
-  const text = getText(targetLang).onboarding;
+  const catalog = getText(targetLang);
+  const text = catalog.onboarding;
   const current = text.steps[step];
   const isLast = step === text.steps.length - 1;
 
@@ -21,7 +22,7 @@ export default function OnboardingModal({ visible, targetLang, onComplete }) {
     <Modal visible={visible} animationType="fade" onRequestClose={finish}>
       <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
         <View style={styles.topRow}>
-          <Text variant="titleMedium" style={{ color: theme.colors.primary }}>AI Menu APP</Text>
+          <Text variant="titleMedium" style={{ color: theme.colors.primary }}>{catalog.common.brand}</Text>
           <Button mode="text" onPress={finish}>{text.skip}</Button>
         </View>
 

@@ -27,17 +27,17 @@ import {
 } from "react-native-paper";
 
 import { addDishToCart } from "../storage/cartStorage";
-import { getText, isChineseLanguage } from "../i18n";
+import { getText } from "../i18n";
 import { getAIRecommendations } from "../api";
 import { formatPrice } from "../utils/price";
 import { InterstitialAd, AdEventType, BannerAd, BannerAdSize, AD_UNIT_IDS } from "../utils/ads";
 
 const DIET_OPTIONS = [
-  { key: "Vegetarian", labelEn: "Vegetarian", labelZh: "素食", labelZht: "素食", labelEs: "Vegetariano" },
-  { key: "Halal", labelEn: "Halal", labelZh: "清真", labelZht: "清真", labelEs: "Halal" },
-  { key: "Kosher", labelEn: "Kosher", labelZh: "犹太", labelZht: "猶太", labelEs: "Kosher" },
-  { key: "Keto", labelEn: "Keto", labelZh: "生酮", labelZht: "生酮", labelEs: "Keto" },
-  { key: "Gluten-Free", labelEn: "Gluten-Free", labelZh: "无麸质", labelZht: "無麩質", labelEs: "Sin Gluten" },
+  { key: "Vegetarian" },
+  { key: "Halal" },
+  { key: "Kosher" },
+  { key: "Keto" },
+  { key: "Gluten-Free" },
 ];
 
 const KeyboardContainer = Platform.OS === 'web' ? View : KeyboardAvoidingView;
@@ -96,9 +96,7 @@ export default function AIRecommendModal({
     }
   }, [visible, currentUser]);
 
-  const lang = isChineseLanguage(targetLang) ? targetLang : "en";
-  const isTraditional = targetLang === "zh-Hant";
-  const t = getText(lang);
+  const t = getText(targetLang);
 
   const handleOpenHistory = () => {
     onClose();
@@ -162,7 +160,7 @@ export default function AIRecommendModal({
           setAddedItemIds({});
         } else if (error) {
           console.warn("AI Recommend failed:", error);
-          setError(t.recommend.error || "Failed to generate recommendation");
+          setError(t.recommend.error);
         }
         setLoading(false);
       };
@@ -217,7 +215,7 @@ export default function AIRecommendModal({
 
     } catch (err) {
       console.warn("AI Recommend init failed:", err);
-      setError(t.recommend.error || "Failed to generate recommendation");
+      setError(t.recommend.error);
       setLoading(false);
     }
   };
@@ -235,12 +233,7 @@ export default function AIRecommendModal({
     setSnackbarVisible(true);
   };
 
-  const getDietLabel = (diet) => {
-    if (lang === "zh-Hant") return diet.labelZht;
-    if (lang === "zh") return diet.labelZh;
-    if (lang === "es") return diet.labelEs;
-    return diet.labelEn;
-  };
+  const getDietLabel = (diet) => t.dietOptions[diet.key];
 
   const matchedItems = recommendedItems
     .map((rec) => {
@@ -398,9 +391,7 @@ export default function AIRecommendModal({
                 <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.card, isDesktopLayout && styles.cardDesktop, { backgroundColor: theme.colors.surface }]}>
                   <Card.Content style={isDesktopLayout ? styles.formCardContentDesktop : undefined}>
                     <Text variant="bodyMedium" style={[styles.introText, { color: theme.colors.onSurfaceVariant }]}>
-                      {isChineseLanguage(targetLang)
-                        ? "告诉 AI 您的偏好，为您生成定制的配餐方案和推荐菜品。"
-                        : "Tell AI your preferences and get a customized recommendation."}
+                      {t.recommend.intro}
                     </Text>
 
                     <View style={[styles.formGrid, isDesktopLayout && styles.formGridDesktop]}>
@@ -465,11 +456,7 @@ export default function AIRecommendModal({
                           mode="outlined"
                           value={allergiesText}
                           onChangeText={setAllergiesText}
-                          placeholder={
-                            isChineseLanguage(targetLang)
-                              ? (targetLang === "zh-Hant" ? "例如：花生、海鮮（逗號分隔）" : "例如：花生、海鲜（逗号分隔）")
-                              : "e.g., peanut, seafood (comma separated)"
-                          }
+                          placeholder={t.recommend.allergiesPlaceholder}
                           style={styles.input}
                         />
                       </View>
@@ -526,9 +513,7 @@ export default function AIRecommendModal({
             duration={1500}
             style={styles.snackbar}
           >
-            {isChineseLanguage(targetLang)
-              ? (isTraditional ? "已加入待點列表" : "已加入待点列表")
-              : "Added to order list"}
+            {t.recommend.addedMessage}
           </Snackbar>
         </Surface>
       </Modal>

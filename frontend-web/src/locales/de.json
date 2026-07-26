@@ -1,0 +1,382 @@
+{
+  "metaTitle": "KI-Menü-App – Menüs übersetzen & einfach bestellen",
+  "languageNames": {
+    "en": "Englisch",
+    "zh-cn": "Chinesisch (vereinfacht)",
+    "zh-Hant": "Chinesisch-Traditionell",
+    "es": "Spanisch",
+    "fr": "Französisch",
+    "ja": "japanisch",
+    "ko": "Koreanisch",
+    "ru": "Russisch",
+    "pt": "Portugiesisch",
+    "de": "Deutsch",
+    "it": "Italienisch",
+    "ar": "Arabisch"
+  },
+  "languageShortNames": {
+    "en": "Englisch",
+    "zh-cn": "chinesisch",
+    "zh-Hant": "chinesisch",
+    "es": "Spanisch"
+  },
+  "nav": {
+    "language": "Seitensprache auswählen",
+    "share": "Aktie",
+    "shareMessage": "Menüs übersetzen und verstehen mit der KI-Menü-App.",
+    "history": "Geschichte",
+    "cart": "Warenkorb",
+    "account": "Konto",
+    "settings": "Einstellungen",
+    "accountLoginFailed": "Die Anmeldung ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
+  "home": {
+    "kicker": "Kostenlos starten",
+    "titleLines": [
+      "Menüs übersetzen,",
+      "Bestellen Sie ganz einfach"
+    ],
+    "subtitle": "Laden Sie Fotos, PDFs, Webseiten oder Links zu Liefer-Apps hoch, um genaue Namen, Beschreibungen und Zutaten der Gerichte zu erhalten.",
+    "steps": [
+      "Fotos/PDF/Web",
+      "KI-Übersetzung",
+      "Bestellung bereit",
+      "Intelligente Vorschläge"
+    ]
+  },
+  "auth": {
+    "title": "anmelden",
+    "subtitle": "Melden Sie sich an, um Menüverlauf und Bestelllisten zu speichern.",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "signIn": "anmelden",
+    "signingIn": "Anmelden...",
+    "google": "Mit Google fortfahren",
+    "backHome": "Zurück zur Startseite",
+    "missingFields": "Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.",
+    "loginFailed": "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre E-Mail-Adresse und Ihr Passwort.",
+    "googleFailed": "Google-Anmeldung nicht möglich.",
+    "signedIn": "Angemeldet. Weiterleitung..."
+  },
+  "saved": {
+    "loading": "Laden...",
+    "signInPrompt": "Melden Sie sich an, um gespeicherte Elemente anzuzeigen.",
+    "emptyHistory": "Es ist noch kein Menüverlauf gespeichert.",
+    "emptyCart": "Ihre Bestellliste ist leer.",
+    "openMenu": "Menü öffnen",
+    "quantity": "Menge",
+    "updated": "Aktualisiert",
+    "loadFailed": "Gespeicherte Elemente konnten nicht geladen werden.",
+    "menuFallback": "Speisekarte",
+    "dishFallback": "Gericht"
+  },
+  "features": {
+    "title": "Hauptmerkmale",
+    "subtitle": "Ihr intelligenter KI-Menüübersetzer hilft Ihnen, lokale Gerichte überall auf der Welt zu verstehen.",
+    "cards": [
+      {
+        "title": "Menüs übersetzen",
+        "desc": "Menüs in alle unterstützten Sprachen übersetzen."
+      },
+      {
+        "title": "Detaillierte Beschreibungen",
+        "desc": "Lassen Sie sich verständliche Erklärungen zu unbekannten Gerichten und Zutaten geben."
+      },
+      {
+        "title": "Einfach bestellen",
+        "desc": "Erstellen Sie eine übersichtliche Liste der ausgewählten Gerichte, die Sie dem Kellner zeigen können."
+      },
+      {
+        "title": "Alle Menüarten",
+        "desc": "Fotos, PDFs und Menülinks werden an denselben Backend-Parser weitergeleitet."
+      }
+    ]
+  },
+  "result": {
+    "backHome": "Zurück zur Startseite",
+    "restaurantMenu": "Speisekarte",
+    "loading": "Laden",
+    "dishes": "Gerichte",
+    "loadingResult": "Menüergebnis wird geladen...",
+    "noItems": "Keine Menüpunkte gefunden.",
+    "notAvailable": "Das Menüergebnis ist noch nicht verfügbar. Bitte aktualisieren Sie die Seite in Kürze.",
+    "other": "Andere",
+    "unnamedDish": "Unbenanntes Gericht",
+    "recommendLink": "Intelligente KI-Empfehlungen",
+    "close": "Schließen",
+    "detailLoading": "Details werden geladen...",
+    "imagePending": "Bild wird vorbereitet",
+    "description": "Beschreibung",
+    "ingredients": "Zutaten",
+    "allergens": "Allergene",
+    "spicyLevel": "Schärfegrad",
+    "unknown": "Unbekannt",
+    "none": "Keiner",
+    "addToCart": "Zur Bestellliste hinzufügen",
+    "addedToCart": "Hinzugefügt",
+    "recommendationTitle": "Intelligente KI-Empfehlungen",
+    "peopleLabel": "Personenzahl",
+    "peoplePlaceholder": "z.B. 2",
+    "dietLabel": "Diätbeschränkungen",
+    "budgetLabel": "Budget",
+    "budgetPlaceholder": "z. B. 50 $ oder kein Limit",
+    "allergiesLabel": "Nahrungsmittelallergien",
+    "allergiesPlaceholder": "z.B. Erdnüsse, Meeresfrüchte",
+    "tasteLabel": "Geschmacksvorliebe",
+    "tastePlaceholder": "z. B. scharf, mild, weniger Salz",
+    "generateRecommendation": "Empfehlung generieren",
+    "generatingRecommendation": "Wird generiert...",
+    "recommendationSummary": "Empfehlung",
+    "recommendedDishes": "Empfohlene Gerichte",
+    "recommendationError": "Es konnte keine Empfehlung generiert werden. Bitte versuchen Sie es erneut.",
+    "dietOptions": {
+      "Vegetarian": "Vegetarier",
+      "Halal": "Halal",
+      "Kosher": "Koscher",
+      "Keto": "Keto",
+      "Gluten-Free": "Glutenfrei"
+    }
+  },
+  "analyzer": {
+    "sourceLanguage": "Ausgangssprache",
+    "targetLanguage": "Zielsprache",
+    "autoDetect": "Automatische Erkennung",
+    "takePicture": "Foto machen",
+    "changePicture": "Bild ändern",
+    "selectFromFile": "Aus Datei auswählen",
+    "changeFile": "Datei ändern",
+    "selected": "Ausgewählt",
+    "menuLink": "Menüseite oder Link zum Teilen",
+    "analyzeMenu": "Menü analysieren",
+    "analyzing": "Analyse läuft...",
+    "noInput": "Bitte wählen Sie eine Datei aus, machen Sie ein Foto oder geben Sie eine URL ein.",
+    "startFileFailed": "Fehler beim Starten der Dateianalyse",
+    "startUrlFailed": "Fehler beim Starten der URL-Analyse",
+    "noTask": "Der Server hat keine Analyseaufgabe zurückgegeben.",
+    "timeout": "Die Analyse läuft noch. Bitte versuchen Sie es in einem Moment erneut.",
+    "statusFailed": "Fehler beim Überprüfen des Analysestatus",
+    "parseFailed": "Fehler beim Parsen auf dem Server",
+    "noHash": "Die analysierten Daten enthielten keinen Menü-Hash.",
+    "unknownError": "Bei der Analyse ist ein Fehler aufgetreten.",
+    "ad": "Werbung"
+  },
+  "footer": {
+    "privacy": "Datenschutzrichtlinie",
+    "terms": "Nutzungsbedingungen",
+    "settings": "Einstellungen",
+    "deletion": "Kontolöschung",
+    "rights": "Alle Rechte vorbehalten."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Bestimmen Sie selbst, wie die KI-Menü-App für Sie funktioniert.",
+    "language": "Seitensprache",
+    "languageDescription": "Verwenden Sie auf der gesamten Website dieselbe Sprache.",
+    "account": "Konto",
+    "accountDescription": "Melden Sie sich an, um auf gespeicherte Menüs und Bestelllisten zuzugreifen.",
+    "legal": "Recht",
+    "privacy": "Datenschutzrichtlinie",
+    "terms": "Nutzungsbedingungen",
+    "deletion": "Kontolöschung",
+    "backHome": "Zurück zur Startseite"
+  },
+  "legal": {
+    "back": "Zurück zur KI-Menü-App",
+    "brand": "AI Menu APP",
+    "contact": "Kontakt",
+    "privacy": {
+      "title": "Datenschutzrichtlinie",
+      "intro": "Die KI-Menü-App hilft Nutzern, Restaurantmenüs anhand von Fotos, Dateien, Dokumenten und Menülinks zu übersetzen und zu verstehen. Diese Datenschutzerklärung erläutert, welche Informationen wir sammeln, wie wir sie verwenden und welche Wahlmöglichkeiten Nutzern zur Verfügung stehen.",
+      "sections": [
+        {
+          "heading": "Informationen, die wir sammeln",
+          "items": [
+            "Kontoinformationen wie Benutzername, E-Mail-Adresse, optionale Telefonnummer und Authentifizierungskennungen.",
+            "Profilpräferenzen, wie z. B. Ernährungsvorlieben, Allergien, Budget und Geschmacksvorlieben, sofern die Nutzer diese angeben.",
+            "Vom Benutzer bereitgestellte Menüinhalte, einschließlich Menüfotos, PDFs, Dokumente, Texte, Webseiten und Links zum Teilen in Liefer-Apps.",
+            "Generierte Menüergebnisse, einschließlich übersetzter Gerichtenamen, Beschreibungen, Zutaten, Allergene, Preise, Menüverlauf und Bestelllistenpositionen.",
+            "Technische Daten wie App-Interaktionen, Diagnosedaten, Geräte- oder Werbe-IDs und Metadaten von Netzwerkanfragen."
+          ]
+        },
+        {
+          "heading": "Wie wir Informationen nutzen",
+          "items": [
+            "Um Funktionen wie Menü-OCR, Übersetzung, Gerichtebeschreibung, Bildabgleich und KI-Empfehlungen bereitzustellen.",
+            "Zum Speichern von Kontoprofilen, Menüverlauf und Bestelllistendaten für angemeldete Benutzer.",
+            "Zur Verbesserung der Zuverlässigkeit, zur Verhinderung von Missbrauch, zur Fehlerbehebung und zur Aufrechterhaltung der App-Sicherheit.",
+            "Um Werbung anzuzeigen und die Werbeleistung zu messen, wo Werbung aktiviert ist.",
+            "Um auf Supportanfragen, Kontolöschungen und Datenschutzanfragen zu reagieren."
+          ]
+        },
+        {
+          "heading": "Drittanbieterdienste",
+          "items": [
+            "Die App kann Daten über Dienstleister verarbeiten, die für Hosting, Datenbank-Speicherung, Authentifizierung, KI-Modellverarbeitung, Bildabruf, Analysen und Werbung eingesetzt werden.",
+            "Je nach aktivierten Funktionen können dies Render, Supabase, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash und Wikimedia Commons sein."
+          ]
+        },
+        {
+          "heading": "Ihre Auswahlmöglichkeiten",
+          "items": [
+            "Sie können, sofern verfügbar, auf die Anmeldung verzichten und unterstützte Funktionen auch ohne Konto nutzen.",
+            "Sie können die Löschung Ihres Kontos unter /account-deletion beantragen.",
+            "Bei Fragen zum Datenschutz oder Löschungsanfragen können Sie sich an uns wenden."
+          ]
+        }
+      ]
+    },
+    "deletion": {
+      "title": "Löschen Sie Ihr AI Menu APP-Konto",
+      "subtitle": "Beantragen Sie die Löschung Ihres Kontos und der zugehörigen Kontodaten.",
+      "emailButton": "Antrag auf Löschung des E-Mail-Kontos",
+      "sections": [
+        {
+          "heading": "Wie man die Löschung beantragt",
+          "items": [
+            "Senden Sie die Anfrage von der E-Mail-Adresse, die mit Ihrem Konto verknüpft ist.",
+            "Geben Sie, falls vorhanden, Ihre registrierte E-Mail-Adresse und Ihren Benutzernamen an.",
+            "Wir werden die Anfrage prüfen und die Kontolöschung durchführen."
+          ]
+        },
+        {
+          "heading": "Daten gelöscht",
+          "items": [
+            "Kontoprofildaten, Authentifizierungsdaten, Avatar, gespeicherte Menühistorie, Profileinstellungen und gespeicherte Bestelllistendaten, die mit dem Konto verknüpft sind, werden, sofern technisch möglich, gelöscht."
+          ]
+        },
+        {
+          "heading": "Daten, die aufbewahrt werden dürfen",
+          "items": [
+            "Wir behalten uns das Recht vor, Sicherheitsprotokolle, gesetzlich vorgeschriebene Transaktionsdatensätze sowie anonymisierte oder nicht benutzerbezogene Menü-, Gerichte- und Bilddaten, die nicht mehr mit Ihrem Konto verknüpft sind, zu speichern."
+          ]
+        }
+      ]
+    }
+  },
+  "legalDocuments": {
+    "privacy": {
+      "title": "Datenschutzrichtlinie",
+      "intro": "Die KI-Menü-App übersetzt und erklärt Restaurantmenüs. Diese Datenschutzerklärung beschreibt, welche Informationen wir verarbeiten, warum wir sie verwenden und welche Wahlmöglichkeiten Ihnen zur Verfügung stehen.",
+      "sections": [
+        {
+          "heading": "Informationen, die wir verarbeiten",
+          "items": [
+            "Kontodetails wie Benutzername, E-Mail-Adresse, optionale Telefonnummer, Authentifizierungskennungen, Profileinstellungen und Avatar.",
+            "Menüs und zugehörige Inhalte, die Sie einreichen, einschließlich Fotos, PDFs, Dokumente, Texte, Webseiten und Links zu Liefer-Apps.",
+            "Generierte Übersetzungen, Details zu Gerichten, Empfehlungen, Menüverlauf, Bestelllistenpositionen, App-Interaktionen, Diagnosedaten und Geräte- oder Werbe-IDs."
+          ]
+        },
+        {
+          "heading": "Wie wir Informationen nutzen",
+          "items": [
+            "Um Funktionen wie Texterkennung (OCR), Übersetzung, Menüorganisation, Gerichtebeschreibungen, Bildabgleich, Empfehlungen, Teilen, Verlauf und Bestellliste bereitzustellen.",
+            "Zur Authentifizierung von Konten, zum Speichern von Einstellungen, zur Gewährleistung der Sicherheit, zur Verhinderung von Missbrauch, zur Fehlerbehebung, zur Verbesserung der Zuverlässigkeit und zur Messung von Werbung, sofern diese aktiviert ist."
+          ]
+        },
+        {
+          "heading": "Dienstleister",
+          "items": [
+            "Je nach aktivierten Funktionen können die Daten von Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense und Google AdMob verarbeitet werden.",
+            "Menüinhalte werden nur dann an KI- und Cloud-Dienste gesendet, wenn dies zur Bereitstellung der angeforderten Funktion erforderlich ist. Jeder Anbieter verarbeitet Daten gemäß seinen eigenen Nutzungsbedingungen und Datenschutzrichtlinien."
+          ]
+        },
+        {
+          "heading": "Aufbewahrung und Sicherheit",
+          "items": [
+            "Wir speichern Kontodaten, solange Ihr Konto aktiv ist, und bewahren zwischengespeicherte oder Diagnosedaten nur in dem Umfang auf, wie dies für den Service, die Sicherheit, die Erfüllung rechtlicher Verpflichtungen und die Leistungserbringung erforderlich ist.",
+            "Wir setzen angemessene Sicherheitsvorkehrungen ein, aber kein Internetdienst kann absolute Sicherheit garantieren."
+          ]
+        },
+        {
+          "heading": "Ihre Entscheidungen und Kinder",
+          "items": [
+            "Sie können die unterstützten Gastfunktionen nutzen, Ihre Profileinstellungen aktualisieren, die verfügbaren Werbeeinstellungen verwalten, die Löschung Ihres Kontos beantragen und uns bei Fragen zum Datenschutz kontaktieren.",
+            "Dieser Service richtet sich nicht an Kinder unter 13 Jahren. Wir behalten uns vor, diese Richtlinie zu aktualisieren und werden Sie gegebenenfalls darüber informieren."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen",
+      "intro": "Diese Nutzungsbedingungen regeln Ihre Nutzung der AI Menu App. Durch die Nutzung des Dienstes stimmen Sie diesen Nutzungsbedingungen zu.",
+      "sections": [
+        {
+          "heading": "Der Service",
+          "items": [
+            "Die AI Menu App nutzt OCR, Übersetzung, Suche und KI-Systeme, um Nutzern das Verständnis von Restaurantmenüs zu erleichtern. Funktionen können sich ändern, unterbrochen oder eingestellt werden.",
+            "Sie müssen korrekte Kontoinformationen angeben und sind für alle Aktivitäten auf Ihrem Konto verantwortlich."
+          ]
+        },
+        {
+          "heading": "Grenzen von KI und Übersetzung",
+          "items": [
+            "Übersetzungen, Preise, Zutatenlisten, Nährwertangaben, Bilder und Empfehlungen können unvollständig oder fehlerhaft sein.",
+            "Bitte bestätigen Sie stets die Menüdetails, die aktuellen Preise, die Verfügbarkeit und die Bestellinformationen direkt im Restaurant."
+          ]
+        },
+        {
+          "heading": "Allergie- und Gesundheitshinweis",
+          "items": [
+            "Die AI Menu APP bietet keine medizinische Beratung und kann nicht garantieren, dass ein Gericht frei von Allergenen oder für eine Diät geeignet ist.",
+            "Bei Allergien oder medizinischen Einschränkungen kontaktieren Sie bitte vor der Bestellung das Restaurant und einen qualifizierten Arzt."
+          ]
+        },
+        {
+          "heading": "Ihre Inhalte und zulässige Nutzung",
+          "items": [
+            "Sie behalten das Eigentum an den von Ihnen eingereichten Inhalten und erteilen uns eine beschränkte Lizenz zur Verarbeitung dieser Inhalte ausschließlich zum Zweck des Betriebs, der Sicherung und der Verbesserung des angeforderten Dienstes.",
+            "Laden Sie keine Inhalte hoch, für deren Nutzung Sie keine Berechtigung haben, missbrauchen Sie den Dienst nicht, versuchen Sie keinen unbefugten Zugriff, stören Sie keine Systeme und nutzen Sie den Dienst nicht rechtswidrig."
+          ]
+        },
+        {
+          "heading": "Werbung, Konten und Haftung",
+          "items": [
+            "Der Dienst kann Werbung anzeigen. Falls kostenpflichtige Funktionen angeboten werden, werden Preise und Kaufbedingungen vor der Zahlung angezeigt. Konten, die gegen diese Nutzungsbedingungen verstoßen, können gesperrt werden.",
+            "Der Service wird nach Verfügbarkeit bereitgestellt. Soweit gesetzlich zulässig, haften wir nicht für indirekte Schäden oder Entscheidungen, die ausschließlich auf Grundlage von KI-generierten Menüinformationen getroffen wurden.",
+            "Wir behalten uns das Recht vor, diese Nutzungsbedingungen zu aktualisieren. Die fortgesetzte Nutzung nach einer Aktualisierung bedeutet, dass Sie die geänderten Nutzungsbedingungen akzeptieren."
+          ]
+        }
+      ]
+    }
+  },
+  "common": {
+    "brand": "AI Menu APP"
+  },
+  "metaDescription": "Mehrsprachige Menüs aus Fotos, PDFs, Texten und Links übersetzen.",
+  "metadata": {
+    "home": {
+      "title": "KI-Menü-App – Menüs übersetzen & einfach bestellen",
+      "description": "Mehrsprachige Menüs aus Fotos, PDFs, Texten und Links übersetzen."
+    },
+    "login": {
+      "title": "Anmelden – KI-Menü-App",
+      "description": "Melden Sie sich bei der AI Menu App an."
+    },
+    "history": {
+      "title": "Geschichte – KI-Menü-App",
+      "description": "Gespeicherter Menüverlauf für die KI-Menü-App."
+    },
+    "cart": {
+      "title": "Warenkorb – KI-Menü-App",
+      "description": "Gespeicherte Bestellliste für die AI Menu App."
+    },
+    "settings": {
+      "title": "Einstellungen | KI-Menü-App",
+      "description": "Verwalten Sie die Website-Einstellungen und rechtlichen Informationen der AI Menu APP."
+    },
+    "privacy": {
+      "title": "Datenschutzrichtlinie – AI Menu App",
+      "description": "Datenschutzerklärung für die AI Menu App."
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen | KI-Menü-App",
+      "description": "Nutzungsbedingungen der AI Menu APP."
+    },
+    "deletion": {
+      "title": "Kontolöschung – KI-Menü-App",
+      "description": "Beantragen Sie die Löschung Ihres AI Menu APP-Kontos."
+    }
+  }
+}

@@ -2,7 +2,6 @@ import uuid
 import re
 import time
 import os
-from html import escape
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
@@ -14,7 +13,7 @@ from fastapi import (
     UploadFile,
     File,
     HTTPException,
-    Depends, Body,
+    Depends, Body, Request,
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, PlainTextResponse
@@ -66,6 +65,12 @@ from app.services.dish_cache_service import (
 from app.services.image_service import get_or_create_dish_image
 from app.services.category_service import get_or_create_menu_category, normalize_category_key
 from app.core.i18n_service import get_language_options, normalize_lang, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
+from app.core.ui_i18n import (
+    render_legal_page,
+    request_language,
+    reset_request_language,
+    ui_text,
+)
 from app.services.document_text_service import (
     extract_markdown_from_file_bytes,
     extract_markdown_from_url,
@@ -150,6 +155,18 @@ ensure_database_schema_compatibility()
 
 app = FastAPI(title="Menu Translator API")
 
+
+@app.middleware("http")
+async def apply_request_language(request: Request, call_next):
+    query_language = request.query_params.get("lang") or request.query_params.get("target_lang")
+    accept_language = request.headers.get("accept-language", "").split(",", 1)[0].split(";", 1)[0]
+    token = request_language(query_language or accept_language)
+    try:
+        return await call_next(request)
+    finally:
+        reset_request_language(token)
+
+
 # =========================
 # Static
 # =========================
@@ -175,260 +192,24 @@ def app_ads_txt():
     return "google.com, pub-8286400764174465, DIRECT, f08c47fec0942fa0"
 
 
+def _support_email() -> str:
+    return os.getenv("APP_SUPPORT_EMAIL", "support@aimenu.us.kg").strip() or "support@aimenu.us.kg"
+
+
 @app.get("/account-deletion", response_class=HTMLResponse)
-def account_deletion_page():
-    support_email = os.getenv("APP_SUPPORT_EMAIL", "support@aimenu.us.kg").strip()
-    if not support_email:
-        support_email = "support@aimenu.us.kg"
-
-    safe_email = escape(support_email, quote=True)
-    mail_subject = "AI%20Menu%20APP%20Account%20Deletion%20Request"
-    mail_body = (
-        "Please%20delete%20my%20AI%20Menu%20APP%20account.%0A%0A"
-        "Registered%20email%3A%20%0A"
-        "Username%20if%20known%3A%20%0A"
-    )
-
-    return HTMLResponse(
-        f"""<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Delete Account - AI Menu APP</title>
-    <style>
-      body {{
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #fdf8f3;
-        color: #1d1b20;
-        line-height: 1.6;
-      }}
-      main {{
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 48px 20px;
-      }}
-      section {{
-        background: #ffffff;
-        border: 1px solid #e6ded8;
-        border-radius: 24px;
-        padding: 28px;
-      }}
-      h1 {{
-        margin-top: 0;
-        font-size: 32px;
-        line-height: 1.2;
-      }}
-      h2 {{
-        margin-top: 28px;
-        font-size: 20px;
-      }}
-      a.button {{
-        display: inline-block;
-        margin-top: 12px;
-        padding: 12px 18px;
-        border-radius: 999px;
-        background: #6750a4;
-        color: #ffffff;
-        text-decoration: none;
-        font-weight: 700;
-      }}
-      .muted {{
-        color: #625b71;
-      }}
-    </style>
-  </head>
-  <body>
-    <main>
-      <section>
-        <h1>Delete your AI Menu APP account</h1>
-        <p>
-          You can request deletion of your AI Menu APP account and associated
-          account data at any time.
-        </p>
-
-        <h2>How to request deletion</h2>
-        <ol>
-          <li>Send the request from the email address registered with your account.</li>
-          <li>Include your registered email and username if available.</li>
-          <li>We will verify the request and process account deletion.</li>
-        </ol>
-
-        <a class="button" href="mailto:{safe_email}?subject={mail_subject}&body={mail_body}">
-          Email account deletion request
-        </a>
-
-        <p class="muted">Contact email: {safe_email}</p>
-
-        <h2>Data deleted</h2>
-        <p>
-          Account profile data, authentication account, avatar, saved menu
-          history, profile preferences, and saved order list data associated
-          with the account will be deleted where technically feasible.
-        </p>
-
-        <h2>Data that may be retained</h2>
-        <p>
-          We may retain security logs, transaction records required by law, and
-          anonymized or non-user-linked menu, dish, and image cache data that is
-          no longer associated with your account.
-        </p>
-
-        <p class="muted">
-          This page is linked from Profile Settings inside the app.
-        </p>
-      </section>
-    </main>
-  </body>
-</html>"""
-    )
+def account_deletion_page(lang: str = "en"):
+    return HTMLResponse(render_legal_page("deletion", lang, _support_email()))
 
 
 @app.get("/home/privacy-policy", response_class=HTMLResponse)
 @app.get("/privacy-policy", response_class=HTMLResponse)
-def privacy_policy_page():
-    support_email = os.getenv("APP_SUPPORT_EMAIL", "support@aimenu.us.kg").strip()
-    if not support_email:
-        support_email = "support@aimenu.us.kg"
+def privacy_policy_page(lang: str = "en"):
+    return HTMLResponse(render_legal_page("privacy", lang, _support_email()))
 
-    safe_email = escape(support_email, quote=True)
 
-    return HTMLResponse(
-        f"""<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Privacy Policy - AI Menu APP</title>
-    <style>
-      body {{
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #fdf8f3;
-        color: #1d1b20;
-        line-height: 1.65;
-      }}
-      main {{
-        max-width: 860px;
-        margin: 0 auto;
-        padding: 48px 20px;
-      }}
-      article {{
-        background: #ffffff;
-        border: 1px solid #e6ded8;
-        border-radius: 24px;
-        padding: 30px;
-      }}
-      h1 {{
-        margin-top: 0;
-        font-size: 34px;
-        line-height: 1.2;
-      }}
-      h2 {{
-        margin-top: 30px;
-        font-size: 21px;
-      }}
-      ul {{
-        padding-left: 22px;
-      }}
-      a {{
-        color: #6750a4;
-        font-weight: 700;
-      }}
-      .muted {{
-        color: #625b71;
-      }}
-    </style>
-  </head>
-  <body>
-    <main>
-      <article>
-        <h1>Privacy Policy</h1>
-
-        <p>
-          AI Menu APP helps users translate and understand restaurant menus from
-          photos, files, documents, and menu links. This Privacy Policy explains
-          what information we collect, how we use it, and the choices available
-          to users.
-        </p>
-
-        <h2>Information we collect</h2>
-        <ul>
-          <li>Account information, such as username, email address, optional phone number, and authentication identifiers.</li>
-          <li>Profile preferences, such as dietary preferences, allergies, budget, and taste preferences when users choose to provide them.</li>
-          <li>User-provided menu content, including menu photos, PDFs, documents, text, webpages, and delivery app share links.</li>
-          <li>Generated menu results, including translated dish names, descriptions, ingredients, allergens, prices, menu history, and order list items.</li>
-          <li>Images uploaded as avatars and images generated or retrieved to represent dishes.</li>
-          <li>Technical data such as app interactions, diagnostics, device or advertising identifiers, and network request metadata.</li>
-        </ul>
-
-        <h2>How we use information</h2>
-        <ul>
-          <li>To provide menu OCR, translation, dish explanation, image matching, and AI recommendation features.</li>
-          <li>To save account profiles, menu history, and order list data for signed-in users.</li>
-          <li>To improve reliability, prevent abuse, debug errors, and maintain app security.</li>
-          <li>To show advertising and measure ad performance where ads are enabled.</li>
-          <li>To respond to support, account deletion, and privacy requests.</li>
-        </ul>
-
-        <h2>Third-party services</h2>
-        <p>
-          The app may process data through service providers used for app
-          hosting, database storage, authentication, OCR, AI model responses,
-          image search or generation, and advertising. These providers may
-          include Render, Supabase, OpenRouter, OpenAI, Google AdMob, Pexels,
-          Unsplash, Wikimedia Commons, and related infrastructure providers.
-        </p>
-
-        <h2>Advertising</h2>
-        <p>
-          AI Menu APP may display ads through Google AdMob. Advertising partners
-          may collect or receive device identifiers, advertising identifiers,
-          app interaction data, and approximate technical information to provide,
-          limit, measure, and improve ads.
-        </p>
-
-        <h2>Data sharing</h2>
-        <p>
-          We do not sell personal information. We share information with service
-          providers only as needed to operate the app, process user requests,
-          provide AI and storage features, show ads, comply with legal
-          obligations, or protect users and the service.
-        </p>
-
-        <h2>Data retention</h2>
-        <p>
-          Account data, saved preferences, menu history, and order list data may
-          be retained while an account remains active. Cached dish, menu, and
-          image data may be retained to improve speed and reduce repeated AI
-          processing. Security logs and legal records may be retained when
-          required.
-        </p>
-
-        <h2>User choices</h2>
-        <ul>
-          <li>Users can use the core menu translation flow without signing in.</li>
-          <li>Users can choose whether to create an account, provide profile preferences, upload files, or save history.</li>
-          <li>Users can request account deletion at <a href="/account-deletion">/account-deletion</a>.</li>
-        </ul>
-
-        <h2>Children</h2>
-        <p>
-          AI Menu APP is not designed for children. Users should not provide
-          personal information for children through the app.
-        </p>
-
-        <h2>Contact</h2>
-        <p>
-          For privacy questions or account deletion requests, contact us at
-          <a href="mailto:{safe_email}">{safe_email}</a>.
-        </p>
-      </article>
-    </main>
-  </body>
-</html>"""
-    )
+@app.get("/terms-of-service", response_class=HTMLResponse)
+def terms_of_service_page(lang: str = "en"):
+    return HTMLResponse(render_legal_page("terms", lang, _support_email()))
 
 # =========================
 # Auth API Endpoints
@@ -451,15 +232,15 @@ def to_user_response(user: User) -> UserResponse:
 
 def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)) -> User:
     if not authorization:
-        raise HTTPException(status_code=401, detail="Missing Authorization Header")
+        raise HTTPException(status_code=401, detail=ui_text("errors.missingAuthorization"))
     try:
         token = authorization.split(" ")[1]
     except Exception:
-        raise HTTPException(status_code=401, detail="Invalid Authorization Header Format")
+        raise HTTPException(status_code=401, detail=ui_text("errors.invalidAuthorization"))
     
     user = sb_get_user_from_token(db, token)
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid Session Token")
+        raise HTTPException(status_code=401, detail=ui_text("errors.invalidSession"))
     return user
 
 
@@ -516,7 +297,7 @@ def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
 def get_google_auth_url(redirect_to: str = "http://localhost:19006"):
     supabase_url = os.getenv("SUPABASE_URL")
     if not supabase_url:
-        raise HTTPException(status_code=500, detail="SUPABASE_URL not configured")
+        raise HTTPException(status_code=500, detail=ui_text("errors.serviceNotConfigured"))
     url = f"{supabase_url}/auth/v1/authorize?provider=google&redirect_to={redirect_to}"
     return {"url": url}
 
@@ -687,7 +468,7 @@ def password_reset(request: PasswordResetRequest):
 def upload_avatar(file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         if not file.content_type.startswith("image/"):
-            raise HTTPException(status_code=400, detail="File must be an image")
+            raise HTTPException(status_code=400, detail=ui_text("errors.imageRequired"))
             
         contents = file.file.read()
         ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
@@ -716,7 +497,10 @@ def upload_avatar(file: UploadFile = File(...), current_user: User = Depends(get
         
         return {"avatar_url": public_url}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to upload avatar: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=ui_text("errors.avatarUploadFailed", error=str(e)),
+        )
 
 # =========================
 # CORS
@@ -1296,7 +1080,7 @@ def get_cached_menu(image_hash: str, target_lang: str = "zh", db: Session = Depe
     from app.services.menu_cache_service import get_menu_cache
     record = get_menu_cache(db, image_hash, target_lang)
     if not record:
-        raise HTTPException(status_code=404, detail="Menu cache not found")
+        raise HTTPException(status_code=404, detail=ui_text("errors.menuCacheNotFound"))
     
     result = record.structure_result or {}
     result["menu_items"] = record.menu_items or []
@@ -1483,7 +1267,7 @@ async def parse_menu(
             parser_name = "document_markitdown_openrouter"
 
         if not extracted_markdown:
-            raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
+            raise HTTPException(status_code=422, detail=ui_text("errors.noReadableText"))
 
         source_lang = resolve_source_language(
             requested_source_lang,
@@ -1563,7 +1347,7 @@ async def parse_menu_url(
         )
 
         if not extracted_markdown:
-            raise HTTPException(status_code=422, detail="No readable menu text was extracted.")
+            raise HTTPException(status_code=422, detail=ui_text("errors.noReadableText"))
 
         detected_source_lang = resolve_source_language(
             request.source_lang,
@@ -2726,7 +2510,7 @@ async def start_parse_menu(
 ):
     try:
         if not file:
-            raise HTTPException(status_code=400, detail="No menu file uploaded")
+            raise HTTPException(status_code=400, detail=ui_text("errors.menuFileRequired"))
 
         file_bytes = await file.read()
         content_type = file.content_type or ""
@@ -2827,7 +2611,7 @@ async def get_parse_status(task_id: str):
     if not task:
         raise HTTPException(
             status_code=404,
-            detail="Task not found",
+            detail=ui_text("errors.taskNotFound"),
         )
 
     return task

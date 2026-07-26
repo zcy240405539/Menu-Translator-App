@@ -1,0 +1,133 @@
+{
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "Contacto"
+  },
+  "errors": {
+    "missingAuthorization": "Falta el encabezado de autorización",
+    "invalidAuthorization": "Formato de encabezado de autorización no válido",
+    "invalidSession": "Token de sesión no válido",
+    "serviceNotConfigured": "El servicio de cuenta no está configurado.",
+    "imageRequired": "El archivo debe ser una imagen.",
+    "avatarUploadFailed": "Error al cargar el avatar: {error}",
+    "menuCacheNotFound": "No se encontró la caché del menú.",
+    "noReadableText": "No se extrajo ningún texto legible del menú.",
+    "menuFileRequired": "No se ha subido ningún archivo de menú.",
+    "taskNotFound": "Tarea no encontrada"
+  },
+  "legal": {
+    "deletion": {
+      "emailSubject": "Solicitud de eliminación de cuenta de la aplicación Menú de IA",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "title": "Elimina tu cuenta de la aplicación AI Menu.",
+      "subtitle": "Solicitar la eliminación de su cuenta y los datos asociados a ella.",
+      "emailButton": "Solicitud de eliminación de cuenta de correo electrónico",
+      "sections": [
+        {
+          "heading": "Cómo solicitar la eliminación",
+          "items": [
+            "Envía la solicitud desde la dirección de correo electrónico registrada en tu cuenta.",
+            "Incluye tu correo electrónico y nombre de usuario registrados, si los tienes.",
+            "Verificaremos la solicitud y procesaremos la eliminación de la cuenta."
+          ]
+        },
+        {
+          "heading": "Datos eliminados",
+          "items": [
+            "Los datos del perfil de la cuenta, la cuenta de autenticación, el avatar, el historial de menús guardados, las preferencias del perfil y los datos de la lista de pedidos guardados asociados a la cuenta se eliminarán siempre que sea técnicamente factible."
+          ]
+        },
+        {
+          "heading": "Datos que pueden conservarse",
+          "items": [
+            "Podemos conservar los registros de seguridad, los registros de transacciones exigidos por ley y los datos de caché de menús, platos e imágenes anonimizados o no vinculados al usuario que ya no estén asociados a su cuenta."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "política de privacidad",
+      "intro": "La aplicación AI Menu traduce y explica los menús de los restaurantes. Esta política describe la información que procesamos, por qué la usamos y las opciones disponibles para usted.",
+      "sections": [
+        {
+          "heading": "Información que procesamos",
+          "items": [
+            "Detalles de la cuenta, como nombre de usuario, correo electrónico, número de teléfono opcional, identificadores de autenticación, preferencias de perfil y avatar.",
+            "Menús y contenido relacionado que usted envíe, incluyendo fotos, archivos PDF, documentos, texto, páginas web y enlaces a aplicaciones de entrega a domicilio.",
+            "Traducciones generadas, detalles de platos, recomendaciones, historial del menú, elementos de la lista de pedidos, interacciones con la aplicación, diagnósticos e identificadores de dispositivos o publicidad."
+          ]
+        },
+        {
+          "heading": "Cómo utilizamos la información",
+          "items": [
+            "Ofrecer funciones de OCR, traducción, organización de menús, descripciones de platos, coincidencia de imágenes, recomendaciones, uso compartido, historial y lista de pedidos.",
+            "Para autenticar cuentas, guardar preferencias, mantener la seguridad, prevenir abusos, solucionar errores, mejorar la fiabilidad y medir la publicidad cuando esté habilitada."
+          ]
+        },
+        {
+          "heading": "Proveedores de servicios",
+          "items": [
+            "Dependiendo de las funciones habilitadas, los datos pueden ser procesados ​​por Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense y Google AdMob.",
+            "El contenido del menú se envía a los servicios de IA y en la nube únicamente cuando es necesario para proporcionar la función solicitada. Cada proveedor procesa los datos según sus propios términos y políticas de privacidad."
+          ]
+        },
+        {
+          "heading": "Retención y seguridad",
+          "items": [
+            "Conservamos los datos de la cuenta mientras esta permanezca activa y mantenemos los datos en caché o de diagnóstico únicamente en la medida en que sean razonablemente necesarios para el servicio, la seguridad, las obligaciones legales y el rendimiento.",
+            "Utilizamos medidas de seguridad razonables, pero ningún servicio de internet puede garantizar la seguridad absoluta."
+          ]
+        },
+        {
+          "heading": "Tus decisiones y tus hijos",
+          "items": [
+            "Puedes usar las funciones para invitados compatibles, actualizar las preferencias de tu perfil, administrar los controles de anuncios disponibles, solicitar la eliminación de tu cuenta y contactarnos si tienes preguntas sobre privacidad.",
+            "Este servicio no está dirigido a menores de 13 años. Podemos actualizar esta política y avisaremos cuando sea necesario."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Condiciones de servicio",
+      "intro": "Estos Términos rigen el uso de la aplicación AI Menu. Al utilizar el servicio, usted acepta estos Términos.",
+      "sections": [
+        {
+          "heading": "El servicio",
+          "items": [
+            "La aplicación AI Menu utiliza sistemas de OCR, traducción, búsqueda e inteligencia artificial para ayudar a los usuarios a comprender los menús de los restaurantes. Las funciones pueden cambiar, interrumpirse o dejar de estar disponibles.",
+            "Debe proporcionar información precisa sobre su cuenta y es responsable de la actividad realizada en ella."
+          ]
+        },
+        {
+          "heading": "Limitaciones de la IA y la traducción",
+          "items": [
+            "Las traducciones, los precios, los ingredientes, las etiquetas nutricionales, las imágenes y las recomendaciones pueden estar incompletas o ser incorrectas.",
+            "Confirme siempre con el restaurante los detalles del menú, los precios actuales, la disponibilidad y la información para realizar el pedido."
+          ]
+        },
+        {
+          "heading": "Aviso sobre alergias y salud",
+          "items": [
+            "La aplicación AI Menu no proporciona asesoramiento médico y no puede garantizar que un plato esté libre de alérgenos o sea apto para una dieta.",
+            "Si tiene alergias o restricciones médicas, póngase en contacto con el restaurante y con un profesional sanitario cualificado antes de realizar su pedido."
+          ]
+        },
+        {
+          "heading": "Su contenido y uso aceptable",
+          "items": [
+            "Usted conserva la propiedad del contenido que envía y nos otorga una licencia limitada para procesarlo únicamente con el fin de operar, proteger y mejorar el servicio solicitado.",
+            "No subas contenido para el que no tengas permiso de uso, no hagas un mal uso del servicio, no intentes acceder sin autorización, no interrumpas los sistemas ni uses el servicio de forma ilegal."
+          ]
+        },
+        {
+          "heading": "Anuncios, cuentas y responsabilidad",
+          "items": [
+            "El servicio puede mostrar publicidad. Si se ofrecen funciones de pago, se mostrarán los precios y las condiciones de compra antes del pago. Las cuentas que infrinjan estos Términos podrán ser suspendidas.",
+            "El servicio se presta según disponibilidad. En la medida en que lo permita la ley, no nos hacemos responsables de las pérdidas indirectas ni de las decisiones tomadas basándose únicamente en la información del menú generada por IA.",
+            "Podemos actualizar estos Términos. El uso continuado tras una actualización implica la aceptación de los Términos revisados."
+          ]
+        }
+      ]
+    }
+  }
+}

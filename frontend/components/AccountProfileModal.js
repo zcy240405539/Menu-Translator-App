@@ -26,14 +26,14 @@ import {
 } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile, uploadAvatar, logout } from "../api";
-import { isChineseLanguage, getText } from "../i18n";
+import { getText, getUrlLangParam } from "../i18n";
 
 const DIET_OPTIONS = [
-  { key: "Vegetarian", labelEn: "Vegetarian", labelZh: "素食", labelEs: "Vegetariano" },
-  { key: "Halal", labelEn: "Halal", labelZh: "清真", labelEs: "Halal" },
-  { key: "Kosher", labelEn: "Kosher", labelZh: "犹太", labelEs: "Kosher" },
-  { key: "Keto", labelEn: "Keto", labelZh: "生酮", labelEs: "Keto" },
-  { key: "Gluten-Free", labelEn: "Gluten-Free", labelZh: "无麸质", labelEs: "Sin Gluten" },
+  { key: "Vegetarian" },
+  { key: "Halal" },
+  { key: "Kosher" },
+  { key: "Keto" },
+  { key: "Gluten-Free" },
 ];
 
 const ACCOUNT_DELETION_URL = `${
@@ -59,11 +59,11 @@ export default function AccountProfileModal({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const isZh = isChineseLanguage(targetLang);
   const theme = useTheme();
 
-  const t = getText(targetLang).profile || {};
-  const authText = getText(targetLang).auth || {};
+  const catalog = getText(targetLang);
+  const t = catalog.profile;
+  const authText = catalog.auth;
 
   // Populate state when user logs in or profile opens
   useEffect(() => {
@@ -106,7 +106,7 @@ export default function AccountProfileModal({
       onUpdateUser(updated);
       setSuccess(t.successMsg);
     } catch (err) {
-      setError(err.message || "Failed to update profile");
+      setError(err.message || t.updateFailed);
     } finally {
       setLoading(false);
     }
@@ -119,7 +119,7 @@ export default function AccountProfileModal({
     // Request permission
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      setError(authText.mediaLibraryPermission || "Permission to access media library is required");
+      setError(authText.mediaLibraryPermission);
       return;
     }
 
@@ -147,11 +147,11 @@ export default function AccountProfileModal({
           avatar_url: uploadRes.avatar_url,
         });
         
-        setSuccess(authText.avatarSuccess || "Avatar updated successfully!");
+        setSuccess(authText.avatarSuccess);
       }
     } catch (err) {
       console.warn("Avatar selection/upload failed:", err);
-      setError(authText.avatarFail || "Avatar upload failed.");
+      setError(authText.avatarFail);
     } finally {
       setAvatarLoading(false);
     }
@@ -172,10 +172,10 @@ export default function AccountProfileModal({
 
   const handleOpenAccountDeletion = async () => {
     try {
-      await Linking.openURL(ACCOUNT_DELETION_URL);
+      await Linking.openURL(`${ACCOUNT_DELETION_URL}?lang=${getUrlLangParam(targetLang)}`);
     } catch (err) {
       console.warn("Open account deletion link failed:", err);
-      setError(t.deleteAccountOpenFailed || "Unable to open account deletion page.");
+      setError(t.deleteAccountOpenFailed);
     }
   };
 
@@ -264,7 +264,7 @@ export default function AccountProfileModal({
                           selectedColor={isSelected ? "#FFFFFF" : "#625B71"}
                           showSelectedOverlay
                         >
-                          {isZh ? diet.labelZh : diet.labelEn}
+                          {catalog.dietOptions[diet.key]}
                         </Chip>
                       );
                     })}

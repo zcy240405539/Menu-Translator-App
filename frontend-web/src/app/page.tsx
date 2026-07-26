@@ -11,9 +11,9 @@ import { DishDetailDialog, RecommendationDialog } from "@/components/MenuResultD
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
+  applyDocumentLanguage,
   getInitialLanguage,
   getText,
-  htmlLanguage,
   languageLabel,
   languageShortLabel,
   normalizeLanguage,
@@ -232,11 +232,11 @@ export default function Home() {
     const shareUrl = window.location.href;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "AI Menu APP", text: text.nav.shareMessage, url: shareUrl });
+        await navigator.share({ title: text.common.brand, text: text.nav.shareMessage, url: shareUrl });
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(shareUrl);
       } else {
-        window.location.href = `mailto:?subject=${encodeURIComponent("AI Menu APP")}&body=${encodeURIComponent(shareUrl)}`;
+        window.location.href = `mailto:?subject=${encodeURIComponent(text.common.brand)}&body=${encodeURIComponent(shareUrl)}`;
       }
     } catch (error) {
       console.error("Share failed:", error);
@@ -278,7 +278,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    document.documentElement.lang = htmlLanguage(lang);
+    applyDocumentLanguage(lang);
     document.title = text.metaTitle;
   }, [lang, text.metaTitle]);
 
@@ -304,7 +304,7 @@ export default function Home() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <a href={homeHref} onClick={handleHomeClick} className="group flex min-w-0 flex-1 items-center gap-2 rounded-md transition-all hover:opacity-90">
             <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md transition-shadow group-hover:shadow-md" priority />
-            <span className="hidden text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700 sm:inline">AI Menu APP</span>
+            <span className="hidden text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700 sm:inline">{text.common.brand}</span>
           </a>
           <div className="flex shrink-0 items-center gap-0.5 text-gray-700 sm:gap-1 md:gap-3">
             <Select value={lang} onValueChange={(value) => handleHeaderLanguageChange(value || DEFAULT_LANGUAGE)}>

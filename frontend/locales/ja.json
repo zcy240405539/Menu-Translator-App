@@ -1,0 +1,410 @@
+{
+  "appTitle": "AI Menu APP",
+  "home": {
+    "heroKicker": "翻訳を開始する",
+    "heroTitle": "メニューを翻訳して、簡単に注文できます",
+    "heroSubtitle": "写真、PDF、ウェブサイト、または配達アプリのリンクをアップロードすると、料理名、説明、材料が明確に表示されます。",
+    "featureDocuments": "写真／PDF／ウェブ",
+    "featureTranslation": "AI翻訳",
+    "featureOrderList": "注文同期",
+    "featureAiRecommend": "AIによる提案",
+    "toolKicker": "メニューをアップロード",
+    "toolTitle": "まずはメニューから始めましょう",
+    "targetLanguage": "対象言語",
+    "sourceLanguage": "ソース言語",
+    "autoDetect": "自動検出",
+    "english": "英語",
+    "chinese": "簡体字中国語",
+    "traditionalChinese": "中国語（繁体字）",
+    "takePicture": "写真を撮る",
+    "selectFromFile": "ファイルから選択",
+    "menuUrlLabel": "メニューページまたは共有リンク",
+    "menuUrlPlaceholder": "Yelp、DoorDash、Uber Eats、またはメニューのURLを貼り付けてください",
+    "selectedMenu": "選択されたメニュー",
+    "pdfMenu": "PDFメニュー",
+    "documentMenu": "ドキュメントメニュー",
+    "pdfFileSelected": "PDFファイルが選択されました",
+    "documentFileSelected": "ドキュメントファイルが選択されました",
+    "fileSelectionFailed": "ファイル選択に失敗しました",
+    "analyzeMenu": "メニューを分析する",
+    "analyzingMenu": "メニューを分析しています...",
+    "holdOnText": "ちょっと待ってください、今分析しています…",
+    "noMenuTitle": "メニューなし",
+    "noMenuMessage": "まず、写真を撮るか、メニューファイルを選択してください。",
+    "noUrlTitle": "リンクなし",
+    "noUrlMessage": "まず、メニューのウェブページまたはデリバリーアプリの共有リンクを貼り付けてください。",
+    "noImageTitle": "画像なし",
+    "noImageMessage": "まず、写真を撮るか、メニュー画像を選択してください。",
+    "permissionRequired": "許可が必要です",
+    "cameraPermission": "カメラ撮影には許可が必要です。",
+    "photoPermission": "写真提供元からの許可が必要です。",
+    "analysisFailed": "メニュー分析に失敗しました",
+    "unknownError": "不明なエラー",
+    "shareTitle": "共有メニュー翻訳",
+    "shareSubtitle": "現在のページを共有する場所を選択してください。",
+    "shareMessage": "メニュー翻訳ツールを使ってメニューを翻訳し、理解しましょう。",
+    "shareFailed": "共有リンクを開けません",
+    "shareTargets": {
+      "wechat": "WeChat",
+      "rednote": "Rednote",
+      "weibo": "Weibo",
+      "facebook": "Facebook",
+      "x": "X / Twitter",
+      "whatsapp": "WhatsApp",
+      "email": "メール"
+    }
+  },
+  "result": {
+    "title": "メニュー結果",
+    "items": "商品",
+    "empty": "メニュー項目が見つかりませんでした",
+    "originalUnavailable": "元の名前は不明です",
+    "restaurantFallback": "レストラン",
+    "sourceFallback": "未知",
+    "aiRecommendBtn": "AIによるおすすめ",
+    "other": "他の"
+  },
+  "recommend": {
+    "title": "AIによるレコメンデーション",
+    "peopleLabel": "人数",
+    "peoplePlaceholder": "例：2",
+    "dietLabel": "食事制限",
+    "budgetLabel": "予算",
+    "budgetPlaceholder": "例：50ドルまたは上限なし",
+    "tasteLabel": "味の好み",
+    "tastePlaceholder": "例：スパイシー、マイルド、減塩",
+    "generateBtn": "推奨事項を生成する",
+    "generating": "AIがメニューを分析しています...",
+    "suggestionTitle": "注文の提案",
+    "recommendedItemsTitle": "おすすめ料理",
+    "addBtn": "注文リストに追加",
+    "addedBtn": "追加した",
+    "backBtn": "オプションの変更",
+    "closeBtn": "近い",
+    "error": "おすすめ情報の生成に失敗しました。もう一度お試しください。",
+    "intro": "AIにあなたの好みを伝えれば、あなたに合ったおすすめ情報が届きます。",
+    "allergiesPlaceholder": "例：ピーナッツ、シーフード（カンマ区切り）",
+    "addedMessage": "注文リストに追加されました"
+  },
+  "detail": {
+    "original": "オリジナル",
+    "price": "価格",
+    "description": "説明",
+    "ingredients": "材料",
+    "allergens": "アレルゲン",
+    "spicyLevel": "辛さレベル",
+    "imagePrompt": "画像プロンプト",
+    "close": "近い",
+    "unknown": "未知",
+    "none": "なし",
+    "allergyRiskTitle": "アレルギーリスクに関する警告",
+    "allergyRiskMessage": "この料理には、{allergens}が含まれているか、またはアレルゲンと接触する可能性があります。ご注文前にレストランに直接ご確認ください。",
+    "preparingImage": "画像の準備",
+    "loadingDetails": "詳細を読み込んでいます...",
+    "changeImage": "一致しませんか？変更する",
+    "addToCart": "注文リストに追加",
+    "addedToCart": "注文リストに追加されました"
+  },
+  "categories": {
+    "breakfast": "朝食",
+    "pastries": "ペストリー",
+    "savory": "風味豊か",
+    "fromage": "チーズ",
+    "cafe": "カフェ＆ティー",
+    "sides": "側面",
+    "additions": "追加情報",
+    "snacks": "おやつ",
+    "appetizers": "前菜",
+    "mains": "メイン",
+    "dinner": "夕食",
+    "dessert": "デザート",
+    "drinks": "ドリンク",
+    "other": "他の"
+  },
+  "auth": {
+    "resetPasswordTitle": "パスワードをリセット",
+    "signInTitle": "サインイン",
+    "signUpTitle": "アカウントを作成する",
+    "email": "メール",
+    "password": "パスワード",
+    "confirmPassword": "パスワードを認証する",
+    "username": "ユーザー名",
+    "phone": "電話（任意）",
+    "loginBtn": "サインイン",
+    "registerBtn": "サインアップ",
+    "switchRegister": "アカウントをお持ちでない方はこちらからご登録ください。",
+    "switchLogin": "既にアカウントをお持ちですか？ログイン",
+    "googleLogin": "Googleで続行",
+    "prefTitle": "食事と健康に関するプロフィール（任意）",
+    "diets": "食習慣",
+    "allergies": "食物アレルギー（カンマ区切り）",
+    "allergiesPlaceholder": "例：ピーナッツ、シーフード",
+    "budget": "外食予算",
+    "budgetPlaceholder": "例：50ドル",
+    "taste": "味の好み",
+    "tastePlaceholder": "例：スパイシー、ライト",
+    "errorMatch": "パスワードが一致しません",
+    "requiredFields": "必須項目はすべてご記入ください。",
+    "forgotPasswordLink": "パスワードをお忘れですか？",
+    "resetBtn": "リセットメールを送信",
+    "resetSuccess": "パスワードリセットメールを送信しました。受信トレイをご確認ください。",
+    "backToLogin": "サインインに戻る",
+    "resetInstruction": "パスワードリセットリンクを受け取るには、メールアドレスを入力してください。",
+    "mediaLibraryPermission": "メディアライブラリへのアクセスには許可が必要です",
+    "avatarSuccess": "アバターの更新に成功しました！",
+    "avatarFail": "アバターのアップロードに失敗しました。しばらくしてからもう一度お試しください。",
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを隠す",
+    "resetFailed": "リセットメールの送信に失敗しました",
+    "authenticationFailed": "認証に失敗しました",
+    "redirectUnsupported": "このデバイスではサインインページを開くことができません",
+    "googleLoginFailed": "Googleサインインの開始に失敗しました"
+  },
+  "profile": {
+    "title": "プロフィール設定",
+    "username": "ユーザー名",
+    "email": "メール",
+    "phone": "電話番号",
+    "saveBtn": "変更を保存",
+    "logoutBtn": "サインアウト",
+    "diets": "食事制限",
+    "allergies": "食物アレルギー",
+    "allergiesPlaceholder": "例：ピーナッツ、シーフード",
+    "budget": "外食予算",
+    "budgetPlaceholder": "例：50ドル",
+    "taste": "味の好み",
+    "tastePlaceholder": "例：スパイシー、ライト",
+    "successMsg": "プロフィールが正常に更新されました！",
+    "avatarTip": "アバターをタップして変更",
+    "deleteAccountLink": "アカウントを削除",
+    "deleteAccountHelp": "アカウントを削除する必要がありますか？削除リクエストページを開いてください。",
+    "deleteAccountOpenFailed": "アカウント削除ページを開くことができません。",
+    "updateFailed": "プロフィールの更新に失敗しました"
+  },
+  "settings": {
+    "title": "設定",
+    "appearance": "外観",
+    "system": "システム",
+    "light": "ライト",
+    "dark": "暗い",
+    "help": "ヘルプとフィードバック",
+    "replayTutorial": "チュートリアルを再生する",
+    "replayTutorialDescription": "メニューの読み方、翻訳方法、理解の仕方を復習しましょう。",
+    "rateApp": "AIメニューアプリを評価する",
+    "rateAppDescription": "Google PlayでAIメニューアプリを開いてください。",
+    "legal": "法律上の",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "version": "AI Menu APP 2.3",
+    "done": "終わり"
+  },
+  "onboarding": {
+    "skip": "スキップ",
+    "back": "戻る",
+    "next": "次",
+    "start": "無料で使い始めましょう",
+    "steps": [
+      {
+        "title": "どんなメニューでもお持ちください",
+        "description": "写真を撮るか、画像やPDFをアップロードするか、レストランのメニューのリンクを貼り付けてください。"
+      },
+      {
+        "title": "あなた流に翻訳",
+        "description": "メニュー言語と、読みたい言語を選択してください。"
+      },
+      {
+        "title": "すべての料理を理解する",
+        "description": "整理されたカテゴリー、料理の詳細、材料、価格、アレルギー情報をご覧ください。"
+      },
+      {
+        "title": "安心してご注文ください",
+        "description": "パーソナライズされたおすすめ情報を入手したり、メニューを保存したり、結果を共有したり、注文リストを作成したりできます。"
+      }
+    ]
+  },
+  "legal": {
+    "common": {
+      "brand": "AI Menu APP",
+      "back": "戻る",
+      "contact": "接触"
+    },
+    "privacy": {
+      "title": "プライバシーポリシー",
+      "intro": "AIメニューアプリは、レストランのメニューを翻訳して解説します。このポリシーでは、当社が処理する情報、その利用目的、およびお客様が選択できる内容について説明します。",
+      "sections": [
+        {
+          "heading": "当社が処理する情報",
+          "items": [
+            "ユーザー名、メールアドレス、任意で入力する電話番号、認証識別子、プロフィール設定、アバターなどのアカウント情報。",
+            "お客様が提出するメニューおよび関連コンテンツ（写真、PDF、文書、テキスト、ウェブページ、配達アプリのリンクなど）。",
+            "翻訳結果、料理の詳細、おすすめ情報、メニュー履歴、注文リスト項目などの結果を生成します。",
+            "アプリの操作、診断情報、デバイスまたは広告の識別子、ネットワーク要求のメタデータなどの技術情報。"
+          ]
+        },
+        {
+          "heading": "情報の利用方法",
+          "items": [
+            "OCR、翻訳、メニュー整理、料理の説明、画像マッチング、おすすめ機能、共有機能、履歴機能、注文リスト機能を提供する。",
+            "アカウントの認証、設定の保存、セキュリティの維持、不正利用の防止、エラーのトラブルシューティング、および信頼性の向上。",
+            "広告が有効になっている場所で広告を表示および測定するため、またサポート、プライバシー、および削除のリクエストに対応するため。"
+          ]
+        },
+        {
+          "heading": "サービスプロバイダー",
+          "items": [
+            "有効化されている機能によっては、データはSupabase、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、およびGoogle AdMobによって処理される場合があります。",
+            "これらのプロバイダーは、独自の利用規約およびプライバシーポリシーに基づいて情報を処理します。メニューコンテンツは、要求された機能を提供するために必要な場合に限り、AIおよびクラウドサービスに送信されます。"
+          ]
+        },
+        {
+          "heading": "保持とセキュリティ",
+          "items": [
+            "お客様のアカウントが有効である間はアカウントデータを保持し、キャッシュデータや診断データは、サービス、セキュリティ、法的義務、およびパフォーマンスのために合理的に必要な場合にのみ保持します。",
+            "当社は合理的な安全対策を講じていますが、いかなるインターネットサービスも絶対的なセキュリティを保証することはできません。"
+          ]
+        },
+        {
+          "heading": "あなたの選択",
+          "items": [
+            "アカウントを作成しなくても、サポートされているゲスト機能を利用したり、プロフィール設定を更新したり、アカウントの削除をリクエストしたり、プライバシーに関する質問についてお問い合わせいただくことができます。",
+            "広告の同意設定やデバイスの広告設定は、デバイスまたはアプリ内の必要なコントロールから管理できます。"
+          ]
+        },
+        {
+          "heading": "子供と変化",
+          "items": [
+            "本サービスは13歳未満のお子様を対象としていません。サービス内容や法的要件に変更が生じた場合、本ポリシーを更新し、上記の日付を改訂することがあります。"
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "利用規約",
+      "intro": "本規約は、AIメニューアプリのご利用に適用されます。本サービスをご利用になることにより、お客様は本規約に同意したものとみなされます。",
+      "sections": [
+        {
+          "heading": "サービス",
+          "items": [
+            "AIメニューアプリは、OCR、翻訳、検索、AIシステムを活用して、ユーザーがレストランのメニューを理解しやすくします。機能は変更、中断、または廃止される場合があります。",
+            "正確なアカウント情報を提供する必要があり、アカウントで行われるすべての活動について責任を負うものとします。"
+          ]
+        },
+        {
+          "heading": "AIと翻訳の制限",
+          "items": [
+            "翻訳、価格、原材料、栄養表示、画像、推奨事項は不完全または不正確な場合があります。",
+            "メニューの詳細、現在の価格、在庫状況、注文方法については、必ずレストランに確認してください。"
+          ]
+        },
+        {
+          "heading": "アレルギーと健康に関するお知らせ",
+          "items": [
+            "AIメニューアプリは医療アドバイスを提供するものではなく、料理にアレルゲンが含まれていないことや、特定の食事療法に適していることを保証するものではありません。",
+            "アレルギーや健康上の制限がある場合は、注文前にレストランおよび資格のある医療専門家にご連絡ください。"
+          ]
+        },
+        {
+          "heading": "あなたのコンテンツと許容される使用方法",
+          "items": [
+            "お客様は、ご自身が送信したコンテンツの所有権を保持し、当社に対し、要求されたサービスの運用、セキュリティ確保、および改善のみを目的として、当該コンテンツを処理する限定的なライセンスを付与するものとします。",
+            "使用許可を得ていないコンテンツをアップロードしたり、サービスを悪用したり、不正アクセスを試みたり、システムを妨害したり、サービスを違法に使用したりしないでください。"
+          ]
+        },
+        {
+          "heading": "広告、購入、アカウント",
+          "items": [
+            "本サービスでは広告が表示される場合があります。有料機能が提供される場合、料金および適用される購入条件は支払い前に表示されます。",
+            "本規約に違反するアカウント、またはユーザー、サービス、もしくは第三者を脅迫するアカウントは、停止される場合があります。アカウントの削除はいつでもリクエストできます。"
+          ]
+        },
+        {
+          "heading": "免責事項および責任",
+          "items": [
+            "本サービスは、法律で認められる範囲において、中断のない動作やエラーのない結果を保証することなく、利用可能な範囲で提供されます。",
+            "法律で認められる範囲において、当社は間接的な損失、またはAIが生成したメニュー情報のみに基づいて下された決定について責任を負いません。"
+          ]
+        },
+        {
+          "heading": "変更点と連絡先",
+          "items": [
+            "本規約は更新される場合があり、その場合は上記の日付を改訂します。更新後も引き続きご利用いただく場合は、改訂後の規約に同意したものとみなされます。"
+          ]
+        }
+      ]
+    },
+    "deletion": {
+      "title": "AIメニューアプリのアカウントを削除してください",
+      "subtitle": "アカウントおよび関連するアカウントデータの削除をリクエストしてください。",
+      "requestEmail": "メールアカウント削除依頼",
+      "emailSubject": "AIメニューアプリのアカウント削除リクエスト",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "sections": [
+        {
+          "heading": "削除を依頼する方法",
+          "items": [
+            "アカウントに登録されているメールアドレスからリクエストを送信してください。",
+            "登録済みのメールアドレスとユーザー名があれば、必ずご記入ください。",
+            "ご依頼内容を確認し、アカウント削除の手続きを進めます。"
+          ]
+        },
+        {
+          "heading": "データ削除済み",
+          "items": [
+            "アカウントに関連付けられたアカウントプロファイルデータ、認証アカウント、アバター、保存されたメニュー履歴、プロファイル設定、および保存された注文リストデータは、技術的に可能な場合は削除されます。"
+          ]
+        },
+        {
+          "heading": "保持される可能性のあるデータ",
+          "items": [
+            "当社は、セキュリティログ、法律で義務付けられている取引記録、およびお客様のアカウントに関連付けられなくなった匿名化された、またはユーザーと関連付けられていないメニュー、料理、および画像のキャッシュデータを保持する場合があります。"
+          ]
+        }
+      ]
+    }
+  },
+  "languageNames": {
+    "auto": "自動検出",
+    "en": "英語",
+    "zh": "中国語（簡体字）",
+    "zh-Hant": "中国伝統",
+    "es": "スペイン語",
+    "fr": "フランス語",
+    "ja": "日本語",
+    "ko": "韓国語",
+    "ru": "ロシア",
+    "pt": "ポルトガル語",
+    "de": "ドイツ語",
+    "it": "イタリア語",
+    "ar": "アラビア語"
+  },
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "接触",
+    "dishFallback": "皿",
+    "restaurantFallback": "レストラン",
+    "items": "商品"
+  },
+  "dietOptions": {
+    "Vegetarian": "ベジタリアン",
+    "Halal": "ハラール",
+    "Kosher": "コーシャ",
+    "Keto": "ケト",
+    "Gluten-Free": "グルテンフリー"
+  },
+  "cart": {
+    "title": "注文リスト",
+    "heading": "注文リスト",
+    "shareMessage": "AIメニューアプリで私の注文リストを確認してください。",
+    "items": "商品",
+    "total": "合計",
+    "remove": "取り除く",
+    "empty": "まだ料理は追加されていません"
+  },
+  "history": {
+    "title": "メニュー履歴",
+    "shareMessage": "AIメニューアプリで私のメニュー履歴を確認してみてください。",
+    "items": "商品",
+    "open": "タップして開く",
+    "empty": "メニュー履歴はまだありません"
+  }
+}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import SiteFooter from "@/components/SiteFooter";
+import { getText } from "@/lib/i18n";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,9 +15,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const defaultMetadata = getText("en").metadata.home;
+
 export const metadata: Metadata = {
-  title: "AI Menu APP - Translate Menus & Order with Ease",
-  description: "Translate multilingual menus from photos, PDFs, text, and links.",
+  title: defaultMetadata.title,
+  description: defaultMetadata.description,
   other: {
     "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465",
   },

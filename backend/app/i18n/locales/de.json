@@ -1,0 +1,133 @@
+{
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "Kontakt"
+  },
+  "errors": {
+    "missingAuthorization": "Fehlender Autorisierungsheader",
+    "invalidAuthorization": "Ungültiges Format des Autorisierungsheaders",
+    "invalidSession": "Ungültiges Sitzungstoken",
+    "serviceNotConfigured": "Der Kontodienst ist nicht konfiguriert",
+    "imageRequired": "Die Datei muss ein Bild sein.",
+    "avatarUploadFailed": "Avatar konnte nicht hochgeladen werden: {error}",
+    "menuCacheNotFound": "Menü-Cache nicht gefunden",
+    "noReadableText": "Es wurde kein lesbarer Menütext extrahiert.",
+    "menuFileRequired": "Es wurde keine Menüdatei hochgeladen.",
+    "taskNotFound": "Aufgabe nicht gefunden"
+  },
+  "legal": {
+    "deletion": {
+      "emailSubject": "Antrag auf Kontolöschung der AI Menu App",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "title": "Löschen Sie Ihr AI Menu APP-Konto",
+      "subtitle": "Beantragen Sie die Löschung Ihres Kontos und der zugehörigen Kontodaten.",
+      "emailButton": "Antrag auf Löschung des E-Mail-Kontos",
+      "sections": [
+        {
+          "heading": "Wie man die Löschung beantragt",
+          "items": [
+            "Senden Sie die Anfrage von der E-Mail-Adresse, die mit Ihrem Konto verknüpft ist.",
+            "Geben Sie, falls vorhanden, Ihre registrierte E-Mail-Adresse und Ihren Benutzernamen an.",
+            "Wir werden die Anfrage prüfen und die Kontolöschung durchführen."
+          ]
+        },
+        {
+          "heading": "Daten gelöscht",
+          "items": [
+            "Kontoprofildaten, Authentifizierungsdaten, Avatar, gespeicherte Menühistorie, Profileinstellungen und gespeicherte Bestelllistendaten, die mit dem Konto verknüpft sind, werden, sofern technisch möglich, gelöscht."
+          ]
+        },
+        {
+          "heading": "Daten, die aufbewahrt werden dürfen",
+          "items": [
+            "Wir behalten uns das Recht vor, Sicherheitsprotokolle, gesetzlich vorgeschriebene Transaktionsdatensätze sowie anonymisierte oder nicht benutzerbezogene Menü-, Gerichte- und Bilddaten, die nicht mehr mit Ihrem Konto verknüpft sind, zu speichern."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Datenschutzrichtlinie",
+      "intro": "Die KI-Menü-App übersetzt und erklärt Restaurantmenüs. Diese Datenschutzerklärung beschreibt, welche Informationen wir verarbeiten, warum wir sie verwenden und welche Wahlmöglichkeiten Ihnen zur Verfügung stehen.",
+      "sections": [
+        {
+          "heading": "Informationen, die wir verarbeiten",
+          "items": [
+            "Kontodetails wie Benutzername, E-Mail-Adresse, optionale Telefonnummer, Authentifizierungskennungen, Profileinstellungen und Avatar.",
+            "Menüs und zugehörige Inhalte, die Sie einreichen, einschließlich Fotos, PDFs, Dokumente, Texte, Webseiten und Links zu Liefer-Apps.",
+            "Generierte Übersetzungen, Details zu Gerichten, Empfehlungen, Menüverlauf, Bestelllistenpositionen, App-Interaktionen, Diagnosedaten und Geräte- oder Werbe-IDs."
+          ]
+        },
+        {
+          "heading": "Wie wir Informationen nutzen",
+          "items": [
+            "Um Funktionen wie Texterkennung (OCR), Übersetzung, Menüorganisation, Gerichtebeschreibungen, Bildabgleich, Empfehlungen, Teilen, Verlauf und Bestellliste bereitzustellen.",
+            "Zur Authentifizierung von Konten, zum Speichern von Einstellungen, zur Gewährleistung der Sicherheit, zur Verhinderung von Missbrauch, zur Fehlerbehebung, zur Verbesserung der Zuverlässigkeit und zur Messung von Werbung, sofern diese aktiviert ist."
+          ]
+        },
+        {
+          "heading": "Dienstleister",
+          "items": [
+            "Je nach aktivierten Funktionen können die Daten von Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense und Google AdMob verarbeitet werden.",
+            "Menüinhalte werden nur dann an KI- und Cloud-Dienste gesendet, wenn dies zur Bereitstellung der angeforderten Funktion erforderlich ist. Jeder Anbieter verarbeitet Daten gemäß seinen eigenen Nutzungsbedingungen und Datenschutzrichtlinien."
+          ]
+        },
+        {
+          "heading": "Aufbewahrung und Sicherheit",
+          "items": [
+            "Wir speichern Kontodaten, solange Ihr Konto aktiv ist, und bewahren zwischengespeicherte oder Diagnosedaten nur in dem Umfang auf, wie dies für den Service, die Sicherheit, die Erfüllung rechtlicher Verpflichtungen und die Leistungserbringung erforderlich ist.",
+            "Wir setzen angemessene Sicherheitsvorkehrungen ein, aber kein Internetdienst kann absolute Sicherheit garantieren."
+          ]
+        },
+        {
+          "heading": "Ihre Entscheidungen und Kinder",
+          "items": [
+            "Sie können die unterstützten Gastfunktionen nutzen, Ihre Profileinstellungen aktualisieren, die verfügbaren Werbeeinstellungen verwalten, die Löschung Ihres Kontos beantragen und uns bei Fragen zum Datenschutz kontaktieren.",
+            "Dieser Service richtet sich nicht an Kinder unter 13 Jahren. Wir behalten uns vor, diese Richtlinie zu aktualisieren und werden Sie gegebenenfalls darüber informieren."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen",
+      "intro": "Diese Nutzungsbedingungen regeln Ihre Nutzung der AI Menu App. Durch die Nutzung des Dienstes stimmen Sie diesen Nutzungsbedingungen zu.",
+      "sections": [
+        {
+          "heading": "Der Service",
+          "items": [
+            "Die AI Menu App nutzt OCR, Übersetzung, Suche und KI-Systeme, um Nutzern das Verständnis von Restaurantmenüs zu erleichtern. Funktionen können sich ändern, unterbrochen oder eingestellt werden.",
+            "Sie müssen korrekte Kontoinformationen angeben und sind für alle Aktivitäten auf Ihrem Konto verantwortlich."
+          ]
+        },
+        {
+          "heading": "Grenzen von KI und Übersetzung",
+          "items": [
+            "Übersetzungen, Preise, Zutatenlisten, Nährwertangaben, Bilder und Empfehlungen können unvollständig oder fehlerhaft sein.",
+            "Bitte bestätigen Sie stets die Menüdetails, die aktuellen Preise, die Verfügbarkeit und die Bestellinformationen direkt im Restaurant."
+          ]
+        },
+        {
+          "heading": "Allergie- und Gesundheitshinweis",
+          "items": [
+            "Die AI Menu APP bietet keine medizinische Beratung und kann nicht garantieren, dass ein Gericht frei von Allergenen oder für eine Diät geeignet ist.",
+            "Bei Allergien oder medizinischen Einschränkungen kontaktieren Sie bitte vor der Bestellung das Restaurant und einen qualifizierten Arzt."
+          ]
+        },
+        {
+          "heading": "Ihre Inhalte und zulässige Nutzung",
+          "items": [
+            "Sie behalten das Eigentum an den von Ihnen eingereichten Inhalten und erteilen uns eine beschränkte Lizenz zur Verarbeitung dieser Inhalte ausschließlich zum Zweck des Betriebs, der Sicherung und der Verbesserung des angeforderten Dienstes.",
+            "Laden Sie keine Inhalte hoch, für deren Nutzung Sie keine Berechtigung haben, missbrauchen Sie den Dienst nicht, versuchen Sie keinen unbefugten Zugriff, stören Sie keine Systeme und nutzen Sie den Dienst nicht rechtswidrig."
+          ]
+        },
+        {
+          "heading": "Werbung, Konten und Haftung",
+          "items": [
+            "Der Dienst kann Werbung anzeigen. Falls kostenpflichtige Funktionen angeboten werden, werden Preise und Kaufbedingungen vor der Zahlung angezeigt. Konten, die gegen diese Nutzungsbedingungen verstoßen, können gesperrt werden.",
+            "Der Service wird nach Verfügbarkeit bereitgestellt. Soweit gesetzlich zulässig, haften wir nicht für indirekte Schäden oder Entscheidungen, die ausschließlich auf Grundlage von KI-generierten Menüinformationen getroffen wurden.",
+            "Wir behalten uns das Recht vor, diese Nutzungsbedingungen zu aktualisieren. Die fortgesetzte Nutzung nach einer Aktualisierung bedeutet, dass Sie die geänderten Nutzungsbedingungen akzeptieren."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,382 @@
+{
+  "metaTitle": "AI Menu APP - 翻譯菜單，輕鬆點餐",
+  "languageNames": {
+    "en": "英語",
+    "zh-cn": "中文-簡體",
+    "zh-Hant": "中文-繁體",
+    "es": "西班牙語",
+    "fr": "法語",
+    "ja": "日本人",
+    "ko": "韓國人",
+    "ru": "俄文",
+    "pt": "葡萄牙語",
+    "de": "德文",
+    "it": "義大利語",
+    "ar": "阿拉伯"
+  },
+  "languageShortNames": {
+    "en": "英語",
+    "zh-cn": "中文",
+    "zh-Hant": "中文",
+    "es": "西班牙語"
+  },
+  "nav": {
+    "language": "選擇頁面語言",
+    "share": "分享",
+    "shareMessage": "使用 AI Menu APP 翻譯並看懂菜單。",
+    "history": "歷史",
+    "cart": "購物車",
+    "account": "帳號",
+    "settings": "設定",
+    "accountLoginFailed": "無法開啟登入，請稍後再試。"
+  },
+  "home": {
+    "kicker": "免費開始使用",
+    "titleLines": [
+      "翻譯菜單，",
+      "輕鬆點餐"
+    ],
+    "subtitle": "上傳照片、PDF、網站或外送分享連結，快速取得清楚的菜名、描述和配料。",
+    "steps": [
+      "照片/PDF/網頁",
+      "AI 翻譯",
+      "準備點餐",
+      "智慧推薦"
+    ]
+  },
+  "auth": {
+    "title": "登入",
+    "subtitle": "登入後可以保存菜單歷史和點餐清單。",
+    "email": "信箱",
+    "password": "密碼",
+    "showPassword": "顯示密碼",
+    "hidePassword": "隱藏密碼",
+    "signIn": "登入",
+    "signingIn": "正在登入...",
+    "google": "使用 Google 繼續",
+    "backHome": "返回首頁",
+    "missingFields": "請輸入信箱和密碼。",
+    "loginFailed": "登入失敗，請檢查信箱和密碼。",
+    "googleFailed": "無法開啟 Google 登入。",
+    "signedIn": "已登入，正在跳轉..."
+  },
+  "saved": {
+    "loading": "正在載入...",
+    "signInPrompt": "請先登入以查看保存的內容。",
+    "emptyHistory": "還沒有保存的菜單歷史。",
+    "emptyCart": "點餐清單為空。",
+    "openMenu": "開啟菜單",
+    "quantity": "數量",
+    "updated": "更新於",
+    "loadFailed": "無法載入保存內容。",
+    "menuFallback": "選單",
+    "dishFallback": "盤子"
+  },
+  "features": {
+    "title": "核心功能",
+    "subtitle": "智慧 AI 菜單翻譯器幫助你在世界各地看懂當地菜色。",
+    "cards": [
+      {
+        "title": "菜單翻譯",
+        "desc": "支援所有已啟用語言之間的菜單翻譯。"
+      },
+      {
+        "title": "詳細說明",
+        "desc": "解釋陌生菜色、配料和口味。"
+      },
+      {
+        "title": "輕鬆點餐",
+        "desc": "整理清楚的點餐清單，方便給服務員查看。"
+      },
+      {
+        "title": "多種菜單來源",
+        "desc": "照片、PDF 和菜單連結都走同一套後端解析流程。"
+      }
+    ]
+  },
+  "result": {
+    "backHome": "返回首頁",
+    "restaurantMenu": "餐廳菜單",
+    "loading": "載入中",
+    "dishes": "道菜",
+    "loadingResult": "正在載入菜單結果...",
+    "noItems": "沒有找到菜單項目。",
+    "notAvailable": "菜單結果暫時不可用，請稍後重新整理。",
+    "other": "其他",
+    "unnamedDish": "未命名菜色",
+    "recommendLink": "AI 智慧推薦",
+    "close": "關閉",
+    "detailLoading": "正在載入詳情...",
+    "imagePending": "正在準備圖片",
+    "description": "菜色說明",
+    "ingredients": "配料",
+    "allergens": "過敏原",
+    "spicyLevel": "辣度",
+    "unknown": "未知",
+    "none": "無",
+    "addToCart": "加入點餐清單",
+    "addedToCart": "已加入",
+    "recommendationTitle": "AI 智慧推薦",
+    "peopleLabel": "用餐人數",
+    "peoplePlaceholder": "例如：2",
+    "dietLabel": "飲食限制",
+    "budgetLabel": "預算",
+    "budgetPlaceholder": "例如：50 美元或不限",
+    "allergiesLabel": "食物過敏",
+    "allergiesPlaceholder": "例如：花生、海鮮",
+    "tasteLabel": "口味偏好",
+    "tastePlaceholder": "例如：微辣、清淡、少鹽",
+    "generateRecommendation": "生成推薦",
+    "generatingRecommendation": "正在生成...",
+    "recommendationSummary": "推薦方案",
+    "recommendedDishes": "推薦菜色",
+    "recommendationError": "生成推薦失敗，請稍後再試。",
+    "dietOptions": {
+      "Vegetarian": "素食",
+      "Halal": "清真",
+      "Kosher": "猶太潔食",
+      "Keto": "生酮",
+      "Gluten-Free": "無麩質"
+    }
+  },
+  "analyzer": {
+    "sourceLanguage": "源語言",
+    "targetLanguage": "目標語言",
+    "autoDetect": "自動識別",
+    "takePicture": "拍照",
+    "changePicture": "更換照片",
+    "selectFromFile": "選擇檔案",
+    "changeFile": "更換檔案",
+    "selected": "已選擇",
+    "menuLink": "菜單網頁或分享連結",
+    "analyzeMenu": "分析菜單",
+    "analyzing": "正在分析...",
+    "noInput": "請選擇檔案、拍照，或輸入連結。",
+    "startFileFailed": "無法開始解析檔案",
+    "startUrlFailed": "無法開始解析連結",
+    "noTask": "伺服器沒有返回解析任務。",
+    "timeout": "解析仍在進行，請稍後再試。",
+    "statusFailed": "無法檢查解析狀態",
+    "parseFailed": "伺服器解析失敗",
+    "noHash": "解析結果沒有返回菜單雜湊。",
+    "unknownError": "分析時發生錯誤。",
+    "ad": "廣告"
+  },
+  "footer": {
+    "privacy": "隱私政策",
+    "terms": "服務條款",
+    "settings": "設定",
+    "deletion": "刪除帳號",
+    "rights": "保留所有權利。"
+  },
+  "settings": {
+    "title": "設定",
+    "subtitle": "管理 AI Menu APP 的網頁使用方式。",
+    "language": "頁面語言",
+    "languageDescription": "在整個網站使用同一種語言。",
+    "account": "帳號",
+    "accountDescription": "登入後存取已儲存的菜單和點餐清單。",
+    "legal": "法律資訊",
+    "privacy": "隱私政策",
+    "terms": "服務條款",
+    "deletion": "刪除帳號",
+    "backHome": "返回首頁"
+  },
+  "legal": {
+    "back": "返回 AI Menu APP",
+    "brand": "AI Menu APP",
+    "contact": "聯絡信箱",
+    "privacy": {
+      "title": "隱私政策",
+      "intro": "AI Menu APP 幫助使用者透過照片、檔案、文件和菜單連結翻譯並理解餐廳菜單。本隱私政策說明我們收集哪些資訊、如何使用這些資訊，以及使用者可以做出的選擇。",
+      "sections": [
+        {
+          "heading": "我們收集的資訊",
+          "items": [
+            "帳號資訊，例如使用者名稱、電子郵件地址、可選電話號碼和身分驗證識別碼。",
+            "使用者主動提供的資料偏好，例如飲食偏好、過敏資訊、預算和口味偏好。",
+            "使用者提供的菜單內容，包括菜單照片、PDF、文件、文字、網頁和外送應用分享連結。",
+            "生成的菜單結果，包括翻譯後的菜名、描述、配料、過敏原、價格、菜單歷史和點餐清單項目。",
+            "技術資料，例如應用互動、診斷資訊、裝置或廣告識別碼，以及網路請求中繼資料。"
+          ]
+        },
+        {
+          "heading": "我們如何使用資訊",
+          "items": [
+            "提供菜單 OCR、翻譯、菜色解釋、圖片匹配和 AI 推薦功能。",
+            "為登入使用者保存帳號資料、菜單歷史和點餐清單資料。",
+            "提升可靠性、防止濫用、偵錯並維護應用安全。",
+            "在啟用廣告時展示廣告並衡量廣告效果。",
+            "回應客服、帳號刪除和隱私相關請求。"
+          ]
+        },
+        {
+          "heading": "第三方服務",
+          "items": [
+            "應用可能會透過託管、資料庫儲存、身分驗證、AI 模型處理、圖片檢索、分析和廣告等服務商處理資料。",
+            "這些服務商可能包括 Render、Supabase、OpenRouter、OpenAI、Google AdSense、Google AdMob、Pexels、Unsplash 和 Wikimedia Commons，具體取決於啟用的功能。"
+          ]
+        },
+        {
+          "heading": "你的選擇",
+          "items": [
+            "在可用情況下，你可以不登入帳號使用支援的功能。",
+            "你可以在 /account-deletion 請求刪除帳號。",
+            "你可以聯絡我們諮詢隱私問題或帳號刪除請求。"
+          ]
+        }
+      ]
+    },
+    "deletion": {
+      "title": "刪除你的 AI Menu APP 帳號",
+      "subtitle": "請求刪除你的帳號及相關帳號資料。",
+      "emailButton": "傳送帳號刪除請求郵件",
+      "sections": [
+        {
+          "heading": "如何請求刪除",
+          "items": [
+            "請使用註冊帳號的電子郵件地址傳送請求。",
+            "請包含你的註冊信箱和使用者名稱（如果知道）。",
+            "我們會驗證請求並處理帳號刪除。"
+          ]
+        },
+        {
+          "heading": "將刪除的資料",
+          "items": [
+            "在技術可行範圍內，我們會刪除與該帳號關聯的帳號資料、身分驗證帳號、頭像、已保存菜單歷史、個人偏好和已保存點餐清單資料。"
+          ]
+        },
+        {
+          "heading": "可能保留的資料",
+          "items": [
+            "我們可能保留安全日誌、法律要求的交易記錄，以及不再與你帳號關聯的匿名或非使用者關聯菜單、菜色和圖片快取資料。"
+          ]
+        }
+      ]
+    }
+  },
+  "legalDocuments": {
+    "privacy": {
+      "title": "隱私政策",
+      "intro": "AI Menu APP 用於翻譯和解釋餐廳菜單。本政策說明我們處理哪些資訊、使用目的以及您可以進行的選擇。",
+      "sections": [
+        {
+          "heading": "我們處理的資訊",
+          "items": [
+            "帳號資料，例如使用者名稱、電子郵件、可選電話號碼、驗證識別碼、個人偏好和頭像。",
+            "您提交的菜單及相關內容，包括照片、PDF、文件、文字、網頁和外送應用程式連結。",
+            "產生的翻譯、菜品詳情、推薦、菜單歷史、待點列表，以及應用程式互動、診斷和裝置或廣告識別碼。"
+          ]
+        },
+        {
+          "heading": "資訊用途",
+          "items": [
+            "提供 OCR、翻譯、菜單分類、菜品說明、圖片配對、智慧推薦、分享、歷史和待點列表功能。",
+            "驗證帳號、儲存偏好、維護安全、防止濫用、排查錯誤、改善可靠性，並在啟用廣告時衡量廣告。"
+          ]
+        },
+        {
+          "heading": "服務提供者",
+          "items": [
+            "根據啟用的功能，資料可能由 Supabase、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Google AdSense 和 Google AdMob 處理。",
+            "菜單內容只會在提供所要求功能所需範圍內傳送給 AI 和雲端服務。各服務商依自己的條款和隱私規則處理資料。"
+          ]
+        },
+        {
+          "heading": "保留與安全",
+          "items": [
+            "帳號有效期間我們會保留帳號資料；快取或診斷資料僅在服務、安全、法律義務和效能所合理需要的期間內保留。",
+            "我們採取合理的安全措施，但任何網際網路服務都無法保證絕對安全。"
+          ]
+        },
+        {
+          "heading": "您的選擇與兒童保護",
+          "items": [
+            "您可以使用支援的訪客功能、修改個人偏好、管理可用的廣告控制、要求刪除帳號並聯絡我們處理隱私問題。",
+            "本服務不面向13歲以下兒童。我們可能更新本政策，並在需要時提供通知。"
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "服務條款",
+      "intro": "本條款適用於您對 AI Menu APP 的使用。使用本服務即表示您同意本條款。",
+      "sections": [
+        {
+          "heading": "服務內容",
+          "items": [
+            "AI Menu APP 使用 OCR、翻譯、搜尋和 AI 系統協助使用者理解餐廳菜單。功能可能變更、中斷或停止。",
+            "您應提供準確的帳號資訊，並對帳號下的活動負責。"
+          ]
+        },
+        {
+          "heading": "AI 與翻譯限制",
+          "items": [
+            "翻譯、價格、配料、飲食標籤、圖片和推薦可能不完整或不準確。",
+            "請一律向餐廳確認菜單內容、目前價格、供應情況和點餐資訊。"
+          ]
+        },
+        {
+          "heading": "過敏與健康提示",
+          "items": [
+            "AI Menu APP 不提供醫療建議，也不能保證菜品不含過敏原或適合特定飲食。",
+            "如有過敏或醫療限制，請在點餐前聯絡餐廳並諮詢合格的醫療專業人士。"
+          ]
+        },
+        {
+          "heading": "您的內容與合理使用",
+          "items": [
+            "您保留所提交內容的所有權，並授予我們僅為運行、保護和改善所要求服務而處理該內容的有限授權。",
+            "請勿上傳無權使用的內容、濫用服務、嘗試未經授權的存取、干擾系統或將服務用於違法目的。"
+          ]
+        },
+        {
+          "heading": "廣告、帳號與責任",
+          "items": [
+            "服務可能展示廣告。如果提供付費功能，我們會在付款前顯示價格和購買條款。違反本條款的帳號可能被暫停。",
+            "服務按現狀提供。在法律允許範圍內，我們不對間接損失或僅依據 AI 菜單資訊作出的決定承擔責任。",
+            "我們可能更新本條款。更新後繼續使用即表示接受修訂後的條款。"
+          ]
+        }
+      ]
+    }
+  },
+  "common": {
+    "brand": "AI Menu APP"
+  },
+  "metaDescription": "根據照片、PDF、文字和連結翻譯多語言選單。",
+  "metadata": {
+    "home": {
+      "title": "AI選單APP - 輕鬆翻譯選單並下單",
+      "description": "根據照片、PDF、文字和連結翻譯多語言選單。"
+    },
+    "login": {
+      "title": "登入 - AI 選單 APP",
+      "description": "登入AI選單APP。"
+    },
+    "history": {
+      "title": "歷史記錄 - AI 選單應用程式",
+      "description": "AI選單APP的已儲存選單歷史記錄。"
+    },
+    "cart": {
+      "title": "購物車 - AI菜單應用程式",
+      "description": "AI菜單APP的已儲存訂單清單。"
+    },
+    "settings": {
+      "title": "設定 | AI選單應用",
+      "description": "管理 AI 選單 APP 網站設定和法律資訊。"
+    },
+    "privacy": {
+      "title": "隱私權政策 - AI 選單應用",
+      "description": "AI菜單APP隱私權政策。"
+    },
+    "terms": {
+      "title": "服務條款 | AI選單應用",
+      "description": "AI選單APP使用條款。"
+    },
+    "deletion": {
+      "title": "帳戶刪除 - AI選單應用程式",
+      "description": "請求刪除您的AI選單APP帳號。"
+    }
+  }
+}

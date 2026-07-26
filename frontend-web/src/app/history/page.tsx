@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import SavedPage from "@/components/SavedPage";
+import { getText } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "History - AI Menu APP",
-  description: "Saved menu history for AI Menu APP.",
-};
+export const metadata: Metadata = getText("en").metadata.history;
 
 export default function HistoryPage() {
   return <SavedPage mode="history" />;

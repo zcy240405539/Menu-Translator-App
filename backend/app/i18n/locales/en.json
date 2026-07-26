@@ -1,0 +1,133 @@
+{
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "Contact"
+  },
+  "errors": {
+    "missingAuthorization": "Missing Authorization header",
+    "invalidAuthorization": "Invalid Authorization header format",
+    "invalidSession": "Invalid session token",
+    "serviceNotConfigured": "The account service is not configured",
+    "imageRequired": "The file must be an image",
+    "avatarUploadFailed": "Failed to upload avatar: {error}",
+    "menuCacheNotFound": "Menu cache not found",
+    "noReadableText": "No readable menu text was extracted.",
+    "menuFileRequired": "No menu file was uploaded",
+    "taskNotFound": "Task not found"
+  },
+  "legal": {
+    "deletion": {
+      "emailSubject": "AI Menu APP Account Deletion Request",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "title": "Delete your AI Menu APP account",
+      "subtitle": "Request deletion of your account and associated account data.",
+      "emailButton": "Email account deletion request",
+      "sections": [
+        {
+          "heading": "How to request deletion",
+          "items": [
+            "Send the request from the email address registered with your account.",
+            "Include your registered email and username if available.",
+            "We will verify the request and process account deletion."
+          ]
+        },
+        {
+          "heading": "Data deleted",
+          "items": [
+            "Account profile data, authentication account, avatar, saved menu history, profile preferences, and saved order list data associated with the account will be deleted where technically feasible."
+          ]
+        },
+        {
+          "heading": "Data that may be retained",
+          "items": [
+            "We may retain security logs, transaction records required by law, and anonymized or non-user-linked menu, dish, and image cache data that is no longer associated with your account."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "intro": "AI Menu APP translates and explains restaurant menus. This policy describes the information we process, why we use it, and the choices available to you.",
+      "sections": [
+        {
+          "heading": "Information we process",
+          "items": [
+            "Account details such as username, email, optional phone number, authentication identifiers, profile preferences, and avatar.",
+            "Menus and related content you submit, including photos, PDFs, documents, text, webpages, and delivery-app links.",
+            "Generated translations, dish details, recommendations, menu history, order-list items, app interactions, diagnostics, and device or advertising identifiers."
+          ]
+        },
+        {
+          "heading": "How we use information",
+          "items": [
+            "To provide OCR, translation, menu organization, dish explanations, image matching, recommendations, sharing, history, and order-list features.",
+            "To authenticate accounts, save preferences, maintain security, prevent abuse, troubleshoot errors, improve reliability, and measure advertising where enabled."
+          ]
+        },
+        {
+          "heading": "Service providers",
+          "items": [
+            "Depending on enabled features, data may be processed by Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense, and Google AdMob.",
+            "Menu content is sent to AI and cloud services only as needed to provide the requested feature. Each provider processes data under its own terms and privacy practices."
+          ]
+        },
+        {
+          "heading": "Retention and security",
+          "items": [
+            "We retain account data while your account is active and keep cached or diagnostic data only as reasonably needed for the service, security, legal obligations, and performance.",
+            "We use reasonable safeguards, but no internet service can guarantee absolute security."
+          ]
+        },
+        {
+          "heading": "Your choices and children",
+          "items": [
+            "You may use supported guest features, update profile preferences, manage available ad controls, request account deletion, and contact us about privacy questions.",
+            "The service is not directed to children under 13. We may update this policy and will provide notice when required."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "intro": "These Terms govern your use of AI Menu APP. By using the service, you agree to these Terms.",
+      "sections": [
+        {
+          "heading": "The service",
+          "items": [
+            "AI Menu APP uses OCR, translation, search, and AI systems to help users understand restaurant menus. Features may change, be interrupted, or be discontinued.",
+            "You must provide accurate account information and are responsible for activity under your account."
+          ]
+        },
+        {
+          "heading": "AI and translation limitations",
+          "items": [
+            "Translations, prices, ingredients, dietary labels, images, and recommendations may be incomplete or incorrect.",
+            "Always confirm menu details, current prices, availability, and ordering information with the restaurant."
+          ]
+        },
+        {
+          "heading": "Allergy and health notice",
+          "items": [
+            "AI Menu APP does not provide medical advice and cannot guarantee that a dish is free of allergens or suitable for a diet.",
+            "For allergies or medical restrictions, contact the restaurant and a qualified healthcare professional before ordering."
+          ]
+        },
+        {
+          "heading": "Your content and acceptable use",
+          "items": [
+            "You keep ownership of content you submit and grant us a limited license to process it only to operate, secure, and improve the requested service.",
+            "Do not upload content you lack permission to use, misuse the service, attempt unauthorized access, disrupt systems, or use the service unlawfully."
+          ]
+        },
+        {
+          "heading": "Ads, accounts, and liability",
+          "items": [
+            "The service may display advertising. If paid features are offered, pricing and purchase terms will be shown before payment. Accounts that violate these Terms may be suspended.",
+            "The service is provided as available. To the extent permitted by law, we are not responsible for indirect losses or decisions made solely from AI-generated menu information.",
+            "We may update these Terms. Continued use after an update means you accept the revised Terms."
+          ]
+        }
+      ]
+    }
+  }
+}

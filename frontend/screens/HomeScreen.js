@@ -33,6 +33,7 @@ import { parseMenuFile, parseMenuUrl } from "../api";
 import { InterstitialAd, AdEventType, AD_UNIT_IDS } from "../utils/ads";
 import {
   getText,
+  getLanguageLabel,
   saveLanguage,
   LANGUAGES,
   SOURCE_LANGUAGES,
@@ -119,7 +120,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
 
   const getSourceLanguageLabel = (item) => {
     if (!item) return "";
-    return item.code === "auto" ? t.home.autoDetect : item.label;
+    return getLanguageLabel(targetLang, item.code);
   };
 
   const isImageFile = (file) => {
@@ -441,44 +442,44 @@ const selectFromFile = async () => {
     return [
       {
         key: "wechat",
-        label: "Wechat 微信",
+        label: t.home.shareTargets.wechat,
         icon: "wechat",
         url: `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodedUrl}`,
       },
       {
         key: "xiaohongshu",
-        label: "Rednote 小红书",
+        label: t.home.shareTargets.rednote,
         icon: "book-open-variant",
         url: `https://www.xiaohongshu.com/search_result?keyword=${encodedText}`,
         copyBeforeOpen: true,
       },
       {
         key: "weibo",
-        label: "Weibo 微博",
+        label: t.home.shareTargets.weibo,
         icon: "sina-weibo",
         url: `https://service.weibo.com/share/share.php?url=${encodedUrl}&title=${encodedText}`,
       },
       {
         key: "facebook",
-        label: "Facebook",
+        label: t.home.shareTargets.facebook,
         icon: "facebook",
         url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
       },
       {
         key: "x",
-        label: "X / Twitter",
+        label: t.home.shareTargets.x,
         icon: "twitter",
         url: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`,
       },
       {
         key: "whatsapp",
-        label: "WhatsApp",
+        label: t.home.shareTargets.whatsapp,
         icon: "whatsapp",
         url: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
       },
       {
         key: "email",
-        label: "Email",
+        label: t.home.shareTargets.email,
         icon: "email-outline",
         url: `mailto:?subject=${emailSubject}&body=${emailBody}`,
       },
@@ -593,14 +594,14 @@ const selectFromFile = async () => {
                         style={styles.languageButton}
                       >
                         {LANGUAGES.find((item) => item.code === targetLang)?.flag}{" "}
-                        {LANGUAGES.find((item) => item.code === targetLang)?.label}
+                        {getLanguageLabel(targetLang, targetLang)}
                       </Button>
                     }
                   >
                     {LANGUAGES.map((item) => (
                       <Menu.Item
                         key={item.code}
-                        title={`${item.flag} ${item.label}`}
+                        title={`${item.flag} ${getLanguageLabel(targetLang, item.code)}`}
                         onPress={() => {
                           handleTargetLanguageChange(item.code);
                           setTargetLangMenuVisible(false);

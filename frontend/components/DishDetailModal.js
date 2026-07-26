@@ -26,7 +26,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { addDishToCart } from "../storage/cartStorage";
-import { getText, isChineseLanguage } from "../i18n";
+import { getText } from "../i18n";
 import { getDishDetail } from "../api";
 import { formatPrice } from "../utils/price";
 import { BannerAd, BannerAdSize, AD_UNIT_IDS } from "../utils/ads";
@@ -140,8 +140,7 @@ export default function DishDetailModal({
     }
   };
 
-  const lang = isChineseLanguage(targetLang) ? targetLang : "en";
-  const t = getText(lang).detail;
+  const t = getText(targetLang).detail;
 
   const cacheKey = useMemo(() => {
     if (!dish) return null;
@@ -258,6 +257,10 @@ export default function DishDetailModal({
       return false;
     });
   }, [currentUser, allergens, ingredients, title, mergedDish.original_name, dish]);
+  const allergyWarning = t.allergyRiskMessage.replace(
+    "{allergens}",
+    matchedUserAllergens.join(", ") || t.unknown
+  );
 
   if (!dish) return null;
 
@@ -290,12 +293,10 @@ export default function DishDetailModal({
                     <Card style={styles.warningAlertCard} mode="contained">
                       <Card.Content style={styles.warningAlertContent}>
                         <Text variant="titleMedium" style={styles.warningAlertTitle}>
-                          ⚠️ {isChineseLanguage(targetLang) ? "过敏风险警示" : "Allergy Risk Warning"}
+                          ⚠️ {t.allergyRiskTitle}
                         </Text>
                         <Text variant="bodyMedium" style={styles.warningAlertText}>
-                          {isChineseLanguage(targetLang)
-                            ? `该菜品可能包含您过敏的食材：${matchedUserAllergens.join("、")}！请谨慎点餐并向店员确认。`
-                            : `This dish may contain ingredients you are allergic to: ${matchedUserAllergens.join(", ")}! Please order with caution and confirm with staff.`}
+                          {allergyWarning}
                         </Text>
                       </Card.Content>
                     </Card>
@@ -309,7 +310,7 @@ export default function DishDetailModal({
                         <View style={[styles.defaultImageBox, { backgroundColor: theme.colors.surfaceVariant }]}>
                            <Text style={styles.defaultImageIcon}>🍽️</Text>
                           <Text style={[styles.defaultImageText, { color: theme.colors.onSurfaceVariant }]}>
-                            {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
+                            {t.preparingImage}
                           </Text>
                         </View>
                       )}
@@ -318,7 +319,7 @@ export default function DishDetailModal({
                         <View style={styles.imageLoadingOverlay}>
                           <ActivityIndicator animating size="small" />
                           <Text style={[styles.imageLoadingText, { color: theme.colors.onSurfaceVariant }]}>
-                            {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在載入詳情..." : "正在加载详情...") : "Loading details..."}
+                            {t.loadingDetails}
                           </Text>
                         </View>
                       )}
@@ -332,7 +333,7 @@ export default function DishDetailModal({
                           onPress={handleRejectImage}
                           style={{ borderRadius: 100 }}
                         >
-                          {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "圖片不符合？换一张" : "图片不符合？换一张") : "Not matching? Change"}
+                          {t.changeImage}
                         </Button>
                       </Card.Content>
                     )}
@@ -418,7 +419,7 @@ export default function DishDetailModal({
                         setSnackbarVisible(true);
                       }}
                     >
-                      {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "加入待點列表" : "加入待点列表") : "Add to Order List"}
+                      {t.addToCart}
                     </Button>
 
                     <Button
@@ -440,12 +441,10 @@ export default function DishDetailModal({
                   <Card style={styles.warningAlertCard} mode="contained">
                     <Card.Content style={styles.warningAlertContent}>
                       <Text variant="titleMedium" style={styles.warningAlertTitle}>
-                        ⚠️ {isChineseLanguage(targetLang) ? "过敏风险警示" : "Allergy Risk Warning"}
+                        ⚠️ {t.allergyRiskTitle}
                       </Text>
                       <Text variant="bodyMedium" style={styles.warningAlertText}>
-                        {isChineseLanguage(targetLang)
-                          ? `该菜品可能包含您过敏的食材：${matchedUserAllergens.join("、")}！请谨慎点餐并向店员确认。`
-                          : `This dish may contain ingredients you are allergic to: ${matchedUserAllergens.join(", ")}! Please order with caution and confirm with staff.`}
+                        {allergyWarning}
                       </Text>
                     </Card.Content>
                   </Card>
@@ -459,7 +458,7 @@ export default function DishDetailModal({
                       <View style={[styles.defaultImageBox, { backgroundColor: theme.colors.surfaceVariant }]}>
                         <Text style={styles.defaultImageIcon}>🍽️</Text>
                         <Text style={[styles.defaultImageText, { color: theme.colors.onSurfaceVariant }]}>
-                          {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在準備圖片" : "正在准备图片") : "Preparing image"}
+                          {t.preparingImage}
                         </Text>
                       </View>
                     )}
@@ -468,7 +467,7 @@ export default function DishDetailModal({
                       <View style={styles.imageLoadingOverlay}>
                         <ActivityIndicator animating size="small" />
                         <Text style={[styles.imageLoadingText, { color: theme.colors.onSurfaceVariant }]}>
-                          {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "正在載入詳情..." : "正在加载详情...") : "Loading details..."}
+                          {t.loadingDetails}
                         </Text>
                       </View>
                     )}
@@ -497,7 +496,7 @@ export default function DishDetailModal({
                           onPress={handleRejectImage}
                           style={{ margin: 0 }}
                         >
-                          {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "圖片不符合？换一张" : "图片不符合？换一张") : "Not matching? Change"}
+                          {t.changeImage}
                         </Button>
                       )}
                     </View>
@@ -566,7 +565,7 @@ export default function DishDetailModal({
                     setSnackbarVisible(true);
                   }}
                 >
-                  {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "加入待點列表" : "加入待点列表") : "Add to Order List"}
+                  {t.addToCart}
                 </Button>
 
                 <Button
@@ -596,7 +595,7 @@ export default function DishDetailModal({
             onDismiss={() => setSnackbarVisible(false)}
             duration={1600}
           >
-            {isChineseLanguage(targetLang) ? (targetLang === "zh-Hant" ? "已加入待點列表" : "已加入待点列表") : "Added to order list"}
+            {t.addedToCart}
           </Snackbar>
         </Surface>
       </Modal>

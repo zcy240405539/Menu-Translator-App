@@ -90,7 +90,7 @@ function getSectionTitle(category, categoryItems, targetLang) {
   return (
     firstItem?.section_heading_original ||
     category ||
-    "Other"
+    getText(targetLang).result.other
   );
 }
 
@@ -119,12 +119,11 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         shareUrl += `&show_recommend=1`;
       }
       
-      onShare(shareUrl, t.home?.shareMessage || "Check out this menu translator result!");
+      onShare(shareUrl, t.home.shareMessage);
     }
   };
 
-  const lang = isChineseLanguage(targetLang) ? targetLang : "en";
-  const t = getText(lang);
+  const t = getText(targetLang);
 
   let parsedResult = menuResult;
 
@@ -336,7 +335,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
               onPress={() => setShowRecommend(true)}
               style={styles.recommendBtn}
             >
-              {t.result.aiRecommendBtn || "AI智能推荐"}
+              {t.result.aiRecommendBtn}
             </Button>
           </Card.Content>
         </Card>

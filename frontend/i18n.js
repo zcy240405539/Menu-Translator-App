@@ -1,862 +1,95 @@
+import ar from "./locales/ar.json";
+import de from "./locales/de.json";
+import en from "./locales/en.json";
+import es from "./locales/es.json";
+import fr from "./locales/fr.json";
+import it from "./locales/it.json";
+import ja from "./locales/ja.json";
+import ko from "./locales/ko.json";
+import pt from "./locales/pt.json";
+import ru from "./locales/ru.json";
+import zh from "./locales/zh.json";
+import zhHant from "./locales/zh-Hant.json";
+
 const STORAGE_KEY = "menu_app_language";
 
 export const DEFAULT_LANGUAGE = "zh";
 export const DEFAULT_SOURCE_LANGUAGE = "en";
 
 export const LANGUAGES = [
-  { code: "en", label: "English", flag: "🇺🇸" },
-  { code: "zh", label: "简体中文", flag: "🇨🇳" },
-  { code: "zh-Hant", label: "繁體中文", flag: "🇹🇼" },
-  { code: "es", label: "Español", flag: "🇪🇸" },
-  { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "ja", label: "日本語", flag: "🇯🇵" },
-  { code: "ko", label: "한국어", flag: "🇰🇷" },
-  { code: "ru", label: "Русский", flag: "🇷🇺" },
-  { code: "pt", label: "Português", flag: "🇵🇹" },
-  { code: "de", label: "Deutsch", flag: "🇩🇪" },
-  { code: "it", label: "Italiano", flag: "🇮🇹" },
-  { code: "ar", label: "العربية", flag: "🇸🇦" },
+  { code: "en", flag: "🇺🇸" },
+  { code: "zh", flag: "🇨🇳" },
+  { code: "zh-Hant", flag: "🇹🇼" },
+  { code: "es", flag: "🇪🇸" },
+  { code: "fr", flag: "🇫🇷" },
+  { code: "ja", flag: "🇯🇵" },
+  { code: "ko", flag: "🇰🇷" },
+  { code: "ru", flag: "🇷🇺" },
+  { code: "pt", flag: "🇵🇹" },
+  { code: "de", flag: "🇩🇪" },
+  { code: "it", flag: "🇮🇹" },
+  { code: "ar", flag: "🇸🇦" },
 ];
 
-export const SOURCE_LANGUAGES = [
-  { code: "auto", label: "Auto Detect", flag: "🌐" },
-  ...LANGUAGES,
-];
+export const SOURCE_LANGUAGES = [{ code: "auto", flag: "🌐" }, ...LANGUAGES];
 
 export const translations = {
-  en: {
-    appTitle: "AI Menu",
-
-    home: {
-      heroKicker: "Start translating",
-      heroTitle: "Translate menus, order with ease",
-      heroSubtitle:
-        "Upload photos, PDFs, websites, or delivery app links to get clear dish names, descriptions, and ingredients.",
-      featureDocuments: "Photos/PDF/Web",
-      featureTranslation: "AI Translation",
-      featureOrderList: "Order Sync",
-      featureAiRecommend: "AI Suggestion",
-      toolKicker: "Upload menu",
-      toolTitle: "Start with your menu",
-      targetLanguage: "Target language",
-      sourceLanguage: "Source language",
-      autoDetect: "Auto Detect",
-      english: "English",
-      chinese: "Simplified Chinese",
-      traditionalChinese: "Traditional Chinese",
-      takePicture: "Take Picture",
-      selectFromFile: "Select from File",
-      menuUrlLabel: "Menu webpage or share link",
-      menuUrlPlaceholder: "Paste a Yelp, DoorDash, Uber Eats, or menu URL",
-      selectedMenu: "Selected Menu",
-      pdfMenu: "PDF Menu",
-      documentMenu: "Document Menu",
-      pdfFileSelected: "PDF file selected",
-      documentFileSelected: "Document file selected",
-      fileSelectionFailed: "File selection failed",
-      analyzeMenu: "Analyze Menu",
-      analyzingMenu: "Analyzing menu...",
-      holdOnText: "Hold on, I am analyzing for you...",
-      noMenuTitle: "No Menu",
-      noMenuMessage: "Please take a picture or select a menu file first.",
-      noUrlTitle: "No Link",
-      noUrlMessage: "Please paste a menu webpage or delivery app share link first.",
-      noImageTitle: "No Image",
-      noImageMessage: "Please take a picture or select a menu image first.",
-      permissionRequired: "Permission Required",
-      cameraPermission: "Camera permission is required.",
-      photoPermission: "Photo library permission is required.",
-      analysisFailed: "Menu Analysis Failed",
-      unknownError: "Unknown error",
-      shareTitle: "Share Menu Translator",
-      shareSubtitle: "Choose where to share the current page.",
-      shareMessage: "Translate and understand menus with Menu Translator.",
-      shareFailed: "Unable to open share link",
-    },
-
-    result: {
-      title: "Menu Results",
-      items: "items",
-      empty: "No menu items found",
-      originalUnavailable: "Original name unavailable",
-      restaurantFallback: "Restaurant",
-      sourceFallback: "Unknown",
-      aiRecommendBtn: "AI Recommend",
-    },
-
-    recommend: {
-      title: "AI Recommendation",
-      peopleLabel: "Number of People",
-      peoplePlaceholder: "e.g., 2",
-      dietLabel: "Dietary Constraints",
-      budgetLabel: "Budget",
-      budgetPlaceholder: "e.g., $50 or No Limit",
-      tasteLabel: "Taste Preference",
-      tastePlaceholder: "e.g., Spicy, Mild, Less Salt",
-      generateBtn: "Generate Recommendation",
-      generating: "AI is analyzing menu...",
-      suggestionTitle: "Ordering Suggestion",
-      recommendedItemsTitle: "Recommended Dishes",
-      addBtn: "Add to Order List",
-      addedBtn: "Added",
-      backBtn: "Modify Options",
-      closeBtn: "Close",
-      error: "Failed to generate recommendation. Please try again.",
-    },
-
-    detail: {
-      original: "Original",
-      price: "Price",
-      description: "Description",
-      ingredients: "Ingredients",
-      allergens: "Allergens",
-      spicyLevel: "Spicy Level",
-      imagePrompt: "Image Prompt",
-      close: "Close",
-      unknown: "Unknown",
-      none: "None",
-      close: "Close",
-    },
-
-    categories: {
-      breakfast: "Breakfast",
-      pastries: "Pastries",
-      savory: "Savory",
-      fromage: "Fromage",
-      cafe: "Cafe & Tea",
-      sides: "Sides",
-      additions: "Additions",
-      snacks: "Snacks",
-      appetizers: "Appetizers",
-      mains: "Mains",
-      dinner: "Dinner",
-      dessert: "Dessert",
-      drinks: "Drinks",
-      other: "Other",
-    },
-
-    auth: {
-      resetPasswordTitle: "Reset Password",
-      signInTitle: "Sign In",
-      signUpTitle: "Create Account",
-      email: "Email",
-      password: "Password",
-      confirmPassword: "Confirm Password",
-      username: "Username",
-      phone: "Phone (Optional)",
-      loginBtn: "Sign In",
-      registerBtn: "Sign Up",
-      switchRegister: "Don't have an account? Sign Up",
-      switchLogin: "Already have an account? Sign In",
-      googleLogin: "Continue with Google",
-      prefTitle: "Dietary & Health Profile (Optional)",
-      diets: "Dietary Habits",
-      allergies: "Food Allergies (comma separated)",
-      allergiesPlaceholder: "e.g., peanut, seafood",
-      budget: "Dining Budget",
-      budgetPlaceholder: "e.g., $50",
-      taste: "Taste Preference",
-      tastePlaceholder: "e.g., spicy, light",
-      errorMatch: "Passwords do not match",
-      requiredFields: "Please fill in all required fields",
-      forgotPasswordLink: "Forgot Password?",
-      resetBtn: "Send Reset Email",
-      resetSuccess: "Password reset email sent, please check your inbox",
-      backToLogin: "Back to Sign In",
-      resetInstruction: "Enter your email to receive a password reset link",
-      mediaLibraryPermission: "Permission to access media library is required",
-      avatarSuccess: "Avatar updated successfully!",
-      avatarFail: "Avatar upload failed. Please try again later.",
-      showPassword: "Show password",
-      hidePassword: "Hide password",
-    },
-
-    profile: {
-      title: "Profile Settings",
-      username: "Username",
-      email: "Email",
-      phone: "Phone Number",
-      saveBtn: "Save Changes",
-      logoutBtn: "Sign Out",
-      diets: "Dietary Constraints",
-      allergies: "Food Allergies",
-      allergiesPlaceholder: "e.g., peanut, seafood",
-      budget: "Dining Budget",
-      budgetPlaceholder: "e.g., $50",
-      taste: "Taste Preference",
-      tastePlaceholder: "e.g., spicy, light",
-      successMsg: "Profile updated successfully!",
-      avatarTip: "Tap avatar to change",
-      deleteAccountLink: "Delete account",
-      deleteAccountHelp: "Need to delete your account? Open the deletion request page.",
-      deleteAccountOpenFailed: "Unable to open account deletion page.",
-    },
-    settings: {
-      title: "Settings",
-      appearance: "Appearance",
-      system: "System",
-      light: "Light",
-      dark: "Dark",
-      help: "Help & feedback",
-      replayTutorial: "Replay tutorial",
-      replayTutorialDescription: "Review how to scan, translate, and understand a menu.",
-      rateApp: "Rate AI Menu APP",
-      rateAppDescription: "Open AI Menu APP on Google Play.",
-      legal: "Legal",
-      privacy: "Privacy Policy",
-      terms: "Terms of Service",
-      version: "AI Menu APP 2.3",
-      done: "Done",
-    },
-    onboarding: {
-      skip: "Skip",
-      back: "Back",
-      next: "Next",
-      start: "Start using free",
-      steps: [
-        { title: "Bring any menu", description: "Take a photo, upload an image or PDF, or paste a restaurant menu link." },
-        { title: "Translate your way", description: "Choose the menu language and the language you want to read." },
-        { title: "Understand every dish", description: "See organized categories, dish details, ingredients, prices, and allergy notes." },
-        { title: "Order with confidence", description: "Get personalized recommendations, save menus, share results, and build an order list." },
-      ],
-    },
-  },
-
-  zh: {
-    appTitle: "AI菜单助手",
-
-    home: {
-      heroKicker: "开始翻译",
-      heroTitle: "看懂菜单，轻松点餐",
-      heroSubtitle: "上传照片、PDF、菜单网页或外卖分享链接，快速获得菜名、描述和食材说明。",
-      featureDocuments: "照片/PDF/网页",
-      featureTranslation: "AI菜品翻译",
-      featureOrderList: "待点单同步",
-      featureAiRecommend: "AI智能推荐",
-      toolKicker: "上传菜单",
-      toolTitle: "从菜单开始",
-      targetLanguage: "目标语言",
-      sourceLanguage: "菜单原语言",
-      autoDetect: "自动识别",
-      english: "English",
-      chinese: "简体中文",
-      traditionalChinese: "繁体中文",
-      takePicture: "拍照识别",
-      selectFromFile: "从文件选择",
-      menuUrlLabel: "菜单网页或分享链接",
-      menuUrlPlaceholder: "粘贴 Yelp、DoorDash、Uber Eats 或菜单链接",
-      selectedMenu: "已选择菜单",
-      pdfMenu: "PDF 菜单",
-      documentMenu: "文档菜单",
-      pdfFileSelected: "已选择 PDF 文件",
-      documentFileSelected: "已选择文档文件",
-      fileSelectionFailed: "文件选择失败",
-      analyzeMenu: "分析菜单",
-      analyzingMenu: "正在分析菜单...",
-      holdOnText: "请稍候，我正在为您分析菜单...",
-      noMenuTitle: "未选择菜单",
-      noMenuMessage: "请先拍摄或选择一个菜单文件。",
-      noUrlTitle: "未输入链接",
-      noUrlMessage: "请先粘贴菜单网页或外卖 App 分享链接。",
-      noImageTitle: "未选择图片",
-      noImageMessage: "请先拍摄或选择一张菜单图片。",
-      permissionRequired: "需要权限",
-      cameraPermission: "需要相机权限才能拍照。",
-      photoPermission: "需要相册权限才能选择图片。",
-      analysisFailed: "菜单分析失败",
-      unknownError: "未知错误",
-      shareTitle: "分享菜单翻译助手",
-      shareSubtitle: "选择要分享到的平台。",
-      shareMessage: "用菜单翻译助手翻译并看懂菜单。",
-      shareFailed: "无法打开分享链接",
-    },
-
-    result: {
-      title: "菜单分析结果",
-      items: "道菜",
-      empty: "没有解析到菜品",
-      originalUnavailable: "暂无原文名称",
-      restaurantFallback: "餐厅",
-      sourceFallback: "未知语言",
-      aiRecommendBtn: "AI智能推荐",
-    },
-
-    recommend: {
-      title: "AI 智能推荐",
-      peopleLabel: "用餐人数",
-      peoplePlaceholder: "例如：2",
-      dietLabel: "饮食习惯 (选填)",
-      budgetLabel: "预算 (选填)",
-      budgetPlaceholder: "例如：100 或 无限制",
-      tasteLabel: "口味偏好 (选填)",
-      tastePlaceholder: "例如：清淡、微辣、少盐",
-      generateBtn: "生成推荐方案",
-      generating: "AI 正在分析菜单并为您配餐...",
-      suggestionTitle: "配餐建议",
-      recommendedItemsTitle: "推荐菜品",
-      addBtn: "加入待点",
-      addedBtn: "已加入",
-      backBtn: "重新配餐",
-      closeBtn: "关闭",
-      error: "生成推荐失败，请重试。",
-    },
-
-    detail: {
-      original: "原文",
-      price: "价格",
-      description: "介绍",
-      ingredients: "主要食材",
-      allergens: "过敏原",
-      spicyLevel: "辣度",
-      imagePrompt: "图片提示词",
-      close: "关闭",
-      unknown: "未知",
-      none: "无",
-      close: "关闭",
-    },
-
-    categories: {
-      breakfast: "早餐",
-      pastries: "糕点",
-      savory: "咸点",
-      fromage: "奶酪",
-      cafe: "咖啡与茶",
-      sides: "配菜",
-      additions: "加点",
-      snacks: "小吃",
-      appetizers: "前菜",
-      mains: "主菜",
-      dinner: "晚餐",
-      dessert: "甜点",
-      drinks: "饮品",
-      other: "其他",
-    },
-
-    auth: {
-      resetPasswordTitle: "重置密码",
-      signInTitle: "登录账户",
-      signUpTitle: "注册新账号",
-      email: "电子邮箱",
-      password: "密码",
-      confirmPassword: "确认密码",
-      username: "用户名",
-      phone: "手机号 (选填)",
-      loginBtn: "登 录",
-      registerBtn: "注 册",
-      switchRegister: "还没有账号？去注册",
-      switchLogin: "已有账号？去登录",
-      googleLogin: "使用 Google 账号快捷登录",
-      prefTitle: "个性化饮食与健康偏好 (选填)",
-      diets: "饮食限制",
-      allergies: "食物过敏原 (逗号分隔)",
-      allergiesPlaceholder: "如：花生, 海鲜",
-      budget: "日常预算",
-      budgetPlaceholder: "如：50",
-      taste: "口味偏好",
-      tastePlaceholder: "如：清淡、少油",
-      errorMatch: "两次密码不一致",
-      requiredFields: "请填写所有必填项",
-      forgotPasswordLink: "忘记密码？",
-      resetBtn: "发送重置邮件",
-      resetSuccess: "重置邮件已发送，请检查您的邮箱",
-      backToLogin: "返回登录",
-      resetInstruction: "请输入您的注册邮箱接收密码重置链接",
-      mediaLibraryPermission: "需要媒体库权限才能更换头像",
-      avatarSuccess: "头像已成功上传并更新！",
-      avatarFail: "上传头像失败，请稍后重试。",
-      showPassword: "显示密码",
-      hidePassword: "隐藏密码",
-    },
-
-    profile: {
-      title: "个人中心",
-      username: "用户名",
-      email: "电子邮箱",
-      phone: "手机号",
-      saveBtn: "保存修改",
-      logoutBtn: "退出登录",
-      diets: "饮食限制",
-      allergies: "过敏原",
-      allergiesPlaceholder: "例如：花生, 海鲜",
-      budget: "预算限制",
-      budgetPlaceholder: "例如：50 或 无限制",
-      taste: "口味偏好",
-      tastePlaceholder: "例如：清淡、微辣、少油",
-      successMsg: "个人信息已成功更新！",
-      avatarTip: "点击头像可更换",
-      deleteAccountLink: "删除账号",
-      deleteAccountHelp: "需要删除账号？打开账号删除申请页面。",
-      deleteAccountOpenFailed: "无法打开账号删除页面。",
-    },
-    settings: {
-      title: "设置",
-      appearance: "外观",
-      system: "系统",
-      light: "浅色",
-      dark: "深色",
-      help: "帮助与反馈",
-      replayTutorial: "重新查看新手引导",
-      replayTutorialDescription: "再次了解如何扫描、翻译和看懂菜单。",
-      rateApp: "评价 AI Menu APP",
-      rateAppDescription: "在 Google Play 中打开 AI Menu APP。",
-      legal: "法律信息",
-      privacy: "隐私政策",
-      terms: "服务条款",
-      version: "AI Menu APP 2.3",
-      done: "完成",
-    },
-    onboarding: {
-      skip: "跳过",
-      back: "上一步",
-      next: "下一步",
-      start: "免费开始使用",
-      steps: [
-        { title: "导入任意菜单", description: "拍摄菜单，上传图片或 PDF，或者粘贴餐厅菜单链接。" },
-        { title: "选择翻译语言", description: "选择菜单的源语言，以及您希望阅读的目标语言。" },
-        { title: "看懂每一道菜", description: "查看整理后的分类、菜品详情、配料、价格和过敏原提示。" },
-        { title: "更有信心地点餐", description: "获取个性化推荐、保存菜单、分享结果并建立待点列表。" },
-      ],
-    },
-  },
-
-  "zh-Hant": {
-    appTitle: "AI菜單助手",
-
-    home: {
-      heroKicker: "開始翻譯",
-      heroTitle: "看懂菜單，輕鬆點餐",
-      heroSubtitle: "上傳照片、PDF、菜單網頁或外送分享連結，快速獲得菜名、描述和食材說明。",
-      featureDocuments: "照片/PDF/網頁",
-      featureTranslation: "AI菜品翻譯",
-      featureOrderList: "待點單同步",
-      featureAiRecommend: "AI智能推薦",
-      toolKicker: "上傳菜單",
-      toolTitle: "從菜單開始",
-      targetLanguage: "目標語言",
-      sourceLanguage: "菜單原語言",
-      autoDetect: "自動識別",
-      english: "English",
-      chinese: "簡體中文",
-      traditionalChinese: "繁體中文",
-      takePicture: "拍照識別",
-      selectFromFile: "從檔案選擇",
-      menuUrlLabel: "菜單網頁或分享連結",
-      menuUrlPlaceholder: "貼上 Yelp、DoorDash、Uber Eats 或菜單連結",
-      selectedMenu: "已選擇菜單",
-      pdfMenu: "PDF 菜單",
-      documentMenu: "文件菜單",
-      pdfFileSelected: "已選擇 PDF 檔案",
-      documentFileSelected: "已選擇文件檔案",
-      fileSelectionFailed: "檔案選擇失敗",
-      analyzeMenu: "分析菜單",
-      analyzingMenu: "正在分析菜單...",
-      holdOnText: "請稍候，我正在為您分析菜單...",
-      noMenuTitle: "未選擇菜單",
-      noMenuMessage: "請先拍攝或選擇一個菜單檔案。",
-      noUrlTitle: "未輸入連結",
-      noUrlMessage: "請先貼上菜單網頁或外送 App 分享連結。",
-      noImageTitle: "未選擇圖片",
-      noImageMessage: "請先拍攝或選擇一張菜單圖片。",
-      permissionRequired: "需要權限",
-      cameraPermission: "需要相機權限才能拍照。",
-      photoPermission: "需要相簿權限才能選擇圖片。",
-      analysisFailed: "菜單分析失敗",
-      unknownError: "未知錯誤",
-      shareTitle: "分享菜單翻譯助手",
-      shareSubtitle: "選擇要分享到的平台。",
-      shareMessage: "用菜單翻譯助手翻譯並看懂菜單。",
-      shareFailed: "無法開啟分享連結",
-    },
-
-    result: {
-      title: "菜單分析結果",
-      items: "道菜",
-      empty: "沒有解析到菜品",
-      originalUnavailable: "暫無原文名稱",
-      restaurantFallback: "餐廳",
-      sourceFallback: "未知語言",
-      aiRecommendBtn: "AI智能推薦",
-    },
-
-    recommend: {
-      title: "AI 智能推薦",
-      peopleLabel: "用餐人數",
-      peoplePlaceholder: "例如：2",
-      dietLabel: "飲食習慣 (選填)",
-      budgetLabel: "預算 (選填)",
-      budgetPlaceholder: "例如：100 或 無限制",
-      tasteLabel: "口味偏好 (選填)",
-      tastePlaceholder: "例如：清淡、微辣、少鹽",
-      generateBtn: "生成推薦方案",
-      generating: "AI 正在分析菜單並為您配餐...",
-      suggestionTitle: "配餐建議",
-      recommendedItemsTitle: "推薦菜品",
-      addBtn: "加入待點",
-      addedBtn: "已加入",
-      backBtn: "重新推薦",
-      closeBtn: "關閉",
-      error: "生成推薦失敗，請重試。",
-    },
-
-    detail: {
-      original: "原文",
-      price: "價格",
-      description: "介紹",
-      ingredients: "主要食材",
-      allergens: "過敏原",
-      spicyLevel: "辣度",
-      imagePrompt: "圖片提示詞",
-      close: "關閉",
-      unknown: "未知",
-      none: "無",
-    },
-
-    categories: {
-      breakfast: "早餐",
-      pastries: "糕點",
-      savory: "鹹點",
-      fromage: "起司",
-      cafe: "咖啡與茶",
-      sides: "配菜",
-      additions: "加點",
-      snacks: "小吃",
-      appetizers: "前菜",
-      mains: "主菜",
-      dinner: "晚餐",
-      dessert: "甜點",
-      drinks: "飲品",
-      other: "其他",
-    },
-
-    auth: {
-      resetPasswordTitle: "重設密碼",
-      signInTitle: "登入帳戶",
-      signUpTitle: "註冊新帳號",
-      email: "電子郵件",
-      password: "密碼",
-      confirmPassword: "確認密碼",
-      username: "用戶名",
-      phone: "手機號 (選填)",
-      loginBtn: "登 入",
-      registerBtn: "註 冊",
-      switchRegister: "還沒有帳號？去註冊",
-      switchLogin: "已有帳號？去登入",
-      googleLogin: "使用 Google 帳號快捷登入",
-      prefTitle: "個性化飲食與健康偏好 (選填)",
-      diets: "飲食限制",
-      allergies: "食物過敏原 (逗號分隔)",
-      allergiesPlaceholder: "如：花生, 海鮮",
-      budget: "日常預算",
-      budgetPlaceholder: "如：50",
-      taste: "口味偏好",
-      tastePlaceholder: "如：清淡、少油",
-      errorMatch: "兩次密碼不一致",
-      requiredFields: "請填寫所有必填項",
-      forgotPasswordLink: "忘記密碼？",
-      resetBtn: "發送重設郵件",
-      resetSuccess: "重設郵件已發送，請檢查您的信箱",
-      backToLogin: "返回登入",
-      resetInstruction: "請輸入您的註冊信箱接收密碼重設連結",
-      mediaLibraryPermission: "需要媒體庫權限才能更換頭像",
-      avatarSuccess: "頭像已成功上傳並更新！",
-      avatarFail: "上傳頭像失敗，請稍後重試。",
-      showPassword: "顯示密碼",
-      hidePassword: "隱藏密碼",
-    },
-
-    profile: {
-      title: "個人中心",
-      username: "用戶名",
-      email: "電子郵件",
-      phone: "手機號",
-      saveBtn: "保存修改",
-      logoutBtn: "退出登錄",
-      diets: "飲食限制",
-      allergies: "過敏原",
-      allergiesPlaceholder: "例如：花生, 海鮮",
-      budget: "預算限制",
-      budgetPlaceholder: "例如：50 或 無限制",
-      taste: "口味偏好",
-      tastePlaceholder: "例如：清淡、微辣、少油",
-      successMsg: "個人資訊已成功更新！",
-      avatarTip: "點擊頭像可更換",
-      deleteAccountLink: "刪除帳號",
-      deleteAccountHelp: "需要刪除帳號？打開帳號刪除申請頁面。",
-      deleteAccountOpenFailed: "無法打開帳號刪除頁面。",
-    },
-    settings: {
-      title: "設定",
-      appearance: "外觀",
-      system: "系統",
-      light: "淺色",
-      dark: "深色",
-      help: "說明與意見回饋",
-      replayTutorial: "重新查看新手引導",
-      replayTutorialDescription: "再次了解如何掃描、翻譯和看懂菜單。",
-      rateApp: "評價 AI Menu APP",
-      rateAppDescription: "在 Google Play 中開啟 AI Menu APP。",
-      legal: "法律資訊",
-      privacy: "隱私政策",
-      terms: "服務條款",
-      version: "AI Menu APP 2.3",
-      done: "完成",
-    },
-    onboarding: {
-      skip: "跳過",
-      back: "上一步",
-      next: "下一步",
-      start: "免費開始使用",
-      steps: [
-        { title: "匯入任何菜單", description: "拍攝菜單，上傳圖片或 PDF，或者貼上餐廳菜單連結。" },
-        { title: "選擇翻譯語言", description: "選擇菜單的來源語言，以及您希望閱讀的目標語言。" },
-        { title: "看懂每一道菜", description: "查看整理後的分類、菜品詳情、配料、價格和過敏原提示。" },
-        { title: "更有信心地點餐", description: "取得個人化推薦、儲存菜單、分享結果並建立待點列表。" },
-      ],
-    },
-  },
-
-  es: {
-    appTitle: "AI Menu",
-
-    home: {
-      heroKicker: "Comenzar traducción",
-      heroTitle: "Traduce menús y pide con facilidad",
-      heroSubtitle:
-        "Sube fotos, PDFs, sitios web o enlaces de apps de comida para ver nombres, descripciones e ingredientes claros.",
-      featureDocuments: "Fotos/PDF/Web",
-      featureTranslation: "Traducción IA",
-      featureOrderList: "Sincro Pedidos",
-      featureAiRecommend: "Sugerencias IA",
-      toolKicker: "Subir menú",
-      toolTitle: "Empieza con tu menú",
-      targetLanguage: "Idioma destino",
-      sourceLanguage: "Idioma origen",
-      autoDetect: "Detectar automáticamente",
-      english: "English",
-      chinese: "Chino Simplificado",
-      traditionalChinese: "Chino Tradicional",
-      takePicture: "Tomar Foto",
-      selectFromFile: "Seleccionar de Archivo",
-      menuUrlLabel: "Página o enlace compartido del menú",
-      menuUrlPlaceholder: "Pega un enlace de Yelp, DoorDash, Uber Eats o menú",
-      selectedMenu: "Menú Seleccionado",
-      pdfMenu: "Menú en PDF",
-      documentMenu: "Menú en Documento",
-      pdfFileSelected: "Archivo PDF seleccionado",
-      documentFileSelected: "Archivo de documento seleccionado",
-      fileSelectionFailed: "Fallo al seleccionar archivo",
-      analyzeMenu: "Analizar Menú",
-      analyzingMenu: "Analizando menú...",
-      holdOnText: "Espera, estoy analizando para ti...",
-      noMenuTitle: "Sin Menú",
-      noMenuMessage: "Tome una foto o seleccione un archivo de menú primero.",
-      noUrlTitle: "Sin Enlace",
-      noUrlMessage: "Pegue primero una página de menú o enlace compartido de una app de comida.",
-      noImageTitle: "Sin Imagen",
-      noImageMessage: "Por favor, tome una foto o seleccione una imagen de menú primero.",
-      permissionRequired: "Permiso Requerido",
-      cameraPermission: "Se requiere permiso de cámara.",
-      photoPermission: "Se requiere permiso de galería de fotos.",
-      analysisFailed: "Fallo en el Análisis del Menú",
-      unknownError: "Error desconocido",
-      shareTitle: "Compartir Asistente de Menú IA",
-      shareSubtitle: "Elija dónde compartir la página actual.",
-      shareMessage: "Traduzca y comprenda menús con Asistente de Menú IA.",
-      shareFailed: "No se pudo abrir el enlace de compartir",
-    },
-
-    result: {
-      title: "Resultados del Menú",
-      items: "platos",
-      empty: "No se encontraron platos en el menú",
-      originalUnavailable: "Nombre original no disponible",
-      restaurantFallback: "Restaurante",
-      sourceFallback: "Desconocido",
-      aiRecommendBtn: "Recomendación IA",
-    },
-
-    recommend: {
-      title: "Recomendación IA",
-      peopleLabel: "Número de Personas",
-      peoplePlaceholder: "ej., 2",
-      dietLabel: "Restricciones Dietéticas (Opcional)",
-      budgetLabel: "Presupuesto (Opcional)",
-      budgetPlaceholder: "ej., $50 o Sin Límite",
-      tasteLabel: "Preferencia de Sabor (Opcional)",
-      tastePlaceholder: "ej., Picante, Suave, Menos Sal",
-      generateBtn: "Generar Recomendación",
-      generating: "La IA está analizando el menú...",
-      suggestionTitle: "Sugerencia de Pedido",
-      recommendedItemsTitle: "Platos Recomendados",
-      addBtn: "Añadir a la Lista",
-      addedBtn: "Añadido",
-      backBtn: "Modificar Opciones",
-      closeBtn: "Cerrar",
-      error: "Error al generar la recomendación. Por favor, inténtelo de nuevo.",
-    },
-
-    detail: {
-      original: "Original",
-      price: "Precio",
-      description: "Descripción",
-      ingredients: "Ingredientes",
-      allergens: "Alérgenos",
-      spicyLevel: "Nivel de Picante",
-      imagePrompt: "Indicación de Imagen",
-      close: "Cerrar",
-      unknown: "Desconocido",
-      none: "Ninguno",
-    },
-
-    categories: {
-      breakfast: "Desayuno",
-      pastries: "Pastelería",
-      savory: "Salado",
-      fromage: "Queso",
-      cafe: "Café y Té",
-      sides: "Acompañamientos",
-      additions: "Adicionales",
-      snacks: "Aperitivos",
-      appetizers: "Entradas",
-      mains: "Platos Principales",
-      dinner: "Cena",
-      dessert: "Postre",
-      drinks: "Bebidas",
-      other: "Otros",
-    },
-
-    auth: {
-      resetPasswordTitle: "Restablecer contraseña",
-      signInTitle: "Iniciar sesión",
-      signUpTitle: "Crear cuenta",
-      email: "Correo electrónico",
-      password: "Contraseña",
-      confirmPassword: "Confirmar contraseña",
-      username: "Nombre de usuario",
-      phone: "Teléfono (Opcional)",
-      loginBtn: "Iniciar sesión",
-      registerBtn: "Registrarse",
-      switchRegister: "¿No tienes una cuenta? Regístrate",
-      switchLogin: "¿Ya tienes una cuenta? Inicia sesión",
-      googleLogin: "Continuar con Google",
-      prefTitle: "Perfil Dietético y de Salud (Opcional)",
-      diets: "Hábitos Alimenticios",
-      allergies: "Alergias Alimentarias (separadas por comas)",
-      allergiesPlaceholder: "ej., maní, mariscos",
-      budget: "Presupuesto Diario",
-      budgetPlaceholder: "ej., 50",
-      taste: "Preferencia de Sabor",
-      tastePlaceholder: "ej., picante, suave",
-      errorMatch: "Las contraseñas no coinciden",
-      requiredFields: "Por favor complete todos los campos obligatorios",
-      forgotPasswordLink: "¿Olvidaste tu contraseña?",
-      resetBtn: "Enviar correo de restablecimiento",
-      resetSuccess: "Correo enviado, por favor revise su bandeja de entrada",
-      backToLogin: "Volver a iniciar sesión",
-      resetInstruction: "Ingrese su correo electrónico para recibir un enlace de restablecimiento",
-      mediaLibraryPermission: "Se requiere permiso de galería para cambiar el avatar",
-      avatarSuccess: "¡Avatar subido y actualizado con éxito!",
-      avatarFail: "Error al subir el avatar, inténtelo de nuevo más tarde.",
-      showPassword: "Mostrar contraseña",
-      hidePassword: "Ocultar contraseña",
-    },
-
-    profile: {
-      title: "Configuración de Perfil",
-      username: "Nombre de usuario",
-      email: "Correo electrónico",
-      phone: "Número de teléfono",
-      saveBtn: "Guardar cambios",
-      logoutBtn: "Cerrar sesión",
-      diets: "Restricciones Dietéticas",
-      allergies: "Alergias Alimentarias",
-      allergiesPlaceholder: "ej., maní, mariscos",
-      budget: "Presupuesto",
-      budgetPlaceholder: "ej., 50 o Sin Límite",
-      taste: "Preferencia de Sabor",
-      tastePlaceholder: "ej., picante, ligero",
-      successMsg: "¡Perfil actualizado con éxito!",
-      avatarTip: "Toca el avatar para cambiar",
-      deleteAccountLink: "Eliminar cuenta",
-      deleteAccountHelp: "¿Necesitas eliminar tu cuenta? Abre la página de solicitud de eliminación.",
-      deleteAccountOpenFailed: "No se pudo abrir la página de eliminación de cuenta.",
-    },
-    settings: {
-      title: "Ajustes",
-      appearance: "Apariencia",
-      system: "Sistema",
-      light: "Claro",
-      dark: "Oscuro",
-      help: "Ayuda y comentarios",
-      replayTutorial: "Repetir tutorial",
-      replayTutorialDescription: "Repasa cómo escanear, traducir y entender un menú.",
-      rateApp: "Calificar AI Menu APP",
-      rateAppDescription: "Abrir AI Menu APP en Google Play.",
-      legal: "Legal",
-      privacy: "Política de privacidad",
-      terms: "Términos del servicio",
-      version: "AI Menu APP 2.3",
-      done: "Listo",
-    },
-    onboarding: {
-      skip: "Omitir",
-      back: "Atrás",
-      next: "Siguiente",
-      start: "Empezar gratis",
-      steps: [
-        { title: "Importa cualquier menú", description: "Toma una foto, sube una imagen o PDF, o pega el enlace del menú." },
-        { title: "Traduce a tu manera", description: "Elige el idioma del menú y el idioma en el que quieres leerlo." },
-        { title: "Entiende cada plato", description: "Consulta categorías, detalles, ingredientes, precios y avisos de alérgenos." },
-        { title: "Pide con confianza", description: "Obtén recomendaciones, guarda menús, comparte resultados y crea una lista de pedidos." },
-      ],
-    },
-  },
+  ar,
+  de,
+  en,
+  es,
+  fr,
+  it,
+  ja,
+  ko,
+  pt,
+  ru,
+  zh,
+  "zh-Hant": zhHant,
 };
 
+export function normalizeLanguage(lang) {
+  const normalized = String(lang || "").trim().replaceAll("_", "-").toLowerCase();
+  if (normalized === "zh" || normalized === "zh-cn" || normalized === "zh-hans") return "zh";
+  if (["zh-tw", "zh-hk", "zh-hant"].includes(normalized)) return "zh-Hant";
+  const primary = normalized.split("-", 1)[0];
+  return LANGUAGES.some(({ code }) => code === primary) ? primary : DEFAULT_LANGUAGE;
+}
+
 export function getText(lang) {
-  return translations[lang] || translations.en;
+  return translations[normalizeLanguage(lang)];
+}
+
+export function getLanguageLabel(uiLang, languageCode) {
+  const text = getText(uiLang);
+  const normalized = languageCode === "auto" ? "auto" : normalizeLanguage(languageCode);
+  return text.languageNames[normalized];
 }
 
 export function isChineseLanguage(lang) {
-  return lang === "zh" || lang === "zh-Hant" || String(lang || "").startsWith("zh-");
+  return normalizeLanguage(lang) === "zh" || normalizeLanguage(lang) === "zh-Hant";
 }
 
 export function getUrlLangParam(langCode) {
-  if (langCode === "zh") return "zh-cn";
-  if (langCode === "zh-Hant") return "zh-tw";
-  return LANGUAGES.some(({ code }) => code === langCode) ? langCode : "en";
+  const normalized = normalizeLanguage(langCode);
+  if (normalized === "zh") return "zh-cn";
+  if (normalized === "zh-Hant") return "zh-tw";
+  return normalized;
 }
 
 export function mapUrlLangToInternal(langParam) {
   if (!langParam) return null;
-  const normalized = String(langParam).toLowerCase();
-  if (normalized === "zh-cn" || normalized === "zh") return "zh";
-  if (normalized === "zh-tw" || normalized === "zh-hk" || normalized === "zh-hant") return "zh-Hant";
-  const primary = normalized.split("-")[0];
-  return LANGUAGES.some(({ code }) => code === primary) ? primary : "en";
+  return normalizeLanguage(langParam);
 }
 
 export function getInitialLanguage() {
   if (typeof localStorage !== "undefined") {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return saved;
+    if (saved) return normalizeLanguage(saved);
   }
 
-  const browserLang =
-    typeof navigator !== "undefined"
-      ? navigator.language
-      : null;
-
-  const normalizedBrowserLang = String(browserLang || "").toLowerCase();
-  if (normalizedBrowserLang === "zh-tw" || normalizedBrowserLang === "zh-hk" || normalizedBrowserLang === "zh-hant") {
-    return "zh-Hant";
-  }
-  if (normalizedBrowserLang.startsWith("zh")) {
-    return "zh";
-  }
-
-  const shortBrowserLang = normalizedBrowserLang.slice(0, 2);
-  return LANGUAGES.some(({ code }) => code === shortBrowserLang) ? shortBrowserLang : DEFAULT_LANGUAGE;
+  const browserLang = typeof navigator !== "undefined" ? navigator.language : null;
+  return normalizeLanguage(browserLang);
 }
 
 export function hasSavedLanguage() {
@@ -865,24 +98,12 @@ export function hasSavedLanguage() {
 
 export function saveLanguage(lang) {
   if (typeof localStorage !== "undefined") {
-    localStorage.setItem(STORAGE_KEY, lang);
+    localStorage.setItem(STORAGE_KEY, normalizeLanguage(lang));
   }
 }
 
 export function t(lang, key) {
-  const keys = key.split(".");
-  let value = translations[lang];
-
-  for (const k of keys) {
-    value = value?.[k];
-  }
-
-  if (value) return value;
-
-  let fallback = translations.en;
-  for (const k of keys) {
-    fallback = fallback?.[k];
-  }
-
-  return fallback || key;
+  let value = getText(lang);
+  for (const part of key.split(".")) value = value?.[part];
+  return value ?? key;
 }

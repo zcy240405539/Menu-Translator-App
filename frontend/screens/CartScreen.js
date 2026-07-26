@@ -18,16 +18,15 @@ import {
   updateCartItemQuantity,
 } from "../storage/cartStorage";
 import { extractPriceNumber, formatPrice, getCurrencySymbol, getUserCurrencySymbol } from "../utils/price";
-import { isChineseLanguage } from "../i18n";
+import { getText } from "../i18n";
 
-function getDishName(dish) {
-  return dish.translated_name || dish.original_name || "Dish";
+function getDishName(dish, fallback) {
+  return dish.translated_name || dish.original_name || fallback;
 }
 
 export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome }) {
   const [items, setItems] = useState([]);
-  const isChinese = isChineseLanguage(targetLang);
-  const isTraditional = targetLang === "zh-Hant";
+  const t = getText(targetLang);
   const insets = useSafeAreaInsets();
   const theme = useTheme();
 
@@ -67,8 +66,8 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
         ) : (
           <Appbar.BackAction onPress={onBack} />
         )}
-        <Appbar.Content title={isChinese ? (isTraditional ? "待點列表" : "待点列表") : "Order List"} />
-        <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, isChinese ? "分享我的待点列表并体验菜单翻译助手！" : "Check out my order list and Menu Translator!")} />
+        <Appbar.Content title={t.cart.title} />
+        <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, t.cart.shareMessage)} />
         <Appbar.Action icon="history" onPress={onOpenHistory} />
         <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
         <Appbar.Action
@@ -85,10 +84,10 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
         <Card mode="elevated" style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
             <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
-              {isChinese ? (isTraditional ? "我的待點列表" : "我的待点列表") : "My Order List"}
+              {t.cart.heading}
             </Text>
             <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-              {items.length} {isChinese ? "道菜" : "items"} · {isChinese ? (isTraditional ? "總計" : "总计") : "Total"}: {cartCurrencySymbol}{total.toFixed(2)}
+              {items.length} {t.cart.items} · {t.cart.total}: {cartCurrencySymbol}{total.toFixed(2)}
             </Text>
           </Card.Content>
         </Card>
@@ -102,7 +101,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
                 <View style={styles.row}>
                   <View style={styles.nameBox}>
                     <Text variant="titleMedium" style={styles.name}>
-                      {getDishName(item.dish)}
+                      {getDishName(item.dish, t.common.dishFallback)}
                     </Text>
 
                     <Text style={[styles.original, { color: theme.colors.onSurfaceVariant }]}>
@@ -169,14 +168,14 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
                     setItems(updated);
                   }}
                 >
-                  {isChinese ? (isTraditional ? "刪除" : "删除") : "Remove"}
+                  {t.cart.remove}
                 </Button>
               </Card.Content>
             </Card>
           )}
           ListEmptyComponent={
             <Text style={[styles.empty, { color: theme.colors.onSurfaceVariant }]}>
-              {isChinese ? (isTraditional ? "還沒有加入任何菜品" : "还没有加入任何菜品") : "No dishes added yet"}
+              {t.cart.empty}
             </Text>
           }
         />

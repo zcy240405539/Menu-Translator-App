@@ -1,0 +1,133 @@
+{
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "Contatto"
+  },
+  "errors": {
+    "missingAuthorization": "Intestazione di autorizzazione mancante",
+    "invalidAuthorization": "Formato dell'intestazione di autorizzazione non valido",
+    "invalidSession": "Token di sessione non valido",
+    "serviceNotConfigured": "Il servizio account non è configurato",
+    "imageRequired": "Il file deve essere un'immagine",
+    "avatarUploadFailed": "Impossibile caricare l'avatar: {error}",
+    "menuCacheNotFound": "Cache del menu non trovata",
+    "noReadableText": "Non è stato possibile estrarre alcun testo leggibile dal menu.",
+    "menuFileRequired": "Non è stato caricato alcun file di menu.",
+    "taskNotFound": "Attività non trovata"
+  },
+  "legal": {
+    "deletion": {
+      "emailSubject": "Richiesta di eliminazione dell'account dell'app AI Menu",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "title": "Elimina il tuo account dell'app AI Menu",
+      "subtitle": "Richiedi la cancellazione del tuo account e dei relativi dati.",
+      "emailButton": "Richiesta di cancellazione dell'account e-mail",
+      "sections": [
+        {
+          "heading": "Come richiedere la cancellazione",
+          "items": [
+            "Invia la richiesta dall'indirizzo email registrato con il tuo account.",
+            "Includi l'indirizzo email e il nome utente registrati, se disponibili.",
+            "Verificheremo la richiesta e procederemo alla cancellazione dell'account."
+          ]
+        },
+        {
+          "heading": "Dati eliminati",
+          "items": [
+            "I dati del profilo dell'account, l'account di autenticazione, l'avatar, la cronologia dei menu salvati, le preferenze del profilo e i dati dell'elenco degli ordini salvati associati all'account verranno eliminati laddove tecnicamente possibile."
+          ]
+        },
+        {
+          "heading": "Dati che possono essere conservati",
+          "items": [
+            "Potremmo conservare i registri di sicurezza, i registri delle transazioni richiesti dalla legge e i dati della cache relativi a menu, piatti e immagini, in forma anonima o non collegati all'utente, che non sono più associati al tuo account."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "politica sulla riservatezza",
+      "intro": "L'app AI Menu traduce e spiega i menu dei ristoranti. Questa informativa descrive le informazioni che trattiamo, il motivo per cui le utilizziamo e le opzioni a tua disposizione.",
+      "sections": [
+        {
+          "heading": "Informazioni che trattiamo",
+          "items": [
+            "Dettagli dell'account come nome utente, indirizzo email, numero di telefono (facoltativo), identificativi di autenticazione, preferenze del profilo e avatar.",
+            "I menu e i contenuti correlati che invii, incluse foto, PDF, documenti, testo, pagine web e link alle app di consegna.",
+            "Traduzioni generate, dettagli dei piatti, consigli, cronologia del menu, elementi della lista degli ordini, interazioni con l'app, diagnostica e identificatori del dispositivo o pubblicitari."
+          ]
+        },
+        {
+          "heading": "Come utilizziamo le informazioni",
+          "items": [
+            "Per fornire funzionalità di riconoscimento ottico dei caratteri (OCR), traduzione, organizzazione del menu, descrizione dei piatti, corrispondenza delle immagini, suggerimenti, condivisione, cronologia e lista degli ordini.",
+            "Per autenticare gli account, salvare le preferenze, mantenere la sicurezza, prevenire gli abusi, risolvere gli errori, migliorare l'affidabilità e misurare la pubblicità, ove abilitata."
+          ]
+        },
+        {
+          "heading": "Fornitori di servizi",
+          "items": [
+            "A seconda delle funzionalità abilitate, i dati possono essere elaborati da Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense e Google AdMob.",
+            "Il contenuto del menu viene inviato ai servizi di intelligenza artificiale e cloud solo nella misura necessaria a fornire la funzionalità richiesta. Ciascun fornitore elabora i dati secondo i propri termini e le proprie politiche sulla privacy."
+          ]
+        },
+        {
+          "heading": "Fidelizzazione e sicurezza",
+          "items": [
+            "Conserviamo i dati dell'account finché quest'ultimo è attivo e manteniamo i dati memorizzati nella cache o diagnostici solo nella misura ragionevolmente necessaria per il servizio, la sicurezza, gli obblighi legali e le prestazioni.",
+            "Adottiamo misure di sicurezza ragionevoli, ma nessun servizio internet può garantire una sicurezza assoluta."
+          ]
+        },
+        {
+          "heading": "Le tue scelte e i tuoi figli",
+          "items": [
+            "Potrai utilizzare le funzionalità per ospiti supportate, aggiornare le preferenze del profilo, gestire i controlli pubblicitari disponibili, richiedere la cancellazione dell'account e contattarci per domande relative alla privacy.",
+            "Il servizio non è rivolto ai minori di 13 anni. Potremmo aggiornare la presente informativa e, se necessario, daremo comunicazione in tal senso."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Termini di servizio",
+      "intro": "Le presenti Condizioni regolano l'utilizzo dell'app AI Menu. Utilizzando il servizio, accetti le presenti Condizioni.",
+      "sections": [
+        {
+          "heading": "Il servizio",
+          "items": [
+            "L'app AI Menu utilizza sistemi OCR, di traduzione, di ricerca e di intelligenza artificiale per aiutare gli utenti a comprendere i menu dei ristoranti. Le funzionalità potrebbero subire modifiche, interruzioni o essere disattivate.",
+            "È necessario fornire informazioni accurate sull'account e si è responsabili di tutte le attività svolte tramite il proprio account."
+          ]
+        },
+        {
+          "heading": "Limiti dell'IA e della traduzione",
+          "items": [
+            "Traduzioni, prezzi, ingredienti, etichette dietetiche, immagini e consigli potrebbero essere incompleti o errati.",
+            "Confermate sempre con il ristorante i dettagli del menu, i prezzi aggiornati, la disponibilità dei prodotti e le modalità di ordinazione."
+          ]
+        },
+        {
+          "heading": "Avviso relativo ad allergie e salute",
+          "items": [
+            "L'app AI Menu non fornisce consulenza medica e non può garantire che un piatto sia privo di allergeni o adatto a una dieta specifica.",
+            "In caso di allergie o restrizioni mediche, si prega di contattare il ristorante e un professionista sanitario qualificato prima di effettuare l'ordine."
+          ]
+        },
+        {
+          "heading": "I tuoi contenuti e il tuo utilizzo consentito",
+          "items": [
+            "Tu conservi la proprietà dei contenuti che invii e ci concedi una licenza limitata per elaborarli esclusivamente al fine di gestire, proteggere e migliorare il servizio richiesto.",
+            "Non caricare contenuti per i quali non hai l'autorizzazione all'uso, non utilizzare il servizio in modo improprio, non tentare accessi non autorizzati, non interrompere i sistemi e non utilizzare il servizio illegalmente."
+          ]
+        },
+        {
+          "heading": "Pubblicità, account e responsabilità",
+          "items": [
+            "Il servizio potrebbe visualizzare annunci pubblicitari. Qualora vengano offerte funzionalità a pagamento, i prezzi e le condizioni di acquisto saranno mostrati prima del pagamento. Gli account che violano i presenti Termini potrebbero essere sospesi.",
+            "Il servizio viene fornito secondo disponibilità. Nei limiti consentiti dalla legge, non siamo responsabili per perdite indirette o decisioni prese esclusivamente sulla base delle informazioni del menu generate dall'intelligenza artificiale.",
+            "Potremmo aggiornare i presenti Termini. L'utilizzo continuato dopo un aggiornamento implica l'accettazione dei Termini modificati."
+          ]
+        }
+      ]
+    }
+  }
+}

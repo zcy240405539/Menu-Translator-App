@@ -9,14 +9,14 @@ type AdSenseWindow = Window & {
 type AdSenseSlotProps = {
   className?: string;
   format?: "auto" | "horizontal" | "rectangle" | "vertical";
-  label?: string;
+  label: string;
   slot?: string;
 };
 
 export function AdSenseSlot({
   className = "",
   format = "auto",
-  label = "Advertisement",
+  label,
   slot,
 }: AdSenseSlotProps) {
   const client = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465";

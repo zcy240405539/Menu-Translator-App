@@ -1,0 +1,410 @@
+{
+  "appTitle": "AI Menu APP",
+  "home": {
+    "heroKicker": "Start translating",
+    "heroTitle": "Translate menus, order with ease",
+    "heroSubtitle": "Upload photos, PDFs, websites, or delivery app links to get clear dish names, descriptions, and ingredients.",
+    "featureDocuments": "Photos/PDF/Web",
+    "featureTranslation": "AI Translation",
+    "featureOrderList": "Order Sync",
+    "featureAiRecommend": "AI Suggestion",
+    "toolKicker": "Upload menu",
+    "toolTitle": "Start with your menu",
+    "targetLanguage": "Target language",
+    "sourceLanguage": "Source language",
+    "autoDetect": "Auto Detect",
+    "english": "English",
+    "chinese": "Simplified Chinese",
+    "traditionalChinese": "Traditional Chinese",
+    "takePicture": "Take Picture",
+    "selectFromFile": "Select from File",
+    "menuUrlLabel": "Menu webpage or share link",
+    "menuUrlPlaceholder": "Paste a Yelp, DoorDash, Uber Eats, or menu URL",
+    "selectedMenu": "Selected Menu",
+    "pdfMenu": "PDF Menu",
+    "documentMenu": "Document Menu",
+    "pdfFileSelected": "PDF file selected",
+    "documentFileSelected": "Document file selected",
+    "fileSelectionFailed": "File selection failed",
+    "analyzeMenu": "Analyze Menu",
+    "analyzingMenu": "Analyzing menu...",
+    "holdOnText": "Hold on, I am analyzing for you...",
+    "noMenuTitle": "No Menu",
+    "noMenuMessage": "Please take a picture or select a menu file first.",
+    "noUrlTitle": "No Link",
+    "noUrlMessage": "Please paste a menu webpage or delivery app share link first.",
+    "noImageTitle": "No Image",
+    "noImageMessage": "Please take a picture or select a menu image first.",
+    "permissionRequired": "Permission Required",
+    "cameraPermission": "Camera permission is required.",
+    "photoPermission": "Photo library permission is required.",
+    "analysisFailed": "Menu Analysis Failed",
+    "unknownError": "Unknown error",
+    "shareTitle": "Share Menu Translator",
+    "shareSubtitle": "Choose where to share the current page.",
+    "shareMessage": "Translate and understand menus with Menu Translator.",
+    "shareFailed": "Unable to open share link",
+    "shareTargets": {
+      "wechat": "WeChat",
+      "rednote": "Rednote",
+      "weibo": "Weibo",
+      "facebook": "Facebook",
+      "x": "X / Twitter",
+      "whatsapp": "WhatsApp",
+      "email": "Email"
+    }
+  },
+  "result": {
+    "title": "Menu Results",
+    "items": "items",
+    "empty": "No menu items found",
+    "originalUnavailable": "Original name unavailable",
+    "restaurantFallback": "Restaurant",
+    "sourceFallback": "Unknown",
+    "aiRecommendBtn": "AI Recommend",
+    "other": "Other"
+  },
+  "recommend": {
+    "title": "AI Recommendation",
+    "peopleLabel": "Number of People",
+    "peoplePlaceholder": "e.g., 2",
+    "dietLabel": "Dietary Constraints",
+    "budgetLabel": "Budget",
+    "budgetPlaceholder": "e.g., $50 or No Limit",
+    "tasteLabel": "Taste Preference",
+    "tastePlaceholder": "e.g., Spicy, Mild, Less Salt",
+    "generateBtn": "Generate Recommendation",
+    "generating": "AI is analyzing menu...",
+    "suggestionTitle": "Ordering Suggestion",
+    "recommendedItemsTitle": "Recommended Dishes",
+    "addBtn": "Add to Order List",
+    "addedBtn": "Added",
+    "backBtn": "Modify Options",
+    "closeBtn": "Close",
+    "error": "Failed to generate recommendation. Please try again.",
+    "intro": "Tell AI your preferences and get a customized recommendation.",
+    "allergiesPlaceholder": "e.g., peanut, seafood (comma separated)",
+    "addedMessage": "Added to order list"
+  },
+  "detail": {
+    "original": "Original",
+    "price": "Price",
+    "description": "Description",
+    "ingredients": "Ingredients",
+    "allergens": "Allergens",
+    "spicyLevel": "Spicy Level",
+    "imagePrompt": "Image Prompt",
+    "close": "Close",
+    "unknown": "Unknown",
+    "none": "None",
+    "allergyRiskTitle": "Allergy Risk Warning",
+    "allergyRiskMessage": "This dish may contain or come into contact with: {allergens}. Confirm directly with the restaurant before ordering.",
+    "preparingImage": "Preparing image",
+    "loadingDetails": "Loading details...",
+    "changeImage": "Not matching? Change",
+    "addToCart": "Add to Order List",
+    "addedToCart": "Added to order list"
+  },
+  "categories": {
+    "breakfast": "Breakfast",
+    "pastries": "Pastries",
+    "savory": "Savory",
+    "fromage": "Fromage",
+    "cafe": "Cafe & Tea",
+    "sides": "Sides",
+    "additions": "Additions",
+    "snacks": "Snacks",
+    "appetizers": "Appetizers",
+    "mains": "Mains",
+    "dinner": "Dinner",
+    "dessert": "Dessert",
+    "drinks": "Drinks",
+    "other": "Other"
+  },
+  "auth": {
+    "resetPasswordTitle": "Reset Password",
+    "signInTitle": "Sign In",
+    "signUpTitle": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "username": "Username",
+    "phone": "Phone (Optional)",
+    "loginBtn": "Sign In",
+    "registerBtn": "Sign Up",
+    "switchRegister": "Don't have an account? Sign Up",
+    "switchLogin": "Already have an account? Sign In",
+    "googleLogin": "Continue with Google",
+    "prefTitle": "Dietary & Health Profile (Optional)",
+    "diets": "Dietary Habits",
+    "allergies": "Food Allergies (comma separated)",
+    "allergiesPlaceholder": "e.g., peanut, seafood",
+    "budget": "Dining Budget",
+    "budgetPlaceholder": "e.g., $50",
+    "taste": "Taste Preference",
+    "tastePlaceholder": "e.g., spicy, light",
+    "errorMatch": "Passwords do not match",
+    "requiredFields": "Please fill in all required fields",
+    "forgotPasswordLink": "Forgot Password?",
+    "resetBtn": "Send Reset Email",
+    "resetSuccess": "Password reset email sent, please check your inbox",
+    "backToLogin": "Back to Sign In",
+    "resetInstruction": "Enter your email to receive a password reset link",
+    "mediaLibraryPermission": "Permission to access media library is required",
+    "avatarSuccess": "Avatar updated successfully!",
+    "avatarFail": "Avatar upload failed. Please try again later.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "resetFailed": "Failed to send reset email",
+    "authenticationFailed": "Authentication failed",
+    "redirectUnsupported": "Cannot open the sign-in page on this device",
+    "googleLoginFailed": "Failed to start Google sign-in"
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "username": "Username",
+    "email": "Email",
+    "phone": "Phone Number",
+    "saveBtn": "Save Changes",
+    "logoutBtn": "Sign Out",
+    "diets": "Dietary Constraints",
+    "allergies": "Food Allergies",
+    "allergiesPlaceholder": "e.g., peanut, seafood",
+    "budget": "Dining Budget",
+    "budgetPlaceholder": "e.g., $50",
+    "taste": "Taste Preference",
+    "tastePlaceholder": "e.g., spicy, light",
+    "successMsg": "Profile updated successfully!",
+    "avatarTip": "Tap avatar to change",
+    "deleteAccountLink": "Delete account",
+    "deleteAccountHelp": "Need to delete your account? Open the deletion request page.",
+    "deleteAccountOpenFailed": "Unable to open account deletion page.",
+    "updateFailed": "Failed to update profile"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark",
+    "help": "Help & feedback",
+    "replayTutorial": "Replay tutorial",
+    "replayTutorialDescription": "Review how to scan, translate, and understand a menu.",
+    "rateApp": "Rate AI Menu APP",
+    "rateAppDescription": "Open AI Menu APP on Google Play.",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "version": "AI Menu APP 2.3",
+    "done": "Done"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "start": "Start using free",
+    "steps": [
+      {
+        "title": "Bring any menu",
+        "description": "Take a photo, upload an image or PDF, or paste a restaurant menu link."
+      },
+      {
+        "title": "Translate your way",
+        "description": "Choose the menu language and the language you want to read."
+      },
+      {
+        "title": "Understand every dish",
+        "description": "See organized categories, dish details, ingredients, prices, and allergy notes."
+      },
+      {
+        "title": "Order with confidence",
+        "description": "Get personalized recommendations, save menus, share results, and build an order list."
+      }
+    ]
+  },
+  "legal": {
+    "common": {
+      "brand": "AI Menu APP",
+      "back": "Back",
+      "contact": "Contact"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "intro": "AI Menu APP translates and explains restaurant menus. This policy describes the information we process, why we use it, and the choices available to you.",
+      "sections": [
+        {
+          "heading": "Information we process",
+          "items": [
+            "Account details such as username, email, optional phone number, authentication identifiers, profile preferences, and avatar.",
+            "Menus and related content you submit, including photos, PDFs, documents, text, webpages, and delivery-app links.",
+            "Generated results such as translations, dish details, recommendations, menu history, and order-list items.",
+            "Technical information such as app interactions, diagnostics, device or advertising identifiers, and network request metadata."
+          ]
+        },
+        {
+          "heading": "How we use information",
+          "items": [
+            "To provide OCR, translation, menu organization, dish explanations, image matching, recommendations, sharing, history, and order-list features.",
+            "To authenticate accounts, save preferences, maintain security, prevent abuse, troubleshoot errors, and improve reliability.",
+            "To show and measure advertising where ads are enabled and to respond to support, privacy, and deletion requests."
+          ]
+        },
+        {
+          "heading": "Service providers",
+          "items": [
+            "Depending on enabled features, data may be processed by Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, and Google AdMob.",
+            "These providers process information under their own terms and privacy practices. Menu content may be sent to AI and cloud services only as needed to provide the requested feature."
+          ]
+        },
+        {
+          "heading": "Retention and security",
+          "items": [
+            "We retain account data while your account is active and keep cached or diagnostic data only as reasonably needed for the service, security, legal obligations, and performance.",
+            "We use reasonable safeguards, but no internet service can guarantee absolute security."
+          ]
+        },
+        {
+          "heading": "Your choices",
+          "items": [
+            "You may use supported guest features without creating an account, update profile preferences, request account deletion, and contact us about privacy questions.",
+            "You can manage ad consent and device advertising settings through the controls available on your device or in the app where required."
+          ]
+        },
+        {
+          "heading": "Children and changes",
+          "items": [
+            "The service is not directed to children under 13. We may update this policy when the service or legal requirements change and will revise the date above."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "intro": "These Terms govern your use of AI Menu APP. By using the service, you agree to these Terms.",
+      "sections": [
+        {
+          "heading": "The service",
+          "items": [
+            "AI Menu APP uses OCR, translation, search, and AI systems to help users understand restaurant menus. Features may change, be interrupted, or be discontinued.",
+            "You must provide accurate account information and are responsible for activity under your account."
+          ]
+        },
+        {
+          "heading": "AI and translation limitations",
+          "items": [
+            "Translations, prices, ingredients, dietary labels, images, and recommendations may be incomplete or incorrect.",
+            "Always confirm menu details, current prices, availability, and ordering information with the restaurant."
+          ]
+        },
+        {
+          "heading": "Allergy and health notice",
+          "items": [
+            "AI Menu APP does not provide medical advice and cannot guarantee that a dish is free of allergens or suitable for a diet.",
+            "For allergies or medical restrictions, contact the restaurant and a qualified healthcare professional before ordering."
+          ]
+        },
+        {
+          "heading": "Your content and acceptable use",
+          "items": [
+            "You keep ownership of content you submit and grant us a limited license to process it only to operate, secure, and improve the requested service.",
+            "Do not upload content you lack permission to use, misuse the service, attempt unauthorized access, disrupt systems, or use the service unlawfully."
+          ]
+        },
+        {
+          "heading": "Ads, purchases, and accounts",
+          "items": [
+            "The service may display advertising. If paid features are offered, pricing and applicable purchase terms will be shown before payment.",
+            "We may suspend accounts that violate these Terms or threaten users, the service, or third parties. You may request account deletion at any time."
+          ]
+        },
+        {
+          "heading": "Disclaimers and liability",
+          "items": [
+            "The service is provided as available without guarantees of uninterrupted operation or error-free results, to the extent permitted by law.",
+            "To the extent permitted by law, we are not responsible for indirect losses or decisions made solely from AI-generated menu information."
+          ]
+        },
+        {
+          "heading": "Changes and contact",
+          "items": [
+            "We may update these Terms and will revise the date above. Continued use after an update means you accept the revised Terms."
+          ]
+        }
+      ]
+    },
+    "deletion": {
+      "title": "Delete your AI Menu APP account",
+      "subtitle": "Request deletion of your account and associated account data.",
+      "requestEmail": "Email account deletion request",
+      "emailSubject": "AI Menu APP Account Deletion Request",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "sections": [
+        {
+          "heading": "How to request deletion",
+          "items": [
+            "Send the request from the email address registered with your account.",
+            "Include your registered email and username if available.",
+            "We will verify the request and process account deletion."
+          ]
+        },
+        {
+          "heading": "Data deleted",
+          "items": [
+            "Account profile data, authentication account, avatar, saved menu history, profile preferences, and saved order list data associated with the account will be deleted where technically feasible."
+          ]
+        },
+        {
+          "heading": "Data that may be retained",
+          "items": [
+            "We may retain security logs, transaction records required by law, and anonymized or non-user-linked menu, dish, and image cache data that is no longer associated with your account."
+          ]
+        }
+      ]
+    }
+  },
+  "languageNames": {
+    "auto": "Auto Detect",
+    "en": "English",
+    "zh": "Chinese-Simplified",
+    "zh-Hant": "Chinese-Traditional",
+    "es": "Spanish",
+    "fr": "French",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "ru": "Russian",
+    "pt": "Portuguese",
+    "de": "German",
+    "it": "Italian",
+    "ar": "Arabic"
+  },
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "Contact",
+    "dishFallback": "Dish",
+    "restaurantFallback": "Restaurant",
+    "items": "items"
+  },
+  "dietOptions": {
+    "Vegetarian": "Vegetarian",
+    "Halal": "Halal",
+    "Kosher": "Kosher",
+    "Keto": "Keto",
+    "Gluten-Free": "Gluten-Free"
+  },
+  "cart": {
+    "title": "Order List",
+    "heading": "My Order List",
+    "shareMessage": "Check out my order list in AI Menu APP.",
+    "items": "items",
+    "total": "Total",
+    "remove": "Remove",
+    "empty": "No dishes added yet"
+  },
+  "history": {
+    "title": "Menu History",
+    "shareMessage": "Check out my menu history in AI Menu APP.",
+    "items": "items",
+    "open": "Tap to open",
+    "empty": "No menu history yet"
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "appTitle": "AI Menu APP",
+  "home": {
+    "heroKicker": "번역을 시작하세요",
+    "heroTitle": "메뉴를 번역하고 간편하게 주문하세요",
+    "heroSubtitle": "사진, PDF 파일, 웹사이트 또는 배달 앱 링크를 업로드하여 음식 이름, 설명 및 재료를 정확하게 확인하세요.",
+    "featureDocuments": "사진/PDF/웹",
+    "featureTranslation": "AI 번역",
+    "featureOrderList": "주문 동기화",
+    "featureAiRecommend": "AI 추천",
+    "toolKicker": "업로드 메뉴",
+    "toolTitle": "메뉴부터 시작하세요",
+    "targetLanguage": "대상 언어",
+    "sourceLanguage": "원어",
+    "autoDetect": "자동 감지",
+    "english": "영어",
+    "chinese": "간체 중국어",
+    "traditionalChinese": "전통 중국어",
+    "takePicture": "사진 찍다",
+    "selectFromFile": "파일에서 선택하세요",
+    "menuUrlLabel": "메뉴 웹페이지 또는 공유 링크",
+    "menuUrlPlaceholder": "Yelp, DoorDash, Uber Eats 또는 메뉴 URL을 붙여넣으세요.",
+    "selectedMenu": "선택된 메뉴",
+    "pdfMenu": "PDF 메뉴",
+    "documentMenu": "문서 메뉴",
+    "pdfFileSelected": "PDF 파일이 선택되었습니다",
+    "documentFileSelected": "선택된 문서 파일",
+    "fileSelectionFailed": "파일 선택 실패",
+    "analyzeMenu": "메뉴 분석",
+    "analyzingMenu": "메뉴를 분석하는 중...",
+    "holdOnText": "잠시만 기다려 주세요, 제가 분석해 드리겠습니다...",
+    "noMenuTitle": "메뉴 없음",
+    "noMenuMessage": "먼저 사진을 찍거나 메뉴 파일을 선택해 주세요.",
+    "noUrlTitle": "링크 없음",
+    "noUrlMessage": "먼저 메뉴 웹페이지 또는 배달 앱 공유 링크를 붙여넣어 주세요.",
+    "noImageTitle": "이미지 없음",
+    "noImageMessage": "먼저 사진을 찍거나 메뉴 이미지를 선택해 주세요.",
+    "permissionRequired": "권한이 필요합니다",
+    "cameraPermission": "카메라 접근 권한이 필요합니다.",
+    "photoPermission": "사진 라이브러리 사용 권한이 필요합니다.",
+    "analysisFailed": "메뉴 분석 실패",
+    "unknownError": "알 수 없는 오류",
+    "shareTitle": "공유 메뉴 번역기",
+    "shareSubtitle": "현재 페이지를 공유할 위치를 선택하세요.",
+    "shareMessage": "메뉴 번역기를 사용하여 메뉴를 번역하고 이해하세요.",
+    "shareFailed": "공유 링크를 열 수 없습니다",
+    "shareTargets": {
+      "wechat": "WeChat",
+      "rednote": "Rednote",
+      "weibo": "Weibo",
+      "facebook": "Facebook",
+      "x": "X / Twitter",
+      "whatsapp": "WhatsApp",
+      "email": "이메일"
+    }
+  },
+  "result": {
+    "title": "메뉴 결과",
+    "items": "품목",
+    "empty": "메뉴 항목을 찾을 수 없습니다.",
+    "originalUnavailable": "원래 이름은 알 수 없습니다.",
+    "restaurantFallback": "식당",
+    "sourceFallback": "알려지지 않은",
+    "aiRecommendBtn": "AI 추천",
+    "other": "다른"
+  },
+  "recommend": {
+    "title": "AI 추천",
+    "peopleLabel": "인원수",
+    "peoplePlaceholder": "예: 2",
+    "dietLabel": "식단 제한",
+    "budgetLabel": "예산",
+    "budgetPlaceholder": "예: 50달러 또는 무제한",
+    "tasteLabel": "맛 선호도",
+    "tastePlaceholder": "예: 매운맛, 순한맛, 소금 적게",
+    "generateBtn": "추천 생성",
+    "generating": "AI가 메뉴를 분석하고 있습니다...",
+    "suggestionTitle": "주문 제안",
+    "recommendedItemsTitle": "추천 메뉴",
+    "addBtn": "주문 목록에 추가",
+    "addedBtn": "추가됨",
+    "backBtn": "수정 옵션",
+    "closeBtn": "닫다",
+    "error": "추천 항목을 생성하는 데 실패했습니다. 다시 시도해 주세요.",
+    "intro": "AI에게 선호 사항을 알려주면 맞춤 추천을 받을 수 있습니다.",
+    "allergiesPlaceholder": "예: 땅콩, 해산물 (쉼표로 구분)",
+    "addedMessage": "주문 목록에 추가되었습니다"
+  },
+  "detail": {
+    "original": "원래의",
+    "price": "가격",
+    "description": "설명",
+    "ingredients": "재료",
+    "allergens": "알레르겐",
+    "spicyLevel": "매운 정도",
+    "imagePrompt": "이미지 프롬프트",
+    "close": "닫다",
+    "unknown": "알려지지 않은",
+    "none": "없음",
+    "allergyRiskTitle": "알레르기 위험 경고",
+    "allergyRiskMessage": "이 음식에는 {allergens}이 포함되어 있거나 접촉되었을 수 있습니다. 주문하기 전에 레스토랑에 직접 확인하십시오.",
+    "preparingImage": "이미지 준비 중",
+    "loadingDetails": "세부 정보를 불러오는 중...",
+    "changeImage": "일치하지 않나요? 변경하세요.",
+    "addToCart": "주문 목록에 추가",
+    "addedToCart": "주문 목록에 추가되었습니다"
+  },
+  "categories": {
+    "breakfast": "아침",
+    "pastries": "페이스트리",
+    "savory": "짭짤한",
+    "fromage": "치즈",
+    "cafe": "카페 & 티",
+    "sides": "측면",
+    "additions": "추가 사항",
+    "snacks": "간식",
+    "appetizers": "전채 요리",
+    "mains": "메인",
+    "dinner": "저녁",
+    "dessert": "디저트",
+    "drinks": "음료수",
+    "other": "다른"
+  },
+  "auth": {
+    "resetPasswordTitle": "비밀번호 재설정",
+    "signInTitle": "로그인",
+    "signUpTitle": "계정 생성",
+    "email": "이메일",
+    "password": "비밀번호",
+    "confirmPassword": "비밀번호 확인",
+    "username": "사용자 이름",
+    "phone": "전화 (선택 사항)",
+    "loginBtn": "로그인",
+    "registerBtn": "회원가입",
+    "switchRegister": "계정이 없으신가요? 회원가입하세요",
+    "switchLogin": "이미 계정이 있으신가요? 로그인하세요",
+    "googleLogin": "Google에서 계속 진행",
+    "prefTitle": "식단 및 건강 프로필 (선택 사항)",
+    "diets": "식습관",
+    "allergies": "식품 알레르기 (쉼표로 구분)",
+    "allergiesPlaceholder": "예: 땅콩, 해산물",
+    "budget": "식사 예산",
+    "budgetPlaceholder": "예: 50달러",
+    "taste": "맛 선호도",
+    "tastePlaceholder": "예: 매운맛, 가벼운",
+    "errorMatch": "비밀번호가 일치하지 않습니다",
+    "requiredFields": "필수 입력 항목을 모두 입력해 주세요.",
+    "forgotPasswordLink": "비밀번호를 잊으셨나요?",
+    "resetBtn": "재설정 이메일 보내기",
+    "resetSuccess": "비밀번호 재설정 이메일이 발송되었습니다. 받은 편지함을 확인해 주세요.",
+    "backToLogin": "로그인 페이지로 돌아가기",
+    "resetInstruction": "비밀번호 재설정 링크를 받으려면 이메일 주소를 입력하세요.",
+    "mediaLibraryPermission": "미디어 라이브러리에 접근하려면 권한이 필요합니다.",
+    "avatarSuccess": "아바타 업데이트가 성공적으로 완료되었습니다!",
+    "avatarFail": "아바타 업로드에 실패했습니다. 나중에 다시 시도해 주세요.",
+    "showPassword": "비밀번호 표시",
+    "hidePassword": "비밀번호 숨기기",
+    "resetFailed": "재설정 이메일 전송에 실패했습니다.",
+    "authenticationFailed": "인증 실패",
+    "redirectUnsupported": "이 기기에서는 로그인 페이지를 열 수 없습니다.",
+    "googleLoginFailed": "Google 로그인 시작에 실패했습니다."
+  },
+  "profile": {
+    "title": "프로필 설정",
+    "username": "사용자 이름",
+    "email": "이메일",
+    "phone": "전화 번호",
+    "saveBtn": "변경 사항 저장",
+    "logoutBtn": "로그아웃",
+    "diets": "식단 제한",
+    "allergies": "식품 알레르기",
+    "allergiesPlaceholder": "예: 땅콩, 해산물",
+    "budget": "식사 예산",
+    "budgetPlaceholder": "예: 50달러",
+    "taste": "맛 선호도",
+    "tastePlaceholder": "예: 매운맛, 가벼운",
+    "successMsg": "프로필이 성공적으로 업데이트되었습니다!",
+    "avatarTip": "아바타를 탭하여 변경하세요",
+    "deleteAccountLink": "계정 삭제",
+    "deleteAccountHelp": "계정을 삭제하시겠습니까? 삭제 요청 페이지를 열어주세요.",
+    "deleteAccountOpenFailed": "계정 삭제 페이지를 열 수 없습니다.",
+    "updateFailed": "프로필 업데이트에 실패했습니다."
+  },
+  "settings": {
+    "title": "설정",
+    "appearance": "모습",
+    "system": "체계",
+    "light": "빛",
+    "dark": "어두운",
+    "help": "도움말 및 피드백",
+    "replayTutorial": "튜토리얼 다시보기",
+    "replayTutorialDescription": "메뉴를 읽고, 번역하고, 이해하는 방법을 복습하세요.",
+    "rateApp": "AI 메뉴 앱 평가하기",
+    "rateAppDescription": "Google Play에서 AI Menu 앱을 열어보세요.",
+    "legal": "합법적인",
+    "privacy": "개인정보 보호정책",
+    "terms": "서비스 약관",
+    "version": "AI Menu APP 2.3",
+    "done": "완료"
+  },
+  "onboarding": {
+    "skip": "건너뛰다",
+    "back": "뒤쪽에",
+    "next": "다음",
+    "start": "무료 사용을 시작하세요",
+    "steps": [
+      {
+        "title": "메뉴는 아무거나 가져오세요",
+        "description": "사진을 찍거나, 이미지 또는 PDF 파일을 업로드하거나, 레스토랑 메뉴 링크를 붙여넣으세요."
+      },
+      {
+        "title": "나만의 방식으로 번역하세요",
+        "description": "메뉴 언어와 읽고자 하는 언어를 선택하세요."
+      },
+      {
+        "title": "모든 요리를 이해하세요",
+        "description": "분류별 메뉴, 요리 상세 정보, 재료, 가격 및 알레르기 유발 성분 정보를 확인하세요."
+      },
+      {
+        "title": "안심하고 주문하세요",
+        "description": "개인 맞춤 추천을 받고, 메뉴를 저장하고, 결과를 공유하고, 주문 목록을 만드세요."
+      }
+    ]
+  },
+  "legal": {
+    "common": {
+      "brand": "AI Menu APP",
+      "back": "뒤쪽에",
+      "contact": "연락하다"
+    },
+    "privacy": {
+      "title": "개인정보 보호정책",
+      "intro": "AI 메뉴 앱은 레스토랑 메뉴를 번역하고 설명해 줍니다. 본 개인정보 처리방침은 당사가 처리하는 정보, 정보 사용 이유, 그리고 사용자에게 제공되는 선택 사항에 대해 설명합니다.",
+      "sections": [
+        {
+          "heading": "우리가 처리하는 정보",
+          "items": [
+            "사용자 이름, 이메일, 선택 사항인 전화번호, 인증 식별자, 프로필 설정 및 아바타와 같은 계정 정보입니다.",
+            "사진, PDF 파일, 문서, 텍스트, 웹페이지, 배달 앱 링크 등 메뉴 및 관련 콘텐츠를 제출해 주시면 됩니다.",
+            "번역, 음식 상세 정보, 추천 메뉴, 메뉴 내역, 주문 목록 등의 결과가 생성됩니다.",
+            "앱 상호작용, 진단 정보, 기기 또는 광고 식별자, 네트워크 요청 메타데이터와 같은 기술 정보."
+          ]
+        },
+        {
+          "heading": "우리는 정보를 어떻게 활용하는가",
+          "items": [
+            "OCR, 번역, 메뉴 구성, 요리 설명, 이미지 매칭, 추천, 공유, 주문 내역 및 주문 목록 기능을 제공합니다.",
+            "계정 인증, 환경 설정 저장, 보안 유지, 악용 방지, 오류 해결 및 안정성 향상을 위해 사용합니다.",
+            "광고가 활성화된 곳에서 광고를 표시하고 측정하며, 지원, 개인정보 보호 및 삭제 요청에 응답하기 위해서입니다."
+          ]
+        },
+        {
+          "heading": "서비스 제공업체",
+          "items": [
+            "활성화된 기능에 따라 데이터는 Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons 및 Google AdMob에서 처리될 수 있습니다.",
+            "이러한 서비스 제공업체는 자체 약관 및 개인정보 보호 정책에 따라 정보를 처리합니다. 메뉴 콘텐츠는 요청된 기능을 제공하는 데 필요한 경우에만 AI 및 클라우드 서비스로 전송될 수 있습니다."
+          ]
+        },
+        {
+          "heading": "보존 및 보안",
+          "items": [
+            "저희는 귀하의 계정이 활성화되어 있는 동안 계정 데이터를 보유하며, 캐시된 데이터 또는 진단 데이터는 서비스, 보안, 법적 의무 및 성능에 합리적으로 필요한 경우에만 보관합니다.",
+            "저희는 합리적인 수준의 보안 조치를 취하고 있지만, 어떤 인터넷 서비스도 절대적인 보안을 보장할 수는 없습니다."
+          ]
+        },
+        {
+          "heading": "당신의 선택",
+          "items": [
+            "계정을 만들지 않고도 지원되는 게스트 기능을 이용하고, 프로필 기본 설정을 업데이트하고, 계정 삭제를 요청하고, 개인정보 보호 관련 질문을 할 수 있습니다.",
+            "기기에서 제공되는 설정이나 필요한 경우 앱에서 광고 동의 및 기기 광고 설정을 관리할 수 있습니다."
+          ]
+        },
+        {
+          "heading": "어린이와 변화",
+          "items": [
+            "본 서비스는 13세 미만 어린이를 대상으로 하지 않습니다. 서비스 또는 법적 요건이 변경될 경우 본 정책을 업데이트할 수 있으며, 위의 업데이트 날짜도 수정될 것입니다."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "서비스 약관",
+      "intro": "본 약관은 AI Menu APP 이용에 적용됩니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.",
+      "sections": [
+        {
+          "heading": "서비스",
+          "items": [
+            "AI 메뉴 앱은 OCR, 번역, 검색 및 AI 시스템을 활용하여 사용자가 레스토랑 메뉴를 쉽게 이해할 수 있도록 도와줍니다. 기능은 변경, 중단 또는 종료될 수 있습니다.",
+            "정확한 계정 정보를 제공해야 하며, 계정 활동에 대한 책임은 사용자에게 있습니다."
+          ]
+        },
+        {
+          "heading": "AI와 번역의 한계",
+          "items": [
+            "번역, 가격, 성분, 영양 정보, 이미지 및 권장 사항은 불완전하거나 부정확할 수 있습니다.",
+            "메뉴 세부 정보, 현재 가격, 이용 가능 여부 및 주문 정보는 항상 레스토랑에 확인하십시오."
+          ]
+        },
+        {
+          "heading": "알레르기 및 건강 관련 주의사항",
+          "items": [
+            "AI 메뉴 앱은 의학적 조언을 제공하지 않으며, 음식에 알레르기 유발 물질이 없거나 특정 식단에 적합하다는 것을 보장할 수 없습니다.",
+            "알레르기나 건강상의 제약이 있는 경우, 주문 전에 레스토랑 및 자격을 갖춘 의료 전문가와 상담하십시오."
+          ]
+        },
+        {
+          "heading": "콘텐츠 및 허용 가능한 사용",
+          "items": [
+            "제출하신 콘텐츠의 소유권은 귀하에게 있으며, 당사는 요청하신 서비스를 운영, 보안 및 개선하기 위한 목적으로만 해당 콘텐츠를 처리할 수 있는 제한적인 라이선스를 부여받습니다.",
+            "사용 권한이 없는 콘텐츠를 업로드하거나, 서비스를 오용하거나, 무단 접근을 시도하거나, 시스템을 방해하거나, 서비스를 불법적으로 사용하지 마십시오."
+          ]
+        },
+        {
+          "heading": "광고, 구매 및 계정",
+          "items": [
+            "이 서비스는 광고를 표시할 수 있습니다. 유료 기능이 제공되는 경우, 결제 전에 가격 및 적용 가능한 구매 조건이 표시됩니다.",
+            "본 약관을 위반하거나 사용자, 서비스 또는 제3자를 위협하는 계정은 정지될 수 있습니다. 계정 삭제는 언제든지 요청할 수 있습니다."
+          ]
+        },
+        {
+          "heading": "면책 조항 및 책임",
+          "items": [
+            "본 서비스는 법률이 허용하는 범위 내에서 중단 없는 운영이나 오류 없는 결과를 보장하지 않고 제공됩니다.",
+            "법이 허용하는 한도 내에서, 당사는 AI가 생성한 메뉴 정보만을 바탕으로 한 결정이나 그로 인한 간접적인 손실에 대해 책임을 지지 않습니다."
+          ]
+        },
+        {
+          "heading": "변경 사항 및 연락처",
+          "items": [
+            "당사는 본 약관을 업데이트할 수 있으며, 업데이트 시 위의 날짜를 수정할 것입니다. 업데이트 후에도 계속 이용하는 것은 수정된 약관에 동의하는 것으로 간주됩니다."
+          ]
+        }
+      ]
+    },
+    "deletion": {
+      "title": "AI 메뉴 앱 계정을 삭제하세요",
+      "subtitle": "계정 및 관련 계정 데이터 삭제를 요청하세요.",
+      "requestEmail": "이메일 계정 삭제 요청",
+      "emailSubject": "AI 메뉴 앱 계정 삭제 요청",
+      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "sections": [
+        {
+          "heading": "삭제 요청 방법",
+          "items": [
+            "계정에 등록된 이메일 주소로 요청을 보내주세요.",
+            "등록된 이메일 주소와 사용자 이름이 있으면 포함해 주세요.",
+            "요청을 확인한 후 계정 삭제를 진행하겠습니다."
+          ]
+        },
+        {
+          "heading": "데이터가 삭제되었습니다.",
+          "items": [
+            "기술적으로 가능한 경우, 계정 프로필 데이터, 인증 계정, 아바타, 저장된 메뉴 기록, 프로필 환경 설정 및 저장된 주문 목록 데이터가 삭제됩니다."
+          ]
+        },
+        {
+          "heading": "보존될 수 있는 데이터",
+          "items": [
+            "당사는 법률에 따라 요구되는 보안 로그, 거래 기록, 그리고 더 이상 귀하의 계정과 연결되지 않은 익명화되거나 사용자와 연결되지 않은 메뉴, 음식 및 이미지 캐시 데이터를 보관할 수 있습니다."
+          ]
+        }
+      ]
+    }
+  },
+  "languageNames": {
+    "auto": "자동 감지",
+    "en": "영어",
+    "zh": "중국어 간체",
+    "zh-Hant": "중국어 전통",
+    "es": "스페인 사람",
+    "fr": "프랑스 국민",
+    "ja": "일본어",
+    "ko": "한국인",
+    "ru": "러시아인",
+    "pt": "포르투갈 인",
+    "de": "독일 사람",
+    "it": "이탈리아 사람",
+    "ar": "아라비아 말"
+  },
+  "common": {
+    "brand": "AI Menu APP",
+    "contact": "연락하다",
+    "dishFallback": "접시",
+    "restaurantFallback": "식당",
+    "items": "품목"
+  },
+  "dietOptions": {
+    "Vegetarian": "채식주의자",
+    "Halal": "할랄",
+    "Kosher": "적법한",
+    "Keto": "케토",
+    "Gluten-Free": "글루텐 프리"
+  },
+  "cart": {
+    "title": "주문 목록",
+    "heading": "내 주문 목록",
+    "shareMessage": "AI 메뉴 앱에서 제 주문 목록을 확인해 보세요.",
+    "items": "품목",
+    "total": "총",
+    "remove": "제거하다",
+    "empty": "아직 추가된 요리가 없습니다."
+  },
+  "history": {
+    "title": "메뉴 내역",
+    "shareMessage": "AI 메뉴 앱에서 제 메뉴 이용 내역을 확인해 보세요.",
+    "items": "품목",
+    "open": "탭하여 열기",
+    "empty": "아직 메뉴 기록이 없습니다."
+  }
+}
