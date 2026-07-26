@@ -53,7 +53,7 @@ def google_translation_provider_name() -> str:
     return "google_cloud_translation_not_configured"
 
 
-def _google_language_code(lang: str | None, *, source: bool = False) -> str | None:
+def google_language_code(lang: str | None, *, source: bool = False) -> str | None:
     normalized = normalize_lang(lang, "auto" if source else "zh")
     if source and normalized == "auto":
         return None
@@ -64,6 +64,9 @@ def _google_language_code(lang: str | None, *, source: bool = False) -> str | No
         "en": "en",
         "es": "es",
     }.get(normalized, normalized)
+
+
+_google_language_code = google_language_code
 
 
 def _translation_parent() -> str:
@@ -455,7 +458,7 @@ def translate_document_bytes(
     response = requests.post(
         endpoint,
         headers={
-            "Authorization": f"Bearer {_get_google_access_token()}",
+            "Authorization": f"Bearer {get_google_access_token()}",
             "Content-Type": "application/json",
         },
         json=payload,

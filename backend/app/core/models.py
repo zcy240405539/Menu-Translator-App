@@ -189,6 +189,21 @@ class UserCartState(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
+class SupportedLanguage(Base):
+    __tablename__ = "supported_languages"
+
+    code = Column(Text, primary_key=True)
+    english_name = Column(Text, nullable=False)
+    native_name = Column(Text, nullable=False)
+    family = Column(Text, nullable=False)
+    google_code = Column(Text, nullable=False)
+    ocr_code = Column(Text)
+    enabled_source = Column(Boolean, default=True, nullable=False, server_default="true")
+    enabled_target = Column(Boolean, default=True, nullable=False, server_default="true")
+    display_order = Column(Integer, nullable=False, default=0, server_default="0")
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class NoiseKeyword(Base):
     __tablename__ = "noise_keywords"
 

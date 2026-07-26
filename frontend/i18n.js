@@ -8,11 +8,14 @@ export const LANGUAGES = [
   { code: "zh", label: "简体中文", flag: "🇨🇳" },
   { code: "zh-Hant", label: "繁體中文", flag: "🇹🇼" },
   { code: "es", label: "Español", flag: "🇪🇸" },
-  // { code: "ja", label: "日本語", flag: "🇯🇵" },
-  // { code: "ko", label: "한국어", flag: "🇰🇷" },
-  // { code: "fr", label: "Français", flag: "🇫🇷" },
-  // { code: "de", label: "Deutsch", flag: "🇩🇪" },
-  // { code: "it", label: "Italiano", flag: "🇮🇹" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "ja", label: "日本語", flag: "🇯🇵" },
+  { code: "ko", label: "한국어", flag: "🇰🇷" },
+  { code: "ru", label: "Русский", flag: "🇷🇺" },
+  { code: "pt", label: "Português", flag: "🇵🇹" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "it", label: "Italiano", flag: "🇮🇹" },
+  { code: "ar", label: "العربية", flag: "🇸🇦" },
 ];
 
 export const SOURCE_LANGUAGES = [
@@ -821,8 +824,7 @@ export function isChineseLanguage(lang) {
 export function getUrlLangParam(langCode) {
   if (langCode === "zh") return "zh-cn";
   if (langCode === "zh-Hant") return "zh-tw";
-  if (langCode === "es") return "es";
-  return "en";
+  return LANGUAGES.some(({ code }) => code === langCode) ? langCode : "en";
 }
 
 export function mapUrlLangToInternal(langParam) {
@@ -830,8 +832,8 @@ export function mapUrlLangToInternal(langParam) {
   const normalized = String(langParam).toLowerCase();
   if (normalized === "zh-cn" || normalized === "zh") return "zh";
   if (normalized === "zh-tw" || normalized === "zh-hk" || normalized === "zh-hant") return "zh-Hant";
-  if (normalized === "es") return "es";
-  return "en";
+  const primary = normalized.split("-")[0];
+  return LANGUAGES.some(({ code }) => code === primary) ? primary : "en";
 }
 
 export function getInitialLanguage() {
@@ -854,7 +856,7 @@ export function getInitialLanguage() {
   }
 
   const shortBrowserLang = normalizedBrowserLang.slice(0, 2);
-  return translations[shortBrowserLang] ? shortBrowserLang : DEFAULT_LANGUAGE;
+  return LANGUAGES.some(({ code }) => code === shortBrowserLang) ? shortBrowserLang : DEFAULT_LANGUAGE;
 }
 
 export function hasSavedLanguage() {

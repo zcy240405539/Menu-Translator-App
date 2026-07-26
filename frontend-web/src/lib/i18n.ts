@@ -1,4 +1,16 @@
-export type WebLanguageCode = "en" | "zh-cn" | "zh-Hant" | "es";
+export type WebLanguageCode =
+  | "en"
+  | "zh-cn"
+  | "zh-Hant"
+  | "es"
+  | "fr"
+  | "ja"
+  | "ko"
+  | "ru"
+  | "pt"
+  | "de"
+  | "it"
+  | "ar";
 
 const STORAGE_KEY = "menu_app_language";
 
@@ -10,15 +22,24 @@ export const LANGUAGES: { code: WebLanguageCode; label: string; shortLabel: stri
   { code: "zh-cn", label: "Chinese-Simplified", shortLabel: "Chinese" },
   { code: "zh-Hant", label: "Chinese-Traditional", shortLabel: "Chinese" },
   { code: "es", label: "Spanish", shortLabel: "Spanish" },
+  { code: "fr", label: "French", shortLabel: "French" },
+  { code: "ja", label: "Japanese", shortLabel: "Japanese" },
+  { code: "ko", label: "Korean", shortLabel: "Korean" },
+  { code: "ru", label: "Russian", shortLabel: "Russian" },
+  { code: "pt", label: "Portuguese", shortLabel: "Portuguese" },
+  { code: "de", label: "German", shortLabel: "German" },
+  { code: "it", label: "Italian", shortLabel: "Italian" },
+  { code: "ar", label: "Arabic", shortLabel: "Arabic" },
 ];
 
 export const SOURCE_LANGUAGES = [{ code: "auto", label: "Auto Detect", shortLabel: "Auto" }, ...LANGUAGES];
 
 export function normalizeLanguage(lang?: string | null): WebLanguageCode {
-  const normalized = String(lang || "").toLowerCase();
+  const normalized = String(lang || "").trim().replaceAll("_", "-").toLowerCase();
   if (normalized === "zh" || normalized === "zh-cn" || normalized === "zh-hans") return "zh-cn";
   if (["zh-tw", "zh-hk", "zh-hant"].includes(normalized)) return "zh-Hant";
-  if (normalized === "es") return "es";
+  const primary = normalized.split("-", 1)[0] as WebLanguageCode;
+  if (LANGUAGES.some(({ code }) => code === primary)) return primary;
   return "en";
 }
 
@@ -28,8 +49,8 @@ export function toBackendLanguage(lang?: string | null) {
   if (!normalized || normalized === "auto") return "auto";
   if (normalized === "zh" || normalized === "zh-cn" || normalized === "zh-hans") return "zh";
   if (["zh-tw", "zh-hk", "zh-hant"].includes(normalized)) return "zh-Hant";
-  if (normalized === "en" || normalized === "es") return normalized;
-  return value;
+  const primary = normalized.split("-", 1)[0];
+  return LANGUAGES.some(({ code }) => code === primary) ? primary : value;
 }
 
 export function getInitialLanguage(): WebLanguageCode {
@@ -56,17 +77,55 @@ export function htmlLanguage(lang: WebLanguageCode) {
 }
 
 export function languageLabel(uiLang: WebLanguageCode, lang: string) {
-  return webText[normalizeLanguage(uiLang)].languageNames[normalizeLanguage(lang)];
+  const uiCode = normalizeLanguage(uiLang);
+  const names = LANGUAGE_NAMES[uiCode as keyof typeof LANGUAGE_NAMES] || LANGUAGE_NAMES.en;
+  return names[normalizeLanguage(lang)];
 }
 
 export function languageShortLabel(uiLang: WebLanguageCode, lang: string) {
-  return webText[normalizeLanguage(uiLang)].languageShortNames[normalizeLanguage(lang)];
+  const normalized = normalizeLanguage(lang);
+  if (normalized === "zh-cn" || normalized === "zh-Hant") {
+    const uiCode = normalizeLanguage(uiLang);
+    const shortNames = LANGUAGE_SHORT_NAMES[uiCode as keyof typeof LANGUAGE_SHORT_NAMES] || LANGUAGE_SHORT_NAMES.en;
+    return shortNames[normalized];
+  }
+  return languageLabel(uiLang, lang);
 }
 
 export function sourceLanguageLabel(uiLang: WebLanguageCode, lang: string, compact = false) {
-  if (lang === "auto") return webText[normalizeLanguage(uiLang)].analyzer.autoDetect;
+  if (lang === "auto") return getText(uiLang).analyzer.autoDetect;
   return compact ? languageShortLabel(uiLang, lang) : languageLabel(uiLang, lang);
 }
+
+const LANGUAGE_NAMES = {
+  en: {
+    en: "English", "zh-cn": "Chinese-Simplified", "zh-Hant": "Chinese-Traditional", es: "Spanish",
+    fr: "French", ja: "Japanese", ko: "Korean", ru: "Russian", pt: "Portuguese", de: "German",
+    it: "Italian", ar: "Arabic",
+  },
+  "zh-cn": {
+    en: "英语", "zh-cn": "简体中文", "zh-Hant": "繁体中文", es: "西班牙语",
+    fr: "法语", ja: "日语", ko: "韩语", ru: "俄语", pt: "葡萄牙语", de: "德语",
+    it: "意大利语", ar: "阿拉伯语",
+  },
+  "zh-Hant": {
+    en: "英語", "zh-cn": "簡體中文", "zh-Hant": "繁體中文", es: "西班牙語",
+    fr: "法語", ja: "日語", ko: "韓語", ru: "俄語", pt: "葡萄牙語", de: "德語",
+    it: "義大利語", ar: "阿拉伯語",
+  },
+  es: {
+    en: "Inglés", "zh-cn": "Chino simplificado", "zh-Hant": "Chino tradicional", es: "Español",
+    fr: "Francés", ja: "Japonés", ko: "Coreano", ru: "Ruso", pt: "Portugués", de: "Alemán",
+    it: "Italiano", ar: "Árabe",
+  },
+} satisfies Record<string, Record<WebLanguageCode, string>>;
+
+const LANGUAGE_SHORT_NAMES = {
+  en: { "zh-cn": "Chinese", "zh-Hant": "Chinese" },
+  "zh-cn": { "zh-cn": "中文", "zh-Hant": "中文" },
+  "zh-Hant": { "zh-cn": "中文", "zh-Hant": "中文" },
+  es: { "zh-cn": "Chino", "zh-Hant": "Chino" },
+} satisfies Record<string, Record<"zh-cn" | "zh-Hant", string>>;
 
 export const webText = {
   en: {
@@ -129,7 +188,7 @@ export const webText = {
       title: "Key Features",
       subtitle: "Your smart AI menu translator helps you understand local dishes anywhere in the world.",
       cards: [
-        { title: "Translate Menus", desc: "Translate supported menus between English, Chinese, and Spanish." },
+        { title: "Translate Menus", desc: "Translate menus across all supported languages." },
         { title: "Detailed Descriptions", desc: "Get clear explanations of unfamiliar dishes and ingredients." },
         { title: "Order with Ease", desc: "Build a clear list of chosen dishes to show the waiter." },
         { title: "All Menu Types", desc: "Photos, PDFs, and menu links route to the same backend parser." },
@@ -229,7 +288,6 @@ export const webText = {
       contact: "Contact",
       privacy: {
         title: "Privacy Policy",
-        subtitle: "AI Menu APP - Last updated: June 10, 2026",
         intro:
           "AI Menu APP helps users translate and understand restaurant menus from photos, files, documents, and menu links. This Privacy Policy explains what information we collect, how we use it, and the choices available to users.",
         sections: [
@@ -359,7 +417,7 @@ export const webText = {
       title: "核心功能",
       subtitle: "智能 AI 菜单翻译器帮助你在世界各地看懂当地菜品。",
       cards: [
-        { title: "菜单翻译", desc: "支持英语、中文和西班牙语菜单互译。" },
+        { title: "菜单翻译", desc: "支持所有已启用语言之间的菜单翻译。" },
         { title: "详细说明", desc: "解释陌生菜品、配料和口味。" },
         { title: "轻松点餐", desc: "整理清晰的点餐清单，方便给服务员查看。" },
         { title: "多种菜单来源", desc: "照片、PDF 和菜单链接都走同一套后端解析流程。" },
@@ -459,7 +517,6 @@ export const webText = {
       contact: "联系邮箱",
       privacy: {
         title: "隐私政策",
-        subtitle: "AI Menu APP - 最后更新：2026 年 6 月 10 日",
         intro:
           "AI Menu APP 帮助用户通过照片、文件、文档和菜单链接翻译并理解餐厅菜单。本隐私政策说明我们收集哪些信息、如何使用这些信息，以及用户可以做出的选择。",
         sections: [
@@ -589,7 +646,7 @@ export const webText = {
       title: "核心功能",
       subtitle: "智慧 AI 菜單翻譯器幫助你在世界各地看懂當地菜色。",
       cards: [
-        { title: "菜單翻譯", desc: "支援英語、中文和西班牙語菜單互譯。" },
+        { title: "菜單翻譯", desc: "支援所有已啟用語言之間的菜單翻譯。" },
         { title: "詳細說明", desc: "解釋陌生菜色、配料和口味。" },
         { title: "輕鬆點餐", desc: "整理清楚的點餐清單，方便給服務員查看。" },
         { title: "多種菜單來源", desc: "照片、PDF 和菜單連結都走同一套後端解析流程。" },
@@ -689,7 +746,6 @@ export const webText = {
       contact: "聯絡信箱",
       privacy: {
         title: "隱私政策",
-        subtitle: "AI Menu APP - 最後更新：2026 年 6 月 10 日",
         intro:
           "AI Menu APP 幫助使用者透過照片、檔案、文件和菜單連結翻譯並理解餐廳菜單。本隱私政策說明我們收集哪些資訊、如何使用這些資訊，以及使用者可以做出的選擇。",
         sections: [
@@ -819,7 +875,7 @@ export const webText = {
       title: "Funciones clave",
       subtitle: "Tu traductor inteligente de menús te ayuda a entender platos locales en cualquier lugar.",
       cards: [
-        { title: "Traducir menús", desc: "Traduce menús entre inglés, chino y español." },
+        { title: "Traducir menús", desc: "Traduce menús entre todos los idiomas compatibles." },
         { title: "Descripciones claras", desc: "Obtén explicaciones de platos e ingredientes desconocidos." },
         { title: "Pide con facilidad", desc: "Crea una lista clara de platos para mostrar al camarero." },
         { title: "Todo tipo de menús", desc: "Fotos, PDF y enlaces de menú usan el mismo parser backend." },
@@ -919,7 +975,6 @@ export const webText = {
       contact: "Contacto",
       privacy: {
         title: "Política de privacidad",
-        subtitle: "AI Menu APP - Última actualización: 10 de junio de 2026",
         intro:
           "AI Menu APP ayuda a los usuarios a traducir y entender menús de restaurantes desde fotos, archivos, documentos y enlaces de menú. Esta Política de privacidad explica qué información recopilamos, cómo la usamos y qué opciones tienen los usuarios.",
         sections: [
@@ -992,5 +1047,6 @@ export const webText = {
 };
 
 export function getText(lang: WebLanguageCode) {
-  return webText[normalizeLanguage(lang)];
+  const normalized = normalizeLanguage(lang);
+  return webText[normalized as keyof typeof webText] || webText.en;
 }

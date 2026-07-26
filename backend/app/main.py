@@ -127,14 +127,19 @@ def ensure_database_schema_compatibility():
             db.rollback()
             print(f"Warning: could not alter multilingual config tables: {ex}")
 
-        try:
-            seed_sql_path = Path(__file__).resolve().parents[1] / "migrations" / "20260723_restaurant_type_display_labels.sql"
-            if seed_sql_path.exists():
-                db.execute(text(seed_sql_path.read_text(encoding="utf-8")))
-                db.commit()
-        except Exception as ex:
-            db.rollback()
-            print(f"Warning: could not seed restaurant type display labels: {ex}")
+        migration_dir = Path(__file__).resolve().parents[1] / "migrations"
+        for migration_name in (
+            "20260723_restaurant_type_display_labels.sql",
+            "20260726_expand_supported_languages.sql",
+        ):
+            try:
+                migration_path = migration_dir / migration_name
+                if migration_path.exists():
+                    db.execute(text(migration_path.read_text(encoding="utf-8")))
+                    db.commit()
+            except Exception as ex:
+                db.rollback()
+                print(f"Warning: could not apply {migration_name}: {ex}")
     except Exception as e:
         print(f"Error ensuring database schema compatibility: {e}")
     finally:
@@ -172,9 +177,9 @@ def app_ads_txt():
 
 @app.get("/account-deletion", response_class=HTMLResponse)
 def account_deletion_page():
-    support_email = os.getenv("APP_SUPPORT_EMAIL", "support@agentscottystudio.com").strip()
+    support_email = os.getenv("APP_SUPPORT_EMAIL", "support@aimenu.us.kg").strip()
     if not support_email:
-        support_email = "support@agentscottystudio.com"
+        support_email = "support@aimenu.us.kg"
 
     safe_email = escape(support_email, quote=True)
     mail_subject = "AI%20Menu%20APP%20Account%20Deletion%20Request"
@@ -283,9 +288,9 @@ def account_deletion_page():
 @app.get("/home/privacy-policy", response_class=HTMLResponse)
 @app.get("/privacy-policy", response_class=HTMLResponse)
 def privacy_policy_page():
-    support_email = os.getenv("APP_SUPPORT_EMAIL", "support@agentscottystudio.com").strip()
+    support_email = os.getenv("APP_SUPPORT_EMAIL", "support@aimenu.us.kg").strip()
     if not support_email:
-        support_email = "support@agentscottystudio.com"
+        support_email = "support@aimenu.us.kg"
 
     safe_email = escape(support_email, quote=True)
 
@@ -340,7 +345,6 @@ def privacy_policy_page():
     <main>
       <article>
         <h1>Privacy Policy</h1>
-        <p class="muted">AI Menu APP · Last updated: June 10, 2026</p>
 
         <p>
           AI Menu APP helps users translate and understand restaurant menus from
@@ -1123,6 +1127,7 @@ def parse_image_with_vision(
         ocr_blocks = extract_layout_blocks_from_image_with_google_vision(
             image_bytes=file_bytes,
             mime_type=mime_type,
+            source_lang=source_lang,
         )
         vision_result = {}
         parser_prefix = "google_cloud_vision"
@@ -1220,6 +1225,7 @@ def extract_image_markdown_for_analysis(
         ocr_blocks = extract_layout_blocks_from_image_with_google_vision(
             image_bytes=file_bytes,
             mime_type=mime_type or "image/jpeg",
+            source_lang=source_lang,
         )
         return (
             ocr_blocks_to_markdown(ocr_blocks, source_label="google_cloud_vision_ocr"),
@@ -1342,6 +1348,7 @@ async def menu_ocr(
             vision_result = call_google_vision_text_detection(
                 image_bytes=file_bytes,
                 mime_type=file.content_type or "image/jpeg",
+                source_lang=source_lang,
             )
             blocks = vision_result.get("blocks") or []
             ocr_text = vision_result.get("text") or "\n".join(b["text"] for b in blocks if b.get("text"))
@@ -1383,6 +1390,7 @@ async def menu_layout(
             blocks = extract_layout_blocks_from_image_with_google_vision(
                 image_bytes=file_bytes,
                 mime_type=file.content_type or "image/jpeg",
+                source_lang=source_lang,
             )
         elif should_use_vision_ocr(ocr_provider):
             vision_result = call_openrouter_vision_for_menu(

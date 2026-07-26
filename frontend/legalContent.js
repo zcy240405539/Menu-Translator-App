@@ -1,17 +1,9 @@
-const updated = {
-  en: "Last updated: July 25, 2026",
-  zh: "最后更新：2026年7月25日",
-  "zh-Hant": "最後更新：2026年7月25日",
-  es: "Última actualización: 25 de julio de 2026",
-};
-
 export const legalContent = {
   en: {
     common: {
       brand: "AI Menu APP",
       back: "Back",
       contact: "Contact",
-      updated: updated.en,
     },
     privacy: {
       title: "Privacy Policy",
@@ -121,7 +113,7 @@ export const legalContent = {
     },
   },
   zh: {
-    common: { brand: "AI Menu APP", back: "返回", contact: "联系我们", updated: updated.zh },
+    common: { brand: "AI Menu APP", back: "返回", contact: "联系我们" },
     privacy: {
       title: "隐私政策",
       intro: "AI Menu APP 用于翻译和解释餐厅菜单。本政策说明我们处理哪些信息、使用目的以及您可以进行的选择。",
@@ -187,7 +179,7 @@ export const legalContent = {
     },
   },
   "zh-Hant": {
-    common: { brand: "AI Menu APP", back: "返回", contact: "聯絡我們", updated: updated["zh-Hant"] },
+    common: { brand: "AI Menu APP", back: "返回", contact: "聯絡我們" },
     privacy: {
       title: "隱私政策",
       intro: "AI Menu APP 用於翻譯和解釋餐廳菜單。本政策說明我們處理哪些資訊、使用目的以及您可以進行的選擇。",
@@ -253,7 +245,7 @@ export const legalContent = {
     },
   },
   es: {
-    common: { brand: "AI Menu APP", back: "Volver", contact: "Contacto", updated: updated.es },
+    common: { brand: "AI Menu APP", back: "Volver", contact: "Contacto" },
     privacy: {
       title: "Política de privacidad",
       intro: "AI Menu APP traduce y explica menús de restaurantes. Esta política describe la información que procesamos, por qué la usamos y las opciones disponibles.",

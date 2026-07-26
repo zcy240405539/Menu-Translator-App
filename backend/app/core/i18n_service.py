@@ -3,12 +3,14 @@ SUPPORTED_LANGUAGES = {
     "zh": {"name": "Simplified Chinese", "native": "简体中文"},
     "zh-Hant": {"name": "Traditional Chinese", "native": "繁體中文"},
     "es": {"name": "Spanish", "native": "Español"},
-    # "ja": {"name": "Japanese", "native": "日本語"},
-    # "ko": {"name": "Korean", "native": "한국어"},
-    # "fr": {"name": "French", "native": "Français"},
-    # "de": {"name": "German", "native": "Deutsch"},
-    # "it": {"name": "Italian", "native": "Italiano"},
-    # "pt": {"name": "Portuguese", "native": "Português"},
+    "fr": {"name": "French", "native": "Français"},
+    "ja": {"name": "Japanese", "native": "日本語"},
+    "ko": {"name": "Korean", "native": "한국어"},
+    "ru": {"name": "Russian", "native": "Русский"},
+    "pt": {"name": "Portuguese", "native": "Português"},
+    "de": {"name": "German", "native": "Deutsch"},
+    "it": {"name": "Italian", "native": "Italiano"},
+    "ar": {"name": "Arabic", "native": "العربية"},
 }
 
 DEFAULT_SOURCE_LANGUAGE = "en"
@@ -18,16 +20,49 @@ DEFAULT_TARGET_LANGUAGE = "zh"
 def normalize_lang(lang: str | None, fallback: str = "en") -> str:
     if not lang:
         return fallback
-    lang = lang.lower().strip()
-    if lang in ("cn", "zh-cn", "zh_hans", "chinese"):
-        return "zh"
-    if lang in ("zh-tw", "zh_hant", "zh-hant", "zh-hk", "traditional chinese", "traditional-chinese"):
-        return "zh-Hant"
-    if lang in ("es", "spanish", "español", "espanol"):
-        return "es"
-    if lang in ("english",):
-        return "en"
-    return lang if lang in SUPPORTED_LANGUAGES else fallback
+    normalized = str(lang).strip().replace("_", "-").lower()
+    aliases = {
+        "auto": "auto",
+        "cn": "zh",
+        "zh": "zh",
+        "zh-cn": "zh",
+        "zh-hans": "zh",
+        "chinese": "zh",
+        "simplified chinese": "zh",
+        "zh-tw": "zh-Hant",
+        "zh-hant": "zh-Hant",
+        "zh-hk": "zh-Hant",
+        "traditional chinese": "zh-Hant",
+        "traditional-chinese": "zh-Hant",
+        "english": "en",
+        "spanish": "es",
+        "español": "es",
+        "espanol": "es",
+        "french": "fr",
+        "français": "fr",
+        "francais": "fr",
+        "japanese": "ja",
+        "日本語": "ja",
+        "korean": "ko",
+        "한국어": "ko",
+        "russian": "ru",
+        "русский": "ru",
+        "portuguese": "pt",
+        "português": "pt",
+        "portugues": "pt",
+        "german": "de",
+        "deutsch": "de",
+        "italian": "it",
+        "italiano": "it",
+        "arabic": "ar",
+        "العربية": "ar",
+    }
+    direct = aliases.get(normalized)
+    if direct:
+        return direct if direct == "auto" or direct in SUPPORTED_LANGUAGES else fallback
+
+    primary = normalized.split("-", 1)[0]
+    return primary if primary in SUPPORTED_LANGUAGES else fallback
 
 
 def get_language_name(lang: str | None) -> str:

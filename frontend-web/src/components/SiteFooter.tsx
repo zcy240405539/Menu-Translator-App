@@ -55,20 +55,13 @@ export default function SiteFooter() {
       </aside>
       <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
         <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
-          <span className="text-lg font-bold text-gray-700">AI Menu APP</span>
           <p className="text-sm">© {new Date().getFullYear()} AI Menu APP. {text.footer.rights}</p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            <Link href={`/settings${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
-              {text.footer.settings}
-            </Link>
             <Link href={`/privacy-policy${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.privacy}
             </Link>
             <Link href={`/terms-of-service${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.terms}
-            </Link>
-            <Link href={`/account-deletion${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
-              {text.footer.deletion}
             </Link>
           </div>
         </div>

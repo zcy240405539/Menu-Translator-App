@@ -82,21 +82,16 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   }, [initialMenuUrl]);
 
   // source and target languages should not be the same
-  const getSafeTargetLang = (langCode) => {
-    if (!langCode || langCode === "auto") {
-      return "en";
-    }
-
-    return langCode;
-  };
-
   const handleSourceLanguageChange = (newSourceLang) => {
     if (newSourceLang === targetLang) {
       const previousSourceLang = sourceLang;
 
       setSourceLang(newSourceLang);
 
-      const newTargetLang = getSafeTargetLang(previousSourceLang);
+      const newTargetLang =
+        previousSourceLang !== "auto" && previousSourceLang !== newSourceLang
+          ? previousSourceLang
+          : newSourceLang === "en" ? "es" : "en";
       setTargetLang(newTargetLang);
       saveLanguage(newTargetLang);
 

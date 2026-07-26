@@ -6,7 +6,7 @@ import { Globe } from "lucide-react";
 import { DEFAULT_LANGUAGE, LANGUAGES, getInitialLanguage, getText, languageLabel, normalizeLanguage, saveLanguage, type WebLanguageCode } from "@/lib/i18n";
 import { getLegalDocument, type LegalKind } from "@/lib/legalDocuments";
 
-const SUPPORT_EMAIL = "support@agentscottystudio.com";
+const SUPPORT_EMAIL = "support@aimenu.us.kg";
 const ACCOUNT_DELETION_MAILTO =
   `mailto:${SUPPORT_EMAIL}?subject=AI%20Menu%20APP%20Account%20Deletion%20Request` +
   "&body=Please%20delete%20my%20AI%20Menu%20APP%20account.%0A%0ARegistered%20email%3A%20%0AUsername%20if%20known%3A%20%0A";
@@ -64,7 +64,9 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
         </div>
         <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-purple-700">{legal.brand}</p>
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-950">{documentText.title}</h1>
-        <p className="mt-3 text-lg text-gray-600">{documentText.subtitle}</p>
+        {"subtitle" in documentText && documentText.subtitle && (
+          <p className="mt-3 text-lg text-gray-600">{documentText.subtitle}</p>
+        )}
 
         {isDeletion ? (
           <a

@@ -28,6 +28,7 @@ PROFILE = LanguageProfile(
         "A standalone number is not a section heading unless accompanied by a real textual heading.",
         "Do not confuse numbered dish names with prices when the number is directly attached to a dish code.",
     ),
+    currency_markers=("€", "EUR", "$", "MXN"),
     unit_rules=(
         "Treat copa, vaso, botella, caña, pinta, ración, media ración, unidad, ud, kg, g, and ml as units or serving options.",
     ),

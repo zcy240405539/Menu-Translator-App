@@ -22,9 +22,6 @@ export default function LegalDocumentModal({ visible, kind, targetLang, onClose 
             {legal.common.brand}
           </Text>
           <Text variant="headlineMedium" style={styles.title}>{document.title}</Text>
-          <Text style={[styles.updated, { color: theme.colors.onSurfaceVariant }]}>
-            {legal.common.updated}
-          </Text>
           <Text style={styles.intro}>{document.intro}</Text>
           {document.sections.map((section) => (
             <View key={section.heading} style={styles.section}>
@@ -38,7 +35,7 @@ export default function LegalDocumentModal({ visible, kind, targetLang, onClose 
             </View>
           ))}
           <Text style={[styles.contact, { color: theme.colors.onSurfaceVariant }]}>
-            {legal.common.contact}: support@agentscottystudio.com
+            {legal.common.contact}: support@aimenu.us.kg
           </Text>
         </ScrollView>
       </Surface>
@@ -50,7 +47,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { width: "100%", maxWidth: 760, alignSelf: "center", padding: 24, paddingBottom: 48 },
   title: { marginTop: 10, fontWeight: "800" },
-  updated: { marginTop: 6 },
   intro: { marginTop: 22, fontSize: 16, lineHeight: 25 },
   section: { marginTop: 28 },
   heading: { marginBottom: 10, fontWeight: "700" },

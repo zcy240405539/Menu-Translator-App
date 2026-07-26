@@ -28,6 +28,7 @@ PROFILE = LanguageProfile(
         "Do not convert RMB to USD or add a dollar sign to Chinese prices.",
         "A price-only Chinese row such as 12元, ￥18, or 28 is never a section heading or dish name.",
     ),
+    currency_markers=("¥", "￥", "元", "RMB"),
     unit_rules=(
         "Treat 份, 位, 例, 个, 只, 串, 碗, 杯, 斤, 两, 盘, 锅, 袋, 盒, 瓶, 听, 扎, 大份, 小份 as units or size options.",
     ),
@@ -53,6 +54,9 @@ PROFILE = LanguageProfile(
         r"[\u3400-\u9fff]{2,}",
         r"[￥¥]\s?\d+",
         r"\d+\s?元",
+    ),
+    detection_variant_markers=(
+        ("zh-Hant", "體臺灣餐廳菜單湯飯麵雞豬魚鹹點飲與價錢號鍋燒烤類熱涼"),
     ),
     default_noise_keywords=(
         "营业时间", "地址", "电话", "微信", "公众号", "扫码", "外卖", "满减", "温馨提示",

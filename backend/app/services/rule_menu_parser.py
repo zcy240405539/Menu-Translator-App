@@ -1,25 +1,14 @@
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 
 from app.core.i18n_service import normalize_lang
 from app.language_modules import get_language_profile
 
 
-PRICE_NUMBER_PATTERN = r"\d{1,4}(?:[.,]\d{1,2})?"
-PRICE_VALUE_PATTERN = rf"(?:[$€£¥￥]\s*)?{PRICE_NUMBER_PATTERN}"
-PRICE_RANGE_PATTERN = rf"{PRICE_VALUE_PATTERN}(?:\s*[-–—]\s*{PRICE_VALUE_PATTERN})?"
-PRICE_ONLY_RE = re.compile(
-    rf"^\s*{PRICE_RANGE_PATTERN}(?:\s+{PRICE_NUMBER_PATTERN}){{0,3}}\s*$"
-)
-TRAILING_PRICE_RE = re.compile(
-    rf"^(?P<body>.+?)\s*(?:\||\.{{2,}}|[-–])?\s*"
-    rf"(?P<price>{PRICE_RANGE_PATTERN}(?:\s+{PRICE_NUMBER_PATTERN}){{0,3}})\s*$"
-)
-SECTION_PRICE_RE = re.compile(
-    rf"^(?P<label>.*[A-Za-zÀ-ÿ\u3400-\u9fff][^\d$€£¥￥]*)\s+"
-    rf"(?P<price>{PRICE_RANGE_PATTERN})$"
-)
+PRICE_NUMBER_PATTERN = r"(?:\d{1,3}(?:[.,\s٬]\d{3})+|\d{1,7})(?:[.,٫](?:\d{1,2}|-))?"
+COMMON_CURRENCY_MARKERS = ("$", "€", "£", "¥", "￥", "₩", "₽")
 HEADING_RE = re.compile(r"^(?P<marks>#{1,6})\s+(?P<text>.+)$")
 BULLET_RE = re.compile(r"^\s*(?:[-*•]\s+|\d+[.)]\s+)")
 HTML_COMMENT_RE = re.compile(r"<!--.*?-->")
@@ -60,6 +49,38 @@ NON_MENU_HEADINGS = {
 }
 
 
+@lru_cache(maxsize=16)
+def _price_regexes(source_lang: str):
+    profile = get_language_profile(source_lang)
+    markers = sorted(
+        {*COMMON_CURRENCY_MARKERS, *profile.currency_markers},
+        key=len,
+        reverse=True,
+    )
+    currency_pattern = "(?:" + "|".join(re.escape(marker) for marker in markers) + ")"
+    price_value_pattern = (
+        rf"(?:{currency_pattern}\s*)?{PRICE_NUMBER_PATTERN}(?:\s*{currency_pattern})?"
+    )
+    price_range_pattern = (
+        rf"{price_value_pattern}(?:\s*[-–—]\s*{price_value_pattern})?"
+    )
+    return (
+        re.compile(
+            rf"^\s*{price_range_pattern}(?:\s+{PRICE_NUMBER_PATTERN}){{0,3}}\s*$",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            rf"^(?P<body>.+?)\s*(?:\||\.{{2,}}|[-–])?\s*"
+            rf"(?P<price>{price_range_pattern}(?:\s+{PRICE_NUMBER_PATTERN}){{0,3}})\s*$",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            rf"^(?P<label>.+?)\s+(?P<price>{price_range_pattern})$",
+            re.IGNORECASE,
+        ),
+    )
+
+
 def _clean_line(raw_line: str) -> tuple[int, str]:
     line = HTML_COMMENT_RE.sub("", raw_line or "").strip()
     if not line:
@@ -86,29 +107,32 @@ def _clean_price(price: str | None) -> str | None:
     return value
 
 
-def _is_price_only(text: str) -> bool:
-    return bool(PRICE_ONLY_RE.fullmatch(text or "")) and not SIZE_HEADER_RE.search(text or "")
+def _is_price_only(text: str, source_lang: str) -> bool:
+    price_only_re, _, _ = _price_regexes(source_lang)
+    return bool(price_only_re.fullmatch(text or "")) and not SIZE_HEADER_RE.search(text or "")
 
 
-def _split_section_price(text: str) -> tuple[str, str | None]:
-    match = SECTION_PRICE_RE.fullmatch(text or "")
+def _split_section_price(text: str, source_lang: str) -> tuple[str, str | None]:
+    _, _, section_price_re = _price_regexes(source_lang)
+    match = section_price_re.fullmatch(text or "")
     if not match:
         return text.strip(), None
     label = match.group("label").strip(" -–:|")
-    if not label or _is_price_only(label):
+    if not label or not any(char.isalpha() for char in label) or _is_price_only(label, source_lang):
         return text.strip(), None
     return label, _clean_price(match.group("price"))
 
 
-def _split_trailing_price(text: str) -> tuple[str, str | None]:
+def _split_trailing_price(text: str, source_lang: str) -> tuple[str, str | None]:
     if SIZE_HEADER_RE.search(text or ""):
         return text.strip(), None
     if "|" in text:
         left, right = text.rsplit("|", 1)
-        if _is_price_only(right.strip()):
+        if _is_price_only(right.strip(), source_lang):
             return left.strip(), _clean_price(right)
 
-    match = TRAILING_PRICE_RE.fullmatch(text or "")
+    _, trailing_price_re, _ = _price_regexes(source_lang)
+    match = trailing_price_re.fullmatch(text or "")
     if not match:
         return text.strip(), None
     body = match.group("body").strip(" -–:|.")
@@ -145,7 +169,7 @@ def _split_comma_name_description(text: str) -> tuple[str, str]:
     return name.strip(" -–:|."), description.strip(" -–:|.")
 
 
-def _extract_numbered_items(text: str) -> list[dict]:
+def _extract_numbered_items(text: str, source_lang: str) -> list[dict]:
     matches = list(NUMBERED_ITEM_RE.finditer(text or ""))
     if not matches:
         return []
@@ -164,7 +188,7 @@ def _extract_numbered_items(text: str) -> list[dict]:
             price = _clean_price(price_match.group("price"))
 
         name, description = _split_comma_name_description(chunk)
-        if not name or _is_price_only(name):
+        if not name or _is_price_only(name, source_lang):
             continue
         items.append(
             {
@@ -201,6 +225,7 @@ def _looks_like_section(
     section_terms: set[str],
     has_current_section: bool,
     has_section_price: bool,
+    source_lang: str,
 ) -> bool:
     key = _normalize_text_key(text)
     if not key or key in NON_MENU_HEADINGS:
@@ -215,7 +240,7 @@ def _looks_like_section(
         return True
     if (
         next_text
-        and _is_price_only(next_text)
+        and _is_price_only(next_text, source_lang)
         and len(text.split()) <= 5
         and not text[:1].islower()
         and "," not in text
@@ -226,7 +251,7 @@ def _looks_like_section(
 
 
 def _normalized_category(section: str) -> str:
-    category = re.sub(r"[^0-9a-zA-Z\u3400-\u9fff]+", "_", section.strip().lower()).strip("_")
+    category = re.sub(r"[^\w]+", "_", section.strip().lower(), flags=re.UNICODE).strip("_")
     return category or "menu"
 
 
@@ -265,7 +290,7 @@ def parse_menu_markdown_with_rules(
 
     for index, (heading_level, text) in enumerate(rows):
         next_text = rows[index + 1][1] if index + 1 < len(rows) else ""
-        numbered_items = _extract_numbered_items(text)
+        numbered_items = _extract_numbered_items(text, source_lang)
         if numbered_items:
             numbered_mode = True
             finalize_pending()
@@ -293,7 +318,7 @@ def parse_menu_markdown_with_rules(
         if numbered_mode and heading_level == 0:
             continue
 
-        if _is_price_only(text):
+        if _is_price_only(text, source_lang):
             price = _clean_price(text)
             if pending:
                 pending["price"] = price
@@ -302,7 +327,7 @@ def parse_menu_markdown_with_rules(
                 current_default_price = price
             continue
 
-        section_label, section_price = _split_section_price(text)
+        section_label, section_price = _split_section_price(text, source_lang)
         if _looks_like_section(
             section_label,
             heading_level,
@@ -310,6 +335,7 @@ def parse_menu_markdown_with_rules(
             section_terms,
             bool(current_section),
             section_price is not None,
+            source_lang,
         ):
             finalize_pending()
             current_section = section_label
@@ -325,9 +351,9 @@ def parse_menu_markdown_with_rules(
             )
             continue
 
-        body, price = _split_trailing_price(text)
+        body, price = _split_trailing_price(text, source_lang)
         name, description = _split_name_description(body)
-        if not name or _is_price_only(name) or _looks_like_noise(name):
+        if not name or _is_price_only(name, source_lang) or _looks_like_noise(name):
             continue
 
         finalize_pending()

@@ -4,7 +4,7 @@ An AI-powered multilingual restaurant menu translation and food analysis system 
 
 Users can:
 - Scan restaurant menu images and PDFs
-- Translate menus between English, simplified Chinese, traditional Chinese, and Spanish
+- Translate menus across 12 supported language codes, including English, Chinese, Spanish, French, Japanese, Korean, Russian, Portuguese, German, Italian, and Arabic
 - View AI-generated dish descriptions
 - Browse web-sourced or AI-generated food images
 - Get AI ordering recommendations based on party size, budget, diet, allergies, and taste
@@ -86,7 +86,7 @@ Google Document AI / Cloud Vision / OpenRouter Vision / local OCR fallback
     ↓
 Source-language detection
     ↓
-Language module routing: backend/app/language_modules/{en,zh,es}
+Language module routing: backend/app/language_modules/{en,zh,es,fr,ja,ko,ru,pt,de,it,ar}
     ↓
 Gemini or OpenRouter menu structure parsing
     ↓
@@ -122,9 +122,9 @@ menu-translator-app/
 │  │  │  ├─ models.py
 │  │  │  └─ schemas.py
 │  │  ├─ language_modules/
-│  │  │  ├─ en/
-│  │  │  ├─ es/
-│  │  │  └─ zh/
+│  │  │  ├─ en/ es/ zh/
+│  │  │  ├─ fr/ ja/ ko/ ru/
+│  │  │  └─ pt/ de/ it/ ar/
 │  │  └─ services/
 │  │     ├─ auth_service.py
 │  │     ├─ app_config_service.py
@@ -308,6 +308,7 @@ MENU_PARSE_INITIAL_DETAIL_LIMIT=0
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE=false
 MENU_STRUCTURE_RULE_FAST_PATH_MIN_ITEMS=20
 APP_CONFIG_CACHE_SECONDS=300
+APP_SUPPORT_EMAIL=support@aimenu.us.kg
 IMAGE_SEARCH_PER_SOURCE=4
 IMAGE_SEARCH_MIN_SCORE=30
 IMAGE_SEARCH_TIMEOUT_SECONDS=5
@@ -428,6 +429,14 @@ Stores:
 ```
 source-language-specific unit names and translations
 ```
+## supported_languages
+Stores:
+```
+enabled source and target language codes
+native and English names
+Google Translation and local OCR codes
+language family and display order
+```
 ## user_cart_state
 Stores:
 ```
@@ -468,7 +477,8 @@ web_found
 - Cloud image storage with Supabase Storage
 - Async menu parsing with polling
 - Menu parse cache by image hash and target language
-- Multi-language UI and translation flow for English, simplified Chinese, traditional Chinese, and Spanish
+- Source/target menu support for English, simplified Chinese, traditional Chinese, Spanish, French, Japanese, Korean, Russian, Portuguese, German, Italian, and Arabic
+- Independent source-language OCR, layout, price, unit, noise, and detection profiles
 - AI smart recommendation modal and backend recommendation endpoint
 - Supabase Auth login, registration, Google OAuth handoff, password reset, profile preferences, and avatar upload
 - Native AdMob integration with web-safe fallback modules
@@ -489,8 +499,8 @@ Implementation steps:
 6. Add OCR timing logs and confidence metrics to compare preprocessing strategies, Document AI, Cloud Vision, local OCR, and vision models.
 7. Add fallback logic for failed or low-confidence OCR, such as rerunning with alternate preprocessing, OCR provider, or language settings.
 
-## 2. Harden Chinese OCR and Chinese-to-English Translation
-Goal: make Chinese menu input reliable enough for production Chinese-to-English usage.
+## 2. Harden Multilingual OCR and Translation
+Goal: make every enabled source language reliable enough for production translation to and from English.
 
 Implementation steps:
 1. Expand the Chinese OCR review set for simplified Chinese, traditional Chinese, mixed English/Chinese menus, handwritten-style fonts, and dense image-heavy layouts.
@@ -498,7 +508,7 @@ Implementation steps:
 3. Add Chinese-specific cleanup for punctuation, full-width characters, prices, dish numbering, spice markers, and menu section headings.
 4. Add regression tests that compare Chinese OCR text, extracted categories, translated dish names, descriptions, allergens, and prices.
 5. Improve normalized English cache-key generation for non-English source dishes.
-6. Validate output quality with a small manual review set before expanding to more language pairs.
+6. Validate output quality with a reviewed menu set for every enabled source language.
 
 ## 3. Improve AI Smart Recommendation
 Goal: turn the current recommendation module into a more personalized and persistent feature.
@@ -536,7 +546,7 @@ Implementation steps:
 
 ## Later Enhancements
 - User manage system
-- More language pairs beyond the currently enabled English, Chinese, and Spanish options
+- Add reviewed native UI copy for languages that currently use the English interface fallback
 - Restaurant recommendation engine
 - Admin dashboard for OCR quality, AI cost, ad performance, and storage usage
 - Feature of read menu from URL or QR code, translate from website

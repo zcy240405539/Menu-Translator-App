@@ -28,6 +28,7 @@ PROFILE = LanguageProfile(
         "Do not use price-only lines as item names or section headings.",
         "For multiple size columns, return one item with a combined price string instead of duplicate items.",
     ),
+    currency_markers=("$", "USD"),
     unit_rules=(
         "Treat oz, lb, lbs, pc, pcs, each, cup, bowl, pint, quart, bottle, glass, side, and add-on as units or options.",
     ),

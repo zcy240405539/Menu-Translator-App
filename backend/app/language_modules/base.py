@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass, field
 from functools import lru_cache
 
-from app.core.i18n_service import normalize_lang
+from app.core.i18n_service import SUPPORTED_LANGUAGES, normalize_lang
 
 
 @dataclass(frozen=True)
@@ -23,6 +23,7 @@ class LanguageProfile:
     layout_rules: tuple[str, ...] = ()
     markdown_rules: tuple[str, ...] = ()
     price_rules: tuple[str, ...] = ()
+    currency_markers: tuple[str, ...] = ()
     bilingual_rules: tuple[str, ...] = ()
     section_noise_rules: tuple[str, ...] = ()
     unit_rules: tuple[str, ...] = ()
@@ -30,6 +31,7 @@ class LanguageProfile:
     cuisine_hints: tuple[str, ...] = ()
     detection_stopwords: tuple[str, ...] = ()
     detection_regexes: tuple[str, ...] = ()
+    detection_variant_markers: tuple[tuple[str, str], ...] = field(default_factory=tuple)
     default_noise_keywords: tuple[str, ...] = ()
     default_unit_terms: tuple[tuple[str, str], ...] = field(default_factory=tuple)
 
@@ -46,7 +48,7 @@ class LanguageProfile:
         return os.getenv(self.gemini_structure_model_env)
 
 
-SUPPORTED_PROFILE_CODES = ("en", "zh", "zh-Hant", "es")
+SUPPORTED_PROFILE_CODES = tuple(SUPPORTED_LANGUAGES)
 
 
 @lru_cache(maxsize=16)
@@ -54,7 +56,7 @@ def get_language_profile(source_lang: str | None) -> LanguageProfile:
     normalized = normalize_lang(source_lang, "en")
     if normalized == "zh-Hant":
         module_name = "zh"
-    elif normalized in {"en", "zh", "es"}:
+    elif normalized in SUPPORTED_PROFILE_CODES:
         module_name = normalized
     else:
         module_name = "en"
@@ -97,14 +99,31 @@ def detect_source_language(
         return "en"
 
     compact = re.sub(r"\s+", " ", text.lower())
+    kana_count = len(re.findall(r"[\u3040-\u30ff]", text))
+    hangul_count = len(re.findall(r"[\uac00-\ud7af]", text))
+    cyrillic_count = len(re.findall(r"[\u0400-\u04ff]", text))
+    arabic_count = len(re.findall(r"[\u0600-\u06ff]", text))
+    if kana_count >= 2:
+        return "ja"
+    if hangul_count >= 3:
+        return "ko"
+    if cyrillic_count >= 3:
+        return "ru"
+    if arabic_count >= 3:
+        return "ar"
+
     cjk_count = len(re.findall(r"[\u3400-\u9fff]", text))
     latin_count = len(re.findall(r"[a-zA-ZÀ-ÿ]", text))
     total_letters = max(1, cjk_count + latin_count)
     if cjk_count >= 6 and cjk_count / total_letters >= 0.18:
+        for variant_code, marker_chars in get_language_profile("zh").detection_variant_markers:
+            if sum(text.count(char) for char in marker_chars) >= 2:
+                return variant_code
         return "zh"
 
-    scores: dict[str, float] = {"en": 0.0, "es": 0.0}
-    for code in ("en", "es"):
+    latin_codes = ("en", "es", "fr", "pt", "de", "it")
+    scores: dict[str, float] = {code: 0.0 for code in latin_codes}
+    for code in latin_codes:
         profile = get_language_profile(code)
         for word in profile.detection_stopwords:
             if re.search(rf"(?<![a-zÀ-ÿ]){re.escape(word.lower())}(?![a-zÀ-ÿ])", compact):
@@ -112,14 +131,11 @@ def detect_source_language(
         for pattern in profile.detection_regexes:
             scores[code] += len(re.findall(pattern, compact, flags=re.IGNORECASE)) * 1.5
 
-    spanish_marks = len(re.findall(r"[áéíóúüñ¿¡]", compact, flags=re.IGNORECASE))
-    spanish_function_words = len(
-        re.findall(r"(?<![a-zÀ-ÿ])(?:con|de|del|la|el|los|las)(?![a-zÀ-ÿ])", compact)
-    )
-    if scores["es"] >= max(3.0, scores["en"] + 2.0) and (
-        spanish_marks >= 2 or spanish_function_words >= 3
-    ):
-        return "es"
+    ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    best_code, best_score = ranked[0]
+    second_score = ranked[1][1]
+    if best_code != "en" and best_score >= 2.5 and best_score - second_score >= 0.75:
+        return best_code
     return "en"
 
 

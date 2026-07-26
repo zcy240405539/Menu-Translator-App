@@ -27,7 +27,7 @@ LogBox.ignoreLogs([
   "Animated: `useNativeDriver` is not supported",
 ]);
 
-const POLICY_SUPPORT_EMAIL = "support@agentscottystudio.com";
+const POLICY_SUPPORT_EMAIL = "support@aimenu.us.kg";
 const ACCOUNT_DELETION_MAILTO =
   `mailto:${POLICY_SUPPORT_EMAIL}?subject=AI%20Menu%20APP%20Account%20Deletion%20Request` +
   "&body=Please%20delete%20my%20AI%20Menu%20APP%20account.%0A%0ARegistered%20email%3A%20%0AUsername%20if%20known%3A%20%0A";
@@ -388,15 +388,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
       "en"
     ).toLowerCase();
 
-    if (deviceLang === "zh-tw" || deviceLang === "zh-hk" || deviceLang === "zh-hant") {
-      setTargetLang("zh-Hant");
-    } else if (deviceLang.startsWith("zh")) {
-      setTargetLang("zh");
-    } else if (deviceLang.startsWith("es")) {
-      setTargetLang("es");
-    } else {
-      setTargetLang("en");
-    }
+    setTargetLang(mapUrlLangToInternal(deviceLang));
 
     setLanguageInitialized(true);
   }, [languageInitialized]);

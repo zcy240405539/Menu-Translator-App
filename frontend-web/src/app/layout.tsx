@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI Menu APP - Translate Menus & Order with Ease",
-  description: "Translate English, Chinese, and Spanish menus from photos, PDFs, text, and links.",
+  description: "Translate multilingual menus from photos, PDFs, text, and links.",
   other: {
     "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465",
   },

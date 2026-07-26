@@ -4,16 +4,15 @@ export type LegalKind = "privacy" | "terms";
 
 type LegalDocument = {
   title: string;
-  subtitle: string;
   intro: string;
   sections: { heading: string; items: string[] }[];
 };
 
-const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
+const documents: { en: Record<LegalKind, LegalDocument> }
+  & Partial<Record<WebLanguageCode, Record<LegalKind, LegalDocument>>> = {
   en: {
     privacy: {
       title: "Privacy Policy",
-      subtitle: "AI Menu APP - Last updated: July 25, 2026",
       intro: "AI Menu APP translates and explains restaurant menus. This policy describes the information we process, why we use it, and the choices available to you.",
       sections: [
         { heading: "Information we process", items: [
@@ -35,13 +34,12 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
         ]},
         { heading: "Your choices and children", items: [
           "You may use supported guest features, update profile preferences, manage available ad controls, request account deletion, and contact us about privacy questions.",
-          "The service is not directed to children under 13. We may update this policy and will revise the date above.",
+          "The service is not directed to children under 13. We may update this policy and will provide notice when required.",
         ]},
       ],
     },
     terms: {
       title: "Terms of Service",
-      subtitle: "AI Menu APP - Last updated: July 25, 2026",
       intro: "These Terms govern your use of AI Menu APP. By using the service, you agree to these Terms.",
       sections: [
         { heading: "The service", items: [
@@ -63,7 +61,7 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
         { heading: "Ads, accounts, and liability", items: [
           "The service may display advertising. If paid features are offered, pricing and purchase terms will be shown before payment. Accounts that violate these Terms may be suspended.",
           "The service is provided as available. To the extent permitted by law, we are not responsible for indirect losses or decisions made solely from AI-generated menu information.",
-          "We may update these Terms and will revise the date above. Continued use after an update means you accept the revised Terms.",
+          "We may update these Terms. Continued use after an update means you accept the revised Terms.",
         ]},
       ],
     },
@@ -71,7 +69,6 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
   "zh-cn": {
     privacy: {
       title: "隐私政策",
-      subtitle: "AI Menu APP - 最后更新：2026年7月25日",
       intro: "AI Menu APP 用于翻译和解释餐厅菜单。本政策说明我们处理哪些信息、使用目的以及您可以进行的选择。",
       sections: [
         { heading: "我们处理的信息", items: [
@@ -93,13 +90,12 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
         ]},
         { heading: "您的选择与儿童保护", items: [
           "您可以使用支持的访客功能、修改个人偏好、管理可用的广告控制、请求删除账号并联系我们处理隐私问题。",
-          "本服务不面向13岁以下儿童。我们可能更新本政策，并会修改上方日期。",
+          "本服务不面向13岁以下儿童。我们可能更新本政策，并在需要时提供通知。",
         ]},
       ],
     },
     terms: {
       title: "服务条款",
-      subtitle: "AI Menu APP - 最后更新：2026年7月25日",
       intro: "本条款适用于您对 AI Menu APP 的使用。使用本服务即表示您同意本条款。",
       sections: [
         { heading: "服务内容", items: [
@@ -121,7 +117,7 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
         { heading: "广告、账号与责任", items: [
           "服务可能展示广告。如果提供付费功能，我们会在付款前显示价格和购买条款。违反本条款的账号可能被暂停。",
           "服务按现状提供。在法律允许范围内，我们不对间接损失或仅依据 AI 菜单信息作出的决定承担责任。",
-          "我们可能更新本条款并修改上方日期。更新后继续使用即表示接受修订后的条款。",
+          "我们可能更新本条款。更新后继续使用即表示接受修订后的条款。",
         ]},
       ],
     },
@@ -129,7 +125,6 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
   "zh-Hant": {
     privacy: {
       title: "隱私政策",
-      subtitle: "AI Menu APP - 最後更新：2026年7月25日",
       intro: "AI Menu APP 用於翻譯和解釋餐廳菜單。本政策說明我們處理哪些資訊、使用目的以及您可以進行的選擇。",
       sections: [
         { heading: "我們處理的資訊", items: [
@@ -151,13 +146,12 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
         ]},
         { heading: "您的選擇與兒童保護", items: [
           "您可以使用支援的訪客功能、修改個人偏好、管理可用的廣告控制、要求刪除帳號並聯絡我們處理隱私問題。",
-          "本服務不面向13歲以下兒童。我們可能更新本政策，並會修改上方日期。",
+          "本服務不面向13歲以下兒童。我們可能更新本政策，並在需要時提供通知。",
         ]},
       ],
     },
     terms: {
       title: "服務條款",
-      subtitle: "AI Menu APP - 最後更新：2026年7月25日",
       intro: "本條款適用於您對 AI Menu APP 的使用。使用本服務即表示您同意本條款。",
       sections: [
         { heading: "服務內容", items: [
@@ -179,7 +173,7 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
         { heading: "廣告、帳號與責任", items: [
           "服務可能展示廣告。如果提供付費功能，我們會在付款前顯示價格和購買條款。違反本條款的帳號可能被暫停。",
           "服務按現狀提供。在法律允許範圍內，我們不對間接損失或僅依據 AI 菜單資訊作出的決定承擔責任。",
-          "我們可能更新本條款並修改上方日期。更新後繼續使用即表示接受修訂後的條款。",
+          "我們可能更新本條款。更新後繼續使用即表示接受修訂後的條款。",
         ]},
       ],
     },
@@ -187,7 +181,6 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
   es: {
     privacy: {
       title: "Política de privacidad",
-      subtitle: "AI Menu APP - Última actualización: 25 de julio de 2026",
       intro: "AI Menu APP traduce y explica menús de restaurantes. Esta política describe la información que procesamos, por qué la usamos y las opciones disponibles.",
       sections: [
         { heading: "Información que procesamos", items: [
@@ -209,13 +202,12 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
         ]},
         { heading: "Tus opciones y menores", items: [
           "Puedes usar funciones compatibles como invitado, actualizar preferencias, gestionar controles publicitarios, solicitar la eliminación de tu cuenta y contactarnos sobre privacidad.",
-          "El servicio no está dirigido a menores de 13 años. Podemos actualizar esta política y cambiaremos la fecha indicada arriba.",
+          "El servicio no está dirigido a menores de 13 años. Podemos actualizar esta política y avisaremos cuando sea necesario.",
         ]},
       ],
     },
     terms: {
       title: "Términos del servicio",
-      subtitle: "AI Menu APP - Última actualización: 25 de julio de 2026",
       intro: "Estos Términos rigen el uso de AI Menu APP. Al utilizar el servicio, aceptas estos Términos.",
       sections: [
         { heading: "El servicio", items: [
@@ -237,7 +229,7 @@ const documents: Record<WebLanguageCode, Record<LegalKind, LegalDocument>> = {
         { heading: "Anuncios, cuentas y responsabilidad", items: [
           "El servicio puede mostrar publicidad. Si se ofrecen funciones de pago, el precio y las condiciones se mostrarán antes de pagar. Las cuentas que infrinjan estos Términos pueden suspenderse.",
           "El servicio se ofrece según disponibilidad. En la medida permitida por la ley, no respondemos por pérdidas indirectas ni decisiones basadas únicamente en información generada por IA.",
-          "Podemos actualizar estos Términos y cambiaremos la fecha indicada arriba. El uso continuado implica la aceptación de los Términos revisados.",
+          "Podemos actualizar estos Términos. El uso continuado implica la aceptación de los Términos revisados.",
         ]},
       ],
     },

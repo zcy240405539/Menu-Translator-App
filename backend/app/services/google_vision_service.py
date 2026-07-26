@@ -4,7 +4,11 @@ import os
 import requests
 
 from app.core.config import GOOGLE_CLOUD_API
-from app.services.google_translation_service import GOOGLE_CLOUD_PLATFORM_SCOPES, get_google_access_token
+from app.services.google_translation_service import (
+    GOOGLE_CLOUD_PLATFORM_SCOPES,
+    get_google_access_token,
+    google_language_code,
+)
 
 
 GOOGLE_VISION_TIMEOUT = int(os.getenv("GOOGLE_VISION_TIMEOUT", "20"))
@@ -138,25 +142,23 @@ def _full_text_annotation_to_line_blocks(annotation: dict) -> list[dict]:
 def call_google_vision_text_detection(
     image_bytes: bytes,
     mime_type: str = "image/jpeg",
+    source_lang: str = "auto",
 ) -> dict:
     image_base64 = base64.b64encode(image_bytes).decode("ascii")
     endpoint = "https://vision.googleapis.com/v1/images:annotate"
-    payload = {
-        "requests": [
+    request_payload = {
+        "image": {"content": image_base64},
+        "features": [
             {
-                "image": {"content": image_base64},
-                "features": [
-                    {
-                        "type": "DOCUMENT_TEXT_DETECTION",
-                        "maxResults": GOOGLE_VISION_MAX_RESULTS,
-                    }
-                ],
-                "imageContext": {
-                    "languageHints": ["en", "zh", "es"],
-                },
+                "type": "DOCUMENT_TEXT_DETECTION",
+                "maxResults": GOOGLE_VISION_MAX_RESULTS,
             }
-        ]
+        ],
     }
+    language_hint = google_language_code(source_lang, source=True)
+    if language_hint:
+        request_payload["imageContext"] = {"languageHints": [language_hint]}
+    payload = {"requests": [request_payload]}
 
     params = {"key": GOOGLE_CLOUD_API} if GOOGLE_CLOUD_API else None
     headers = None if params else _vision_headers()
@@ -219,5 +221,10 @@ def call_google_vision_text_detection(
 def extract_layout_blocks_from_image_with_google_vision(
     image_bytes: bytes,
     mime_type: str = "image/jpeg",
+    source_lang: str = "auto",
 ) -> list[dict]:
-    return call_google_vision_text_detection(image_bytes, mime_type=mime_type).get("blocks") or []
+    return call_google_vision_text_detection(
+        image_bytes,
+        mime_type=mime_type,
+        source_lang=source_lang,
+    ).get("blocks") or []
