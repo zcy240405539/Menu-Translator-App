@@ -3,6 +3,7 @@ export type WebLanguageCode = "en" | "zh-cn" | "zh-Hant" | "es";
 const STORAGE_KEY = "menu_app_language";
 
 export const DEFAULT_LANGUAGE: WebLanguageCode = "en";
+export const LANGUAGE_CHANGE_EVENT = "menu-app-language-change";
 
 export const LANGUAGES: { code: WebLanguageCode; label: string; shortLabel: string }[] = [
   { code: "en", label: "English", shortLabel: "English" },
@@ -45,6 +46,7 @@ export function getInitialLanguage(): WebLanguageCode {
 export function saveLanguage(lang: WebLanguageCode) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem(STORAGE_KEY, lang);
+    window.dispatchEvent(new CustomEvent(LANGUAGE_CHANGE_EVENT, { detail: lang }));
   }
 }
 

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:language-pairs": "node --no-warnings --experimental-strip-types scripts/check-language-pairs.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

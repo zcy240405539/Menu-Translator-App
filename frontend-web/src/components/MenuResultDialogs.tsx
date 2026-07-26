@@ -219,6 +219,12 @@ export function DishDetailDialog({
             </Button>
           </div>
         </CardContent>
+        <AdSenseSlot
+          slot={process.env.NEXT_PUBLIC_ADSENSE_DETAIL_SLOT || process.env.NEXT_PUBLIC_ADSENSE_ANALYZE_SLOT}
+          format="rectangle"
+          className="border-t border-purple-100 bg-purple-50/30 px-5 py-4"
+          label={text.analyzer.ad}
+        />
       </Card>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Camera, FileUp, Link as LinkIcon, Wand2, Loader2 } from "lucide-react";
 import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
 import { LANGUAGES, SOURCE_LANGUAGES, languageLabel, languageShortLabel, sourceLanguageLabel, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { selectSourceLanguage, selectTargetLanguage } from "@/lib/languagePair";
 
 type ParseStatus = {
   status?: "queued" | "processing" | "done" | "error";
@@ -76,11 +77,30 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const previousTargetLang = useRef(targetLang);
 
   const handleTargetLangChange = (value: string | null) => {
     const nextLang = value || "en";
-    onTargetLangChange(nextLang);
+    const pair = selectTargetLanguage(sourceLang, targetLang, nextLang);
+    if (pair.source !== sourceLang) setSourceLang(pair.source);
+    onTargetLangChange(pair.target);
   };
+
+  const handleSourceLangChange = (value: string | null) => {
+    const nextLang = value || "auto";
+    const pair = selectSourceLanguage(sourceLang, targetLang, nextLang);
+    setSourceLang(pair.source);
+    if (pair.target !== targetLang) onTargetLangChange(pair.target);
+  };
+
+  useEffect(() => {
+    const previousTarget = previousTargetLang.current;
+    previousTargetLang.current = targetLang;
+    const pair = selectTargetLanguage(sourceLang, previousTarget, targetLang);
+    if (pair.source !== sourceLang) {
+      queueMicrotask(() => setSourceLang(pair.source));
+    }
+  }, [sourceLang, targetLang]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -181,7 +201,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">{text.sourceLanguage}</label>
-            <Select value={sourceLang} onValueChange={(v) => setSourceLang(v || "auto")}>
+            <Select value={sourceLang} onValueChange={handleSourceLangChange}>
               <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700">
                 <span data-slot="select-value" className="flex flex-1 text-left">
                   {sourceLanguageLabel(targetLang, sourceLang, true)}

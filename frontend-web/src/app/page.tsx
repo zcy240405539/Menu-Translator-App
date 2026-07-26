@@ -2,6 +2,7 @@
 
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -301,46 +302,46 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-[#fbf8f4] font-sans">
       <header className="sticky top-0 z-50 w-full border-b border-purple-100/70 bg-white/90 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <a href={homeHref} onClick={handleHomeClick} className="group flex flex-1 items-center justify-center gap-2 rounded-md transition-all hover:opacity-90 md:justify-start">
+          <a href={homeHref} onClick={handleHomeClick} className="group flex min-w-0 flex-1 items-center gap-2 rounded-md transition-all hover:opacity-90">
             <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md transition-shadow group-hover:shadow-md" priority />
-            <span className="text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700">AI Menu APP</span>
+            <span className="hidden text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700 sm:inline">AI Menu APP</span>
           </a>
-          <Link href={`/settings${langQuery}`} className="flex h-10 w-10 items-center justify-center text-gray-700 transition-colors hover:text-purple-600 md:hidden" aria-label={text.nav.settings}>
-            <Settings className="h-5 w-5" />
-          </Link>
-          <div className="hidden items-center space-x-6 text-gray-700 md:flex">
-            <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center transition-colors hover:text-purple-600" aria-label={text.nav.language}>
-              <Globe className="h-5 w-5" />
-              <select
+          <div className="flex shrink-0 items-center gap-0.5 text-gray-700 sm:gap-1 md:gap-3">
+            <Select value={lang} onValueChange={(value) => handleHeaderLanguageChange(value || DEFAULT_LANGUAGE)}>
+              <SelectTrigger
+                className="h-9 w-14 rounded-lg border-purple-100 bg-purple-50/70 px-2 text-purple-800 shadow-sm transition-colors hover:bg-purple-100 md:h-10 md:w-auto md:min-w-36 md:px-3"
                 aria-label={text.nav.language}
-                className="absolute inset-0 cursor-pointer opacity-0"
-                value={lang}
-                onChange={(event) => handleHeaderLanguageChange(event.target.value)}
               >
+                <Globe className="h-5 w-5" />
+                <span data-slot="select-value" className="hidden flex-1 text-left md:flex">
+                  {languageShortLabel(lang, lang)}
+                </span>
+              </SelectTrigger>
+              <SelectContent align="end">
                 {LANGUAGES.map((option) => (
-                  <option key={option.code} value={option.code}>
+                  <SelectItem key={option.code} value={option.code}>
                     {languageLabel(lang, option.code)}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
-            </label>
-            <a href={shareHref} className="transition-colors hover:text-purple-600" aria-label={text.nav.share} onClick={handleShare}>
+              </SelectContent>
+            </Select>
+            <a href={shareHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.share} onClick={handleShare}>
               <Share2 className="h-5 w-5" />
             </a>
             {showSavedMenuLinks && (
               <>
-                <Link href={historyHref} className="transition-colors hover:text-purple-600" aria-label={text.nav.history}>
+                <Link href={historyHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.history}>
                   <History className="h-5 w-5" />
                 </Link>
-                <Link href={cartHref} className="transition-colors hover:text-purple-600" aria-label={text.nav.cart}>
+                <Link href={cartHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.cart}>
                   <ShoppingCart className="h-5 w-5" />
                 </Link>
               </>
             )}
-            <Link href={`/settings${langQuery}`} className="transition-colors hover:text-purple-600" aria-label={text.nav.settings}>
+            <Link href={`/settings${langQuery}`} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.settings}>
               <Settings className="h-5 w-5" />
             </Link>
-            <Link href={`/login${langQuery}`} className="transition-colors hover:text-purple-600" aria-label={text.nav.account}>
+            <Link href={`/login${langQuery}`} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.account}>
               <User className="h-5 w-5" />
             </Link>
           </div>
@@ -435,11 +436,11 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <div className="grid max-w-md grid-cols-2 gap-4">
+                  <div className="grid max-w-md grid-cols-2 gap-2 sm:gap-4">
                     {text.home.steps.map((label, index) => (
-                      <div key={label} className="flex items-center gap-3 rounded-xl border border-purple-100 bg-white px-4 py-3 shadow-sm">
-                        <span className="font-bold text-purple-700">{String(index + 1).padStart(2, "0")}</span>
-                        <span className="text-sm font-medium text-gray-800">{label}</span>
+                      <div key={label} className="flex min-h-16 min-w-0 items-center gap-2 rounded-xl border border-purple-100 bg-white px-3 py-3 shadow-sm sm:gap-3 sm:px-4">
+                        <span className="shrink-0 font-bold text-purple-700">{String(index + 1).padStart(2, "0")}</span>
+                        <span className="min-w-0 whitespace-normal text-xs font-medium leading-snug text-gray-800 sm:text-sm">{label}</span>
                       </div>
                     ))}
                   </div>
@@ -505,26 +506,6 @@ export default function Home() {
         onSelectDish={(item) => setSelectedDish(item)}
       />
 
-      <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
-        <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
-          <span className="text-lg font-bold text-gray-700">AI Menu APP</span>
-          <p className="text-sm">© {new Date().getFullYear()} AI Menu APP. {text.footer.rights}</p>
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            <Link href={`/settings${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
-              {text.footer.settings}
-            </Link>
-            <Link href={`/privacy-policy${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
-              {text.footer.privacy}
-            </Link>
-            <Link href={`/terms-of-service${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
-              {text.footer.terms}
-            </Link>
-            <Link href={`/account-deletion${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
-              {text.footer.deletion}
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

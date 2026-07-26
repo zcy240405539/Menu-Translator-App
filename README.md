@@ -326,6 +326,8 @@ EXPO_PUBLIC_API_BASE_URL=https://ai-menu-app.onrender.com
 NEXT_PUBLIC_API_URL=https://menu-translator-app.onrender.com
 NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-8286400764174465
 NEXT_PUBLIC_ADSENSE_ANALYZE_SLOT=your_adsense_ad_unit_slot
+NEXT_PUBLIC_ADSENSE_BANNER_SLOT=your_footer_banner_ad_unit_slot
+NEXT_PUBLIC_ADSENSE_DETAIL_SLOT=your_dish_detail_ad_unit_slot
 NEXT_PUBLIC_ADSENSE_TEST=false
 ```
 
