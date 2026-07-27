@@ -1,0 +1,46 @@
+name: Monitor Supabase CA certificate
+
+on:
+  schedule:
+    - cron: "0 14 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  certificate-expiry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check certificate expiry
+        id: certificate
+        continue-on-error: true
+        run: |
+          certificate="backend/certs/prod-ca-2021.crt"
+          openssl x509 -in "$certificate" -noout -subject -issuer -enddate
+          openssl x509 -in "$certificate" -checkend 31536000 -noout
+
+      - name: Create certificate rotation issue
+        if: steps.certificate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Security: rotate Supabase CA certificate"
+          issue_number="$(gh issue list \
+            --state open \
+            --search "\"$title\" in:title" \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [ -z "$issue_number" ]; then
+            gh issue create \
+              --title "$title" \
+              --body $'The bundled Supabase CA certificate is missing, invalid, or expires within one year.\n\n- Download the current certificate from Supabase Database Settings.\n- Replace `backend/certs/prod-ca-2021.crt`.\n- Run the backend SSL tests and verify `sslmode=verify-full`.\n- Deploy before the old certificate expires.\n\nReference: https://supabase.com/docs/guides/platform/ssl-enforcement'
+          fi
+
+      - name: Fail when rotation is required
+        if: steps.certificate.outcome == 'failure'
+        run: exit 1

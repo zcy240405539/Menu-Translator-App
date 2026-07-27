@@ -360,6 +360,10 @@ NEXT_PUBLIC_ADSENSE_DETAIL_SLOT=your_dish_detail_ad_unit_slot
 NEXT_PUBLIC_ADSENSE_TEST=false
 ```
 
+`.github/workflows/monitor-supabase-ca.yml` checks the bundled Supabase CA every
+month. If it is missing, invalid, or expires within one year, the workflow opens
+a GitHub issue and remains failed until the certificate is replaced.
+
 AdSense display slots only serve real ads after the domain is `Ready` in AdSense.
 Use `NEXT_PUBLIC_ADSENSE_TEST=true` only for local or staging diagnostics. If the
 browser reports `data-ad-status="unfilled"`, the request reached Google but no ad
