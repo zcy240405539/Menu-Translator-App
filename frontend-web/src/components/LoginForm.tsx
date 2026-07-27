@@ -24,6 +24,18 @@ async function readError(response: Response, fallback: string) {
   return body?.detail || body?.message || fallback;
 }
 
+async function completeOAuthLogin(token: string, fallback: string) {
+  window.localStorage.setItem("menu_app_token", token);
+  const response = await fetch(`${apiBaseUrl()}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    window.localStorage.removeItem("menu_app_token");
+    throw new Error(await readError(response, fallback));
+  }
+  window.localStorage.setItem("menu_app_user", JSON.stringify(await response.json()));
+}
+
 export default function LoginForm() {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
   const [email, setEmail] = useState("");
@@ -36,16 +48,22 @@ export default function LoginForm() {
   const homeHref = useMemo(() => `/?lang=${encodeURIComponent(lang)}`, [lang]);
 
   useEffect(() => {
-    queueMicrotask(() => {
+    queueMicrotask(async () => {
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const oauthToken = hashParams.get("access_token");
       const nextLang = getPageLanguage();
       setLang(nextLang);
 
       if (oauthToken) {
-        window.localStorage.setItem("menu_app_token", oauthToken);
-        setStatus(getText(nextLang).auth.signedIn);
-        window.location.assign(redirectPath(nextLang));
+        setIsLoading(true);
+        try {
+          await completeOAuthLogin(oauthToken, getText(nextLang).auth.loginFailed);
+          setStatus(getText(nextLang).auth.signedIn);
+          window.location.assign(redirectPath(nextLang));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : getText(nextLang).auth.loginFailed);
+          setIsLoading(false);
+        }
       }
     });
   }, []);

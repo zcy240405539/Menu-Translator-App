@@ -285,6 +285,7 @@ export default function Home() {
   const historyHref = `/history${langQuery}`;
   const cartHref = `/cart${langQuery}`;
   const homeHref = `/${langQuery}`;
+  const accountHref = hasUserSession ? `/settings${langQuery}` : `/login${langQuery}`;
   const recommendHref = `/?menu_hash=${encodeURIComponent(menuHash)}&lang=${encodeURIComponent(lang)}&show_recommend=1`;
   const actionItems = useMemo(
     () => sections.flatMap((section, sectionIndex) =>
@@ -336,7 +337,7 @@ export default function Home() {
             <Link href={`/settings${langQuery}`} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.settings}>
               <Settings className="h-5 w-5" />
             </Link>
-            <Link href={`/login${langQuery}`} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.account}>
+            <Link href={accountHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.account}>
               <User className="h-5 w-5" />
             </Link>
           </div>
