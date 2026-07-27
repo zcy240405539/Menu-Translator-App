@@ -107,11 +107,25 @@ Frontend rendering, sharing, recommendation, cart, and history
 
 `AGENT.md` and `ARCHITECTURE.md` are local, gitignored AI-agent handoff files. Agents should update `AGENT.md` after each project task and check whether `README.md` also needs a committed update.
 
+## Supabase Migrations
+
+The repository is ready for Supabase GitHub integration with working directory
+`.` and production branch `main`. New database changes must be added as
+timestamped SQL files under `supabase/migrations/`; `backend/migrations/` is
+retained as migration history and is not the GitHub integration source.
+
+`20260727170752_production_baseline.sql` is a schema-only baseline of the current
+production `public` schema. It contains no production rows or credentials and is
+recorded as already applied in production.
+
 ## APP Structure
 ```
 menu-translator-app/
 ├─ README.md
 ├─ LICENSE
+├─ supabase/
+│  ├─ config.toml
+│  └─ migrations/
 ├─ backend/
 │  ├─ app/
 │  │  ├─ main.py
