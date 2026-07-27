@@ -315,10 +315,10 @@ GOOGLE_CLOUD_TRANSLATION_GLOSSARY_ID=optional
 GOOGLE_CLOUD_TRANSLATION_MODEL=optional
 GOOGLE_CLOUD_TRANSLATION_WORKERS=4
 DATABASE_URL=XXXXXXX
-DATABASE_SSLMODE=require
-# For certificate and hostname verification:
+# PostgreSQL defaults to verify-full with backend/certs/prod-ca-2021.crt.
+# Override only when using a different PostgreSQL server or CA:
 # DATABASE_SSLMODE=verify-full
-# DATABASE_SSL_ROOT_CERT=/path/to/downloaded-supabase-ca.crt
+# DATABASE_SSL_ROOT_CERT=/path/to/postgres-ca.crt
 SUPABASE_URL=https://XXXXXX.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=XXXXXX
 SUPABASE_BUCKET=Dish_Images
