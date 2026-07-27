@@ -21,7 +21,7 @@ import {
   IconButton,
   useTheme,
 } from "react-native-paper";
-import { login, register, passwordReset, getFacebookAuthUrl, getGoogleAuthUrl } from "../api";
+import { login, register, passwordReset, getGoogleAuthUrl } from "../api";
 import { getText } from "../i18n";
 
 const DIET_OPTIONS = [
@@ -173,8 +173,6 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   };
 
   const handleGoogleLogin = () => handleOAuthLogin(getGoogleAuthUrl, t.googleLoginFailed);
-  const handleFacebookLogin = () => handleOAuthLogin(getFacebookAuthUrl, t.facebookLoginFailed);
-
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -463,16 +461,6 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                     {t.googleLogin}
                   </Button>
 
-                  <Button
-                    mode="outlined"
-                    icon="facebook"
-                    onPress={handleFacebookLogin}
-                    style={[styles.googleBtn, styles.facebookBtn]}
-                    contentStyle={styles.googleBtnContent}
-                    textColor="#1877F2"
-                  >
-                    {t.facebookLogin}
-                  </Button>
                 </Card.Content>
               </Card>
             </ScrollView>
@@ -602,10 +590,6 @@ const styles = StyleSheet.create({
   },
   googleBtnContent: {
     height: 52,
-  },
-  facebookBtn: {
-    marginTop: 12,
-    borderColor: "#1877F2",
   },
   errorText: {
     color: "#B3261E",
