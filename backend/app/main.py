@@ -37,6 +37,7 @@ from app.core.schemas import (
     UserResponse,
 )
 from app.services.auth_service import (
+    build_oauth_authorize_url,
     register_user as sb_register_user,
     login_user as sb_login_user,
     get_user_from_token as sb_get_user_from_token,
@@ -295,11 +296,22 @@ def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db)):
 
 @app.get("/auth/google/url")
 def get_google_auth_url(redirect_to: str = "http://localhost:19006"):
-    supabase_url = os.getenv("SUPABASE_URL")
-    if not supabase_url:
+    return get_oauth_auth_url("google", redirect_to)
+
+
+@app.get("/auth/facebook/url")
+def get_facebook_auth_url(redirect_to: str = "http://localhost:19006"):
+    return get_oauth_auth_url("facebook", redirect_to)
+
+
+@app.get("/auth/oauth/{provider}/url")
+def get_oauth_auth_url(provider: str, redirect_to: str = "http://localhost:19006"):
+    try:
+        return {"url": build_oauth_authorize_url(provider, redirect_to)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except RuntimeError:
         raise HTTPException(status_code=500, detail=ui_text("errors.serviceNotConfigured"))
-    url = f"{supabase_url}/auth/v1/authorize?provider=google&redirect_to={redirect_to}"
-    return {"url": url}
 
 
 @app.get("/auth/me", response_model=UserResponse)

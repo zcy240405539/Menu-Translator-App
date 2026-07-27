@@ -58,7 +58,9 @@
     "missingFields": "Veuillez saisir votre adresse e-mail et votre mot de passe.",
     "loginFailed": "Échec de la connexion. Veuillez vérifier votre courriel et votre mot de passe.",
     "googleFailed": "Impossible d'ouvrir la connexion Google.",
-    "signedIn": "Connexion réussie. Redirection en cours..."
+    "signedIn": "Connexion réussie. Redirection en cours...",
+    "facebook": "Continuer avec Facebook",
+    "facebookFailed": "Impossible d’ouvrir la connexion Facebook."
   },
   "saved": {
     "loading": "Chargement...",
@@ -214,7 +216,7 @@
           "heading": "Services tiers",
           "items": [
             "L'application peut traiter des données par l'intermédiaire de fournisseurs de services utilisés pour l'hébergement, le stockage de bases de données, l'authentification, le traitement des modèles d'IA, la récupération d'images, l'analyse et la publicité.",
-            "Ces fournisseurs peuvent inclure Render, Supabase, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash et Wikimedia Commons, selon les fonctionnalités activées."
+            "Ces fournisseurs peuvent inclure Render, Supabase, Meta, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash et Wikimedia Commons, selon les fonctionnalités activées."
           ]
         },
         {
@@ -278,7 +280,7 @@
         {
           "heading": "prestataires de services",
           "items": [
-            "En fonction des fonctionnalités activées, les données peuvent être traitées par Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense et Google AdMob.",
+            "En fonction des fonctionnalités activées, les données peuvent être traitées par Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense et Google AdMob.",
             "Le contenu des menus est transmis aux services d'IA et de cloud uniquement lorsque cela est nécessaire pour fournir la fonctionnalité demandée. Chaque fournisseur traite les données selon ses propres conditions et politiques de confidentialité."
           ]
         },

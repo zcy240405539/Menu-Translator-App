@@ -84,20 +84,23 @@ export default function LoginForm() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleOAuthLogin = async (provider: "facebook" | "google", fallback: string) => {
     setIsLoading(true);
     setError("");
     try {
       const redirectTo = window.location.href.split("#")[0];
-      const res = await fetch(`${apiBaseUrl()}/auth/google/url?redirect_to=${encodeURIComponent(redirectTo)}`);
+      const res = await fetch(`${apiBaseUrl()}/auth/oauth/${provider}/url?redirect_to=${encodeURIComponent(redirectTo)}`);
       const data = (await res.json()) as { url?: string };
-      if (!res.ok || !data.url) throw new Error(text.auth.googleFailed);
+      if (!res.ok || !data.url) throw new Error(fallback);
       window.location.href = data.url;
     } catch (err) {
-      setError(err instanceof Error ? err.message : text.auth.googleFailed);
+      setError(err instanceof Error ? err.message : fallback);
       setIsLoading(false);
     }
   };
+
+  const handleGoogleLogin = () => handleOAuthLogin("google", text.auth.googleFailed);
+  const handleFacebookLogin = () => handleOAuthLogin("facebook", text.auth.facebookFailed);
 
   return (
     <main className="min-h-screen bg-[#fbf8f4] px-4 py-10">
@@ -187,6 +190,17 @@ export default function LoginForm() {
               className="h-12 w-full rounded-xl border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
             >
               {text.auth.google}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isLoading}
+              onClick={handleFacebookLogin}
+              className="h-12 w-full rounded-xl border-[#1877F2] bg-white text-[#1877F2] hover:bg-blue-50"
+            >
+              <span aria-hidden="true" className="mr-2 text-lg font-bold">f</span>
+              {text.auth.facebook}
             </Button>
 
             <Link href={homeHref} className="block text-center text-sm font-semibold text-purple-700 hover:text-purple-800">

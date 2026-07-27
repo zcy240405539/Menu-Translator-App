@@ -58,7 +58,9 @@
     "missingFields": "Пожалуйста, введите свой адрес электронной почты и пароль.",
     "loginFailed": "Вход не удался. Пожалуйста, проверьте свою электронную почту и пароль.",
     "googleFailed": "Не удаётся открыть вход через Google.",
-    "signedIn": "Вход выполнен. Перенаправление..."
+    "signedIn": "Вход выполнен. Перенаправление...",
+    "facebook": "Продолжить с Facebook",
+    "facebookFailed": "Не удалось открыть вход через Facebook."
   },
   "saved": {
     "loading": "Загрузка...",
@@ -214,7 +216,7 @@
           "heading": "Сторонние сервисы",
           "items": [
             "Приложение может обрабатывать данные через поставщиков услуг, используемых для хостинга, хранения баз данных, аутентификации, обработки моделей ИИ, поиска изображений, аналитики и рекламы.",
-            "В зависимости от включенных функций, к таким поставщикам могут относиться Render, Supabase, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash и Wikimedia Commons."
+            "В зависимости от включенных функций, к таким поставщикам могут относиться Render, Supabase, Meta, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash и Wikimedia Commons."
           ]
         },
         {
@@ -278,7 +280,7 @@
         {
           "heading": "Поставщики услуг",
           "items": [
-            "В зависимости от включенных функций, данные могут обрабатываться Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense и Google AdMob.",
+            "В зависимости от включенных функций, данные могут обрабатываться Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense и Google AdMob.",
             "Содержимое меню отправляется в сервисы искусственного интеллекта и облачные сервисы только по мере необходимости для предоставления запрошенной функции. Каждый поставщик обрабатывает данные в соответствии со своими собственными условиями и политикой конфиденциальности."
           ]
         },

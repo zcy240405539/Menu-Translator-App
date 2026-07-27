@@ -58,7 +58,9 @@
     "missingFields": "Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.",
     "loginFailed": "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre E-Mail-Adresse und Ihr Passwort.",
     "googleFailed": "Google-Anmeldung nicht möglich.",
-    "signedIn": "Angemeldet. Weiterleitung..."
+    "signedIn": "Angemeldet. Weiterleitung...",
+    "facebook": "Mit Facebook fortfahren",
+    "facebookFailed": "Die Facebook-Anmeldung konnte nicht geöffnet werden."
   },
   "saved": {
     "loading": "Laden...",
@@ -214,7 +216,7 @@
           "heading": "Drittanbieterdienste",
           "items": [
             "Die App kann Daten über Dienstleister verarbeiten, die für Hosting, Datenbank-Speicherung, Authentifizierung, KI-Modellverarbeitung, Bildabruf, Analysen und Werbung eingesetzt werden.",
-            "Je nach aktivierten Funktionen können dies Render, Supabase, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash und Wikimedia Commons sein."
+            "Je nach aktivierten Funktionen können dies Render, Supabase, Meta, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash und Wikimedia Commons sein."
           ]
         },
         {
@@ -278,7 +280,7 @@
         {
           "heading": "Dienstleister",
           "items": [
-            "Je nach aktivierten Funktionen können die Daten von Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense und Google AdMob verarbeitet werden.",
+            "Je nach aktivierten Funktionen können die Daten von Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense und Google AdMob verarbeitet werden.",
             "Menüinhalte werden nur dann an KI- und Cloud-Dienste gesendet, wenn dies zur Bereitstellung der angeforderten Funktion erforderlich ist. Jeder Anbieter verarbeitet Daten gemäß seinen eigenen Nutzungsbedingungen und Datenschutzrichtlinien."
           ]
         },

@@ -158,7 +158,9 @@
     "resetFailed": "Не удалось отправить письмо для сброса настроек.",
     "authenticationFailed": "Аутентификация не удалась",
     "redirectUnsupported": "Не удается открыть страницу входа в систему на этом устройстве.",
-    "googleLoginFailed": "Не удалось начать вход в Google."
+    "googleLoginFailed": "Не удалось начать вход в Google.",
+    "facebookLogin": "Продолжить с Facebook",
+    "facebookLoginFailed": "Не удалось начать вход через Facebook"
   },
   "profile": {
     "title": "Настройки профиля",
@@ -252,7 +254,7 @@
         {
           "heading": "Поставщики услуг",
           "items": [
-            "В зависимости от включенных функций, данные могут обрабатываться сервисами Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons и Google AdMob.",
+            "В зависимости от включенных функций, данные могут обрабатываться сервисами Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons и Google AdMob.",
             "Эти поставщики обрабатывают информацию в соответствии со своими собственными условиями и политикой конфиденциальности. Содержимое меню может передаваться в сервисы искусственного интеллекта и облачные сервисы только по мере необходимости для предоставления запрошенной функции."
           ]
         },

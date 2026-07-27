@@ -489,14 +489,22 @@ export async function passwordReset(email) {
   return await res.json();
 }
 
-export async function getGoogleAuthUrl(redirectTo) {
-  const url = `${API_BASE_URL}/auth/google/url?redirect_to=${encodeURIComponent(redirectTo)}`;
+export async function getOAuthAuthUrl(provider, redirectTo) {
+  const url = `${API_BASE_URL}/auth/oauth/${encodeURIComponent(provider)}/url?redirect_to=${encodeURIComponent(redirectTo)}`;
   const res = await fetch(url);
   if (!res.ok) {
     const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to get Google Auth URL");
+    throw new Error(errMsg || "Failed to get OAuth URL");
   }
   return await res.json();
+}
+
+export function getGoogleAuthUrl(redirectTo) {
+  return getOAuthAuthUrl("google", redirectTo);
+}
+
+export function getFacebookAuthUrl(redirectTo) {
+  return getOAuthAuthUrl("facebook", redirectTo);
 }
 
 

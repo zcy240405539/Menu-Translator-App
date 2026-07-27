@@ -23,7 +23,7 @@ Users can:
 - Dish image search with Pexels, Unsplash, Wikimedia Commons, and OpenAI image fallback
 - PostgreSQL dish, category, and menu parse cache
 - DB-backed restaurant cuisine/type display labels
-- Supabase Auth user accounts, profile preferences, avatars, and subscription records
+- Supabase Auth user accounts with Google and Facebook OAuth, profile preferences, avatars, and subscription records
 - AI recommendation module
 - Web result page dish-detail dialog and AI recommendation form
 - Shareable cached menu URLs
@@ -416,6 +416,8 @@ Current default parsing flow:
 ```POST /auth/login```
 ```POST /auth/google```
 ```GET /auth/google/url```
+```GET /auth/facebook/url```
+```GET /auth/oauth/{provider}/url```
 ```GET /auth/me```
 ```POST /auth/profile```
 ```POST /auth/logout```
@@ -531,7 +533,7 @@ web_found
 - Source/target menu support for English, simplified Chinese, traditional Chinese, Spanish, French, Japanese, Korean, Russian, Portuguese, German, Italian, and Arabic
 - Independent source-language OCR, layout, price, unit, noise, and detection profiles
 - AI smart recommendation modal and backend recommendation endpoint
-- Supabase Auth login, registration, Google OAuth handoff, password reset, profile preferences, and avatar upload
+- Supabase Auth login, registration, Google and Facebook OAuth handoff, password reset, profile preferences, and avatar upload
 - Native AdMob integration with web-safe fallback modules
 - Share dialog and shareable cached menu URLs
 - Currency extraction and frontend price formatting

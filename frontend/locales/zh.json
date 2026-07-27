@@ -158,7 +158,9 @@
     "resetFailed": "重置邮件发送失败",
     "authenticationFailed": "身份验证失败",
     "redirectUnsupported": "此设备上无法打开登录页面",
-    "googleLoginFailed": "Google 登录失败"
+    "googleLoginFailed": "Google 登录失败",
+    "facebookLogin": "使用 Facebook 账号快捷登录",
+    "facebookLoginFailed": "Facebook 登录失败"
   },
   "profile": {
     "title": "个人中心",
@@ -252,7 +254,7 @@
         {
           "heading": "服务提供商",
           "items": [
-            "根据启用的功能，数据可能由 Supabase、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons 和 Google AdMob 处理。",
+            "根据启用的功能，数据可能由 Supabase、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons 和 Google AdMob 处理。",
             "这些服务商依据各自的条款和隐私规则处理信息。菜单内容只会在提供您请求的功能所需范围内发送给 AI 和云服务。"
           ]
         },

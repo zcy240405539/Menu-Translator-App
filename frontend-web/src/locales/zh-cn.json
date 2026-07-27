@@ -58,7 +58,9 @@
     "missingFields": "请输入邮箱和密码。",
     "loginFailed": "登录失败，请检查邮箱和密码。",
     "googleFailed": "无法打开 Google 登录。",
-    "signedIn": "已登录，正在跳转..."
+    "signedIn": "已登录，正在跳转...",
+    "facebook": "使用 Facebook 继续",
+    "facebookFailed": "无法打开 Facebook 登录。"
   },
   "saved": {
     "loading": "正在加载...",
@@ -214,7 +216,7 @@
           "heading": "第三方服务",
           "items": [
             "应用可能会通过托管、数据库存储、身份验证、AI 模型处理、图片检索、分析和广告等服务商处理数据。",
-            "这些服务商可能包括 Render、Supabase、OpenRouter、OpenAI、Google AdSense、Google AdMob、Pexels、Unsplash 和 Wikimedia Commons，具体取决于启用的功能。"
+            "这些服务商可能包括 Render、Supabase、Meta、OpenRouter、OpenAI、Google AdSense、Google AdMob、Pexels、Unsplash 和 Wikimedia Commons，具体取决于启用的功能。"
           ]
         },
         {
@@ -278,7 +280,7 @@
         {
           "heading": "服务提供商",
           "items": [
-            "根据启用的功能，数据可能由 Supabase、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Google AdSense 和 Google AdMob 处理。",
+            "根据启用的功能，数据可能由 Supabase、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Google AdSense 和 Google AdMob 处理。",
             "菜单内容只会在提供所请求功能所需范围内发送给 AI 和云服务。各服务商依据自己的条款和隐私规则处理数据。"
           ]
         },

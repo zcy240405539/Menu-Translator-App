@@ -158,7 +158,9 @@
     "resetFailed": "リセットメールの送信に失敗しました",
     "authenticationFailed": "認証に失敗しました",
     "redirectUnsupported": "このデバイスではサインインページを開くことができません",
-    "googleLoginFailed": "Googleサインインの開始に失敗しました"
+    "googleLoginFailed": "Googleサインインの開始に失敗しました",
+    "facebookLogin": "Facebookで続行",
+    "facebookLoginFailed": "Facebookログインを開始できませんでした"
   },
   "profile": {
     "title": "プロフィール設定",
@@ -252,7 +254,7 @@
         {
           "heading": "サービスプロバイダー",
           "items": [
-            "有効化されている機能によっては、データはSupabase、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、およびGoogle AdMobによって処理される場合があります。",
+            "有効化されている機能によっては、データはSupabase、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、およびGoogle AdMobによって処理される場合があります。",
             "これらのプロバイダーは、独自の利用規約およびプライバシーポリシーに基づいて情報を処理します。メニューコンテンツは、要求された機能を提供するために必要な場合に限り、AIおよびクラウドサービスに送信されます。"
           ]
         },

@@ -39,6 +39,7 @@ PROTECTED_EXACT = {
     "Google AdMob",
     "Google AdSense",
     "Instagram",
+    "Meta",
     "OpenAI",
     "OpenRouter",
     "Pexels",
@@ -117,6 +118,8 @@ APP_EN_PATCH = {
         "resetFailed": "Failed to send reset email",
         "authenticationFailed": "Authentication failed",
         "redirectUnsupported": "Cannot open the sign-in page on this device",
+        "facebookLogin": "Continue with Facebook",
+        "facebookLoginFailed": "Failed to start Facebook sign-in",
         "googleLoginFailed": "Failed to start Google sign-in",
     },
     "profile": {
@@ -157,6 +160,10 @@ APP_EN_PATCH = {
 
 WEB_EN_PATCH = {
     "common": {"brand": "AI Menu APP"},
+    "auth": {
+        "facebook": "Continue with Facebook",
+        "facebookFailed": "Unable to open Facebook sign in.",
+    },
     "metaDescription": "Translate multilingual menus from photos, PDFs, text, and links.",
     "languageNames": {key if key != "zh" else "zh-cn": value for key, value in LANGUAGE_NAMES.items() if key != "auto"},
     "languageShortNames": {"zh-cn": "Chinese", "zh-Hant": "Chinese"},

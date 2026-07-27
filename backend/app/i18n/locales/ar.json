@@ -67,7 +67,7 @@
         {
           "heading": "مقدمو الخدمات",
           "items": [
-            "اعتمادًا على الميزات المفعلة، قد تتم معالجة البيانات بواسطة Supabase وRender وGoogle Cloud وGemini وOpenRouter وOpenAI وPexels وUnsplash وWikimedia Commons وGoogle AdSense وGoogle AdMob.",
+            "اعتمادًا على الميزات المفعلة، قد تتم معالجة البيانات بواسطة Supabase وMeta وRender وGoogle Cloud وGemini وOpenRouter وOpenAI وPexels وUnsplash وWikimedia Commons وGoogle AdSense وGoogle AdMob.",
             "يتم إرسال محتوى القائمة إلى خدمات الذكاء الاصطناعي والخدمات السحابية فقط عند الحاجة لتوفير الميزة المطلوبة. ويقوم كل مزود بمعالجة البيانات وفقًا لشروطه وممارسات الخصوصية الخاصة به."
           ]
         },

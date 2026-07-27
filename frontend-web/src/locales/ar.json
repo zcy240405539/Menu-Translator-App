@@ -58,7 +58,9 @@
     "missingFields": "يرجى إدخال بريدك الإلكتروني وكلمة المرور.",
     "loginFailed": "فشلت عملية تسجيل الدخول. يرجى التحقق من بريدك الإلكتروني وكلمة المرور.",
     "googleFailed": "تعذر فتح صفحة تسجيل الدخول إلى جوجل.",
-    "signedIn": "تم تسجيل الدخول. جارٍ إعادة التوجيه..."
+    "signedIn": "تم تسجيل الدخول. جارٍ إعادة التوجيه...",
+    "facebook": "المتابعة باستخدام فيسبوك",
+    "facebookFailed": "تعذر فتح تسجيل الدخول عبر فيسبوك."
   },
   "saved": {
     "loading": "تحميل...",
@@ -214,7 +216,7 @@
           "heading": "خدمات الطرف الثالث",
           "items": [
             "قد يقوم التطبيق بمعالجة البيانات من خلال مزودي الخدمات المستخدمة في الاستضافة وتخزين قواعد البيانات والمصادقة ومعالجة نماذج الذكاء الاصطناعي واسترجاع الصور والتحليلات والإعلان.",
-            "قد تشمل هذه الجهات المزودة Render و Supabase و OpenRouter و OpenAI و Google AdSense و Google AdMob و Pexels و Unsplash و Wikimedia Commons حسب الميزات المفعلة."
+            "قد تشمل هذه الجهات المزودة Render و Supabase وMeta و OpenRouter و OpenAI و Google AdSense و Google AdMob و Pexels و Unsplash و Wikimedia Commons حسب الميزات المفعلة."
           ]
         },
         {
@@ -278,7 +280,7 @@
         {
           "heading": "مقدمو الخدمات",
           "items": [
-            "اعتمادًا على الميزات المفعلة، قد تتم معالجة البيانات بواسطة Supabase وRender وGoogle Cloud وGemini وOpenRouter وOpenAI وPexels وUnsplash وWikimedia Commons وGoogle AdSense وGoogle AdMob.",
+            "اعتمادًا على الميزات المفعلة، قد تتم معالجة البيانات بواسطة Supabase وMeta وRender وGoogle Cloud وGemini وOpenRouter وOpenAI وPexels وUnsplash وWikimedia Commons وGoogle AdSense وGoogle AdMob.",
             "يتم إرسال محتوى القائمة إلى خدمات الذكاء الاصطناعي والخدمات السحابية فقط عند الحاجة لتوفير الميزة المطلوبة. ويقوم كل مزود بمعالجة البيانات وفقًا لشروطه وممارسات الخصوصية الخاصة به."
           ]
         },

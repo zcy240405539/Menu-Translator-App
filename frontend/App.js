@@ -131,6 +131,12 @@ function getSharedMenuUrlFromAppUrl(urlString) {
   }
 }
 
+function getOAuthTokenFromUrl(urlString) {
+  if (!urlString) return "";
+  const hash = urlString.split("#", 2)[1] || "";
+  return new URLSearchParams(hash).get("access_token") || "";
+}
+
 function AppContent({ themeMode, onThemeModeChange }) {
   const [screen, setScreen] = useState("home");
   const [menuResult, setMenuResult] = useState(null);
@@ -162,22 +168,20 @@ function AppContent({ themeMode, onThemeModeChange }) {
         })
         .catch((err) => console.log("Failed to load unit translations from DB:", err));
 
-      let oauthToken = null;
-      
-      // 1. Check for OAuth hash tokens
-      if (typeof window !== "undefined" && window.location && window.location.hash) {
-        const hash = window.location.hash.substring(1);
-        const hashParams = new URLSearchParams(hash);
-        oauthToken = hashParams.get("access_token");
-        if (oauthToken) {
-          try {
-            setAuthToken(oauthToken);
-            await handleLoginSuccess(oauthToken, null);
-            const user = await getProfile();
-            setCurrentUser(user);
-          } catch (err) {
-            console.log("Failed to load profile from OAuth token:", err);
-          }
+      const initialAppUrl = Platform.OS === "web"
+        ? (typeof window !== "undefined" ? window.location.href : "")
+        : await Linking.getInitialURL();
+      const oauthToken = getOAuthTokenFromUrl(initialAppUrl);
+
+      // 1. Complete OAuth login before restoring a previous session.
+      if (oauthToken) {
+        try {
+          setAuthToken(oauthToken);
+          await handleLoginSuccess(oauthToken, null);
+          const user = await getProfile();
+          setCurrentUser(user);
+        } catch (err) {
+          console.log("Failed to load profile from OAuth token:", err);
         }
       }
 
@@ -236,8 +240,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
       }
 
       if (Platform.OS !== "web") {
-        const initialUrl = await Linking.getInitialURL();
-        const sharedUrl = getSharedMenuUrlFromAppUrl(initialUrl);
+        const sharedUrl = getSharedMenuUrlFromAppUrl(initialAppUrl);
         if (sharedUrl) {
           setIncomingMenuUrl(sharedUrl);
           setScreen("home");
@@ -251,7 +254,21 @@ function AppContent({ themeMode, onThemeModeChange }) {
   useEffect(() => {
     if (Platform.OS === "web") return undefined;
 
-    const subscription = Linking.addEventListener("url", ({ url }) => {
+    const subscription = Linking.addEventListener("url", async ({ url }) => {
+      const oauthToken = getOAuthTokenFromUrl(url);
+      if (oauthToken) {
+        try {
+          await AsyncStorage.setItem("menu_app_token", oauthToken);
+          setAuthToken(oauthToken);
+          const user = await getProfile();
+          setCurrentUser(user);
+          setShowLoginModal(false);
+        } catch (err) {
+          console.log("Failed to complete OAuth login:", err);
+        }
+        return;
+      }
+
       const sharedUrl = getSharedMenuUrlFromAppUrl(url);
       if (sharedUrl) {
         setIncomingMenuUrl(sharedUrl);

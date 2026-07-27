@@ -58,7 +58,9 @@
     "missingFields": "이메일 주소와 비밀번호를 입력하세요.",
     "loginFailed": "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.",
     "googleFailed": "구글 로그인 화면을 열 수 없습니다.",
-    "signedIn": "로그인 완료. 리디렉션 중..."
+    "signedIn": "로그인 완료. 리디렉션 중...",
+    "facebook": "Facebook으로 계속",
+    "facebookFailed": "Facebook 로그인을 열 수 없습니다."
   },
   "saved": {
     "loading": "로딩 중...",
@@ -214,7 +216,7 @@
           "heading": "제3자 서비스",
           "items": [
             "이 앱은 호스팅, 데이터베이스 저장, 인증, AI 모델 처리, 이미지 검색, 분석 및 광고에 사용되는 서비스 제공업체를 통해 데이터를 처리할 수 있습니다.",
-            "활성화된 기능에 따라 이러한 제공업체에는 Render, Supabase, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash 및 Wikimedia Commons가 포함될 수 있습니다."
+            "활성화된 기능에 따라 이러한 제공업체에는 Render, Supabase, Meta, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash 및 Wikimedia Commons가 포함될 수 있습니다."
           ]
         },
         {
@@ -278,7 +280,7 @@
         {
           "heading": "서비스 제공업체",
           "items": [
-            "활성화된 기능에 따라 데이터는 Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense 및 Google AdMob에서 처리될 수 있습니다.",
+            "활성화된 기능에 따라 데이터는 Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense 및 Google AdMob에서 처리될 수 있습니다.",
             "메뉴 콘텐츠는 요청된 기능을 제공하는 데 필요한 경우에만 AI 및 클라우드 서비스로 전송됩니다. 각 서비스 제공업체는 자체 약관 및 개인정보 보호 정책에 따라 데이터를 처리합니다."
           ]
         },

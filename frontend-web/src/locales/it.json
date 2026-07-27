@@ -58,7 +58,9 @@
     "missingFields": "Inserisci il tuo indirizzo email e la password.",
     "loginFailed": "Accesso non riuscito. Verifica l'indirizzo email e la password.",
     "googleFailed": "Impossibile aprire l'accesso a Google.",
-    "signedIn": "Accesso effettuato. Reindirizzamento in corso..."
+    "signedIn": "Accesso effettuato. Reindirizzamento in corso...",
+    "facebook": "Continua con Facebook",
+    "facebookFailed": "Impossibile aprire l’accesso con Facebook."
   },
   "saved": {
     "loading": "Caricamento...",
@@ -214,7 +216,7 @@
           "heading": "Servizi di terze parti",
           "items": [
             "L'app potrebbe elaborare i dati tramite fornitori di servizi utilizzati per l'hosting, l'archiviazione del database, l'autenticazione, l'elaborazione di modelli di intelligenza artificiale, il recupero di immagini, l'analisi e la pubblicità.",
-            "A seconda delle funzionalità abilitate, questi provider possono includere Render, Supabase, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash e Wikimedia Commons."
+            "A seconda delle funzionalità abilitate, questi provider possono includere Render, Supabase, Meta, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash e Wikimedia Commons."
           ]
         },
         {
@@ -278,7 +280,7 @@
         {
           "heading": "Fornitori di servizi",
           "items": [
-            "A seconda delle funzionalità abilitate, i dati possono essere elaborati da Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense e Google AdMob.",
+            "A seconda delle funzionalità abilitate, i dati possono essere elaborati da Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense e Google AdMob.",
             "Il contenuto del menu viene inviato ai servizi di intelligenza artificiale e cloud solo nella misura necessaria a fornire la funzionalità richiesta. Ciascun fornitore elabora i dati secondo i propri termini e le proprie politiche sulla privacy."
           ]
         },

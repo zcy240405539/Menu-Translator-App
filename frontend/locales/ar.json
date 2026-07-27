@@ -158,7 +158,9 @@
     "resetFailed": "فشل إرسال بريد إعادة التعيين",
     "authenticationFailed": "فشلت عملية المصادقة",
     "redirectUnsupported": "لا يمكن فتح صفحة تسجيل الدخول على هذا الجهاز",
-    "googleLoginFailed": "فشل بدء تسجيل الدخول إلى جوجل"
+    "googleLoginFailed": "فشل بدء تسجيل الدخول إلى جوجل",
+    "facebookLogin": "المتابعة باستخدام فيسبوك",
+    "facebookLoginFailed": "تعذر بدء تسجيل الدخول عبر فيسبوك"
   },
   "profile": {
     "title": "إعدادات الملف الشخصي",
@@ -252,7 +254,7 @@
         {
           "heading": "مقدمو الخدمات",
           "items": [
-            "اعتمادًا على الميزات المفعلة، قد تتم معالجة البيانات بواسطة Supabase وRender وGoogle Cloud وGemini وOpenRouter وOpenAI وPexels وUnsplash وWikimedia Commons وGoogle AdMob.",
+            "اعتمادًا على الميزات المفعلة، قد تتم معالجة البيانات بواسطة Supabase وMeta وRender وGoogle Cloud وGemini وOpenRouter وOpenAI وPexels وUnsplash وWikimedia Commons وGoogle AdMob.",
             "يقوم هؤلاء المزودون بمعالجة المعلومات وفقًا لشروطهم وممارسات الخصوصية الخاصة بهم. قد يتم إرسال محتوى القائمة إلى خدمات الذكاء الاصطناعي والخدمات السحابية فقط عند الحاجة لتوفير الميزة المطلوبة."
           ]
         },

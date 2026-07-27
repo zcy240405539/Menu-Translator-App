@@ -58,7 +58,9 @@
     "missingFields": "Please enter your email and password.",
     "loginFailed": "Sign in failed. Please check your email and password.",
     "googleFailed": "Unable to open Google sign in.",
-    "signedIn": "Signed in. Redirecting..."
+    "signedIn": "Signed in. Redirecting...",
+    "facebook": "Continue with Facebook",
+    "facebookFailed": "Unable to open Facebook sign in."
   },
   "saved": {
     "loading": "Loading...",
@@ -214,7 +216,7 @@
           "heading": "Third-party services",
           "items": [
             "The app may process data through service providers used for hosting, database storage, authentication, AI model processing, image retrieval, analytics, and advertising.",
-            "These providers may include Render, Supabase, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash, and Wikimedia Commons depending on enabled features."
+            "These providers may include Render, Supabase, Meta, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash, and Wikimedia Commons depending on enabled features."
           ]
         },
         {
@@ -278,7 +280,7 @@
         {
           "heading": "Service providers",
           "items": [
-            "Depending on enabled features, data may be processed by Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense, and Google AdMob.",
+            "Depending on enabled features, data may be processed by Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense, and Google AdMob.",
             "Menu content is sent to AI and cloud services only as needed to provide the requested feature. Each provider processes data under its own terms and privacy practices."
           ]
         },

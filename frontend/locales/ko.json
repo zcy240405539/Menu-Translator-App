@@ -158,7 +158,9 @@
     "resetFailed": "재설정 이메일 전송에 실패했습니다.",
     "authenticationFailed": "인증 실패",
     "redirectUnsupported": "이 기기에서는 로그인 페이지를 열 수 없습니다.",
-    "googleLoginFailed": "Google 로그인 시작에 실패했습니다."
+    "googleLoginFailed": "Google 로그인 시작에 실패했습니다.",
+    "facebookLogin": "Facebook으로 계속",
+    "facebookLoginFailed": "Facebook 로그인을 시작할 수 없습니다"
   },
   "profile": {
     "title": "프로필 설정",
@@ -252,7 +254,7 @@
         {
           "heading": "서비스 제공업체",
           "items": [
-            "활성화된 기능에 따라 데이터는 Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons 및 Google AdMob에서 처리될 수 있습니다.",
+            "활성화된 기능에 따라 데이터는 Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons 및 Google AdMob에서 처리될 수 있습니다.",
             "이러한 서비스 제공업체는 자체 약관 및 개인정보 보호 정책에 따라 정보를 처리합니다. 메뉴 콘텐츠는 요청된 기능을 제공하는 데 필요한 경우에만 AI 및 클라우드 서비스로 전송될 수 있습니다."
           ]
         },

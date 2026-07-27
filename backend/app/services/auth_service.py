@@ -1,10 +1,13 @@
 import os
+from urllib.parse import urlencode
+
 from sqlalchemy.orm import Session
 from app.core.models import User, UserSubscription
 from supabase import create_client
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+SUPPORTED_OAUTH_PROVIDERS = frozenset({"facebook", "google"})
 
 # Hardcoded password for mock Google users in development/testing
 MOCK_GOOGLE_PASSWORD = "GoogleMockUserPassword123!"
@@ -17,6 +20,21 @@ def get_supabase_client():
     if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
         raise RuntimeError("Supabase credentials missing in environment variables.")
     return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+
+def build_oauth_authorize_url(provider: str, redirect_to: str, supabase_url: str | None = None) -> str:
+    normalized_provider = str(provider or "").strip().lower()
+    if normalized_provider not in SUPPORTED_OAUTH_PROVIDERS:
+        raise ValueError("Unsupported OAuth provider.")
+
+    base_url = str(supabase_url or SUPABASE_URL or "").strip().rstrip("/")
+    if not base_url:
+        raise RuntimeError("Supabase credentials missing in environment variables.")
+    if not redirect_to:
+        raise ValueError("OAuth redirect URL is required.")
+
+    query = urlencode({"provider": normalized_provider, "redirect_to": redirect_to})
+    return f"{base_url}/auth/v1/authorize?{query}"
 
 
 def ensure_user_subscription(db: Session, user_id: str) -> None:
@@ -196,12 +214,20 @@ def get_user_from_token(db: Session, token: str) -> User | None:
         return None
 
     supabase_user = auth_user_res.user
+    if not supabase_user.email:
+        return None
+
     user_profile = db.query(User).filter(User.id == supabase_user.id).first()
     
     if not user_profile:
         # Self-healing profile creation (e.g. if registered externally or database was reset)
         user_metadata = supabase_user.user_metadata or {}
-        username = user_metadata.get("username") or user_metadata.get("name") or supabase_user.email.split("@")[0]
+        username = (
+            user_metadata.get("username")
+            or user_metadata.get("name")
+            or user_metadata.get("full_name")
+            or supabase_user.email.split("@")[0]
+        )
         
         # Ensure unique username
         base_username = username
@@ -215,7 +241,7 @@ def get_user_from_token(db: Session, token: str) -> User | None:
             username=username,
             email=supabase_user.email,
             phone=supabase_user.phone or user_metadata.get("phone"),
-            avatar_url=user_metadata.get("avatar_url"),
+            avatar_url=user_metadata.get("avatar_url") or user_metadata.get("picture"),
             diets=[],
             allergies=[],
             preferred_language="zh",

@@ -158,7 +158,9 @@
     "resetFailed": "Falha ao enviar o e-mail de redefinição",
     "authenticationFailed": "A autenticação falhou.",
     "redirectUnsupported": "Não é possível abrir a página de login neste dispositivo.",
-    "googleLoginFailed": "Falha ao iniciar o login do Google"
+    "googleLoginFailed": "Falha ao iniciar o login do Google",
+    "facebookLogin": "Continuar com o Facebook",
+    "facebookLoginFailed": "Não foi possível iniciar sessão com o Facebook"
   },
   "profile": {
     "title": "Configurações de perfil",
@@ -252,7 +254,7 @@
         {
           "heading": "Prestadores de serviços",
           "items": [
-            "Dependendo dos recursos ativados, os dados podem ser processados ​​por Supabase, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons e Google AdMob.",
+            "Dependendo dos recursos ativados, os dados podem ser processados ​​por Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons e Google AdMob.",
             "Esses fornecedores processam informações de acordo com seus próprios termos e práticas de privacidade. O conteúdo do menu pode ser enviado para serviços de IA e nuvem somente quando necessário para fornecer o recurso solicitado."
           ]
         },
