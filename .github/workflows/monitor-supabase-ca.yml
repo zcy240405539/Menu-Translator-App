@@ -38,6 +38,7 @@ jobs:
           if [ -z "$issue_number" ]; then
             gh issue create \
               --title "$title" \
+              --assignee "$GITHUB_REPOSITORY_OWNER" \
               --body $'The bundled Supabase CA certificate is missing, invalid, or expires within one year.\n\n- Download the current certificate from Supabase Database Settings.\n- Replace `backend/certs/prod-ca-2021.crt`.\n- Run the backend SSL tests and verify `sslmode=verify-full`.\n- Deploy before the old certificate expires.\n\nReference: https://supabase.com/docs/guides/platform/ssl-enforcement'
           fi
 
