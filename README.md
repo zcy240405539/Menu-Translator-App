@@ -252,6 +252,23 @@ npx expo start -c
 
 The mobile settings screen supports the system theme plus explicit light and dark modes. First-run onboarding state and theme preference are stored locally with AsyncStorage. Release `2.3` uses Android `versionCode` 5.
 
+## Android Release Bundle
+
+The upload keystore and passwords stay outside Git. Set the four signing
+variables locally, then build the Google Play bundle:
+
+```powershell
+$env:AIMENU_ANDROID_KEYSTORE="C:\path\to\upload.keystore"
+$env:AIMENU_ANDROID_STORE_PASSWORD="<store-password>"
+$env:AIMENU_ANDROID_KEY_ALIAS="<key-alias>"
+$env:AIMENU_ANDROID_KEY_PASSWORD="<key-password>"
+cd frontend\android
+.\gradlew.bat bundleRelease
+```
+
+The signed bundle is written to
+`frontend/android/app/build/outputs/bundle/release/app-release.aab`.
+
 Mobile legal routes are also available on Expo Web:
 
 ```text

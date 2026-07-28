@@ -24,6 +24,7 @@ frontend/dist-feature-check/
 frontend/dist-*-check/
 frontend/web-build/
 frontend-web/.env*
+/release/
 
 # Local runtime/test artifacts
 backend/*.log
