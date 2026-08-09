@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
 import { DishDetailDialog, RecommendationDialog } from "@/components/MenuResultDialogs";
+import { PUBLISHER_PAGES } from "@/lib/publisherPages";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
@@ -478,6 +479,37 @@ export default function Home() {
                       <p className="text-sm leading-relaxed text-gray-600">{feature.desc}</p>
                     </CardContent>
                   </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {!showResultView && (
+          <section className="w-full border-t border-purple-100 bg-[#fbf8f4] py-20">
+            <div className="mx-auto max-w-4xl px-5">
+              <h2 className="text-3xl font-bold text-gray-950 sm:text-4xl">{text.publisher.home.title}</h2>
+              <div className="mt-6 space-y-5 text-base leading-8 text-gray-700">
+                {text.publisher.home.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+              </div>
+
+              <nav aria-label={text.publisher.navigation} className="mt-8 flex flex-wrap gap-x-6 gap-y-3 border-y border-purple-100 py-5">
+                {PUBLISHER_PAGES.map(({ href, key }) => (
+                  <Link key={href} href={`${href}${langQuery}`} className="font-bold text-purple-700 hover:text-purple-900">
+                    {text.publisher.nav[key]}
+                  </Link>
+                ))}
+              </nav>
+
+              <h2 className="mt-14 text-3xl font-bold text-gray-950">{text.publisher.home.faqTitle}</h2>
+              <div className="mt-6 divide-y divide-purple-100 border-y border-purple-100">
+                {text.publisher.home.faq.map((item) => (
+                  <details key={item.question} className="group py-5">
+                    <summary className="cursor-pointer list-none pr-6 text-lg font-bold text-gray-900 marker:hidden">
+                      {item.question}
+                    </summary>
+                    <p className="mt-3 max-w-3xl leading-7 text-gray-700">{item.answer}</p>
+                  </details>
                 ))}
               </div>
             </div>

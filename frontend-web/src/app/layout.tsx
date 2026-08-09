@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 const defaultMetadata = getText("en").metadata.home;
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://aimenu.us.kg"),
   title: defaultMetadata.title,
   description: defaultMetadata.description,
   other: {
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
 };
 
 const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465";
+const adsenseEnabled = process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true";
 
 export default function RootLayout({
   children,
@@ -37,7 +39,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {adsenseClient && (
+        {adsenseEnabled && adsenseClient && (
           <script
             async
             crossOrigin="anonymous"

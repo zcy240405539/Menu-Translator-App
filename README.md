@@ -385,20 +385,17 @@ ENABLE_GENERATED_IMAGE_FALLBACK=true
 EXPO_PUBLIC_API_BASE_URL=https://ai-menu-app.onrender.com
 NEXT_PUBLIC_API_URL=https://menu-translator-app.onrender.com
 NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-8286400764174465
-NEXT_PUBLIC_ADSENSE_ANALYZE_SLOT=your_adsense_ad_unit_slot
-NEXT_PUBLIC_ADSENSE_BANNER_SLOT=your_footer_banner_ad_unit_slot
-NEXT_PUBLIC_ADSENSE_DETAIL_SLOT=your_dish_detail_ad_unit_slot
-NEXT_PUBLIC_ADSENSE_TEST=false
+NEXT_PUBLIC_ADSENSE_ENABLED=false
 ```
 
 `.github/workflows/monitor-supabase-ca.yml` checks the bundled Supabase CA every
 month. If it is missing, invalid, or expires within one year, the workflow opens
 a GitHub issue and remains failed until the certificate is replaced.
 
-AdSense display slots only serve real ads after the domain is `Ready` in AdSense.
-Use `NEXT_PUBLIC_ADSENSE_TEST=true` only for local or staging diagnostics. If the
-browser reports `data-ad-status="unfilled"`, the request reached Google but no ad
-was returned; verify site approval, Policy Center, consent, and account coverage.
+The Web app keeps its AdSense publisher verification meta tag active during site
+review but does not request ads while `NEXT_PUBLIC_ADSENSE_ENABLED=false`. Keep it
+disabled on login, loading, empty-state, legal, and automatically generated result
+screens. After approval, place ads only on manually reviewed, content-rich pages.
 
 Current default parsing flow:
 

@@ -10,8 +10,10 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "backend"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from app.services.google_translation_service import translate_texts  # noqa: E402
+from web_publisher_content import WEB_PUBLISHER_CONTENT  # noqa: E402
 
 
 LANGUAGES = ("en", "zh", "zh-Hant", "es", "fr", "ja", "ko", "ru", "pt", "de", "it", "ar")
@@ -52,6 +54,19 @@ PROTECTED_EXACT = {
     "WhatsApp",
     "Wikimedia Commons",
     "X / Twitter",
+}
+WEB_REVIEWED_PATCHES = {
+    "zh": {"publisher": {"nav": {"contact": "联系我们"}}},
+    "zh-Hant": {"publisher": {"nav": {"contact": "聯絡我們"}}},
+    "es": {"publisher": {"nav": {"contact": "Contacto"}}},
+    "fr": {"publisher": {"nav": {"contact": "Contact"}}},
+    "ja": {"publisher": {"nav": {"contact": "お問い合わせ"}}},
+    "ko": {"publisher": {"nav": {"contact": "문의"}}},
+    "ru": {"publisher": {"nav": {"contact": "Контакты"}}},
+    "pt": {"publisher": {"nav": {"contact": "Contato"}}},
+    "de": {"publisher": {"nav": {"contact": "Kontakt"}}},
+    "it": {"publisher": {"nav": {"contact": "Contatti"}}},
+    "ar": {"publisher": {"nav": {"contact": "اتصل بنا"}}},
 }
 
 
@@ -168,6 +183,7 @@ WEB_EN_PATCH = {
     "languageNames": {key if key != "zh" else "zh-cn": value for key, value in LANGUAGE_NAMES.items() if key != "auto"},
     "languageShortNames": {"zh-cn": "Chinese", "zh-Hant": "Chinese"},
     "saved": {"menuFallback": "Menu", "dishFallback": "Dish"},
+    "publisher": WEB_PUBLISHER_CONTENT,
     "metadata": {
         "home": {
             "title": "AI Menu APP - Translate Menus & Order with Ease",
@@ -188,6 +204,26 @@ WEB_EN_PATCH = {
         "deletion": {
             "title": "Account Deletion - AI Menu APP",
             "description": "Request deletion of your AI Menu APP account.",
+        },
+        "howItWorks": {
+            "title": "How AI Menu APP Works",
+            "description": "How AI Menu APP extracts, organizes, and translates restaurant menus.",
+        },
+        "guide": {
+            "title": "Menu Translation Guide | AI Menu APP",
+            "description": "Practical guidance for translating menus and checking ordering details.",
+        },
+        "languages": {
+            "title": "Supported Languages | AI Menu APP",
+            "description": "Supported source and target languages for AI Menu APP menu translation.",
+        },
+        "about": {
+            "title": "About | AI Menu APP",
+            "description": "Why AI Menu APP was created and how to use menu translations responsibly.",
+        },
+        "contact": {
+            "title": "Contact | AI Menu APP",
+            "description": "Contact AI Menu APP for product feedback, privacy, or account support.",
         },
     },
 }
@@ -307,6 +343,12 @@ def translate_source_strings(source_strings: set[str], language: str, offline: b
             marker = f"ZXQPH{index}ZXQ"
             protected_value = protected_value.replace(token, marker, 1)
             value_markers[marker] = token
+        for token in sorted(PROTECTED_EXACT, key=len, reverse=True):
+            if token not in protected_value:
+                continue
+            marker = f"ZXQBR{len(value_markers)}ZXQ"
+            protected_value = protected_value.replace(token, marker)
+            value_markers[marker] = token
         protected[value] = protected_value
         markers[value] = value_markers
 
@@ -374,6 +416,7 @@ def main() -> None:
             deep_merge(web_generated, existing_catalog(web_dir, language, web=True)),
             web_generated,
         )
+        web_catalog = deep_merge(web_catalog, WEB_REVIEWED_PATCHES.get(language, {}))
         backend_catalog = restore_placeholders(
             backend_en,
             deep_merge(backend_generated, existing_catalog(backend_dir, language)),

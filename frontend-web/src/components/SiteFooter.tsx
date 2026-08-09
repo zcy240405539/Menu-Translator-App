@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGE_CHANGE_EVENT,
@@ -12,6 +11,7 @@ import {
   normalizeLanguage,
   type WebLanguageCode,
 } from "@/lib/i18n";
+import { PUBLISHER_PAGES } from "@/lib/publisherPages";
 
 export default function SiteFooter() {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
@@ -36,34 +36,25 @@ export default function SiteFooter() {
 
   const text = getText(lang);
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
-  const bannerSlot = process.env.NEXT_PUBLIC_ADSENSE_BANNER_SLOT
-    || process.env.NEXT_PUBLIC_ADSENSE_ANALYZE_SLOT;
 
   return (
-    <>
-      <aside className="w-full border-t border-purple-100 bg-white px-4 py-4" aria-label={text.analyzer.ad}>
-        <div className="container mx-auto max-w-6xl">
-          <AdSenseSlot
-            slot={bannerSlot}
-            format="auto"
-            className="min-h-24 rounded-xl border border-purple-100 bg-purple-50/30 p-3"
-            label={text.analyzer.ad}
-          />
-        </div>
-      </aside>
-      <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
-        <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
-          <p className="text-sm">© {new Date().getFullYear()} {text.common.brand}. {text.footer.rights}</p>
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+    <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
+      <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
+        <p className="text-sm">© {new Date().getFullYear()} {text.common.brand}. {text.footer.rights}</p>
+        <nav aria-label={text.publisher.navigation} className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+          {PUBLISHER_PAGES.map(({ href, key }) => (
+            <Link key={href} href={`${href}${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
+              {text.publisher.nav[key]}
+            </Link>
+          ))}
             <Link href={`/privacy-policy${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.privacy}
             </Link>
             <Link href={`/terms-of-service${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.terms}
             </Link>
-          </div>
-        </div>
-      </footer>
-    </>
+        </nav>
+      </div>
+    </footer>
   );
 }

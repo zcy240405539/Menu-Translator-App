@@ -27,6 +27,7 @@ npm run dev
 ```bash
 npm run lint
 npm run build
+npm run test:adsense
 ```
 
 ## Render
@@ -38,14 +39,9 @@ npm run build
 - Environment:
   - `NEXT_PUBLIC_API_URL=https://menu-translator-app.onrender.com`
   - `NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-8286400764174465`
-  - `NEXT_PUBLIC_ADSENSE_ANALYZE_SLOT=<AdSense ad unit slot id>`
-  - `NEXT_PUBLIC_ADSENSE_BANNER_SLOT=<footer display ad unit slot id>`
-  - `NEXT_PUBLIC_ADSENSE_DETAIL_SLOT=<dish dialog display ad unit slot id>`
-  - `NEXT_PUBLIC_ADSENSE_TEST=false`
+  - `NEXT_PUBLIC_ADSENSE_ENABLED=false`
 
-`NEXT_PUBLIC_ADSENSE_TEST=true` is only for local or staging ad rendering checks.
-Fixed footer and dialog placements require valid display ad unit slot IDs. Real ads
-are served only after the site status is `Ready` in AdSense. A processed unit with
-`data-ad-status="unfilled"` means Google received the request but returned no ad;
-check site approval, Policy Center, consent, and AdSense coverage rather than
-changing the frontend slot markup.
+The publisher verification meta tag remains active while AdSense is under review.
+Keep `NEXT_PUBLIC_ADSENSE_ENABLED=false` so Google-served ads cannot appear on
+login, loading, empty-state, legal, or automatically generated result screens.
+After the site is approved, add ads only to manually reviewed, content-rich pages.

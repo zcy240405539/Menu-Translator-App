@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:adsense": "node scripts/check-adsense-output.mjs",
     "test:language-pairs": "node --no-warnings --experimental-strip-types scripts/check-language-pairs.mjs"
   },
   "dependencies": {

@@ -379,6 +379,272 @@
     "deletion": {
       "title": "Suppression de compte - Application Menu IA",
       "description": "Demander la suppression de votre compte AI Menu APP."
+    },
+    "howItWorks": {
+      "title": "Comment fonctionne AI Menu APP",
+      "description": "Comment AI Menu APP extrait, organise et traduit les menus de restaurants."
+    },
+    "guide": {
+      "title": "Guide de traduction des menus | AI Menu APP",
+      "description": "Conseils pratiques pour traduire les menus et vérifier les détails des commandes."
+    },
+    "languages": {
+      "title": "Langues prises en charge | AI Menu APP",
+      "description": "Langues source et cible prises en charge pour la traduction du menu AI Menu APP."
+    },
+    "about": {
+      "title": "À propos | AI Menu APP",
+      "description": "Pourquoi AI Menu APP a été créé et comment utiliser les traductions de menus de manière responsable."
+    },
+    "contact": {
+      "title": "Contact | AI Menu APP",
+      "description": "Contactez AI Menu APP pour tout commentaire sur le produit, toute question relative à la confidentialité ou pour obtenir de l'aide concernant votre compte."
+    }
+  },
+  "publisher": {
+    "navigation": "Informations et guides",
+    "resourceLabel": "Ressource de traduction de menu",
+    "contactTitle": "Des questions ou des commentaires ?",
+    "contactText": "Veuillez nous indiquer la source du menu, la combinaison de langues et une brève description de vos attentes. Ne communiquez jamais par courriel vos mots de passe, vos informations de paiement ou des données médicales sensibles.",
+    "nav": {
+      "howItWorks": "Comment ça marche",
+      "guide": "Guide de traduction",
+      "languages": "Langues prises en charge",
+      "about": "À propos",
+      "contact": "Contact"
+    },
+    "home": {
+      "title": "Prenez connaissance du menu avant de commander.",
+      "paragraphs": [
+        "AI Menu APP est conçu pour les voyageurs et les gourmets qui ont besoin de plus de contexte qu'une simple traduction littérale. Il combine l'extraction de texte, la détection de la structure du menu et la traduction afin de faciliter la comparaison des sections, des noms de plats, des descriptions et des prix.",
+        "Les photos et documents relatifs aux menus varient considérablement. L'éclairage, les polices décoratives, la mise en page en colonnes, les notes manuscrites et la présence de plusieurs langues peuvent tous nuire à la reconnaissance. Des images nettes et droites ainsi que des pages PDF complètes donnent généralement les meilleurs résultats.",
+        "Le menu traduit est un outil de lecture et ne remplace ni le menu officiel du restaurant ni le personnel. Veuillez toujours vérifier les prix, la disponibilité, les ingrédients et les informations relatives aux allergies directement auprès du restaurant avant de commander."
+      ],
+      "faqTitle": "Questions fréquentes",
+      "faq": [
+        {
+          "question": "Quels formats de menu puis-je utiliser ?",
+          "answer": "Vous pouvez soumettre une photo de menu, un fichier image, un PDF ou une page web de menu publique. Les documents protégés par mot de passe et les pages bloquant l'accès automatisé risquent d'être illisibles."
+        },
+        {
+          "question": "Comment puis-je améliorer la reconnaissance ?",
+          "answer": "Capturez la page entière avec une mise au point nette, évitez les reflets et les angles trop prononcés, et placez les prix à côté des noms des plats. Pour les menus de plusieurs pages, utilisez le PDF original s'il est disponible."
+        },
+        {
+          "question": "Les traductions sont-elles garanties exactes ?",
+          "answer": "Non. La reconnaissance optique de caractères (OCR) et la traduction automatique peuvent mal interpréter les textes stylisés, les noms de plats régionaux, les abréviations ou les mises en page inhabituelles. Comparez les informations importantes avec le menu original et, en cas de doute, demandez au personnel du restaurant."
+        },
+        {
+          "question": "Puis-je me fier aux étiquettes relatives aux allergènes ou aux régimes alimentaires ?",
+          "answer": "Non. Les recettes et les pratiques culinaires peuvent changer, et les risques de contamination croisée ne sont pas toujours mentionnés sur le menu. Les personnes souffrant d'allergies ou suivant un régime alimentaire particulier doivent se renseigner directement auprès du restaurant."
+        },
+        {
+          "question": "Que devient le contenu du menu soumis ?",
+          "answer": "Le contenu des menus est envoyé au cloud et aux services d'IA nécessaires à l'analyse demandée. La conservation des données, les options de compte et les prestataires de services sont détaillés dans la Politique de confidentialité."
+        }
+      ]
+    },
+    "pages": {
+      "howItWorks": {
+        "title": "Comment AI Menu APP lit un menu",
+        "summary": "Une explication pratique des étapes à suivre pour passer d'une photo, d'un PDF ou d'une page web à un menu traduit et organisé, y compris les limites que les utilisateurs doivent vérifier avant de commander.",
+        "sections": [
+          {
+            "heading": "1. Capturez ou fournissez le menu",
+            "paragraphs": [
+              "Le processus commence par le choix de la source qui préserve le mieux les informations du restaurant. Un PDF numérique est généralement préférable à une capture d'écran car il conserve un texte plus net et des pages complètes. Pour un menu imprimé, une photo prise de face avec un éclairage uniforme réduit les risques de lignes manquantes et de caractères incorrects.",
+              "Un lien public peut contenir du texte, un PDF ou des images. Certains sites chargent le contenu dynamiquement ou bloquent l'accès automatisé ; le téléchargement de fichiers peut donc s'avérer plus fiable lorsqu'un lien est inaccessible."
+            ],
+            "items": [
+              "Incluez la page entière et évitez de rogner les titres ou les prix.",
+              "Utilisez une seule source claire au lieu de captures d'écran compressées à répétition.",
+              "Retirez du cadre les reçus non pertinents et les informations personnelles."
+            ]
+          },
+          {
+            "heading": "2. Récupérer la structure du texte et du menu",
+            "paragraphs": [
+              "L'extraction de texte identifie les mots visibles tandis que l'analyseur syntaxique sépare les informations sur le restaurant, les titres, les noms des plats, leurs descriptions et leurs prix. La mise en page est importante : un chiffre à côté d'un plat indique généralement son prix, tandis qu'une grande étiquette au-dessus de plusieurs plats correspond plutôt à une catégorie.",
+              "Les menus mélangent souvent langues, devises, portions et textes décoratifs. Les profils linguistiques et les modèles de menus généraux sont utiles, mais une typographie inhabituelle ou un manque de contexte peuvent tout de même entraîner un regroupement incorrect."
+            ],
+            "items": [
+              "Vérifiez les limites des catégories dans les menus à plusieurs colonnes.",
+              "Vérifiez attentivement les virgules décimales et les symboles monétaires.",
+              "Comparez les prix des formats répétés avec la mise en page d'origine."
+            ]
+          },
+          {
+            "heading": "3. Traduire et vérifier",
+            "paragraphs": [
+              "Les noms et descriptions des plats sont traduits une fois la structure reconstituée. Les termes culinaires courants peuvent être conservés lorsqu'une traduction littérale serait trompeuse, tandis que les descriptions fournissent le contexte des ingrédients et de la préparation.",
+              "Les noms régionaux, les modifications manuscrites et les plats typiques d'une culture particulière peuvent nécessiter des précisions de la part du personnel du restaurant. Conservez le texte original à disposition afin que le personnel puisse identifier précisément le plat."
+            ],
+            "items": [
+              "Veuillez confirmer les prix définitifs et la disponibilité auprès du restaurant.",
+              "Les informations relatives aux ingrédients et aux allergènes sont considérées comme incomplètes sauf confirmation.",
+              "Signaler les problèmes de reconnaissance récurrents avec la paire source/langue."
+            ]
+          }
+        ]
+      },
+      "guide": {
+        "title": "Guide pratique pour traduire les menus de restaurant",
+        "summary": "Comment préparer une image de menu, interpréter les informations traduites sur les plats et prendre des décisions plus sûres lors d'un repas dans une autre langue.",
+        "sections": [
+          {
+            "heading": "Choisissez la source la plus claire",
+            "paragraphs": [
+              "Si possible, utilisez le menu original au format PDF ou sur la page web. Pour une photo, tenez l'appareil photo parallèle à la page et assurez-vous que les petites descriptions et les prix soient lisibles avant de la télécharger. Traitez les menus longs comme des pages complètes, dans leur ordre naturel, afin que les titres conservent leur contexte."
+            ],
+            "items": [
+              "Évitez les ombres et les reflets sur les colonnes de prix.",
+              "Gardez visibles les billets de banque, les légendes des portions et les notes de bas de page.",
+              "Sélectionnez manuellement la langue source lorsque la détection automatique est erronée."
+            ]
+          },
+          {
+            "heading": "Lisez le résultat dans son contexte",
+            "paragraphs": [
+              "Le nom d'un plat, à lui seul, ne suffit pas toujours à décrire ce qu'il contient. Il est important de lire attentivement le nom original, sa traduction, sa description, sa catégorie et son prix. Les termes relatifs à la préparation, comme grillé, mariné, cru, braisé ou frit, sont souvent aussi importants que l'ingrédient principal."
+            ],
+            "items": [
+              "Vérifiez si la liste des ingrédients est complète ou s'il ne s'agit que des ingrédients mis en évidence.",
+              "Recherchez les mentions relatives aux prix par personne, aux prix du marché, aux commandes minimales et aux frais de service.",
+              "Veuillez vérifier si les options supplémentaires modifient le prix affiché."
+            ]
+          },
+          {
+            "heading": "Gérez les restrictions alimentaires avec précaution",
+            "paragraphs": [
+              "Un menu traduit ne peut pas tenir compte des substitutions de recettes, du partage des friteuses ni des risques de contamination croisée. Utilisez la traduction pour préparer vos questions, puis montrez le nom original du plat au personnel. En cas d'allergies graves ou de restrictions médicales, il est indispensable de contacter directement le restaurant pour confirmation."
+            ],
+            "items": [
+              "Renseignez-vous sur les sauces, les bouillons, les marinades et les garnitures.",
+              "Demandez-vous si le partage d'équipement crée un risque de contamination croisée.",
+              "Ne vous fiez pas à une étiquette nutritionnelle générée automatiquement comme garantie de sécurité."
+            ]
+          }
+        ]
+      },
+      "languages": {
+        "title": "Langues des menus prises en charge",
+        "summary": "AI Menu APP prend en charge douze langues sources et cibles, avec une gestion adaptée à la langue pour les scripts, la ponctuation, les termes de menu et les formats de prix courants.",
+        "sections": [
+          {
+            "heading": "Langues disponibles",
+            "paragraphs": [
+              "L'ensemble actuel comprend l'anglais, le chinois simplifié, le chinois traditionnel, l'espagnol, le français, le japonais, le coréen, le russe, le portugais, l'allemand, l'italien et l'arabe. La détection automatique est disponible lorsque la langue source est inconnue.",
+              "Les menus peuvent contenir des termes culinaires empruntés ou être multilingues. Sélectionner manuellement la langue principale permet d'améliorer la cohérence lorsque le nom du restaurant ou un sous-titre traduit est visuellement prédominant."
+            ],
+            "items": [
+              "Le traitement des données en chinois accepte les contenus de menus simplifiés et traditionnels.",
+              "Le texte arabe s'écrivant de droite à gauche peut être affecté par des mises en page complexes combinant plusieurs nombres.",
+              "Les menus japonais et coréens mélangent souvent les alphabets locaux, les noms latins et les chiffres."
+            ]
+          },
+          {
+            "heading": "Pourquoi l'analyse syntaxique prenant en compte le langage est importante",
+            "paragraphs": [
+              "Les langues utilisent des systèmes de ponctuation, d'espacement, d'affichage des devises, de compteurs et de terminologie des portions différents. Des règles communes gèrent la structure générale du menu, tandis que les profils linguistiques fournissent le contexte de l'écriture et des prix, sans exceptions propres à chaque restaurant."
+            ],
+            "items": [
+              "Gardez les symboles monétaires et les séparateurs décimaux visibles.",
+              "Conserver le texte vertical et l'ordre de lecture sur les menus d'Asie de l'Est.",
+              "Incluez des titres expliquant les menus à prix fixe, les tailles ou les portions."
+            ]
+          },
+          {
+            "heading": "Direction et qualité de la traduction",
+            "paragraphs": [
+              "Toute langue source prise en charge peut être traduite vers une autre langue cible prise en charge. La qualité varie en fonction de la netteté de l'image, de la mise en page, du vocabulaire régional et du contexte disponible ; il est donc essentiel de vérifier les détails importants de l'ordre de traduction par rapport à la source."
+            ],
+            "items": [
+              "Utilisez le nom original du plat lorsque vous posez une question au personnel du restaurant.",
+              "Réessayez avec une source plus claire si de nombreux articles ou prix sont manquants.",
+              "Signalez tout problème récurrent de langue ou de mise en page."
+            ]
+          }
+        ]
+      },
+      "about": {
+        "title": "À propos de AI Menu APP",
+        "summary": "AI Menu APP est un outil de lecture de menu conçu pour aider les clients à comprendre les plats qu'ils ne connaissent pas, tout en conservant le menu original disponible pour vérification.",
+        "sections": [
+          {
+            "heading": "Pourquoi ce projet existe-t-il ?",
+            "paragraphs": [
+              "Les menus de restaurant véhiculent un contexte que la traduction automatique ne permet pas toujours de saisir. Un outil efficace doit donc conserver l'ensemble des sections, noms des plats, descriptions et prix afin que les clients puissent comparer les options au lieu de lire des mots isolés.",
+              "AI Menu APP se concentre sur cette tâche pratique et renvoie un résultat organisé qui peut être examiné en parallèle avec le texte original."
+            ],
+            "items": [
+              "Aidez les voyageurs à comprendre les plats locaux avant de commander.",
+              "Conserver les noms originaux visibles pour faciliter la communication avec le personnel.",
+              "Expliquez les limitations au lieu de présenter les résultats obtenus comme des faits avérés."
+            ]
+          },
+          {
+            "heading": "Comment le service est développé",
+            "paragraphs": [
+              "Ce service combine l'extraction de documents, la reconnaissance optique de caractères (OCR), l'analyse de la structure des menus, la traduction et l'ajout d'informations optionnelles sur les plats. Un travail de qualité est réalisé, notamment en testant les mises en page réelles, en vérifiant les articles et les prix manquants et en améliorant le comportement adapté à chaque langue sans recourir à un codage spécifique au restaurant."
+            ],
+            "items": [
+              "Les modifications de la reconnaissance sont testées sur plusieurs formats de menus.",
+              "Les textes destinés aux utilisateurs et les textes juridiques sont disponibles dans les langues prises en charge.",
+              "Les identifiants de sécurité et les données de compte privé ne sont pas publiés dans le code."
+            ]
+          },
+          {
+            "heading": "Utilisation responsable",
+            "paragraphs": [
+              "Ce service facilite la compréhension et la communication, mais n'intervient pas dans le choix des recettes, des prix, de la disponibilité ou de la préparation des plats proposés par les restaurants. Les images des plats affichées sont non contractuelles et peuvent ne pas refléter la présentation réelle des plats servis au restaurant."
+            ],
+            "items": [
+              "Ne considérez pas les informations générées sur les allergies comme une garantie de sécurité.",
+              "Ne présumez pas qu'une image correspondante représente exactement le plat.",
+              "Consultez la politique de confidentialité pour en savoir plus sur le traitement des données et les options de compte."
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "title": "Contactez AI Menu APP",
+        "summary": "Envoyez vos commentaires sur les produits, des exemples de reconnaissance, des questions relatives à la confidentialité ou des demandes concernant votre compte à l'adresse d'assistance ci-dessous.",
+        "sections": [
+          {
+            "heading": "Commentaires sur le produit et la reconnaissance",
+            "paragraphs": [
+              "En cas de problème de reconnaissance, veuillez indiquer le type de source, les langues sélectionnées, ainsi que les sections, plats ou prix manquants ou mal regroupés. L'URL publique du menu est utile si elle reste accessible. Supprimez les données personnelles sans lien avec le problème de menu."
+            ],
+            "items": [
+              "Décrivez le résultat attendu et le résultat obtenu.",
+              "Veuillez indiquer l'appareil et le navigateur utilisés pour signaler les problèmes rencontrés sur le site web.",
+              "N'incluez de captures d'écran que si elles ne révèlent aucune information sensible."
+            ]
+          },
+          {
+            "heading": "Demandes relatives à la confidentialité et aux comptes",
+            "paragraphs": [
+              "Les questions relatives à la confidentialité et les demandes de suppression de compte doivent être adressées à la même adresse. Les demandes de suppression de compte doivent provenir de l'adresse e-mail enregistrée afin que la propriété puisse être vérifiée. Ne communiquez jamais par e-mail vos mots de passe, jetons d'authentification, numéros de carte bancaire, pièces d'identité officielles ou dossiers médicaux."
+            ],
+            "items": [
+              "Utilisez la page de suppression de compte pour connaître le format recommandé.",
+              "Veuillez consulter la politique de confidentialité pour connaître les catégories de données et les fournisseurs de services.",
+              "Veuillez prévoir un délai pour la vérification d'identité lors des demandes d'accès aux données de compte."
+            ]
+          },
+          {
+            "heading": "Quel support peut confirmer",
+            "paragraphs": [
+              "L'assistance peut examiner les comportements reproductibles de l'application et expliquer les paramètres du compte. Elle ne peut pas confirmer la recette, la provenance des ingrédients, la préparation, la disponibilité, la facture finale, la réservation ou le remboursement d'un restaurant."
+            ],
+            "items": [
+              "Utilisez le nom original du plat lorsque vous contactez un restaurant.",
+              "Conservez vos reçus pour toute question relative au paiement ou à la disponibilité.",
+              "Consultez un professionnel de santé qualifié pour toute décision relative à votre alimentation et à votre santé."
+            ]
+          }
+        ]
+      }
     }
   }
 }

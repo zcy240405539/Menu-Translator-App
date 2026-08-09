@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Camera, FileUp, Link as LinkIcon, Wand2, Loader2 } from "lucide-react";
-import { AdSenseSlot } from "@/components/ads/AdSenseSlot";
 import { LANGUAGES, SOURCE_LANGUAGES, languageLabel, languageShortLabel, sourceLanguageLabel, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
 import { selectSourceLanguage, selectTargetLanguage } from "@/lib/languagePair";
 
@@ -73,7 +72,6 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
-  const [showAnalyzeAd, setShowAnalyzeAd] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -123,7 +121,6 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
     }
 
     setIsAnalyzing(true);
-    setShowAnalyzeAd(true);
     setError("");
 
     try {
@@ -307,12 +304,6 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
           )}
         </Button>
 
-        {showAnalyzeAd && (
-          <AdSenseSlot
-            className="rounded-xl border border-purple-100 bg-purple-50/40 p-3"
-            label={text.ad}
-          />
-        )}
       </CardContent>
     </Card>
   );

@@ -379,6 +379,272 @@
     "deletion": {
       "title": "Kontolöschung – KI-Menü-App",
       "description": "Beantragen Sie die Löschung Ihres AI Menu APP-Kontos."
+    },
+    "howItWorks": {
+      "title": "So funktioniert AI Menu APP",
+      "description": "Wie AI Menu APP Restaurantmenüs extrahiert, organisiert und übersetzt."
+    },
+    "guide": {
+      "title": "Menüübersetzungsleitfaden | AI Menu APP",
+      "description": "Praktische Hinweise zur Übersetzung von Speisekarten und zur Überprüfung von Bestelldetails."
+    },
+    "languages": {
+      "title": "Unterstützte Sprachen | AI Menu APP",
+      "description": "Unterstützte Quell- und Zielsprachen für die Menüübersetzung von AI Menu APP."
+    },
+    "about": {
+      "title": "Über uns | AI Menu APP",
+      "description": "Warum AI Menu APP erstellt wurde und wie man Menüübersetzungen verantwortungsvoll nutzt."
+    },
+    "contact": {
+      "title": "Kontakt | AI Menu APP",
+      "description": "Für Produktfeedback, Datenschutzfragen oder Kontosupport wenden Sie sich bitte an AI Menu APP."
+    }
+  },
+  "publisher": {
+    "navigation": "Informationen und Leitfäden",
+    "resourceLabel": "Menüübersetzungsressource",
+    "contactTitle": "Fragen oder Feedback?",
+    "contactText": "Bitte teilen Sie uns die Menüquelle, die Sprachkombination und eine kurze Beschreibung Ihrer Erwartungen mit. Senden Sie uns keine Passwörter, Zahlungsdaten oder sensible medizinische Informationen per E-Mail.",
+    "nav": {
+      "howItWorks": "So funktioniert es",
+      "guide": "Übersetzungsleitfaden",
+      "languages": "Unterstützte Sprachen",
+      "about": "Um",
+      "contact": "Kontakt"
+    },
+    "home": {
+      "title": "Informieren Sie sich über die Speisekarte, bevor Sie bestellen.",
+      "paragraphs": [
+        "AI Menu APP wurde für Reisende und Restaurantbesucher entwickelt, die mehr Kontext als eine wörtliche Übersetzung benötigen. Es kombiniert Textextraktion, Menüstrukturerkennung und Übersetzung, sodass Abschnitte, Gerichte, Beschreibungen und Preise leichter vergleichbar bleiben.",
+        "Speisekartenfotos und -dokumente variieren stark. Beleuchtung, Schriftarten, Spaltenlayouts, handschriftliche Notizen und verschiedene Sprachen können die Verständlichkeit beeinträchtigen. Klare, scharfe Bilder und vollständige PDF-Seiten liefern in der Regel das beste Ergebnis.",
+        "Die übersetzte Speisekarte dient als Lesehilfe und ersetzt weder die aktuelle Speisekarte noch die Beratung durch das Restaurantpersonal. Bitte bestätigen Sie Preise, Verfügbarkeit, Zutaten und Informationen zu Allergenen immer direkt im Restaurant, bevor Sie bestellen."
+      ],
+      "faqTitle": "Häufig gestellte Fragen",
+      "faq": [
+        {
+          "question": "Welche Menüformate kann ich verwenden?",
+          "answer": "Sie können ein Menüfoto, eine Bilddatei, ein PDF oder eine öffentliche Menü-Webseite einreichen. Passwortgeschützte Dokumente und Seiten, die den automatisierten Zugriff blockieren, sind möglicherweise nicht lesbar."
+        },
+        {
+          "question": "Wie kann ich die Erkennung verbessern?",
+          "answer": "Fotografieren Sie die gesamte Seite scharf, vermeiden Sie Spiegelungen und schräge Winkel und platzieren Sie die Preise neben den jeweiligen Gerichten. Verwenden Sie bei mehrseitigen Speisekarten, falls vorhanden, das Original-PDF."
+        },
+        {
+          "question": "Ist die Richtigkeit der Übersetzungen garantiert?",
+          "answer": "Nein. OCR- und KI-Übersetzungen können stilisierte Texte, regionale Gerichte, Abkürzungen oder ungewöhnliche Layouts falsch interpretieren. Vergleichen Sie wichtige Details mit der Speisekarte und fragen Sie im Zweifelsfall das Restaurantpersonal."
+        },
+        {
+          "question": "Kann ich mich auf Allergen- oder Nährwertkennzeichnungen verlassen?",
+          "answer": "Nein. Rezepte und Küchenpraktiken können sich ändern, und Kreuzkontaminationen werden möglicherweise nicht auf der Speisekarte aufgeführt. Personen mit Allergien oder medizinischen Ernährungseinschränkungen sollten sich direkt im Restaurant informieren."
+        },
+        {
+          "question": "Was geschieht mit den eingereichten Menüinhalten?",
+          "answer": "Die Menüinhalte werden an die Cloud und die für die angeforderte Analyse benötigten KI-Dienste gesendet. Informationen zur Datenspeicherung, zu Kontoeinstellungen und zu den Dienstanbietern finden Sie in der Datenschutzerklärung."
+        }
+      ]
+    },
+    "pages": {
+      "howItWorks": {
+        "title": "Wie AI Menu APP ein Menü liest",
+        "summary": "Eine praktische Erklärung der Schritte von einem Foto, einer PDF-Datei oder einer Webseite zu einer übersichtlichen, übersetzten Speisekarte, einschließlich der Einschränkungen, die Benutzer vor der Bestellung überprüfen sollten.",
+        "sections": [
+          {
+            "heading": "1. Menü erfassen oder bereitstellen",
+            "paragraphs": [
+              "Der Prozess beginnt mit der Quelle, die die Informationen des Restaurants am besten bewahrt. Ein digitales PDF ist in der Regel einem Screenshot vorzuziehen, da es schärferen Text und vollständige Seiten darstellt. Bei einer gedruckten Speisekarte reduziert ein gerades Foto mit gleichmäßiger Ausleuchtung fehlende Zeilen und fehlerhafte Zeichen.",
+              "Ein öffentlicher Link kann Text, eine verlinkte PDF-Datei oder Bilder enthalten. Manche Websites laden Inhalte dynamisch oder blockieren den automatisierten Zugriff; daher kann ein Datei-Upload zuverlässiger sein, wenn ein Link nicht funktioniert."
+            ],
+            "items": [
+              "Fügen Sie die gesamte Seite ein und vermeiden Sie es, Überschriften oder Preise abzuschneiden.",
+              "Verwenden Sie eine einzige, eindeutige Quelle anstelle von wiederholt komprimierten Screenshots.",
+              "Entfernen Sie nicht zugehörige Belege und persönliche Informationen aus dem Rahmen."
+            ]
+          },
+          {
+            "heading": "2. Wiederherstellung der Text- und Menüstruktur",
+            "paragraphs": [
+              "Die Textextraktion identifiziert sichtbare Wörter, während der Parser Restaurantinformationen, Überschriften, Gerichte, Beschreibungen und Preise trennt. Das Layout ist wichtig, da eine Zahl neben einem Gericht in der Regel den Preis angibt, während eine große Beschriftung über mehreren Gerichten eher eine Kategorie kennzeichnet.",
+              "Speisekarten vermischen oft Sprachen, Währungen, Portionsgrößen und dekorative Texte. Sprachprofile und allgemeine Speisekartenmuster sind hilfreich, aber ungewöhnliche Typografie oder fehlender Kontext können dennoch zu einer falschen Gruppierung führen."
+            ],
+            "items": [
+              "Überprüfen Sie die Kategoriegrenzen in mehrspaltigen Menüs.",
+              "Prüfen Sie Dezimaltrennzeichen und Währungssymbole sorgfältig.",
+              "Vergleichen Sie die Preise für wiederholte Größen mit dem Originallayout."
+            ]
+          },
+          {
+            "heading": "3. Übersetzen und überprüfen",
+            "paragraphs": [
+              "Die Namen und Beschreibungen der Gerichte werden übersetzt, nachdem die Struktur rekonstruiert wurde. Vertraute kulinarische Begriffe können beibehalten werden, wenn eine wörtliche Übersetzung irreführend wäre, während die Beschreibungen Kontext für Zutaten und Zubereitung liefern.",
+              "Regionale Bezeichnungen, handschriftliche Änderungen und kulturspezifische Gerichte erfordern unter Umständen Rückfragen beim Restaurantpersonal. Bewahren Sie den Originaltext auf, damit das Personal das jeweilige Gericht genau identifizieren kann."
+            ],
+            "items": [
+              "Bitte erfragen Sie die endgültigen Preise und die Verfügbarkeit im Restaurant.",
+              "Die Angaben zu Inhaltsstoffen und Allergenen sind als unvollständig zu betrachten, solange sie nicht bestätigt sind.",
+              "Melden Sie wiederholbare Erkennungsprobleme mit dem Quell- und Sprachpaar."
+            ]
+          }
+        ]
+      },
+      "guide": {
+        "title": "Ein praktischer Leitfaden zur Übersetzung von Restaurantmenüs",
+        "summary": "Wie man ein Menübild erstellt, übersetzte Informationen zu Gerichten interpretiert und sicherere Bestellentscheidungen trifft, wenn man in einer anderen Sprache isst.",
+        "sections": [
+          {
+            "heading": "Wählen Sie die klarste Quelle.",
+            "paragraphs": [
+              "Verwenden Sie nach Möglichkeit die Original-Speisekarte als PDF oder Webseite. Halten Sie bei Fotos die Kamera parallel zur Seite und achten Sie darauf, dass kurze Beschreibungen und Preise gut lesbar sind, bevor Sie die Speisekarte hochladen. Bearbeiten Sie lange Speisekarten als vollständige Seiten in ihrer natürlichen Reihenfolge, damit die Überschriften ihren Kontext behalten."
+            ],
+            "items": [
+              "Vermeiden Sie Schatten und Spiegelungen auf den Preissäulen.",
+              "Geldscheine, Portionslegenden und Fußnoten müssen sichtbar bleiben.",
+              "Wählen Sie die Ausgangssprache manuell aus, wenn die automatische Erkennung fehlerhaft ist."
+            ]
+          },
+          {
+            "heading": "Lesen Sie das Ergebnis im Kontext.",
+            "paragraphs": [
+              "Der Name eines Gerichts allein erklärt oft nicht, was auf den Tisch kommt. Lesen Sie daher den Originalnamen, die Übersetzung, die Beschreibung, die Kategorie und den Preis zusammen. Zubereitungshinweise wie gegrillt, gepökelt, roh, geschmort oder frittiert sind oft genauso wichtig wie die Hauptzutat."
+            ],
+            "items": [
+              "Prüfen Sie, ob die Zutatenliste vollständig ist oder nur die wichtigsten Punkte aufgeführt werden.",
+              "Achten Sie auf Hinweise zu Preisen pro Person, Marktpreisen, Mindestbestellmengen und Servicegebühren.",
+              "Prüfen Sie, ob optionale Zusatzleistungen den angezeigten Preis verändern."
+            ]
+          },
+          {
+            "heading": "Behandeln Sie diätetische Einschränkungen sorgfältig",
+            "paragraphs": [
+              "Eine übersetzte Speisekarte kann weder Rezeptänderungen noch die Verwendung gemeinsamer Fritteusen oder Kreuzkontaminationen berücksichtigen. Nutzen Sie die Übersetzung, um gezielte Fragen vorzubereiten, und zeigen Sie dem Personal anschließend den Originalnamen des Gerichts. Bei schweren Allergien oder medizinischen Einschränkungen ist eine direkte Bestätigung durch das Restaurant unerlässlich."
+            ],
+            "items": [
+              "Fragen Sie nach Saucen, Fonds, Marinaden und Garnierungen.",
+              "Fragen Sie, ob die gemeinsame Nutzung von Geräten ein Risiko der Kreuzkontamination birgt.",
+              "Verlassen Sie sich nicht auf ein automatisch generiertes Nährwertetikett als Sicherheitsgarantie."
+            ]
+          }
+        ]
+      },
+      "languages": {
+        "title": "Unterstützte Menüsprachen",
+        "summary": "AI Menu APP unterstützt zwölf Quell- und Zielsprachen und bietet eine sprachspezifische Behandlung für Schriftsysteme, Interpunktion, Menübegriffe und gängige Preisformate.",
+        "sections": [
+          {
+            "heading": "Verfügbare Sprachen",
+            "paragraphs": [
+              "Das aktuelle Set umfasst Englisch, Vereinfachtes Chinesisch, Traditionelles Chinesisch, Spanisch, Französisch, Japanisch, Koreanisch, Russisch, Portugiesisch, Deutsch, Italienisch und Arabisch. Eine automatische Erkennung ist verfügbar, wenn die Ausgangssprache unbekannt ist.",
+              "Speisekarten können fremde kulinarische Begriffe oder mehrere Sprachen enthalten. Die manuelle Auswahl der Hauptsprache kann die Einheitlichkeit verbessern, wenn der Restaurantname oder der übersetzte Untertitel optisch dominant ist."
+            ],
+            "items": [
+              "Die chinesische Verarbeitung akzeptiert sowohl vereinfachte als auch traditionelle Menüinhalte.",
+              "Arabischer Text, der von rechts nach links geschrieben wird, kann durch komplexe gemischte Zahlenlayouts beeinträchtigt werden.",
+              "Japanische und koreanische Speisekarten mischen oft lokale Schriftzeichen, lateinische Namen und Zahlen."
+            ]
+          },
+          {
+            "heading": "Warum sprachbewusstes Parsing wichtig ist",
+            "paragraphs": [
+              "Sprachen verwenden unterschiedliche Zeichensetzung, Leerzeichen, Währungsbezeichnungen, Zählzeichen und Portionsgrößen. Gemeinsame Regeln legen die allgemeine Menüstruktur fest, während Sprachprofile den Kontext für Schrift und Preise ohne restaurantspezifische Ausnahmen liefern."
+            ],
+            "items": [
+              "Währungssymbole und Dezimaltrennzeichen müssen sichtbar bleiben.",
+              "Auf ostasiatischen Speisekarten sollte die vertikale Textausrichtung und Lesereihenfolge beibehalten werden.",
+              "Fügen Sie Überschriften hinzu, die Menüs mit Festpreisen, Größen oder Portionen erläutern."
+            ]
+          },
+          {
+            "heading": "Übersetzungsrichtung und -qualität",
+            "paragraphs": [
+              "Jede unterstützte Ausgangssprache kann in eine andere unterstützte Zielsprache übersetzt werden. Die Qualität variiert je nach Bildschärfe, Layout, regionalem Vokabular und verfügbarem Kontext. Daher müssen wichtige Details der Reihenfolge mit der Ausgangssprache abgeglichen werden."
+            ],
+            "items": [
+              "Verwenden Sie bei Fragen an das Restaurantpersonal den Originalnamen des Gerichts.",
+              "Versuchen Sie es mit einer eindeutigeren Quelle, wenn viele Artikel oder Preise fehlen.",
+              "Bitte geben Sie Feedback zu wiederkehrenden Sprach- oder Layoutproblemen."
+            ]
+          }
+        ]
+      },
+      "about": {
+        "title": "Über AI Menu APP",
+        "summary": "AI Menu APP ist ein Menülese-Tool, das entwickelt wurde, um Restaurantbesuchern zu helfen, unbekannte Gerichte zu verstehen, während die Originalkarte zur Überprüfung weiterhin verfügbar bleibt.",
+        "sections": [
+          {
+            "heading": "Warum dieses Projekt existiert",
+            "paragraphs": [
+              "Speisekarten vermitteln einen Kontext, der bei einer einfachen Satzübersetzung verloren gehen kann. Ein hilfreiches Tool muss Abschnitte, Gerichte, Beschreibungen und Preise zusammenhalten, damit Gäste die Auswahl vergleichen können, anstatt einzelne Wörter zu lesen.",
+              "AI Menu APP konzentriert sich auf diese praktische Aufgabe und liefert ein übersichtliches Ergebnis, das zusammen mit dem Originaltext überprüft werden kann."
+            ],
+            "items": [
+              "Helfen Sie Reisenden, die lokalen Gerichte zu verstehen, bevor sie bestellen.",
+              "Die Originalnamen sollten zur Kommunikation mit den Mitarbeitern sichtbar bleiben.",
+              "Erläutern Sie die Grenzen, anstatt die erzielten Ergebnisse als unumstößliche Tatsachen darzustellen."
+            ]
+          },
+          {
+            "heading": "Wie der Dienst entwickelt wird",
+            "paragraphs": [
+              "Der Service kombiniert Dokumentenextraktion, OCR, Menüstrukturanalyse, Übersetzung und optionale Informationen zu Gerichten. Zu den Qualitätssicherungsmaßnahmen gehören das Testen realer Layouts, die Überprüfung fehlender Artikel und Preise sowie die Verbesserung sprachspezifischer Funktionen ohne fest codierte Restaurant-spezifische Anpassungen."
+            ],
+            "items": [
+              "Die Änderungen der Erkennungsfunktionen werden in verschiedenen Menüformaten getestet.",
+              "Benutzerorientierte und rechtliche Texte werden in unterstützten Sprachen bereitgestellt.",
+              "Sicherheitszugangsdaten und private Kontodaten werden nicht im Quellcode veröffentlicht."
+            ]
+          },
+          {
+            "heading": "Verantwortungsvoller Umgang",
+            "paragraphs": [
+              "Der Service unterstützt das gegenseitige Verständnis und die Kommunikation, hat aber keinen Einfluss auf Restaurantrezepte, Preise, Verfügbarkeit oder Zubereitung. Die generierten Bilder der Gerichte dienen lediglich der Veranschaulichung und entsprechen möglicherweise nicht der tatsächlichen Präsentation im Restaurant."
+            ],
+            "items": [
+              "Die generierten Allergieinformationen stellen keine Sicherheitsgarantie dar.",
+              "Gehen Sie nicht davon aus, dass ein übereinstimmendes Bild das exakte Gericht darstellt.",
+              "In der Datenschutzerklärung finden Sie Informationen zur Datenverarbeitung und zu Ihren Kontoeinstellungen."
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "title": "Kontakt: AI Menu APP",
+        "summary": "Senden Sie Produktfeedback, Beispiele für Auszeichnungen, Fragen zum Datenschutz oder Kontoanfragen an die unten stehende Supportadresse.",
+        "sections": [
+          {
+            "heading": "Produkt- und Anerkennungsfeedback",
+            "paragraphs": [
+              "Bei Erkennungsproblemen geben Sie bitte den Quelltyp, die ausgewählten Sprachen und die fehlenden oder falsch gruppierten Abschnitte, Gerichte oder Preise an. Eine öffentliche Menü-URL ist hilfreich, sofern sie noch verfügbar ist. Entfernen Sie alle personenbezogenen Daten, die nicht mit dem Menüproblem in Zusammenhang stehen."
+            ],
+            "items": [
+              "Beschreiben Sie das erwartete Ergebnis und das tatsächlich erhaltene Ergebnis.",
+              "Bitte geben Sie bei Problemen mit der Website das Gerät und den Browser an.",
+              "Fügen Sie Screenshots nur dann ein, wenn diese keine sensiblen Informationen preisgeben."
+            ]
+          },
+          {
+            "heading": "Datenschutz- und Kontoanfragen",
+            "paragraphs": [
+              "Fragen zum Datenschutz und Löschungsanträge richten Sie bitte an dieselbe Support-Adresse. Anträge auf Kontolöschung sollten von der registrierten E-Mail-Adresse gestellt werden, damit die Inhaberschaft verifiziert werden kann. Senden Sie niemals Passwörter, Tokens, Kreditkartennummern, amtliche Ausweisdokumente oder medizinische Daten per E-Mail."
+            ],
+            "items": [
+              "Das empfohlene Format finden Sie auf der Seite „Kontolöschung“.",
+              "Lesen Sie die Datenschutzrichtlinie, um Informationen zu Datenkategorien und Dienstanbietern zu erhalten.",
+              "Bei Anfragen zu Kontodaten sollte ausreichend Zeit für die Identitätsprüfung eingeplant werden."
+            ]
+          },
+          {
+            "heading": "Welche Unterstützung kann bestätigen",
+            "paragraphs": [
+              "Der Support kann reproduzierbares Anwendungsverhalten untersuchen und Kontosteuerungen erläutern. Er kann jedoch weder das Rezept eines Restaurants noch die Herkunft der Zutaten, die Zubereitung, die Verfügbarkeit, die Endrechnung, Reservierungen oder Rückerstattungen bestätigen."
+            ],
+            "items": [
+              "Verwenden Sie bei der Kontaktaufnahme mit dem Restaurant den Originalnamen des Gerichts.",
+              "Bewahren Sie die Quittungen auf, falls es Fragen zur Zahlung oder Verfügbarkeit gibt.",
+              "Bei gesundheitsbezogenen Ernährungsentscheidungen sollten Sie qualifizierten medizinischen Rat einholen."
+            ]
+          }
+        ]
+      }
     }
   }
 }
