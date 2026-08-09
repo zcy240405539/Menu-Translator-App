@@ -44,6 +44,15 @@
       "Suggerimenti intelligenti"
     ]
   },
+  "download": {
+    "homeCta": "Scarica l’app Android",
+    "eyebrow": "AI Menu APP per Android",
+    "title": "Traduci i menu ovunque mangi",
+    "description": "Installa AI Menu APP da Google Play per scansionare e tradurre i menu con il tuo telefono Android.",
+    "storeLabel": "Scarica da Google Play",
+    "availability": "Disponibile per Android tramite Google Play.",
+    "backHome": "Torna al traduttore di menu"
+  },
   "auth": {
     "title": "Registrazione",
     "subtitle": "Accedi per salvare la cronologia dei menu e le liste degli ordini.",

@@ -44,6 +44,15 @@
       "Intelligente Vorschläge"
     ]
   },
+  "download": {
+    "homeCta": "Android-App herunterladen",
+    "eyebrow": "AI Menu APP für Android",
+    "title": "Menüs überall übersetzen",
+    "description": "Installiere AI Menu APP über Google Play, um Menüs mit deinem Android-Smartphone zu scannen und zu übersetzen.",
+    "storeLabel": "Bei Google Play herunterladen",
+    "availability": "Für Android über Google Play verfügbar.",
+    "backHome": "Zurück zum Menü-Übersetzer"
+  },
   "auth": {
     "title": "anmelden",
     "subtitle": "Melden Sie sich an, um Menüverlauf und Bestelllisten zu speichern.",

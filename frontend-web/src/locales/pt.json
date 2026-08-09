@@ -44,6 +44,15 @@
       "Sugestões inteligentes"
     ]
   },
+  "download": {
+    "homeCta": "Baixar o app para Android",
+    "eyebrow": "AI Menu APP para Android",
+    "title": "Traduza cardápios onde quer que você coma",
+    "description": "Instale o AI Menu APP pelo Google Play para digitalizar e traduzir cardápios no seu celular Android.",
+    "storeLabel": "Baixar no Google Play",
+    "availability": "Disponível para Android pelo Google Play.",
+    "backHome": "Voltar ao tradutor de cardápios"
+  },
   "auth": {
     "title": "Entrar",
     "subtitle": "Faça login para salvar o histórico do menu e as listas de pedidos.",

@@ -44,6 +44,15 @@
       "智慧推薦"
     ]
   },
+  "download": {
+    "homeCta": "下載 Android APP",
+    "eyebrow": "Android 版 AI点菜通",
+    "title": "隨時隨地看懂菜單",
+    "description": "從 Google Play 安裝 AI点菜通，直接使用 Android 手機掃描並翻譯菜單。",
+    "storeLabel": "前往 Google Play 下載",
+    "availability": "目前透過 Google Play 提供 Android 版本。",
+    "backHome": "返回菜單翻譯"
+  },
   "auth": {
     "title": "登入",
     "subtitle": "登入後可以保存菜單歷史和點餐清單。",

@@ -44,6 +44,15 @@
       "智能推荐"
     ]
   },
+  "download": {
+    "homeCta": "下载 Android APP",
+    "eyebrow": "Android 版 AI点菜通",
+    "title": "随时随地看懂菜单",
+    "description": "从 Google Play 安装 AI点菜通，直接使用 Android 手机扫描并翻译菜单。",
+    "storeLabel": "前往 Google Play 下载",
+    "availability": "目前通过 Google Play 提供 Android 版本。",
+    "backHome": "返回菜单翻译"
+  },
   "auth": {
     "title": "登录",
     "subtitle": "登录后可以保存菜单历史和点餐清单。",

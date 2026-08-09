@@ -44,6 +44,15 @@
       "اقتراحات ذكية"
     ]
   },
+  "download": {
+    "homeCta": "تنزيل تطبيق Android",
+    "eyebrow": "AI Menu APP لنظام Android",
+    "title": "ترجم قوائم الطعام أينما تناولت طعامك",
+    "description": "ثبّت AI Menu APP من Google Play لمسح قوائم الطعام وترجمتها باستخدام هاتف Android.",
+    "storeLabel": "التنزيل من Google Play",
+    "availability": "متاح لنظام Android عبر Google Play.",
+    "backHome": "العودة إلى مترجم قوائم الطعام"
+  },
   "auth": {
     "title": "تسجيل الدخول",
     "subtitle": "قم بتسجيل الدخول لحفظ سجل القائمة وقوائم الطلبات.",

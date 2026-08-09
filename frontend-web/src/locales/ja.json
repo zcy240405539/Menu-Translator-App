@@ -44,6 +44,15 @@
       "スマートな提案"
     ]
   },
+  "download": {
+    "homeCta": "Androidアプリをダウンロード",
+    "eyebrow": "Android版 AI Menu APP",
+    "title": "どこでもメニューを翻訳",
+    "description": "Google PlayからAI Menu APPをインストールして、Androidスマートフォンでメニューをスキャンして翻訳できます。",
+    "storeLabel": "Google Playでダウンロード",
+    "availability": "Android版をGoogle Playで提供しています。",
+    "backHome": "メニュー翻訳に戻る"
+  },
   "auth": {
     "title": "サインイン",
     "subtitle": "ログインすると、メニュー履歴と注文リストを保存できます。",

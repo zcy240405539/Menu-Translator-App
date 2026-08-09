@@ -431,6 +431,13 @@ export default function Home() {
                     <p className="max-w-lg text-lg leading-relaxed text-gray-600 md:text-xl">
                       {text.home.subtitle}
                     </p>
+                    <Link
+                      href={`/download${langQuery}`}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#5f259f] px-5 py-2.5 font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
+                    >
+                      <Smartphone className="h-5 w-5" />
+                      {text.download.homeCta}
+                    </Link>
                   </div>
 
                   <div className="grid max-w-md grid-cols-2 gap-2 sm:gap-4">

@@ -44,6 +44,15 @@
       "Полезные предложения"
     ]
   },
+  "download": {
+    "homeCta": "Скачать приложение для Android",
+    "eyebrow": "AI Menu APP для Android",
+    "title": "Переводите меню, где бы вы ни ели",
+    "description": "Установите AI Menu APP из Google Play, чтобы сканировать и переводить меню на телефоне Android.",
+    "storeLabel": "Скачать в Google Play",
+    "availability": "Доступно для Android в Google Play.",
+    "backHome": "Вернуться к переводу меню"
+  },
   "auth": {
     "title": "Войти",
     "subtitle": "Войдите в систему, чтобы сохранить историю меню и списки заказов.",
