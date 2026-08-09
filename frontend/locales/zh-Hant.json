@@ -1,5 +1,5 @@
 {
-  "appTitle": "AI菜單助手",
+  "appTitle": "AI点菜通",
   "home": {
     "heroKicker": "開始翻譯",
     "heroTitle": "看懂菜單，輕鬆點餐",
@@ -192,12 +192,12 @@
     "help": "說明與意見回饋",
     "replayTutorial": "重新查看新手引導",
     "replayTutorialDescription": "再次了解如何掃描、翻譯和看懂菜單。",
-    "rateApp": "評價 AI Menu APP",
-    "rateAppDescription": "在 Google Play 中開啟 AI Menu APP。",
+    "rateApp": "評價AI点菜通",
+    "rateAppDescription": "在 Google Play 中開啟AI点菜通。",
     "legal": "法律資訊",
     "privacy": "隱私政策",
     "terms": "服務條款",
-    "version": "AI Menu APP 2.3",
+    "version": "AI点菜通 2.3",
     "done": "完成"
   },
   "onboarding": {
@@ -226,13 +226,13 @@
   },
   "legal": {
     "common": {
-      "brand": "AI Menu APP",
+      "brand": "AI点菜通",
       "back": "返回",
       "contact": "聯絡我們"
     },
     "privacy": {
       "title": "隱私政策",
-      "intro": "AI Menu APP 用於翻譯和解釋餐廳菜單。本政策說明我們處理哪些資訊、使用目的以及您可以進行的選擇。",
+      "intro": "AI点菜通用於翻譯和解釋餐廳菜單。本政策說明我們處理哪些資訊、使用目的以及您可以進行的選擇。",
       "sections": [
         {
           "heading": "我們處理的資訊",
@@ -282,12 +282,12 @@
     },
     "terms": {
       "title": "服務條款",
-      "intro": "本條款適用於您對 AI Menu APP 的使用。使用本服務即表示您同意本條款。",
+      "intro": "本條款適用於您對AI点菜通的使用。使用本服務即表示您同意本條款。",
       "sections": [
         {
           "heading": "服務內容",
           "items": [
-            "AI Menu APP 使用 OCR、翻譯、搜尋和 AI 系統協助使用者理解餐廳菜單。功能可能變更、中斷或停止。",
+            "AI点菜通使用 OCR、翻譯、搜尋和 AI 系統協助使用者理解餐廳菜單。功能可能變更、中斷或停止。",
             "您應提供準確的帳號資訊，並對帳號下的活動負責。"
           ]
         },
@@ -301,7 +301,7 @@
         {
           "heading": "過敏與健康提示",
           "items": [
-            "AI Menu APP 不提供醫療建議，也不能保證菜品不含過敏原或適合特定飲食。",
+            "AI点菜通不提供醫療建議，也不能保證菜品不含過敏原或適合特定飲食。",
             "如有過敏或醫療限制，請在點餐前聯絡餐廳並諮詢合格的醫療專業人士。"
           ]
         },
@@ -335,11 +335,11 @@
       ]
     },
     "deletion": {
-      "title": "刪除您的 AI 選單 APP 帳號",
+      "title": "刪除您的AI点菜通帳號",
       "subtitle": "要求刪除您的帳戶及相關帳戶資料。",
       "requestEmail": "電子郵件帳戶刪除請求",
-      "emailSubject": "AI選單APP帳號刪除請求",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "emailSubject": "AI点菜通帳號刪除請求",
+      "emailBody": "請刪除我的AI点菜通帳號。\n\n註冊電子郵件：\n使用者名稱（如已知）：\n",
       "sections": [
         {
           "heading": "如何請求刪除",
@@ -380,7 +380,7 @@
     "ar": "阿拉伯語"
   },
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI点菜通",
     "contact": "接觸",
     "dishFallback": "盤子",
     "restaurantFallback": "餐廳",
@@ -396,7 +396,7 @@
   "cart": {
     "title": "訂單列表",
     "heading": "我的訂單列表",
-    "shareMessage": "請在AI菜單APP中查看我的訂單清單。",
+    "shareMessage": "請在AI点菜通中查看我的訂單清單。",
     "items": "專案",
     "total": "全部的",
     "remove": "消除",
@@ -404,7 +404,7 @@
   },
   "history": {
     "title": "選單歷史記錄",
-    "shareMessage": "在AI選單APP中查看我的選單歷史記錄。",
+    "shareMessage": "在AI点菜通中查看我的選單歷史記錄。",
     "items": "專案",
     "open": "點擊打開",
     "empty": "暫無選單歷史紀錄"

@@ -1,6 +1,6 @@
 {
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI点菜通",
     "contact": "接觸"
   },
   "errors": {
@@ -17,9 +17,9 @@
   },
   "legal": {
     "deletion": {
-      "emailSubject": "AI選單APP帳號刪除請求",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
-      "title": "刪除您的 AI 選單 APP 帳號",
+      "emailSubject": "AI点菜通帳號刪除請求",
+      "emailBody": "請刪除我的AI点菜通帳號。\n\n註冊電子郵件：\n使用者名稱（如已知）：\n",
+      "title": "刪除您的AI点菜通帳號",
       "subtitle": "要求刪除您的帳戶及相關帳戶資料。",
       "emailButton": "電子郵件帳戶刪除請求",
       "sections": [
@@ -47,7 +47,7 @@
     },
     "privacy": {
       "title": "隱私權政策",
-      "intro": "AI菜單APP可翻譯並解釋餐廳菜單。本政策描述了我們處理的資訊、使用原因以及您可以選擇的選項。",
+      "intro": "AI点菜通可翻譯並解釋餐廳菜單。本政策描述了我們處理的資訊、使用原因以及您可以選擇的選項。",
       "sections": [
         {
           "heading": "我們處理的訊息",
@@ -89,12 +89,12 @@
     },
     "terms": {
       "title": "服務條款",
-      "intro": "本條款約束您對AI選單APP的使用。使用本服務即表示您同意本條款。",
+      "intro": "本條款約束您對AI点菜通的使用。使用本服務即表示您同意本條款。",
       "sections": [
         {
           "heading": "該服務",
           "items": [
-            "AI菜單APP利用OCR、翻譯、搜尋和人工智慧系統，幫助使用者理解餐廳菜單。功能可能會變更、中斷或終止。",
+            "AI点菜通利用OCR、翻譯、搜尋和人工智慧系統，幫助使用者理解餐廳菜單。功能可能會變更、中斷或終止。",
             "您必須提供準確的帳戶訊息，並對您帳戶下的所有活動負責。"
           ]
         },
@@ -108,7 +108,7 @@
         {
           "heading": "過敏和健康提示",
           "items": [
-            "AI菜單APP不提供醫療建議，也不能保證菜餚不含過敏原或適合某種飲食。",
+            "AI点菜通不提供醫療建議，也不能保證菜餚不含過敏原或適合某種飲食。",
             "如有過敏或醫療限制，請在點餐前聯繫餐廳和合格的醫療保健專業人員。"
           ]
         },

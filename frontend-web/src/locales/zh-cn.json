@@ -1,5 +1,5 @@
 {
-  "metaTitle": "AI Menu APP - 翻译菜单，轻松点餐",
+  "metaTitle": "AI点菜通 - 翻译菜单，轻松点餐",
   "languageNames": {
     "en": "英语",
     "zh-cn": "中文-简体",
@@ -23,7 +23,7 @@
   "nav": {
     "language": "选择页面语言",
     "share": "分享",
-    "shareMessage": "使用 AI Menu APP 翻译并看懂菜单。",
+    "shareMessage": "使用AI点菜通翻译并看懂菜单。",
     "history": "历史",
     "cart": "购物车",
     "account": "账号",
@@ -173,7 +173,7 @@
   },
   "settings": {
     "title": "设置",
-    "subtitle": "管理 AI Menu APP 的网页使用方式。",
+    "subtitle": "管理AI点菜通的网页使用方式。",
     "language": "页面语言",
     "languageDescription": "在整个网站使用同一种语言。",
     "account": "账号",
@@ -185,12 +185,12 @@
     "backHome": "返回首页"
   },
   "legal": {
-    "back": "返回 AI Menu APP",
-    "brand": "AI Menu APP",
+    "back": "返回AI点菜通",
+    "brand": "AI点菜通",
     "contact": "联系邮箱",
     "privacy": {
       "title": "隐私政策",
-      "intro": "AI Menu APP 帮助用户通过照片、文件、文档和菜单链接翻译并理解餐厅菜单。本隐私政策说明我们收集哪些信息、如何使用这些信息，以及用户可以做出的选择。",
+      "intro": "AI点菜通帮助用户通过照片、文件、文档和菜单链接翻译并理解餐厅菜单。本隐私政策说明我们收集哪些信息、如何使用这些信息，以及用户可以做出的选择。",
       "sections": [
         {
           "heading": "我们收集的信息",
@@ -230,7 +230,7 @@
       ]
     },
     "deletion": {
-      "title": "删除你的 AI Menu APP 账号",
+      "title": "删除你的AI点菜通账号",
       "subtitle": "请求删除你的账号及相关账号数据。",
       "emailButton": "发送账号删除请求邮件",
       "sections": [
@@ -260,7 +260,7 @@
   "legalDocuments": {
     "privacy": {
       "title": "隐私政策",
-      "intro": "AI Menu APP 用于翻译和解释餐厅菜单。本政策说明我们处理哪些信息、使用目的以及您可以进行的选择。",
+      "intro": "AI点菜通用于翻译和解释餐厅菜单。本政策说明我们处理哪些信息、使用目的以及您可以进行的选择。",
       "sections": [
         {
           "heading": "我们处理的信息",
@@ -302,12 +302,12 @@
     },
     "terms": {
       "title": "服务条款",
-      "intro": "本条款适用于您对 AI Menu APP 的使用。使用本服务即表示您同意本条款。",
+      "intro": "本条款适用于您对AI点菜通的使用。使用本服务即表示您同意本条款。",
       "sections": [
         {
           "heading": "服务内容",
           "items": [
-            "AI Menu APP 使用 OCR、翻译、搜索和 AI 系统帮助用户理解餐厅菜单。功能可能变更、中断或停止。",
+            "AI点菜通使用 OCR、翻译、搜索和 AI 系统帮助用户理解餐厅菜单。功能可能变更、中断或停止。",
             "您应提供准确的账号信息，并对账号下的活动负责。"
           ]
         },
@@ -321,7 +321,7 @@
         {
           "heading": "过敏与健康提示",
           "items": [
-            "AI Menu APP 不提供医疗建议，也不能保证菜品不含过敏原或适合特定饮食。",
+            "AI点菜通不提供医疗建议，也不能保证菜品不含过敏原或适合特定饮食。",
             "如有过敏或医疗限制，请在点餐前联系餐厅并咨询合格的医疗专业人士。"
           ]
         },
@@ -344,61 +344,61 @@
     }
   },
   "common": {
-    "brand": "AI Menu APP"
+    "brand": "AI点菜通"
   },
   "metaDescription": "根据照片、PDF、文本和链接翻译多语言菜单。",
   "metadata": {
     "home": {
-      "title": "AI菜单APP - 轻松翻译菜单并下单",
+      "title": "AI点菜通 - 轻松翻译菜单并下单",
       "description": "根据照片、PDF、文本和链接翻译多语言菜单。"
     },
     "login": {
-      "title": "登录 - AI 菜单 APP",
-      "description": "登录AI菜单APP。"
+      "title": "登录 - AI点菜通",
+      "description": "登录AI点菜通。"
     },
     "history": {
-      "title": "历史记录 - AI 菜单应用程序",
-      "description": "AI菜单APP的已保存菜单历史记录。"
+      "title": "历史记录 - AI点菜通",
+      "description": "AI点菜通的已保存菜单历史记录。"
     },
     "cart": {
-      "title": "购物车 - AI菜单应用程序",
-      "description": "AI菜单APP的已保存订单列表。"
+      "title": "购物车 - AI点菜通",
+      "description": "AI点菜通的已保存订单列表。"
     },
     "settings": {
-      "title": "设置 | AI菜单应用",
-      "description": "管理 AI 菜单 APP 网站设置和法律信息。"
+      "title": "设置 | AI点菜通",
+      "description": "管理AI点菜通网站设置和法律信息。"
     },
     "privacy": {
-      "title": "隐私政策 - AI 菜单应用",
-      "description": "AI菜单APP隐私政策。"
+      "title": "隐私政策 - AI点菜通",
+      "description": "AI点菜通隐私政策。"
     },
     "terms": {
-      "title": "服务条款 | AI菜单应用",
-      "description": "AI菜单APP使用条款。"
+      "title": "服务条款 | AI点菜通",
+      "description": "AI点菜通使用条款。"
     },
     "deletion": {
-      "title": "账户删除 - AI菜单应用程序",
-      "description": "请求删除您的AI菜单APP账号。"
+      "title": "账户删除 - AI点菜通",
+      "description": "请求删除您的AI点菜通账号。"
     },
     "howItWorks": {
-      "title": "AI Menu APP 的工作原理",
-      "description": "AI Menu APP 如何提取、整理和翻译餐厅菜单。"
+      "title": "AI点菜通的工作原理",
+      "description": "AI点菜通如何提取、整理和翻译餐厅菜单。"
     },
     "guide": {
-      "title": "菜单翻译指南 | AI Menu APP",
+      "title": "菜单翻译指南 | AI点菜通",
       "description": "菜单翻译和订单详情核对的实用指南。"
     },
     "languages": {
-      "title": "支持的语言 | AI Menu APP",
-      "description": "AI Menu APP 菜单翻译支持的源语言和目标语言。"
+      "title": "支持的语言 | AI点菜通",
+      "description": "AI点菜通菜单翻译支持的源语言和目标语言。"
     },
     "about": {
-      "title": "关于 | AI Menu APP",
-      "description": "创建 AI Menu APP 的原因以及如何负责任地使用菜单翻译。"
+      "title": "关于 | AI点菜通",
+      "description": "创建AI点菜通的原因以及如何负责任地使用菜单翻译。"
     },
     "contact": {
-      "title": "联系方式 | AI Menu APP",
-      "description": "如需产品反馈、隐私或帐户支持，请联系 AI Menu APP。"
+      "title": "联系方式 | AI点菜通",
+      "description": "如需产品反馈、隐私或帐户支持，请联系AI点菜通。"
     }
   },
   "publisher": {
@@ -416,7 +416,7 @@
     "home": {
       "title": "点餐前先了解菜单。",
       "paragraphs": [
-        "AI Menu APP 专为需要比逐字翻译更多上下文信息的旅行者和食客而设计。它结合了文本提取、菜单结构检测和翻译功能，使菜单的各个部分、菜名、描述和价格更容易进行比较。",
+        "AI点菜通专为需要比逐字翻译更多上下文信息的旅行者和食客而设计。它结合了文本提取、菜单结构检测和翻译功能，使菜单的各个部分、菜名、描述和价格更容易进行比较。",
         "菜单图片和文档种类繁多。光线、装饰性字体、多栏布局、手写笔记以及混合语言都会影响识别效果。清晰、笔直的图片和完整的PDF页面通常能带来最佳的识别效果。",
         "此翻译菜单仅供阅读参考，不能替代餐厅的实际菜单或服务人员。点餐前，请务必直接与餐厅确认价格、供应情况、食材及过敏信息。"
       ],
@@ -446,7 +446,7 @@
     },
     "pages": {
       "howItWorks": {
-        "title": "AI Menu APP 如何读取菜单",
+        "title": "AI点菜通如何读取菜单",
         "summary": "对如何从照片、PDF 或网页生成有条理的翻译菜单的步骤进行实用说明，包括用户在下单前应检查的限制。",
         "sections": [
           {
@@ -528,7 +528,7 @@
       },
       "languages": {
         "title": "支持的菜单语言",
-        "summary": "AI Menu APP 支持十二种源语言和目标语言，并能感知语言，处理脚本、标点符号、菜单术语和常用价格格式。",
+        "summary": "AI点菜通支持十二种源语言和目标语言，并能感知语言，处理脚本、标点符号、菜单术语和常用价格格式。",
         "sections": [
           {
             "heading": "可用语言",
@@ -567,14 +567,14 @@
         ]
       },
       "about": {
-        "title": "关于 AI Menu APP",
-        "summary": "AI Menu APP 是一款菜单阅读工具，旨在帮助食客了解不熟悉的菜肴，同时保留原始菜单以供核实。",
+        "title": "关于AI点菜通",
+        "summary": "AI点菜通是一款菜单阅读工具，旨在帮助食客了解不熟悉的菜肴，同时保留原始菜单以供核实。",
         "sections": [
           {
             "heading": "项目存在的意义",
             "paragraphs": [
               "餐厅菜单包含着普通句子翻译容易遗漏的上下文信息。一个好用的工具必须保留菜品分类、菜名、描述和价格等信息，以便食客能够比较不同的选择，而不是阅读零散的文字。",
-              "AI Menu APP 专注于这项实际任务，并返回一个有条理的结果，可以与原始文本一起进行审查。"
+              "AI点菜通专注于这项实际任务，并返回一个有条理的结果，可以与原始文本一起进行审查。"
             ],
             "items": [
               "帮助旅行者在点餐前了解当地菜肴。",
@@ -607,7 +607,7 @@
         ]
       },
       "contact": {
-        "title": "联系方式 AI Menu APP",
+        "title": "联系方式AI点菜通",
         "summary": "请将产品反馈、表扬示例、隐私问题或帐户请求发送至以下支持地址。",
         "sections": [
           {
