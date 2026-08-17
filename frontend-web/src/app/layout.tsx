@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import { Suspense } from "react";
 import AdSenseGate from "@/components/AdSenseGate";
 import SiteFooter from "@/components/SiteFooter";
 import { getText } from "@/lib/i18n";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const defaultMetadata = getText("en").metadata.home;
 
@@ -50,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <head>
         <script
