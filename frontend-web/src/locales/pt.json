@@ -408,6 +408,10 @@
     "contact": {
       "title": "Contato | AI Menu APP",
       "description": "Para feedback sobre o produto, questões de privacidade ou suporte à conta, entre em contato com AI Menu APP."
+    },
+    "examples": {
+      "title": "Exemplos de Tradução de Menu Funcional | AI Menu APP",
+      "description": "Exemplos práticos de como manter as categorias do menu, os pratos, as descrições e os preços interligados durante a tradução."
     }
   },
   "publisher": {
@@ -420,7 +424,8 @@
       "guide": "Guia de tradução",
       "languages": "Idiomas suportados",
       "about": "Sobre",
-      "contact": "Contato"
+      "contact": "Contato",
+      "examples": "Exemplos práticos"
     },
     "home": {
       "title": "Entenda o cardápio antes de fazer seu pedido.",
@@ -531,6 +536,29 @@
               "Pergunte sobre molhos, caldos, marinadas e guarnições.",
               "Pergunte se o compartilhamento de equipamentos cria risco de contaminação cruzada.",
               "Não confie no rótulo nutricional gerado automaticamente como garantia de segurança."
+            ]
+          },
+          {
+            "heading": "Confira os preços antes de escolher um prato",
+            "paragraphs": [
+              "As colunas de preço geralmente contêm mais de um número. Um par como 9/14 pode descrever dois tamanhos de porção, enquanto +3 geralmente indica um adicional opcional em vez do preço total do prato. Rótulos como preço de mercado, por pessoa, mínimo de duas pessoas e serviço incluído alteram a forma como o número deve ser lido.",
+              "Ao revisar a tradução, mantenha cada número ao lado do prato original. Se um preço estiver faltando, anexado a um título ou exibido sem a devida qualificação, consulte a fonte original em vez de tentar adivinhar com base nos itens próximos."
+            ],
+            "items": [
+              "Ajuste os símbolos de moeda e os separadores decimais para que correspondam à configuração geográfica do menu.",
+              "Conserve as etiquetas de tamanho, como xícara, tigela, metade, inteiro, copo e garrafa.",
+              "Confirme com o restaurante os impostos, taxas de serviço e pedidos mínimos."
+            ]
+          },
+          {
+            "heading": "Revise o resultado em cinco etapas",
+            "paragraphs": [
+              "Antes de fazer o pedido, compare o resultado da tradução com o texto original em uma ordem específica: título da seção, nome do prato, descrição, preço e notas de rodapé. Isso ajuda a identificar erros comuns de formatação mais rapidamente do que simplesmente reler o cardápio traduzido."
+            ],
+            "items": [
+              "Conte os pratos originais e os pratos traduzidos em cada seção.",
+              "Verifique o primeiro e o último item de cada coluna ou página.",
+              "Procure por símbolos que estejam explicados apenas em uma legenda ou rodapé."
             ]
           }
         ]
@@ -650,6 +678,65 @@
               "Ao entrar em contato com um restaurante, utilize o nome original do prato.",
               "Guarde os recibos para eventuais dúvidas sobre pagamento ou disponibilidade.",
               "Procure aconselhamento médico qualificado para decisões dietéticas relacionadas à saúde."
+            ]
+          }
+        ]
+      },
+      "examples": {
+        "title": "Exemplos práticos de tradução de cardápios",
+        "summary": "Exemplos concretos que mostram como os nomes dos pratos, as descrições, as categorias e os preços devem permanecer conectados quando um cardápio é traduzido.",
+        "sections": [
+          {
+            "heading": "Exemplo 1: uma seção de tapas espanholas",
+            "paragraphs": [
+              "Considere uma seção intitulada PARA COMPARTILHAR com três linhas: Pão com tomate 6,50; Camarões ao alho 14; e Polvo à galega 18. O título se refere a pratos para compartilhar, não a pratos com preço individual. Cada número corresponde ao prato na mesma linha, e a vírgula em 6,50 é um separador decimal.",
+              "Uma tradução correta em inglês mantém a seção como \"Para Compartilhar\" e apresenta os pratos como \"Pão de Tomate\", \"Camarão ao Alho\" e \"Polvo à Galega\", preservando os números 6,50, 14 e 18 ao lado dos itens corretos. Os nomes originais em espanhol devem permanecer visíveis, pois são a maneira mais clara de indicar o pedido à equipe."
+            ],
+            "items": [
+              "Categoria: PARA COMPARTIR torna-se Compartilhar.",
+              "Prato: Pão com tomate mantém o preço de 6,50.",
+              "Prato: Gambas al ajillo mantém o preço em 14.",
+              "Prato: Pulpo a la gallega mantém o preço em 18."
+            ]
+          },
+          {
+            "heading": "Exemplo 2: um cardápio de macarrão chinês simplificado",
+            "paragraphs": [
+              "Agora considere um título 面食 seguido por 红烧牛肉面 ¥38, 番茄鸡蛋面 ¥30 e 加面 +¥6. O título identifica uma seção de macarrão. As duas primeiras linhas são pratos completos, enquanto 加面 é um complemento para uma porção extra de macarrão e não deve ser apresentado como prato principal independente.",
+              "Uma tradução para o inglês pode organizar os pratos como Macarrão com Carne Assada a ¥38 e Macarrão com Tomate e Ovo a ¥30, com Macarrão Extra +¥6 claramente indicado como adicional. O sinal de mais é essencial para o contexto: omiti-lo altera o significado do preço."
+            ],
+            "items": [
+              "Categoria: 面食 significa Macarrão ou Pratos com Macarrão.",
+              "Prato: 红烧牛肉面 permanece associado a ¥ 38.",
+              "Prato: 番茄鸡蛋面 permanece associado a ¥ 30.",
+              "Add-on: 加面 preserva o qualificador de +¥6."
+            ]
+          },
+          {
+            "heading": "Padrões de preços que precisam de contexto.",
+            "paragraphs": [
+              "Os menus utilizam notação de preços compacta para economizar espaço. Os mesmos dígitos podem representar um preço, uma opção de tamanho, um suplemento, uma quantidade ou parte de uma regra de menu fixo. O layout e os rótulos próximos devem ser considerados em conjunto antes de atribuir um número a um prato."
+            ],
+            "items": [
+              "14/22 pode significar pequeno e grande, copo e garrafa, ou dois tamanhos de porção.",
+              "MP ou preço de mercado significa que o preço atual deve ser confirmado com o restaurante.",
+              "+3 geralmente é um suplemento e deve permanecer vinculado à opção que modifica.",
+              "12,50 € e $12,50 utilizam diferentes posicionamentos de símbolos e convenções decimais.",
+              "O valor de 45 por pessoa pode exigir um número mínimo de participantes, conforme indicado em outra seção do menu."
+            ]
+          },
+          {
+            "heading": "Como analisar um resultado automatizado",
+            "paragraphs": [
+              "Comece verificando a completude em vez da redação. Compare o número de categorias e pratos, depois inspecione a posição dos preços e só então refine as traduções. Um nome de prato fluente não é útil se pertencer à seção errada ou contiver o preço de outro item.",
+              "Por fim, verifique se as informações sobre ingredientes e dieta correspondem à descrição original. Um cardápio pode listar apenas os ingredientes mais notáveis, e nem o OCR nem a tradução podem revelar substituições, equipamentos compartilhados ou contatos cruzados que o restaurante não divulgou."
+            ],
+            "items": [
+              "Verifique se cada categoria de origem possui uma seção de resultados correspondente.",
+              "Verifique se cada prato de origem visível aparece exatamente uma vez.",
+              "Verifique se os preços, as etiquetas de tamanho e os itens adicionais permanecem afixados no prato correto.",
+              "Mantenha a redação original disponível para os funcionários do restaurante.",
+              "Peça ao restaurante para confirmar alergias, disponibilidade de alimentos e o valor final da conta."
             ]
           }
         ]

@@ -23,16 +23,50 @@ export default function PublisherPage({ pageKey }: { pageKey: PublisherPageKey }
   const text = getText(lang);
   const publisher = text.publisher;
   const page = publisher.pages[pageKey];
+  const pageRoute = PUBLISHER_PAGES.find(({ key }) => key === pageKey)?.href || "/";
+  const canonicalUrl = `https://aimenu.us.kg${pageRoute}/`;
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        headline: page.title,
+        description: page.summary,
+        inLanguage: lang,
+        mainEntityOfPage: canonicalUrl,
+        author: { "@type": "Organization", name: text.common.brand, url: "https://aimenu.us.kg/" },
+        publisher: { "@type": "Organization", name: text.common.brand, url: "https://aimenu.us.kg/" },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: text.common.brand, item: "https://aimenu.us.kg/" },
+          { "@type": "ListItem", position: 2, name: page.title, item: canonicalUrl },
+        ],
+      },
+    ],
+  };
 
   useEffect(() => {
     queueMicrotask(() => {
       const nextLanguage = getPageLanguage();
       setLang(nextLanguage);
       applyDocumentLanguage(nextLanguage);
-      document.title = `${getText(nextLanguage).publisher.pages[pageKey].title} | ${getText(nextLanguage).common.brand}`;
     });
   }, [pageKey]);
+
+  useEffect(() => {
+    applyDocumentLanguage(lang);
+    const localizedTitle = `${page.title} | ${text.common.brand}`;
+    const updateTitle = () => {
+      if (document.title !== localizedTitle) document.title = localizedTitle;
+    };
+    updateTitle();
+    const observer = new MutationObserver(updateTitle);
+    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, [lang, page.title, text.common.brand]);
 
   const changeLanguage = (nextLanguage: string) => {
     const normalized = replacePageLanguage(nextLanguage);
@@ -42,6 +76,10 @@ export default function PublisherPage({ pageKey }: { pageKey: PublisherPageKey }
 
   return (
     <main className="min-h-screen bg-[#fbf8f4] text-gray-950">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
+      />
       <header className="border-b border-purple-100 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
           <Link href={`/${langQuery}`} className="flex items-center gap-3 rounded-md hover:opacity-85">

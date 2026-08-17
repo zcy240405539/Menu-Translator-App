@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/login/", "/history/", "/cart/", "/settings/", "/*?*menu_hash="],
+      disallow: ["/*?*menu_hash="],
     },
     sitemap: "https://aimenu.us.kg/sitemap.xml",
   };

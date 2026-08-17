@@ -394,8 +394,11 @@ a GitHub issue and remains failed until the certificate is replaced.
 
 The Web app keeps its AdSense publisher verification meta tag active during site
 review but does not request ads while `NEXT_PUBLIC_ADSENSE_ENABLED=false`. Keep it
-disabled on login, loading, empty-state, legal, and automatically generated result
-screens. After approval, place ads only on manually reviewed, content-rich pages.
+disabled during review. After approval, the route gate permits the AdSense script
+only on the home page and manually reviewed menu guides; login, history, cart,
+settings, download, contact, legal, and generated menu-result screens remain
+excluded. Run `npm run test:adsense`, `npm run test:adsense-routes`, and
+`npm run build` from `frontend-web` before deployment.
 
 Current default parsing flow:
 

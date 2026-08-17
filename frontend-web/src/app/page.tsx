@@ -294,9 +294,37 @@ export default function Home() {
     ),
     [sections]
   );
+  const homepageStructuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        name: text.common.brand,
+        url: "https://aimenu.us.kg/",
+        description: text.metaDescription,
+        applicationCategory: "TravelApplication",
+        operatingSystem: "Web, Android",
+        inLanguage: lang,
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: text.publisher.home.faq.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: { "@type": "Answer", text: item.answer },
+        })),
+      },
+    ],
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf8f4] font-sans">
+      {!showResultView && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageStructuredData).replace(/</g, "\\u003c") }}
+        />
+      )}
       <header className="sticky top-0 z-50 w-full border-b border-purple-100/70 bg-white/90 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <a href={homeHref} onClick={handleHomeClick} className="group flex min-w-0 flex-1 items-center gap-2 rounded-md transition-all hover:opacity-90">

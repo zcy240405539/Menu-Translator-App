@@ -408,6 +408,10 @@
     "contact": {
       "title": "Contact | AI Menu APP",
       "description": "Contact AI Menu APP for product feedback, privacy, or account support."
+    },
+    "examples": {
+      "title": "Worked Menu Translation Examples | AI Menu APP",
+      "description": "Worked examples for keeping menu categories, dishes, descriptions, and prices connected during translation."
     }
   },
   "publisher": {
@@ -420,7 +424,8 @@
       "guide": "Translation guide",
       "languages": "Supported languages",
       "about": "About",
-      "contact": "Contact"
+      "contact": "Contact",
+      "examples": "Worked examples"
     },
     "home": {
       "title": "Understand a menu before you order",
@@ -531,6 +536,29 @@
               "Ask about sauces, stocks, marinades, and garnishes.",
               "Ask whether shared equipment creates cross-contact risk.",
               "Do not rely on a generated dietary label as a safety guarantee."
+            ]
+          },
+          {
+            "heading": "Check prices before choosing a dish",
+            "paragraphs": [
+              "Price columns often contain more than one number. A pair such as 9 / 14 may describe two portion sizes, while +3 usually marks an optional addition rather than the complete dish price. Labels such as market price, per person, minimum two people, and service included change how the number should be read.",
+              "Keep each number beside the original dish while reviewing the translation. If a price is missing, attached to a heading, or shown without its qualifier, return to the source instead of guessing from nearby items."
+            ],
+            "items": [
+              "Match currency symbols and decimal separators to the menu's locale.",
+              "Preserve size labels such as cup, bowl, half, whole, glass, and bottle.",
+              "Confirm taxes, service charges, and minimum orders with the restaurant."
+            ]
+          },
+          {
+            "heading": "Review the result in five steps",
+            "paragraphs": [
+              "Before ordering, compare the translated result with the source in a fixed order: section heading, dish name, description, price, and footnotes. This catches common layout mistakes faster than rereading the translated menu alone."
+            ],
+            "items": [
+              "Count source dishes and translated dishes in each section.",
+              "Check the first and last item in every column or page.",
+              "Look for symbols explained only in a legend or footer."
             ]
           }
         ]
@@ -650,6 +678,65 @@
               "Use the original dish name when contacting a restaurant.",
               "Keep receipts for questions involving payment or availability.",
               "Seek qualified medical advice for health-related dietary decisions."
+            ]
+          }
+        ]
+      },
+      "examples": {
+        "title": "Worked menu translation examples",
+        "summary": "Concrete examples showing how dish names, descriptions, categories, and prices should stay connected when a menu is translated.",
+        "sections": [
+          {
+            "heading": "Example 1: a Spanish tapas section",
+            "paragraphs": [
+              "Consider a section headed PARA COMPARTIR with three lines: Pan con tomate 6,50; Gambas al ajillo 14; and Pulpo a la gallega 18. The heading means dishes intended for sharing, not a dish with its own price. Each number belongs to the dish on the same line, and the comma in 6,50 is a decimal separator.",
+              "A useful English result keeps the section as To Share and renders the dishes as Tomato Bread, Garlic Shrimp, and Galician-style Octopus while preserving 6.50, 14, and 18 beside the correct items. The original Spanish names should remain visible because they are the clearest way to point out the order to staff."
+            ],
+            "items": [
+              "Category: PARA COMPARTIR becomes To Share.",
+              "Dish: Pan con tomate keeps the price 6,50.",
+              "Dish: Gambas al ajillo keeps the price 14.",
+              "Dish: Pulpo a la gallega keeps the price 18."
+            ]
+          },
+          {
+            "heading": "Example 2: a Simplified Chinese noodle menu",
+            "paragraphs": [
+              "Now consider a heading 面食 followed by 红烧牛肉面 ¥38, 番茄鸡蛋面 ¥30, and 加面 +¥6. The heading identifies a noodle section. The first two lines are complete dishes, while 加面 is an add-on for an extra portion of noodles and should not be presented as a standalone main dish.",
+              "An English translation can organize the entries as Braised Beef Noodles at ¥38 and Tomato and Egg Noodles at ¥30, with Extra Noodles +¥6 clearly marked as an add-on. The plus sign is essential context: dropping it changes the meaning of the price."
+            ],
+            "items": [
+              "Category: 面食 becomes Noodles or Noodle Dishes.",
+              "Dish: 红烧牛肉面 remains associated with ¥38.",
+              "Dish: 番茄鸡蛋面 remains associated with ¥30.",
+              "Add-on: 加面 preserves the +¥6 qualifier."
+            ]
+          },
+          {
+            "heading": "Price patterns that need context",
+            "paragraphs": [
+              "Menus use compact price notation to save space. The same digits can represent a price, a choice of sizes, a supplement, a quantity, or part of a set-menu rule. Layout and nearby labels must be considered together before assigning a number to a dish."
+            ],
+            "items": [
+              "14 / 22 can mean small and large, glass and bottle, or two portion sizes.",
+              "MP or market price means the current price must be confirmed with the restaurant.",
+              "+3 is usually a supplement and must remain linked to the option it modifies.",
+              "12,50 € and $12.50 use different symbol placement and decimal conventions.",
+              "45 per person may require a minimum party size stated elsewhere on the menu."
+            ]
+          },
+          {
+            "heading": "How to review an automated result",
+            "paragraphs": [
+              "Start by checking completeness rather than wording. Compare the number of categories and dishes, then inspect price placement and only then refine translations. A fluent dish name is not useful if it belongs to the wrong section or carries another item's price.",
+              "Finally, verify ingredient and dietary claims against the original description. A menu may list only notable ingredients, and neither OCR nor translation can reveal substitutions, shared equipment, or cross-contact that the restaurant did not publish."
+            ],
+            "items": [
+              "Check that every source category has a corresponding result section.",
+              "Check that each visible source dish appears exactly once.",
+              "Check that prices, size labels, and add-ons remain attached to the correct dish.",
+              "Keep the original wording available for restaurant staff.",
+              "Ask the restaurant to confirm allergies, availability, and the final bill."
             ]
           }
         ]

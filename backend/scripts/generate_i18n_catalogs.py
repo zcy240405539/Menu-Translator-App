@@ -68,6 +68,74 @@ WEB_REVIEWED_PATCHES = {
     "it": {"publisher": {"nav": {"contact": "Contatti"}}},
     "ar": {"publisher": {"nav": {"contact": "اتصل بنا"}}},
 }
+WEB_REVIEWED_PATH_PATCHES = {
+    "zh": {
+        ("publisher", "nav", "examples"): "翻译实例",
+        ("publisher", "pages", "examples", "title"): "菜单翻译实例",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "选择菜品前核对价格",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "按五个步骤核对结果",
+    },
+    "zh-Hant": {
+        ("publisher", "nav", "examples"): "翻譯實例",
+        ("publisher", "pages", "examples", "title"): "菜單翻譯實例",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "選擇菜色前核對價格",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "按五個步驟核對結果",
+    },
+    "es": {
+        ("publisher", "nav", "examples"): "Ejemplos prácticos",
+        ("publisher", "pages", "examples", "title"): "Ejemplos prácticos de traducción de menús",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "Comprueba los precios antes de elegir un plato",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "Revisa el resultado en cinco pasos",
+    },
+    "fr": {
+        ("publisher", "nav", "examples"): "Exemples pratiques",
+        ("publisher", "pages", "examples", "title"): "Exemples pratiques de traduction de menus",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "Vérifiez les prix avant de choisir un plat",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "Vérifiez le résultat en cinq étapes",
+    },
+    "ja": {
+        ("publisher", "nav", "examples"): "翻訳例",
+        ("publisher", "pages", "examples", "title"): "メニュー翻訳の実例",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "料理を選ぶ前に価格を確認する",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "5つの手順で結果を確認する",
+    },
+    "ko": {
+        ("publisher", "nav", "examples"): "번역 예시",
+        ("publisher", "pages", "examples", "title"): "메뉴 번역 실전 예시",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "메뉴를 고르기 전에 가격 확인하기",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "다섯 단계로 결과 검토하기",
+    },
+    "ru": {
+        ("publisher", "nav", "examples"): "Практические примеры",
+        ("publisher", "pages", "examples", "title"): "Практические примеры перевода меню",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "Проверьте цены перед выбором блюда",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "Проверьте результат за пять шагов",
+    },
+    "pt": {
+        ("publisher", "nav", "examples"): "Exemplos práticos",
+        ("publisher", "pages", "examples", "title"): "Exemplos práticos de tradução de cardápios",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "Confira os preços antes de escolher um prato",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "Revise o resultado em cinco etapas",
+    },
+    "de": {
+        ("publisher", "nav", "examples"): "Praxisbeispiele",
+        ("publisher", "pages", "examples", "title"): "Praxisbeispiele für Menüübersetzungen",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "Preise vor der Auswahl eines Gerichts prüfen",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "Ergebnis in fünf Schritten prüfen",
+    },
+    "it": {
+        ("publisher", "nav", "examples"): "Esempi pratici",
+        ("publisher", "pages", "examples", "title"): "Esempi pratici di traduzione dei menu",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "Controlla i prezzi prima di scegliere un piatto",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "Verifica il risultato in cinque passaggi",
+    },
+    "ar": {
+        ("publisher", "nav", "examples"): "أمثلة عملية",
+        ("publisher", "pages", "examples", "title"): "أمثلة عملية لترجمة قوائم الطعام",
+        ("publisher", "pages", "guide", "sections", 3, "heading"): "تحقق من الأسعار قبل اختيار الطبق",
+        ("publisher", "pages", "guide", "sections", 4, "heading"): "راجع النتيجة في خمس خطوات",
+    },
+}
 
 
 APP_EN_PATCH = {
@@ -213,6 +281,10 @@ WEB_EN_PATCH = {
             "title": "Menu Translation Guide | AI Menu APP",
             "description": "Practical guidance for translating menus and checking ordering details.",
         },
+        "examples": {
+            "title": "Worked Menu Translation Examples | AI Menu APP",
+            "description": "Worked examples for keeping menu categories, dishes, descriptions, and prices connected during translation.",
+        },
         "languages": {
             "title": "Supported Languages | AI Menu APP",
             "description": "Supported source and target languages for AI Menu APP menu translation.",
@@ -268,11 +340,21 @@ def deep_merge(base: Any, override: Any) -> Any:
         return merged
     if isinstance(base, list) and isinstance(override, list):
         return [
-            deep_merge(base[index], override[index]) if index < len(override) else deepcopy(base[index])
+            deep_merge(base[index], override[index])
+            if index < len(base) and index < len(override)
+            else deepcopy(override[index])
+            if index < len(override)
+            else deepcopy(base[index])
             for index in range(max(len(base), len(override)))
-            if index < len(base)
         ]
     return deepcopy(override)
+
+
+def set_path(value: Any, path: tuple[Any, ...], replacement: str) -> None:
+    target = value
+    for key in path[:-1]:
+        target = target[key]
+    target[path[-1]] = replacement
 
 
 def collect_strings(value: Any, result: set[str]) -> None:
@@ -417,6 +499,8 @@ def main() -> None:
             web_generated,
         )
         web_catalog = deep_merge(web_catalog, WEB_REVIEWED_PATCHES.get(language, {}))
+        for path, replacement in WEB_REVIEWED_PATH_PATCHES.get(language, {}).items():
+            set_path(web_catalog, path, replacement)
         backend_catalog = restore_placeholders(
             backend_en,
             deep_merge(backend_generated, existing_catalog(backend_dir, language)),

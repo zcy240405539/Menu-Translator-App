@@ -408,6 +408,10 @@
     "contact": {
       "title": "Contatti | AI Menu APP",
       "description": "Per feedback sui prodotti, questioni relative alla privacy o assistenza per l'account, contattare AI Menu APP."
+    },
+    "examples": {
+      "title": "Esempi di traduzione di menu funzionanti | AI Menu APP",
+      "description": "Esempi pratici su come mantenere la coerenza tra categorie di menu, piatti, descrizioni e prezzi durante la traduzione."
     }
   },
   "publisher": {
@@ -420,7 +424,8 @@
       "guide": "Guida alla traduzione",
       "languages": "Lingue supportate",
       "about": "Di",
-      "contact": "Contatti"
+      "contact": "Contatti",
+      "examples": "Esempi pratici"
     },
     "home": {
       "title": "È importante comprendere il menu prima di ordinare.",
@@ -531,6 +536,29 @@
               "Informatevi su salse, brodi, marinate e guarnizioni.",
               "Valutare se la condivisione delle attrezzature comporti un rischio di contaminazione incrociata.",
               "Non fare affidamento su un'etichetta dietetica generata automaticamente come garanzia di sicurezza."
+            ]
+          },
+          {
+            "heading": "Controlla i prezzi prima di scegliere un piatto",
+            "paragraphs": [
+              "Le colonne dei prezzi spesso contengono più di un numero. Una coppia come 9/14 può indicare due porzioni diverse, mentre +3 di solito indica un'aggiunta opzionale anziché il prezzo del piatto completo. Indicazioni come prezzo di mercato, a persona, minimo due persone e servizio incluso modificano il modo in cui il numero deve essere interpretato.",
+              "Mentre rivedi la traduzione, tieni ogni numero accanto al piatto originale. Se manca un prezzo, se è associato a un'intestazione o se è indicato senza la relativa specificazione, consulta la fonte anziché fare una supposizione basandoti sugli articoli vicini."
+            ],
+            "items": [
+              "Assicurati che i simboli di valuta e i separatori decimali corrispondano alle impostazioni locali del menu.",
+              "Conservare le etichette che indicano le dimensioni, come tazza, ciotola, mezza, intera, bicchiere e bottiglia.",
+              "Conferma con il ristorante tasse, costi di servizio e ordine minimo."
+            ]
+          },
+          {
+            "heading": "Verifica il risultato in cinque passaggi",
+            "paragraphs": [
+              "Prima di ordinare, confronta il risultato della traduzione con il testo originale seguendo un ordine preciso: intestazione della sezione, nome del piatto, descrizione, prezzo e note a piè di pagina. In questo modo, è possibile individuare più rapidamente gli errori di impaginazione più comuni rispetto alla semplice rilettura del menu tradotto."
+            ],
+            "items": [
+              "Contare i piatti originali e i piatti tradotti in ciascuna sezione.",
+              "Controlla il primo e l'ultimo elemento di ogni colonna o pagina.",
+              "Cerca i simboli spiegati solo nella legenda o nel piè di pagina."
             ]
           }
         ]
@@ -650,6 +678,65 @@
               "Quando contattate un ristorante, utilizzate il nome originale del piatto.",
               "Conservate le ricevute per eventuali domande relative al pagamento o alla disponibilità.",
               "Per decisioni dietetiche legate alla salute, è consigliabile consultare un medico qualificato."
+            ]
+          }
+        ]
+      },
+      "examples": {
+        "title": "Esempi pratici di traduzione dei menu",
+        "summary": "Esempi concreti che mostrano come i nomi dei piatti, le descrizioni, le categorie e i prezzi debbano rimanere coerenti durante la traduzione di un menu.",
+        "sections": [
+          {
+            "heading": "Esempio 1: una sezione di tapas spagnole",
+            "paragraphs": [
+              "Consideriamo una sezione intitolata PARA COMPARTIR con tre righe: Pan con tomate 6,50; Gambas al ajillo 14; e Pulpo a la gallega 18. L'intestazione si riferisce a piatti pensati per essere condivisi, non a piatti singoli con un prezzo proprio. Ogni numero si riferisce al piatto sulla stessa riga e la virgola in 6,50 è un separatore decimale.",
+              "Un risultato in inglese utile mantiene la sezione come \"Da condividere\" e visualizza i piatti come \"Pane al pomodoro\", \"Gamberi all'aglio\" e \"Polpo alla galiziana\", conservando i numeri 6.50, 14 e 18 accanto alle voci corrette. I nomi originali in spagnolo dovrebbero rimanere visibili perché sono il modo più chiaro per indicare l'ordine al personale."
+            ],
+            "items": [
+              "Categoria: PARA COMPARTIR diventa Da condividere.",
+              "Piatto: Pan con tomate mantiene il prezzo 6,50.",
+              "Piatto: Gambas al ajillo mantiene il prezzo 14.",
+              "Piatto: Pulpo a la gallega mantiene il prezzo 18."
+            ]
+          },
+          {
+            "heading": "Esempio 2: un menù di noodles cinesi semplificato",
+            "paragraphs": [
+              "Consideriamo ora l'intestazione 面食 seguita da 红烧牛肉面 ¥38, 番茄鸡蛋面 ¥30 e 加面 +¥6. L'intestazione identifica una sezione di noodle. Le prime due righe sono piatti completi, mentre 加面 è un componente aggiuntivo per una porzione extra di noodles e non deve essere presentato come piatto principale a sé stante.",
+              "Una traduzione in inglese potrebbe organizzare le voci come Noodles con manzo brasato a 38 ¥ e Noodles con pomodoro e uova a 30 ¥, con Noodles extra +6 ¥ chiaramente indicati come aggiunta. Il segno più è essenziale per il contesto: ometterlo cambia il significato del prezzo."
+            ],
+            "items": [
+              "Categoria: 面食 diventa Noodles o Noodle Dishes.",
+              "Piatto: 红烧牛肉面 rimane associato a ¥ 38.",
+              "Piatto: 番茄鸡蛋面 rimane associato a ¥ 30.",
+              "Add-on: 加面 mantiene il qualificatore +¥6."
+            ]
+          },
+          {
+            "heading": "Modelli di prezzo che necessitano di contesto",
+            "paragraphs": [
+              "I menu utilizzano una notazione dei prezzi compatta per risparmiare spazio. Le stesse cifre possono rappresentare un prezzo, una scelta di dimensioni, un supplemento, una quantità o parte di una regola del menu fisso. Prima di assegnare un numero a un piatto, è necessario considerare insieme il layout e le etichette circostanti."
+            ],
+            "items": [
+              "14/22 può significare piccolo e grande, bicchiere e bottiglia, oppure due porzioni di diverse dimensioni.",
+              "Il prezzo di mercato (MP) indica il prezzo corrente, che deve essere confermato con il ristorante.",
+              "+3 è solitamente un supplemento e deve rimanere collegato all'opzione che modifica.",
+              "12,50 € e $12,50 utilizzano posizionamenti dei simboli e convenzioni decimali differenti.",
+              "Il prezzo di 45 a persona potrebbe richiedere un numero minimo di partecipanti, indicato altrove nel menù."
+            ]
+          },
+          {
+            "heading": "Come rivedere un risultato automatico",
+            "paragraphs": [
+              "Inizia controllando la completezza piuttosto che la formulazione. Confronta il numero di categorie e piatti, poi esamina il posizionamento dei prezzi e solo successivamente perfeziona le traduzioni. Un nome di piatto scorrevole non serve a nulla se appartiene alla sezione sbagliata o riporta il prezzo di un altro articolo.",
+              "Infine, verificate gli ingredienti e le indicazioni dietetiche confrontandoli con la descrizione originale. Un menu potrebbe elencare solo gli ingredienti più importanti, e né l'OCR né la traduzione automatica possono rivelare sostituzioni, attrezzature condivise o contaminazioni incrociate che il ristorante non ha pubblicato."
+            ],
+            "items": [
+              "Verifica che ogni categoria di origine abbia una sezione di risultati corrispondente.",
+              "Verifica che ogni parabola sorgente visibile appaia esattamente una volta.",
+              "Verificate che i prezzi, le etichette delle taglie e gli eventuali extra rimangano attaccati al piatto corretto.",
+              "Conservare il testo originale a disposizione del personale del ristorante.",
+              "Chiedete al ristorante di confermare eventuali allergie, la disponibilità dei piatti e l'importo finale del conto."
             ]
           }
         ]

@@ -408,6 +408,10 @@
     "contact": {
       "title": "Kontakt | AI Menu APP",
       "description": "Für Produktfeedback, Datenschutzfragen oder Kontosupport wenden Sie sich bitte an AI Menu APP."
+    },
+    "examples": {
+      "title": "Ausgearbeitete Menüübersetzungsbeispiele | AI Menu APP",
+      "description": "Praxisbeispiele, wie Menükategorien, Gerichte, Beschreibungen und Preise während der Übersetzung miteinander verknüpft bleiben können."
     }
   },
   "publisher": {
@@ -420,7 +424,8 @@
       "guide": "Übersetzungsleitfaden",
       "languages": "Unterstützte Sprachen",
       "about": "Um",
-      "contact": "Kontakt"
+      "contact": "Kontakt",
+      "examples": "Praxisbeispiele"
     },
     "home": {
       "title": "Informieren Sie sich über die Speisekarte, bevor Sie bestellen.",
@@ -531,6 +536,29 @@
               "Fragen Sie nach Saucen, Fonds, Marinaden und Garnierungen.",
               "Fragen Sie, ob die gemeinsame Nutzung von Geräten ein Risiko der Kreuzkontamination birgt.",
               "Verlassen Sie sich nicht auf ein automatisch generiertes Nährwertetikett als Sicherheitsgarantie."
+            ]
+          },
+          {
+            "heading": "Preise vor der Auswahl eines Gerichts prüfen",
+            "paragraphs": [
+              "Preisspalten enthalten oft mehrere Zahlen. Ein Zahlenpaar wie 9/14 kann zwei Portionsgrößen beschreiben, während +3 üblicherweise einen optionalen Aufpreis und nicht den Gesamtpreis des Gerichts kennzeichnet. Bezeichnungen wie Tagespreis, pro Person, Mindestbestellmenge zwei Personen und Bedienung inklusive beeinflussen die Interpretation der Zahl.",
+              "Behalten Sie beim Überprüfen der Übersetzung die jeweilige Nummer neben dem Originalgericht im Blick. Falls ein Preis fehlt, einer Überschrift zugeordnet ist oder ohne Angabe des Preises angezeigt wird, konsultieren Sie die Originalquelle, anstatt anhand benachbarter Artikel zu raten."
+            ],
+            "items": [
+              "Passen Sie Währungssymbole und Dezimaltrennzeichen an die Gebietsschemaeinstellungen des Menüs an.",
+              "Größenangaben wie Tasse, Schüssel, halbe Tasse, ganze Tasse, Glas und Flasche sollten erhalten bleiben.",
+              "Bitte erkundigen Sie sich beim Restaurant nach Steuern, Servicegebühren und Mindestbestellwerten."
+            ]
+          },
+          {
+            "heading": "Ergebnis in fünf Schritten prüfen",
+            "paragraphs": [
+              "Vergleichen Sie vor der Bestellung die Übersetzung mit dem Original in folgender Reihenfolge: Überschrift, Gerichtname, Beschreibung, Preis und Fußnoten. So lassen sich häufige Layoutfehler schneller erkennen als beim bloßen Durchlesen der übersetzten Speisekarte."
+            ],
+            "items": [
+              "Zählen Sie die Originalgerichte und die übersetzten Gerichte in jedem Abschnitt.",
+              "Überprüfen Sie den ersten und letzten Eintrag in jeder Spalte bzw. auf jeder Seite.",
+              "Achten Sie auf Symbole, die nur in der Legende oder in der Fußzeile erklärt werden."
             ]
           }
         ]
@@ -650,6 +678,65 @@
               "Verwenden Sie bei der Kontaktaufnahme mit dem Restaurant den Originalnamen des Gerichts.",
               "Bewahren Sie die Quittungen auf, falls es Fragen zur Zahlung oder Verfügbarkeit gibt.",
               "Bei gesundheitsbezogenen Ernährungsentscheidungen sollten Sie qualifizierten medizinischen Rat einholen."
+            ]
+          }
+        ]
+      },
+      "examples": {
+        "title": "Praxisbeispiele für Menüübersetzungen",
+        "summary": "Konkrete Beispiele, die zeigen, wie Gerichtebezeichnungen, Beschreibungen, Kategorien und Preise bei der Übersetzung einer Speisekarte miteinander verbunden bleiben sollten.",
+        "sections": [
+          {
+            "heading": "Beispiel 1: eine spanische Tapas-Abteilung",
+            "paragraphs": [
+              "Betrachten wir einen Abschnitt mit der Überschrift „PARA COMPARTIR“ und drei Zeilen: Pan con tomate 6,50; Gambas al ajillo 14; und Pulpo a la gallega 18. Die Überschrift bezieht sich auf Gerichte zum Teilen, nicht auf Gerichte mit einem eigenen Preis. Jede Zahl gehört zu einem Gericht in derselben Zeile, und das Komma in 6,50 dient als Dezimaltrennzeichen.",
+              "Eine hilfreiche englische Übersetzung behält die Bezeichnung „Zum Teilen“ bei und gibt die Gerichte als „Tomatenbrot“, „Knoblauchgarnelen“ und „Oktopus nach galicischer Art“ wieder, wobei die Preise 6,50, 14 und 18 neben den korrekten Gerichten erhalten bleiben. Die spanischen Originalnamen sollten sichtbar bleiben, da sie die Bestellung für das Personal am deutlichsten verdeutlichen."
+            ],
+            "items": [
+              "Kategorie: PARA COMPARTIR wird zu Teilen.",
+              "Gericht: Pan con tomate bleibt zum Preis von 6,50.",
+              "Gericht: Gambas al ajillo hält den Preis bei 14.",
+              "Gericht: Pulpo a la gallega hält den Preis bei 18."
+            ]
+          },
+          {
+            "heading": "Beispiel 2: eine vereinfachte chinesische Nudelspeisekarte",
+            "paragraphs": [
+              "Betrachten Sie nun eine Überschrift 面食, gefolgt von 红烧牛肉面 ¥38, 番茄鸡蛋面 ¥30 und 加面 +¥6. Die Überschrift identifiziert einen Nudelabschnitt. Bei den ersten beiden Zeilen handelt es sich um komplette Gerichte, während 加面 eine Ergänzung für eine Extraportion Nudeln ist und nicht als eigenständiges Hauptgericht präsentiert werden sollte.",
+              "Eine englische Übersetzung könnte die Gerichte wie folgt anordnen: Geschmorte Rindfleischnudeln für 38 Yen und Tomaten-Eiernudeln für 30 Yen, wobei „Extra Nudeln +6 Yen“ deutlich als Aufpreis gekennzeichnet ist. Das Pluszeichen ist für den Kontext unerlässlich: Lässt man es weg, ändert sich die Preisangabe."
+            ],
+            "items": [
+              "Kategorie: 面食 wird zu Nudeln oder Nudelgerichten.",
+              "Gericht: 红烧牛肉面 bleibt mit ¥38 verbunden.",
+              "Gericht: 番茄鸡蛋面 bleibt mit ¥30 verbunden.",
+              "Zusatz: 加面 behält den +¥6-Qualifikator bei."
+            ]
+          },
+          {
+            "heading": "Preismuster, die einen Kontext benötigen",
+            "paragraphs": [
+              "Speisekarten verwenden eine kompakte Preisnotation, um Platz zu sparen. Dieselben Ziffern können einen Preis, eine Größenauswahl, einen Aufpreis, eine Menge oder einen Teil einer Menüregel darstellen. Layout und angrenzende Beschriftungen müssen gemeinsam berücksichtigt werden, bevor einem Gericht eine Nummer zugewiesen wird."
+            ],
+            "items": [
+              "14 / 22 kann klein und groß, Glas und Flasche oder zwei Portionsgrößen bedeuten.",
+              "MP oder Marktpreis bedeutet, dass der aktuelle Preis mit dem Restaurant bestätigt werden muss.",
+              "+3 ist in der Regel eine Ergänzung und muss mit der Option verknüpft bleiben, die sie modifiziert.",
+              "12,50 € und $12,50 verwenden unterschiedliche Symbolplatzierungen und Dezimalkonventionen.",
+              "Bei einem Preis von 45 pro Person kann eine Mindestteilnehmerzahl erforderlich sein, die an anderer Stelle in der Speisekarte angegeben ist."
+            ]
+          },
+          {
+            "heading": "Wie man ein automatisiertes Ergebnis überprüft",
+            "paragraphs": [
+              "Prüfen Sie zunächst die Vollständigkeit, nicht nur den Wortlaut. Vergleichen Sie die Anzahl der Kategorien und Gerichte, prüfen Sie dann die Preisplatzierung und verfeinern Sie erst anschließend die Übersetzungen. Ein flüssig geschriebener Gerichtsname ist nutzlos, wenn er in die falsche Kategorie gehört oder den Preis eines anderen Gerichts trägt.",
+              "Prüfen Sie abschließend die Angaben zu Zutaten und Nährwerten anhand der Originalbeschreibung. Auf einer Speisekarte sind möglicherweise nur die wichtigsten Zutaten aufgeführt, und weder OCR noch Übersetzung können Ersetzungen, gemeinsam genutzte Geräte oder Produktwechsel aufdecken, die das Restaurant nicht angegeben hat."
+            ],
+            "items": [
+              "Prüfen Sie, ob jeder Quellenkategorie ein entsprechender Ergebnisseite zugeordnet ist.",
+              "Prüfen Sie, ob jede sichtbare Satellitenschüssel genau einmal erscheint.",
+              "Prüfen Sie, ob Preise, Größenangaben und Beilagen noch am richtigen Gericht angebracht sind.",
+              "Den Originaltext sollten den Restaurantmitarbeitern zur Verfügung gestellt werden.",
+              "Bitten Sie das Restaurant, Allergien, Verfügbarkeit und die Endrechnung zu bestätigen."
             ]
           }
         ]

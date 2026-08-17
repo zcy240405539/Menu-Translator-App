@@ -6,12 +6,13 @@ const output = path.resolve("out");
 const contentRoutes = {
   "": 400,
   "how-it-works": 400,
-  "menu-translation-guide": 300,
+  "menu-translation-guide": 500,
+  "menu-examples": 650,
   "supported-languages": 300,
   about: 300,
   contact: 275,
 };
-const noIndexRoutes = ["login", "history", "cart", "settings", "account-deletion"];
+const noIndexRoutes = ["login", "history", "cart", "settings", "account-deletion", "download"];
 
 function htmlFor(route) {
   return fs.readFileSync(path.join(output, route, "index.html"), "utf8");
@@ -29,6 +30,8 @@ for (const [route, minimumWords] of Object.entries(contentRoutes)) {
   const html = htmlFor(route);
   assert.ok(visibleWordCount(html) >= minimumWords, `${route || "/"} publisher content became too thin`);
   assert.ok(html.includes("google-adsense-account"), `${route || "/"} lost AdSense ownership verification`);
+  assert.ok(html.includes('rel="canonical"'), `${route || "/"} lost its canonical URL`);
+  assert.ok(html.includes("application/ld+json"), `${route || "/"} lost structured data`);
   assert.ok(!/adsbygoogle|pagead2\.googlesyndication\.com/.test(html), `${route || "/"} requested ads during review`);
 }
 
@@ -39,5 +42,8 @@ for (const route of noIndexRoutes) {
 }
 
 assert.ok(fs.readFileSync(path.join(output, "robots.txt"), "utf8").includes("Sitemap: https://aimenu.us.kg/sitemap.xml"));
-assert.ok(fs.readFileSync(path.join(output, "sitemap.xml"), "utf8").includes("https://aimenu.us.kg/how-it-works/"));
+const sitemap = fs.readFileSync(path.join(output, "sitemap.xml"), "utf8");
+assert.ok(sitemap.includes("https://aimenu.us.kg/how-it-works/"));
+assert.ok(sitemap.includes("https://aimenu.us.kg/menu-examples/"));
+assert.ok(!sitemap.includes("https://aimenu.us.kg/download/"));
 console.log("AdSense static-output checks passed.");
