@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Globe } from "lucide-react";
-import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, getText, languageLabel, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { useText } from "@/hooks/useText";
+import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, languageLabel, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
 import { getLegalDocument, type LegalKind } from "@/lib/legalDocuments";
 
 const SUPPORT_EMAIL = "support@aimenu.us.kg";
@@ -18,9 +19,9 @@ type LegalDocumentProps = {
 export function LegalDocument({ kind }: LegalDocumentProps) {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
   const isDeletion = kind === "account-deletion";
-  const text = getText(lang);
+  const text = useText(lang);
   const legal = text.legal;
-  const legalDocument = isDeletion ? null : getLegalDocument(lang, kind as LegalKind);
+  const legalDocument = isDeletion ? null : getLegalDocument(text, kind as LegalKind);
   const documentText = isDeletion ? legal.deletion : legalDocument!;
 
   useEffect(() => {

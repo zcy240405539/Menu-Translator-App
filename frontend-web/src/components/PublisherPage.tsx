@@ -4,12 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Globe, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useText } from "@/hooks/useText";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
   applyDocumentLanguage,
   getPageLanguage,
-  getText,
   languageLabel,
   replacePageLanguage,
   type WebLanguageCode,
@@ -20,7 +20,7 @@ const SUPPORT_EMAIL = "support@aimenu.us.kg";
 
 export default function PublisherPage({ pageKey }: { pageKey: PublisherPageKey }) {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
-  const text = getText(lang);
+  const text = useText(lang);
   const publisher = text.publisher;
   const page = publisher.pages[pageKey];
   const pageRoute = PUBLISHER_PAGES.find(({ key }) => key === pageKey)?.href || "/";

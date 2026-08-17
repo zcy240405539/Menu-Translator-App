@@ -3,11 +3,11 @@
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles, Settings } from "lucide-react";
+import { ChevronDown, Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
+import { useText } from "@/hooks/useText";
 import { PUBLISHER_PAGES } from "@/lib/publisherPages";
 import {
   DEFAULT_LANGUAGE,
@@ -166,7 +166,7 @@ export default function Home() {
   const [shareHref, setShareHref] = useState("/");
   const [selectedDish, setSelectedDish] = useState<MenuItem | null>(null);
   const [showRecommendation, setShowRecommendation] = useState(false);
-  const text = getText(lang);
+  const text = useText(lang);
 
   useEffect(() => {
     let cancelled = false;
@@ -339,41 +339,42 @@ export default function Home() {
             <span className="hidden text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700 sm:inline">{text.common.brand}</span>
           </a>
           <div className="flex shrink-0 items-center gap-0.5 text-gray-700 sm:gap-1 md:gap-3">
-            <Select value={lang} onValueChange={(value) => handleHeaderLanguageChange(value || DEFAULT_LANGUAGE)}>
-              <SelectTrigger
-                className="h-9 w-14 rounded-lg border-purple-100 bg-purple-50/70 px-2 text-purple-800 shadow-sm transition-colors hover:bg-purple-100 md:h-10 md:w-auto md:min-w-36 md:px-3"
+            <label className="relative flex h-9 w-14 cursor-pointer items-center gap-1 rounded-lg border border-purple-100 bg-purple-50/70 px-2 text-purple-800 shadow-sm transition-colors hover:bg-purple-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-purple-600 md:h-10 md:w-auto md:min-w-36 md:gap-2 md:px-3">
+              <Globe className="h-5 w-5" />
+              <span className="hidden flex-1 text-left text-sm font-medium md:block">
+                {languageShortLabel(lang, lang)}
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0" />
+              <select
+                value={lang}
+                onChange={(event) => handleHeaderLanguageChange(event.target.value || DEFAULT_LANGUAGE)}
                 aria-label={text.nav.language}
+                className="absolute inset-0 cursor-pointer opacity-0"
               >
-                <Globe className="h-5 w-5" />
-                <span data-slot="select-value" className="hidden flex-1 text-left md:flex">
-                  {languageShortLabel(lang, lang)}
-                </span>
-              </SelectTrigger>
-              <SelectContent align="end">
                 {LANGUAGES.map((option) => (
-                  <SelectItem key={option.code} value={option.code}>
+                  <option key={option.code} value={option.code}>
                     {languageLabel(lang, option.code)}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </select>
+            </label>
             <a href={shareHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.share} onClick={handleShare}>
               <Share2 className="h-5 w-5" />
             </a>
             {showSavedMenuLinks && (
               <>
-                <Link href={historyHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.history}>
+                <Link href={historyHref} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.history}>
                   <History className="h-5 w-5" />
                 </Link>
-                <Link href={cartHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.cart}>
+                <Link href={cartHref} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.cart}>
                   <ShoppingCart className="h-5 w-5" />
                 </Link>
               </>
             )}
-            <Link href={`/settings${langQuery}`} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.settings}>
+            <Link href={`/settings${langQuery}`} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.settings}>
               <Settings className="h-5 w-5" />
             </Link>
-            <Link href={accountHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.account}>
+            <Link href={accountHref} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.account}>
               <User className="h-5 w-5" />
             </Link>
           </div>
@@ -468,6 +469,7 @@ export default function Home() {
                     </p>
                     <Link
                       href={`/download${langQuery}`}
+                      prefetch={false}
                       className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#5f259f] px-5 py-2.5 font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
                     >
                       <Smartphone className="h-5 w-5" />

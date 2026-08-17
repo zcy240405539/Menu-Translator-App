@@ -7,7 +7,8 @@ import { Eye, EyeOff, Globe, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, getText, languageLabel, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { useText } from "@/hooks/useText";
+import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, languageLabel, loadText, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 function apiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
@@ -44,7 +45,7 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const text = getText(lang);
+  const text = useText(lang);
   const homeHref = useMemo(() => `/?lang=${encodeURIComponent(lang)}`, [lang]);
 
   useEffect(() => {
@@ -56,12 +57,13 @@ export default function LoginForm() {
 
       if (oauthToken) {
         setIsLoading(true);
+        const nextText = await loadText(nextLang);
         try {
-          await completeOAuthLogin(oauthToken, getText(nextLang).auth.loginFailed);
-          setStatus(getText(nextLang).auth.signedIn);
+          await completeOAuthLogin(oauthToken, nextText.auth.loginFailed);
+          setStatus(nextText.auth.signedIn);
           window.location.assign(redirectPath(nextLang));
         } catch (err) {
-          setError(err instanceof Error ? err.message : getText(nextLang).auth.loginFailed);
+          setError(err instanceof Error ? err.message : nextText.auth.loginFailed);
           setIsLoading(false);
         }
       }

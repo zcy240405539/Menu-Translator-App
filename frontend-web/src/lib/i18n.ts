@@ -1,15 +1,4 @@
-import ar from "@/locales/ar.json";
-import de from "@/locales/de.json";
 import en from "@/locales/en.json";
-import es from "@/locales/es.json";
-import fr from "@/locales/fr.json";
-import it from "@/locales/it.json";
-import ja from "@/locales/ja.json";
-import ko from "@/locales/ko.json";
-import pt from "@/locales/pt.json";
-import ru from "@/locales/ru.json";
-import zhCn from "@/locales/zh-cn.json";
-import zhHant from "@/locales/zh-Hant.json";
 
 export type WebLanguageCode =
   | "en"
@@ -25,7 +14,7 @@ export type WebLanguageCode =
   | "it"
   | "ar";
 
-type Catalog = typeof en;
+export type Catalog = typeof en;
 
 const STORAGE_KEY = "menu_app_language";
 
@@ -49,20 +38,22 @@ export const LANGUAGES: { code: WebLanguageCode }[] = [
 
 export const SOURCE_LANGUAGES = [{ code: "auto" as const }, ...LANGUAGES];
 
-export const webText: Record<WebLanguageCode, Catalog> = {
-  ar: ar as Catalog,
-  de: de as Catalog,
-  en,
-  es: es as Catalog,
-  fr: fr as Catalog,
-  it: it as Catalog,
-  ja: ja as Catalog,
-  ko: ko as Catalog,
-  pt: pt as Catalog,
-  ru: ru as Catalog,
-  "zh-cn": zhCn as Catalog,
-  "zh-Hant": zhHant as Catalog,
+const catalogCache: Partial<Record<WebLanguageCode, Catalog>> = { en };
+const catalogLoaders: Record<Exclude<WebLanguageCode, "en">, () => Promise<Catalog>> = {
+  ar: () => import("@/locales/ar.json").then(({ default: catalog }) => catalog as Catalog),
+  de: () => import("@/locales/de.json").then(({ default: catalog }) => catalog as Catalog),
+  es: () => import("@/locales/es.json").then(({ default: catalog }) => catalog as Catalog),
+  fr: () => import("@/locales/fr.json").then(({ default: catalog }) => catalog as Catalog),
+  it: () => import("@/locales/it.json").then(({ default: catalog }) => catalog as Catalog),
+  ja: () => import("@/locales/ja.json").then(({ default: catalog }) => catalog as Catalog),
+  ko: () => import("@/locales/ko.json").then(({ default: catalog }) => catalog as Catalog),
+  pt: () => import("@/locales/pt.json").then(({ default: catalog }) => catalog as Catalog),
+  ru: () => import("@/locales/ru.json").then(({ default: catalog }) => catalog as Catalog),
+  "zh-cn": () => import("@/locales/zh-cn.json").then(({ default: catalog }) => catalog as Catalog),
+  "zh-Hant": () => import("@/locales/zh-Hant.json").then(({ default: catalog }) => catalog as Catalog),
 };
+
+const catalogPromises: Partial<Record<WebLanguageCode, Promise<Catalog>>> = {};
 
 export function normalizeLanguage(lang?: string | null): WebLanguageCode {
   const normalized = String(lang || "").trim().replaceAll("_", "-").toLowerCase();
@@ -121,7 +112,27 @@ export function applyDocumentLanguage(lang: WebLanguageCode) {
 }
 
 export function getText(lang: WebLanguageCode | string) {
-  return webText[normalizeLanguage(lang)];
+  return catalogCache[normalizeLanguage(lang)] || en;
+}
+
+export function loadText(lang: WebLanguageCode | string): Promise<Catalog> {
+  const normalized = normalizeLanguage(lang);
+  const cached = catalogCache[normalized];
+  if (cached) return Promise.resolve(cached);
+
+  const pending = catalogPromises[normalized];
+  if (pending) return pending;
+
+  const promise = catalogLoaders[normalized as Exclude<WebLanguageCode, "en">]()
+    .then((catalog) => {
+      catalogCache[normalized] = catalog;
+      return catalog;
+    })
+    .finally(() => {
+      delete catalogPromises[normalized];
+    });
+  catalogPromises[normalized] = promise;
+  return promise;
 }
 
 export function languageLabel(uiLang: WebLanguageCode, lang: string) {

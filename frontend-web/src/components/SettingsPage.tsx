@@ -4,11 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FileText, Globe2, ShieldCheck, User, UserMinus } from "lucide-react";
+import { useText } from "@/hooks/useText";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
   getPageLanguage,
-  getText,
   languageLabel,
   replacePageLanguage,
   type WebLanguageCode,
@@ -16,7 +16,7 @@ import {
 
 export default function SettingsPage() {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
-  const text = getText(lang);
+  const text = useText(lang);
   const query = `?lang=${encodeURIComponent(lang)}`;
 
   useEffect(() => {

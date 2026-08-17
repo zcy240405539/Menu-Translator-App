@@ -3,9 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Camera, FileUp, Link as LinkIcon, Wand2, Loader2 } from "lucide-react";
+import { Camera, ChevronDown, FileUp, Link as LinkIcon, Wand2, Loader2 } from "lucide-react";
 import { LANGUAGES, SOURCE_LANGUAGES, languageLabel, languageShortLabel, sourceLanguageLabel, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
 import { selectSourceLanguage, selectTargetLanguage } from "@/lib/languagePair";
 
@@ -197,38 +196,44 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
       <CardContent className="space-y-6 p-8">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">{text.sourceLanguage}</label>
-            <Select value={sourceLang} onValueChange={handleSourceLangChange}>
-              <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700" aria-label={text.sourceLanguage}>
-                <span data-slot="select-value" className="flex flex-1 text-left">
-                  {sourceLanguageLabel(targetLang, sourceLang, true)}
-                </span>
-              </SelectTrigger>
-              <SelectContent>
+            <label htmlFor="source-language" className="text-sm font-semibold text-gray-700">{text.sourceLanguage}</label>
+            <div className="relative flex h-12 w-full items-center rounded-md border border-gray-300 bg-transparent px-3 font-medium text-purple-700 shadow-xs transition-colors hover:bg-purple-50/50 focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-200">
+              <span className="min-w-0 flex-1 truncate text-left">{sourceLanguageLabel(targetLang, sourceLang, true)}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" />
+              <select
+                id="source-language"
+                value={sourceLang}
+                onChange={(event) => handleSourceLangChange(event.target.value)}
+                aria-label={text.sourceLanguage}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              >
                 {SOURCE_LANGUAGES.map((option) => (
-                  <SelectItem key={option.code} value={option.code}>
+                  <option key={option.code} value={option.code}>
                     {sourceLanguageLabel(targetLang, option.code)}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </select>
+            </div>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">{text.targetLanguage}</label>
-            <Select value={targetLang} onValueChange={handleTargetLangChange}>
-              <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700" aria-label={text.targetLanguage}>
-                <span data-slot="select-value" className="flex flex-1 text-left">
-                  {languageShortLabel(targetLang, targetLang)}
-                </span>
-              </SelectTrigger>
-              <SelectContent>
+            <label htmlFor="target-language" className="text-sm font-semibold text-gray-700">{text.targetLanguage}</label>
+            <div className="relative flex h-12 w-full items-center rounded-md border border-gray-300 bg-transparent px-3 font-medium text-purple-700 shadow-xs transition-colors hover:bg-purple-50/50 focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-200">
+              <span className="min-w-0 flex-1 truncate text-left">{languageShortLabel(targetLang, targetLang)}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" />
+              <select
+                id="target-language"
+                value={targetLang}
+                onChange={(event) => handleTargetLangChange(event.target.value)}
+                aria-label={text.targetLanguage}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              >
                 {LANGUAGES.map((option) => (
-                  <SelectItem key={option.code} value={option.code}>
+                  <option key={option.code} value={option.code}>
                     {languageLabel(targetLang, option.code)}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </select>
+            </div>
           </div>
         </div>
 

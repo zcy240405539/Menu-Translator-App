@@ -5,12 +5,13 @@ import Link from "next/link";
 import { ExternalLink, Globe, Smartphone } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ANDROID_PLAY_STORE_URL } from "@/lib/appLinks";
+import { useText } from "@/hooks/useText";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
   applyDocumentLanguage,
   getPageLanguage,
-  getText,
+  loadText,
   languageLabel,
   replacePageLanguage,
   type WebLanguageCode,
@@ -18,15 +19,15 @@ import {
 
 export default function DownloadAppPage() {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
-  const text = getText(lang);
+  const text = useText(lang);
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
 
   useEffect(() => {
-    queueMicrotask(() => {
+    queueMicrotask(async () => {
       const nextLanguage = getPageLanguage();
       setLang(nextLanguage);
       applyDocumentLanguage(nextLanguage);
-      const nextText = getText(nextLanguage);
+      const nextText = await loadText(nextLanguage);
       document.title = `${nextText.download.title} | ${nextText.common.brand}`;
     });
   }, []);

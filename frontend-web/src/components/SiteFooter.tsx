@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useText } from "@/hooks/useText";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGE_CHANGE_EVENT,
   applyDocumentLanguage,
   getPageLanguage,
-  getText,
   normalizeLanguage,
   type WebLanguageCode,
 } from "@/lib/i18n";
@@ -34,7 +34,7 @@ export default function SiteFooter() {
     };
   }, []);
 
-  const text = getText(lang);
+  const text = useText(lang);
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
 
   return (

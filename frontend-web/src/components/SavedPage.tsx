@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, History, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { DEFAULT_LANGUAGE, applyDocumentLanguage, getPageLanguage, getText, normalizeLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { useText } from "@/hooks/useText";
+import { DEFAULT_LANGUAGE, applyDocumentLanguage, getPageLanguage, getText, loadText, normalizeLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 type Mode = "history" | "cart";
 
@@ -56,7 +57,7 @@ export default function SavedPage({ mode }: { mode: Mode }) {
   const [loading, setLoading] = useState(true);
   const [needsLogin, setNeedsLogin] = useState(false);
   const [error, setError] = useState("");
-  const text = getText(lang);
+  const text = useText(lang);
   const isHistory = mode === "history";
   const Icon = isHistory ? History : ShoppingCart;
   const title = isHistory ? text.nav.history : text.nav.cart;
@@ -64,10 +65,10 @@ export default function SavedPage({ mode }: { mode: Mode }) {
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
 
   useEffect(() => {
-    queueMicrotask(() => {
+    queueMicrotask(async () => {
       const nextLang = getPageLanguage();
       const token = authToken();
-      const nextText = getText(nextLang);
+      const nextText = await loadText(nextLang);
       const nextTitle = isHistory ? nextText.nav.history : nextText.nav.cart;
       setLang(nextLang);
       applyDocumentLanguage(nextLang);
