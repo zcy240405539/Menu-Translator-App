@@ -199,7 +199,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">{text.sourceLanguage}</label>
             <Select value={sourceLang} onValueChange={handleSourceLangChange}>
-              <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700">
+              <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700" aria-label={text.sourceLanguage}>
                 <span data-slot="select-value" className="flex flex-1 text-left">
                   {sourceLanguageLabel(targetLang, sourceLang, true)}
                 </span>
@@ -216,7 +216,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">{text.targetLanguage}</label>
             <Select value={targetLang} onValueChange={handleTargetLangChange}>
-              <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700">
+              <SelectTrigger className="h-12 w-full border-gray-300 font-medium text-purple-700" aria-label={text.targetLanguage}>
                 <span data-slot="select-value" className="flex flex-1 text-left">
                   {languageShortLabel(targetLang, targetLang)}
                 </span>

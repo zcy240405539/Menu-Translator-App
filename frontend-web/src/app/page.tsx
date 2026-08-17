@@ -1,13 +1,13 @@
 "use client";
 
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
-import { DishDetailDialog, RecommendationDialog } from "@/components/MenuResultDialogs";
 import { PUBLISHER_PAGES } from "@/lib/publisherPages";
 import {
   DEFAULT_LANGUAGE,
@@ -22,6 +22,13 @@ import {
   toBackendLanguage,
   type WebLanguageCode,
 } from "@/lib/i18n";
+
+const DishDetailDialog = dynamic(() =>
+  import("@/components/MenuResultDialogs").then((module) => module.DishDetailDialog)
+);
+const RecommendationDialog = dynamic(() =>
+  import("@/components/MenuResultDialogs").then((module) => module.RecommendationDialog)
+);
 
 type MenuItem = {
   id?: string | number | null;
@@ -327,7 +334,7 @@ export default function Home() {
       )}
       <header className="sticky top-0 z-50 w-full border-b border-purple-100/70 bg-white/90 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <a href={homeHref} onClick={handleHomeClick} className="group flex min-w-0 flex-1 items-center gap-2 rounded-md transition-all hover:opacity-90">
+          <a href={homeHref} onClick={handleHomeClick} className="group flex min-w-0 flex-1 items-center gap-2 rounded-md transition-all hover:opacity-90" aria-label={text.common.brand}>
             <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md transition-shadow group-hover:shadow-md" priority />
             <span className="hidden text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700 sm:inline">{text.common.brand}</span>
           </a>
@@ -552,22 +559,26 @@ export default function Home() {
         )}
       </main>
 
-      <DishDetailDialog
-        item={selectedDish}
-        menuData={menuData}
-        lang={lang}
-        text={text}
-        onClose={() => setSelectedDish(null)}
-      />
-      <RecommendationDialog
-        open={showRecommendation}
-        items={actionItems}
-        menuData={menuData}
-        lang={lang}
-        text={text}
-        onClose={handleCloseRecommendation}
-        onSelectDish={(item) => setSelectedDish(item)}
-      />
+      {selectedDish && (
+        <DishDetailDialog
+          item={selectedDish}
+          menuData={menuData}
+          lang={lang}
+          text={text}
+          onClose={() => setSelectedDish(null)}
+        />
+      )}
+      {showRecommendation && (
+        <RecommendationDialog
+          open
+          items={actionItems}
+          menuData={menuData}
+          lang={lang}
+          text={text}
+          onClose={handleCloseRecommendation}
+          onSelectDish={(item) => setSelectedDish(item)}
+        />
+      )}
 
     </div>
   );
