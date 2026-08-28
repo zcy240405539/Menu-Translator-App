@@ -1,8 +1,4 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { shouldLoadAdsterra } from "@/lib/adsterra";
+import { ADSTERRA_CONTENT_PATHS } from "@/lib/adsterra";
 
 export type AdsterraPlacement = {
   key: string;
@@ -17,61 +13,48 @@ type AdsterraAdsProps = {
   mobile: AdsterraPlacement;
 };
 
-function isReady(placement: AdsterraPlacement) {
-  return Boolean(placement.key && placement.scriptUrl && placement.width > 0 && placement.height > 0);
-}
-
-function frameHtml(placement: AdsterraPlacement) {
-  const options = JSON.stringify({
-    key: placement.key,
-    format: "iframe",
-    height: placement.height,
-    width: placement.width,
-    params: {},
-  }).replace(/</g, "\\u003c");
-  const scriptUrl = JSON.stringify(placement.scriptUrl).replace(/</g, "\\u003c");
-
-  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;overflow:hidden;background:transparent}</style></head><body><script>window.atOptions=${options};</script><script src=${scriptUrl}></script></body></html>`;
-}
-
 export default function AdsterraAds({ enabled, desktop, mobile }: AdsterraAdsProps) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
-    const syncViewport = () => setIsMobile(media.matches);
-    syncViewport();
-    media.addEventListener("change", syncViewport);
-    return () => media.removeEventListener("change", syncViewport);
-  }, []);
-
-  const placement = isMobile === true ? mobile : isMobile === false ? desktop : null;
-  const mayLoadAds = shouldLoadAdsterra(
-    pathname,
-    searchParams,
+  const config = JSON.stringify({
     enabled,
-    Boolean(placement && isReady(placement)),
-  );
-  const html = useMemo(() => (placement ? frameHtml(placement) : ""), [placement]);
+    paths: ADSTERRA_CONTENT_PATHS,
+    desktop,
+    mobile,
+  }).replace(/</g, "\\u003c");
+  const loader = `
+    (() => {
+      const config = ${config};
+      const pathname = location.pathname === "/" ? "/" : location.pathname.replace(/\\/+$/, "");
+      const search = new URLSearchParams(location.search);
+      const mayLoad = config.enabled
+        && config.paths.includes(pathname)
+        && !search.has("menu_hash")
+        && !search.has("show_recommend");
+      const placement = matchMedia("(max-width: 767px)").matches ? config.mobile : config.desktop;
+      if (!mayLoad || !placement.key || !placement.scriptUrl) return;
 
-  if (!placement || !mayLoadAds) return null;
+      const container = document.currentScript && document.currentScript.parentElement;
+      if (container) container.dataset.adsterraActive = "true";
+      window.atOptions = {
+        key: placement.key,
+        format: "iframe",
+        height: placement.height,
+        width: placement.width,
+        params: {},
+      };
+      const source = placement.scriptUrl
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;");
+      document.write('<script type="text/javascript" src="' + source + '"><\\/script>');
+    })();
+  `;
 
   return (
-    <aside aria-label="Advertisement" className="mx-auto flex w-full justify-center overflow-hidden px-0 py-5 sm:px-4">
-      <iframe
-        key={`${placement.key}-${placement.width}x${placement.height}`}
-        title="Advertisement"
-        width={placement.width}
-        height={placement.height}
-        loading="lazy"
-        scrolling="no"
-        sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation-by-user-activation"
-        referrerPolicy="strict-origin-when-cross-origin"
-        srcDoc={html}
-        className="block max-w-full border-0"
-      />
-    </aside>
+    <aside
+      suppressHydrationWarning
+      aria-label="Advertisement"
+      className="adsterra-slot mx-auto w-full justify-center overflow-hidden px-0 py-5 sm:px-4"
+      dangerouslySetInnerHTML={{ __html: `<script>${loader}<\/script>` }}
+    />
   );
 }

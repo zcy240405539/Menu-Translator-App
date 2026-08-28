@@ -34,6 +34,11 @@ for (const [route, minimumWords] of Object.entries(contentRoutes)) {
   assert.ok(!/google-adsense-account|adsbygoogle|pagead2\.googlesyndication\.com/.test(html), `${route || "/"} still contains AdSense`);
 }
 
+const home = htmlFor("");
+assert.ok(home.includes("adsterra-slot"), "homepage lost the Adsterra slot");
+assert.ok(home.includes("document.write"), "Adsterra must load during HTML parsing");
+assert.ok(!/srcdoc=|srcDoc=/.test(home), "Adsterra must not run inside a srcDoc iframe");
+
 for (const route of noIndexRoutes) {
   const html = htmlFor(route);
   assert.ok(html.includes('name="robots" content="noindex'), `/${route} must remain noindex`);

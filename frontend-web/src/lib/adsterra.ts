@@ -1,10 +1,12 @@
-const ADSTERRA_CONTENT_PATHS = new Set([
+export const ADSTERRA_CONTENT_PATHS = [
   "/",
   "/how-it-works",
   "/menu-translation-guide",
   "/menu-examples",
   "/supported-languages",
-]);
+] as const;
+
+const ADSTERRA_CONTENT_PATH_SET = new Set<string>(ADSTERRA_CONTENT_PATHS);
 
 function normalizePathname(pathname: string) {
   if (pathname === "/") return pathname;
@@ -12,7 +14,7 @@ function normalizePathname(pathname: string) {
 }
 
 export function isAdsterraContentPath(pathname: string) {
-  return ADSTERRA_CONTENT_PATHS.has(normalizePathname(pathname));
+  return ADSTERRA_CONTENT_PATH_SET.has(normalizePathname(pathname));
 }
 
 export function shouldLoadAdsterra(

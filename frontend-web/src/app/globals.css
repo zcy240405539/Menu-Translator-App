@@ -128,3 +128,11 @@
     @apply font-sans;
   }
 }
+
+.adsterra-slot {
+  display: none;
+}
+
+.adsterra-slot[data-adsterra-active="true"] {
+  display: flex;
+}

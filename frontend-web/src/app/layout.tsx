@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import AdsterraAds, { type AdsterraPlacement } from "@/components/AdsterraAds";
 import SiteFooter from "@/components/SiteFooter";
 import { getText } from "@/lib/i18n";
@@ -68,9 +67,7 @@ export default function RootLayout({
       </head>
       <body className="flex min-h-full flex-col">
         {children}
-        <Suspense fallback={null}>
-          <AdsterraAds enabled={adsterraEnabled} desktop={desktopAd} mobile={mobileAd} />
-        </Suspense>
+        <AdsterraAds enabled={adsterraEnabled} desktop={desktopAd} mobile={mobileAd} />
         <SiteFooter />
       </body>
     </html>
