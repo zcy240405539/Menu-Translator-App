@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import InlineAdsterraAd from "@/components/InlineAdsterraAd";
 import { getText, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { formatMenuPrice } from "@/lib/price";
 
 export type ResultMenuItem = {
   id?: string | number | null;
@@ -58,13 +59,6 @@ function normalizeList(value: unknown) {
   if (Array.isArray(value)) return value.map((item) => String(item)).filter(Boolean);
   if (typeof value === "string") return value.split(/[,，]/).map((item) => item.trim()).filter(Boolean);
   return [];
-}
-
-function priceText(item: ResultMenuItem, currency?: string | null) {
-  if (item.price === null || item.price === undefined || item.price === "") return "";
-  const value = String(item.price).trim();
-  if (!currency || /[$€£¥￥]/.test(value) || value.includes(currency)) return value;
-  return `${value} ${currency}`;
 }
 
 function authToken() {
@@ -168,7 +162,7 @@ export function DishDetailDialog({
   const imageUrl = merged.image_url || merged.thumbnail_url;
   const ingredients = normalizeList(merged.ingredients);
   const allergens = normalizeList(merged.allergens);
-  const price = priceText(merged, merged.currency || menuData?.currency);
+  const price = formatMenuPrice(merged.price, merged.currency || menuData?.currency);
 
   return (
     <div className="fixed inset-0 z-[80] overflow-y-auto bg-black/40 px-4 py-8 backdrop-blur-sm" role="dialog" aria-modal="true">
@@ -407,26 +401,30 @@ export function RecommendationDialog({
             <section className="space-y-3">
               <h3 className="font-bold text-gray-950">{text.result.recommendedDishes}</h3>
               <div className="grid gap-3 md:grid-cols-2">
-                {matchedItems.map(({ dish, reason }) => (
-                  <button key={String(dish.id)} type="button" className="text-left" onClick={() => onSelectDish(dish)}>
-                    <Card className="h-full border-gray-100 transition-all hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md">
+                {matchedItems.map(({ dish, reason }) => {
+                  const price = formatMenuPrice(dish.price, dish.currency || menuData?.currency);
+                  return (
+                    <Card key={String(dish.id)} className="flex h-full flex-col overflow-hidden border-gray-100 transition-all hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md">
+                      <button type="button" className="flex-1 text-left" onClick={() => onSelectDish(dish)}>
                       <CardContent className="space-y-2 p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <h4 className="font-bold text-gray-950">{dishTitle(dish, text.result.unnamedDish)}</h4>
                             {dish.original_name && <p className="text-sm text-gray-500">{dish.original_name}</p>}
                           </div>
-                          {priceText(dish, dish.currency || menuData?.currency) && (
+                          {price && (
                             <span className="rounded-full bg-purple-100 px-2.5 py-1 text-sm font-bold text-purple-800">
-                              {priceText(dish, dish.currency || menuData?.currency)}
+                              {price}
                             </span>
                           )}
                         </div>
                         {reason && <p className="text-sm leading-6 text-gray-700">{reason}</p>}
                       </CardContent>
+                      </button>
+                      <InlineAdsterraAd />
                     </Card>
-                  </button>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}

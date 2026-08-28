@@ -14,7 +14,7 @@ const contentRoutes = {
   "privacy-policy": 300,
   "terms-of-service": 300,
 };
-const noIndexRoutes = ["login", "history", "cart", "settings", "account-deletion", "download"];
+const noIndexRoutes = ["login", "register", "history", "cart", "settings", "account-deletion", "download", "ad-frame"];
 
 function htmlFor(route) {
   return fs.readFileSync(path.join(output, route, "index.html"), "utf8");
@@ -46,10 +46,20 @@ assert.ok(home.includes("data-site-footer"), "footer lost its Adsterra visibilit
 assert.ok(!/srcdoc=|srcDoc=/.test(home), "Adsterra must not run inside a srcDoc iframe");
 
 const dialogsSource = fs.readFileSync(path.resolve("src/components/MenuResultDialogs.tsx"), "utf8");
-assert.equal(dialogsSource.match(/<InlineAdsterraAd\s*\/>/g)?.length, 2, "detail and recommendation cards need inline ads");
+assert.equal(dialogsSource.match(/<InlineAdsterraAd\s*\/>/g)?.length, 3, "detail, recommendation, and recommendation-item cards need inline ads");
 const inlineAdSource = fs.readFileSync(path.resolve("src/components/InlineAdsterraAd.tsx"), "utf8");
 assert.ok(inlineAdSource.includes("adsterra-ready"), "inline ads must wait for a real creative");
-assert.ok(!inlineAdSource.includes("allow-same-origin"), "inline ads must remain isolated from the parent origin");
+assert.ok(inlineAdSource.includes('src="/ad-frame/"'), "inline ads must use the same-origin ad frame");
+assert.ok(!inlineAdSource.includes("allow-same-origin"), "the ad frame must remain isolated from the parent document");
+assert.ok(!inlineAdSource.includes("srcDoc"), "inline ads must not use an anonymous srcDoc frame");
+
+const adFrame = htmlFor("ad-frame");
+assert.ok(adFrame.includes("adsterra-ready"), "the ad frame must notify its parent after a creative loads");
+assert.ok(adFrame.includes("document.write"), "the ad frame must load Adsterra during HTML parsing");
+const login = htmlFor("login");
+const register = htmlFor("register");
+assert.ok(login.includes("google-g-logo.svg"), "login must show the Google G logo");
+assert.ok(register.includes("google-g-logo.svg"), "registration must show the Google G logo");
 
 for (const route of noIndexRoutes) {
   const html = htmlFor(route);

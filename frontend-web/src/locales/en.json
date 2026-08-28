@@ -69,7 +69,17 @@
     "googleFailed": "Unable to open Google sign in.",
     "signedIn": "Signed in. Redirecting...",
     "facebook": "Continue with Facebook",
-    "facebookFailed": "Unable to open Facebook sign in."
+    "facebookFailed": "Unable to open Facebook sign in.",
+    "registerTitle": "Create account",
+    "registerSubtitle": "Create an account to save menu history and order lists.",
+    "username": "Name",
+    "createAccount": "Create account",
+    "registering": "Creating account...",
+    "registerFailed": "Unable to create your account.",
+    "registered": "Account created. Redirecting...",
+    "missingRegistrationFields": "Please enter your name, email, and password.",
+    "newAccountPrompt": "New here? Create an account",
+    "hasAccount": "Already have an account? Sign in"
   },
   "saved": {
     "loading": "Loading...",

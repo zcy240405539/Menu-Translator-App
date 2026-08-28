@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import UtilityPageHeader from "@/components/UtilityPageHeader";
 import { useText } from "@/hooks/useText";
 import { DEFAULT_LANGUAGE, applyDocumentLanguage, getPageLanguage, getText, loadText, normalizeLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { formatMenuPrice } from "@/lib/price";
 
 type Mode = "history" | "cart";
 
@@ -28,10 +29,12 @@ type CartItem = {
     translated_name?: string;
     original_name?: string;
     price?: string | number;
+    currency?: string | null;
   };
   menuInfo?: {
     business_name?: string;
     restaurant_type?: string;
+    currency?: string | null;
   };
 };
 
@@ -167,7 +170,7 @@ function HistoryRow({ item, text, lang }: { item: HistoryItem; text: ReturnType<
 }
 
 function CartRow({ item, text }: { item: CartItem; text: ReturnType<typeof getText> }) {
-  const price = item.dish?.price === undefined || item.dish.price === null ? "" : String(item.dish.price);
+  const price = formatMenuPrice(item.dish?.price, item.dish?.currency || item.menuInfo?.currency);
 
   return (
     <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4">

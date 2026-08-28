@@ -65,6 +65,7 @@ from app.services.dish_cache_service import (
 )
 from app.services.image_service import get_or_create_dish_image
 from app.services.category_service import get_or_create_menu_category, normalize_category_key
+from app.services.menu_currency_service import apply_menu_currency_symbol
 from app.core.i18n_service import get_language_options, normalize_lang, DEFAULT_SOURCE_LANGUAGE, DEFAULT_TARGET_LANGUAGE
 from app.core.ui_i18n import (
     render_legal_page,
@@ -1239,6 +1240,7 @@ def analyze_menu(
             target_lang=request.target_lang,
             source_lang=result.get("source_language") or getattr(request, "source_lang", "en") if isinstance(result, dict) else getattr(request, "source_lang", "en"),
         )
+        apply_menu_currency_symbol(result, request.ocr_text)
 
         return result
 
@@ -1312,6 +1314,7 @@ async def parse_menu(
 
         if not isinstance(result, dict):
             result = {}
+        apply_menu_currency_symbol(result, extracted_markdown)
 
         result["ocr_blocks"] = ocr_blocks or [
             {
@@ -1390,6 +1393,7 @@ async def parse_menu_url(
 
         if not isinstance(result, dict):
             result = {}
+        apply_menu_currency_symbol(result, extracted_markdown)
 
         result["ocr_blocks"] = [
             {
@@ -1977,7 +1981,7 @@ def apply_restaurant_type_display(db, result: dict, target_lang: str, source_lan
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 24
+MENU_CACHE_SCHEMA_VERSION = 25
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
     "MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE",
@@ -2156,6 +2160,7 @@ def run_menu_parse_task(
 
             if not isinstance(result, dict):
                 result = {}
+            apply_menu_currency_symbol(result, extracted_markdown)
 
             result["parser"] = parser_name
             result["structure_provider"] = result.pop("_structure_provider_used", None) or effective_structure_provider

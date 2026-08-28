@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:adsterra": "node scripts/check-adsterra-output.mjs",
     "test:adsterra-routes": "node --no-warnings --experimental-strip-types scripts/check-adsterra-routes.mjs",
+    "test:prices": "node --no-warnings --experimental-strip-types scripts/check-price-format.mjs",
     "test:bundle": "node scripts/check-initial-bundle.mjs",
     "test:language-pairs": "node --no-warnings --experimental-strip-types scripts/check-language-pairs.mjs"
   },

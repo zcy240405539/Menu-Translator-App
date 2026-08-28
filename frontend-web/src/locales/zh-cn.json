@@ -69,7 +69,17 @@
     "googleFailed": "无法打开 Google 登录。",
     "signedIn": "已登录，正在跳转...",
     "facebook": "使用 Facebook 继续",
-    "facebookFailed": "无法打开 Facebook 登录。"
+    "facebookFailed": "无法打开 Facebook 登录。",
+    "registerTitle": "注册",
+    "registerSubtitle": "注册后可以保存菜单历史和点餐清单。",
+    "username": "用户名",
+    "createAccount": "注册",
+    "registering": "正在注册...",
+    "registerFailed": "注册失败，请稍后再试。",
+    "registered": "注册成功，正在跳转...",
+    "missingRegistrationFields": "请输入用户名、邮箱和密码。",
+    "newAccountPrompt": "还没有账号？立即注册",
+    "hasAccount": "已有账号？立即登录"
   },
   "saved": {
     "loading": "正在加载...",

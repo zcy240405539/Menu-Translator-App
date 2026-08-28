@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useText } from "@/hooks/useText";
-import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, languageLabel, loadText, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, languageLabel, loadText, replacePageLanguage, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 function apiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
@@ -37,8 +37,9 @@ async function completeOAuthLogin(token: string, fallback: string) {
   window.localStorage.setItem("menu_app_user", JSON.stringify(await response.json()));
 }
 
-export default function LoginForm() {
+export default function LoginForm({ mode = "login" }: { mode?: "login" | "register" }) {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +47,9 @@ export default function LoginForm() {
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const text = useText(lang);
+  const isRegister = mode === "register";
   const homeHref = useMemo(() => `/?lang=${encodeURIComponent(lang)}`, [lang]);
+  const alternateHref = useMemo(() => `/${isRegister ? "login" : "register"}?lang=${encodeURIComponent(lang)}`, [isRegister, lang]);
 
   useEffect(() => {
     queueMicrotask(async () => {
@@ -76,8 +79,8 @@ export default function LoginForm() {
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!email || !password) {
-      setError(text.auth.missingFields);
+    if (!email || !password || (isRegister && !username.trim())) {
+      setError(isRegister ? (text.auth.missingRegistrationFields || "Please enter your name, email, and password.") : text.auth.missingFields);
       return;
     }
 
@@ -85,20 +88,28 @@ export default function LoginForm() {
     setError("");
     setStatus("");
     try {
-      const res = await fetch(`${apiBaseUrl()}/auth/login`, {
+      const res = await fetch(`${apiBaseUrl()}/auth/${isRegister ? "register" : "login"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(isRegister ? {
+          username: username.trim(),
+          email,
+          password,
+          diets: [],
+          allergies: [],
+          preferred_language: toBackendLanguage(lang),
+        } : { email, password }),
       });
-      if (!res.ok) throw new Error(await readError(res, text.auth.loginFailed));
+      const failureText = isRegister ? (text.auth.registerFailed || "Unable to create your account.") : text.auth.loginFailed;
+      if (!res.ok) throw new Error(await readError(res, failureText));
       const data = (await res.json()) as { token?: string; user?: unknown };
-      if (!data.token) throw new Error(text.auth.loginFailed);
+      if (!data.token) throw new Error(failureText);
       window.localStorage.setItem("menu_app_token", data.token);
       if (data.user) window.localStorage.setItem("menu_app_user", JSON.stringify(data.user));
-      setStatus(text.auth.signedIn);
+      setStatus(isRegister ? (text.auth.registered || "Account created. Redirecting...") : text.auth.signedIn);
       window.location.assign(redirectPath(lang));
     } catch (err) {
-      setError(err instanceof Error ? err.message : text.auth.loginFailed);
+      setError(err instanceof Error ? err.message : (isRegister ? (text.auth.registerFailed || "Unable to create your account.") : text.auth.loginFailed));
     } finally {
       setIsLoading(false);
     }
@@ -148,11 +159,17 @@ export default function LoginForm() {
             </div>
 
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-gray-950">{text.auth.title}</h1>
-              <p className="mt-2 text-gray-600">{text.auth.subtitle}</p>
+              <h1 className="text-3xl font-extrabold tracking-tight text-gray-950">{isRegister ? (text.auth.registerTitle || "Create account") : text.auth.title}</h1>
+              <p className="mt-2 text-gray-600">{isRegister ? (text.auth.registerSubtitle || "Create an account to save menu history and order lists.") : text.auth.subtitle}</p>
             </div>
 
             <form className="space-y-4" onSubmit={handleLogin}>
+              {isRegister && (
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700" htmlFor="username">{text.auth.username || "Name"}</label>
+                  <Input id="username" value={username} onChange={(event) => setUsername(event.target.value)} className="h-12" autoComplete="name" />
+                </div>
+              )}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700" htmlFor="email">{text.auth.email}</label>
                 <Input
@@ -173,7 +190,7 @@ export default function LoginForm() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     className="h-12 pr-11"
-                    autoComplete="current-password"
+                    autoComplete={isRegister ? "new-password" : "current-password"}
                   />
                   <button
                     type="button"
@@ -194,9 +211,9 @@ export default function LoginForm() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {text.auth.signingIn}
+                    {isRegister ? (text.auth.registering || "Creating account...") : text.auth.signingIn}
                   </>
-                ) : text.auth.signIn}
+                ) : (isRegister ? (text.auth.createAccount || "Create account") : text.auth.signIn)}
               </Button>
             </form>
 
@@ -207,8 +224,15 @@ export default function LoginForm() {
               onClick={handleGoogleLogin}
               className="h-12 w-full rounded-xl border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
             >
+              <Image src="/google-g-logo.svg" alt="" width={18} height={18} className="mr-2" />
               {text.auth.google}
             </Button>
+
+            <Link href={alternateHref} className="block text-center text-sm font-semibold text-purple-700 hover:text-purple-800">
+              {isRegister
+                ? (text.auth.hasAccount || "Already have an account? Sign in")
+                : (text.auth.newAccountPrompt || "New here? Create an account")}
+            </Link>
 
             <Link href={homeHref} className="block text-center text-sm font-semibold text-purple-700 hover:text-purple-800">
               {text.auth.backHome}

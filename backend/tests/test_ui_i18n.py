@@ -11,7 +11,8 @@ from app.core.ui_i18n import (
 def test_all_ui_catalogs_and_legal_pages_are_available():
     for language in SUPPORTED_LANGUAGES:
         catalog = get_ui_catalog(language)
-        assert catalog["common"]["brand"] == "AI Menu APP"
+        expected_brand = "AI点菜通" if language in {"zh", "zh-Hant"} else "AI Menu APP"
+        assert catalog["common"]["brand"] == expected_brand
         assert catalog["legal"]["privacy"]["sections"]
         assert catalog["legal"]["terms"]["sections"]
         assert catalog["legal"]["deletion"]["sections"]

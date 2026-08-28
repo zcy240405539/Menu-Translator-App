@@ -69,7 +69,17 @@
     "googleFailed": "無法開啟 Google 登入。",
     "signedIn": "已登入，正在跳轉...",
     "facebook": "使用 Facebook 繼續",
-    "facebookFailed": "無法開啟 Facebook 登入。"
+    "facebookFailed": "無法開啟 Facebook 登入。",
+    "registerTitle": "註冊",
+    "registerSubtitle": "註冊後可以保存菜單歷史和點餐清單。",
+    "username": "使用者名稱",
+    "createAccount": "註冊",
+    "registering": "正在註冊...",
+    "registerFailed": "註冊失敗，請稍後再試。",
+    "registered": "註冊成功，正在跳轉...",
+    "missingRegistrationFields": "請輸入使用者名稱、信箱和密碼。",
+    "newAccountPrompt": "還沒有帳號？立即註冊",
+    "hasAccount": "已有帳號？立即登入"
   },
   "saved": {
     "loading": "正在載入...",

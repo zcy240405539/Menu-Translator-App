@@ -9,6 +9,7 @@ import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
 import { useText } from "@/hooks/useText";
 import { PUBLISHER_PAGES } from "@/lib/publisherPages";
+import { formatMenuPrice } from "@/lib/price";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
@@ -133,13 +134,6 @@ function dishName(item: MenuItem, fallback: string) {
 
 function dishDescription(item: MenuItem) {
   return item.description || item.description_original || "";
-}
-
-function dishPrice(item: MenuItem, currency?: string | null) {
-  if (item.price === null || item.price === undefined || item.price === "") return "";
-  const value = String(item.price).trim();
-  if (!currency || /[$€£¥￥]/.test(value) || value.includes(currency)) return value;
-  return `${value} ${currency}`;
 }
 
 function actionDish(item: MenuItem, sectionIndex: number, itemIndex: number, sectionTitle: string): MenuItem {
@@ -427,7 +421,7 @@ export default function Home() {
                               const clickableItem = actionDish(item, sectionIndex, index, section.title);
                               const name = dishName(item, text.result.unnamedDish);
                               const originalName = item.original_name && item.original_name !== name ? item.original_name : "";
-                              const price = dishPrice(item, menuData?.currency);
+                              const price = formatMenuPrice(item.price, item.currency || menuData?.currency);
                               return (
                                 <button key={`${section.title}-${name}-${index}`} type="button" className="h-full text-left" onClick={() => setSelectedDish(clickableItem)}>
                                   <Card className="h-full min-h-44 border border-gray-100 shadow-sm transition-all hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md">
