@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Globe } from "lucide-react";
+import ContentPageHeader from "@/components/ContentPageHeader";
 import { useText } from "@/hooks/useText";
-import { DEFAULT_LANGUAGE, LANGUAGES, getPageLanguage, languageLabel, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { DEFAULT_LANGUAGE, getPageLanguage, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
 import { getLegalDocument, type LegalKind } from "@/lib/legalDocuments";
 
 const SUPPORT_EMAIL = "support@aimenu.us.kg";
@@ -35,28 +34,9 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
   };
 
   return (
-    <main className="min-h-screen bg-[#fbf8f4] px-4 py-10">
-      <article className="mx-auto max-w-4xl rounded-3xl border border-purple-100 bg-white p-6 shadow-sm md:p-10">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <Link href={`/?lang=${encodeURIComponent(lang)}`} className="inline-flex text-sm font-semibold text-purple-700 hover:text-purple-800">
-            {legal.back}
-          </Link>
-          <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center text-gray-700 transition-colors hover:text-purple-600" aria-label={text.nav.language}>
-            <Globe className="h-5 w-5" />
-            <select
-              aria-label={text.nav.language}
-              className="absolute inset-0 cursor-pointer opacity-0"
-              value={lang}
-              onChange={(event) => handleLanguageChange(event.target.value)}
-            >
-              {LANGUAGES.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {languageLabel(lang, option.code)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+    <main className="min-h-screen bg-[#fbf8f4] text-gray-950">
+      <ContentPageHeader lang={lang} onLanguageChange={handleLanguageChange} />
+      <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
         <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-purple-700">{legal.brand}</p>
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-950">{documentText.title}</h1>
         {"subtitle" in documentText && documentText.subtitle && (
@@ -98,7 +78,7 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
             {SUPPORT_EMAIL}
           </a>
         </p>
-      </article>
+      </div>
     </main>
   );
 }

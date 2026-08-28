@@ -4,6 +4,10 @@ export const ADSTERRA_CONTENT_PATHS = [
   "/menu-translation-guide",
   "/menu-examples",
   "/supported-languages",
+  "/about",
+  "/contact",
+  "/privacy-policy",
+  "/terms-of-service",
 ] as const;
 
 const ADSTERRA_CONTENT_PATH_SET = new Set<string>(ADSTERRA_CONTENT_PATHS);

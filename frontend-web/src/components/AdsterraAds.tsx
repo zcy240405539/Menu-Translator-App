@@ -31,7 +31,6 @@ export default function AdsterraAds({ enabled, desktop, mobile }: AdsterraAdsPro
 
       const container = document.currentScript && document.currentScript.parentElement;
       if (container) {
-        container.dataset.adsterraActive = "true";
         const observeFooter = () => {
           const footer = document.querySelector("[data-site-footer]");
           if (!footer || !("IntersectionObserver" in window)) return;
@@ -39,11 +38,24 @@ export default function AdsterraAds({ enabled, desktop, mobile }: AdsterraAdsPro
             container.dataset.footerVisible = entry.isIntersecting ? "true" : "false";
           }).observe(footer);
         };
-        if (document.readyState === "loading") {
-          document.addEventListener("DOMContentLoaded", observeFooter, { once: true });
-        } else {
-          observeFooter();
-        }
+        const revealWhenReady = () => {
+          if (!container.querySelector("iframe, object, embed, ins")) return false;
+          container.dataset.adsterraActive = "true";
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", observeFooter, { once: true });
+          } else {
+            observeFooter();
+          }
+          return true;
+        };
+        const creativeObserver = new MutationObserver(() => {
+          if (revealWhenReady()) creativeObserver.disconnect();
+        });
+        creativeObserver.observe(container, { childList: true, subtree: true });
+        setTimeout(() => {
+          revealWhenReady();
+          creativeObserver.disconnect();
+        }, 10000);
       }
       window.atOptions = {
         key: placement.key,

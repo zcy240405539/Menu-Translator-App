@@ -21,7 +21,7 @@ export function publisherPageMetadata(key: PublisherPageKey): Metadata {
     description: page.summary,
     alternates: { canonical },
     openGraph: {
-      type: "article",
+      type: "website",
       url: canonical,
       siteName: "AI Menu APP",
       title: page.title,

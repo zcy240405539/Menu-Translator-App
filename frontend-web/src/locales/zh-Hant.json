@@ -74,8 +74,8 @@
   "saved": {
     "loading": "正在載入...",
     "signInPrompt": "請先登入以查看保存的內容。",
-    "emptyHistory": "還沒有保存的菜單歷史。",
-    "emptyCart": "點餐清單為空。",
+    "emptyHistory": "歷史記錄為空。",
+    "emptyCart": "購物車為空。",
     "openMenu": "開啟菜單",
     "quantity": "數量",
     "updated": "更新於",

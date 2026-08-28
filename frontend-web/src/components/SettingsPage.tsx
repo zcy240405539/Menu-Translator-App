@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FileText, Globe2, ShieldCheck, User, UserMinus } from "lucide-react";
 import { useText } from "@/hooks/useText";
+import UtilityPageHeader from "@/components/UtilityPageHeader";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
@@ -38,15 +38,7 @@ export default function SettingsPage() {
   return (
     <main className="min-h-screen bg-[#fbf8f4] px-4 py-8 text-gray-950">
       <div className="mx-auto max-w-3xl">
-        <header className="mb-10 flex items-center justify-between gap-4">
-          <Link href={`/${query}`} className="flex items-center gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-purple-600">
-            <Image src="/ai-menu-logo.png" alt="" width={40} height={40} className="rounded-md" priority />
-            <span className="text-xl font-extrabold text-[#5f259f]">{text.common.brand}</span>
-          </Link>
-          <Link href={`/${query}`} className="text-sm font-semibold text-purple-700 hover:text-purple-900">
-            {text.settings.backHome}
-          </Link>
-        </header>
+        <UtilityPageHeader lang={lang} />
 
         <h1 className="text-4xl font-extrabold tracking-normal">{text.settings.title}</h1>
         <p className="mt-3 text-lg text-gray-600">{text.settings.subtitle}</p>

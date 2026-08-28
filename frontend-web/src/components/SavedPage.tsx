@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, History, ShoppingCart } from "lucide-react";
+import { History, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import UtilityPageHeader from "@/components/UtilityPageHeader";
 import { useText } from "@/hooks/useText";
 import { DEFAULT_LANGUAGE, applyDocumentLanguage, getPageLanguage, getText, loadText, normalizeLanguage, type WebLanguageCode } from "@/lib/i18n";
 
@@ -84,6 +84,11 @@ export default function SavedPage({ mode }: { mode: Mode }) {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then(async (res) => {
+          if (res.status === 401 || res.status === 403) {
+            setNeedsLogin(true);
+            return { items: [] };
+          }
+          if (res.status === 404) return { items: [] };
           if (!res.ok) throw new Error(nextText.saved.loadFailed);
           return (await res.json()) as { items?: (HistoryItem | CartItem)[] };
         })
@@ -94,18 +99,9 @@ export default function SavedPage({ mode }: { mode: Mode }) {
   }, [isHistory]);
 
   return (
-    <main className="min-h-screen bg-[#fbf8f4] px-4 py-10">
+    <main className="min-h-screen bg-[#fbf8f4] px-4 py-8">
       <section className="mx-auto max-w-3xl">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <Link href={`/${langQuery}`} className="inline-flex items-center gap-2 font-semibold text-purple-700 hover:text-purple-800">
-            <ArrowLeft className="h-4 w-4" />
-            {text.auth.backHome}
-          </Link>
-          <Link href={`/${langQuery}`} className="inline-flex items-center gap-2">
-            <Image src="/ai-menu-logo.png" alt="" width={34} height={34} className="rounded-md" priority />
-            <span className="font-bold text-[#5f259f]">{text.common.brand}</span>
-          </Link>
-        </div>
+        <UtilityPageHeader lang={lang} />
 
         <Card className="border-purple-100 bg-white shadow-lg">
           <CardContent className="space-y-5 p-6">
@@ -119,6 +115,7 @@ export default function SavedPage({ mode }: { mode: Mode }) {
             {loading && <p className="py-8 text-center text-gray-500">{text.saved.loading}</p>}
             {!loading && needsLogin && (
               <div className="space-y-4 py-8 text-center">
+                <p className="font-semibold text-gray-800">{emptyText}</p>
                 <p className="text-gray-600">{text.saved.signInPrompt}</p>
                 <Link className="inline-flex h-10 items-center justify-center rounded-xl bg-purple-700 px-4 text-sm font-semibold text-white hover:bg-purple-800" href={`/login${langQuery}&next=/${mode}`}>
                   {text.auth.signIn}

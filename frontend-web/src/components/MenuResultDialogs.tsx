@@ -6,6 +6,7 @@ import { Loader2, ShoppingCart, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import InlineAdsterraAd from "@/components/InlineAdsterraAd";
 import { getText, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
 
 export type ResultMenuItem = {
@@ -225,6 +226,7 @@ export function DishDetailDialog({
             </Button>
           </div>
         </CardContent>
+        <InlineAdsterraAd />
       </Card>
     </div>
   );
@@ -429,6 +431,7 @@ export function RecommendationDialog({
             </section>
           )}
         </CardContent>
+        <InlineAdsterraAd />
       </Card>
     </div>
   );

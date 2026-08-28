@@ -11,6 +11,8 @@ const contentRoutes = {
   "supported-languages": 300,
   about: 300,
   contact: 275,
+  "privacy-policy": 300,
+  "terms-of-service": 300,
 };
 const noIndexRoutes = ["login", "history", "cart", "settings", "account-deletion", "download"];
 
@@ -31,6 +33,7 @@ for (const [route, minimumWords] of Object.entries(contentRoutes)) {
   assert.ok(visibleWordCount(html) >= minimumWords, `${route || "/"} publisher content became too thin`);
   assert.ok(html.includes('rel="canonical"'), `${route || "/"} lost its canonical URL`);
   assert.ok(html.includes("application/ld+json"), `${route || "/"} lost structured data`);
+  assert.ok(!html.includes("<article"), `${route || "/"} must use the shared content-page layout`);
   assert.ok(!/google-adsense-account|adsbygoogle|pagead2\.googlesyndication\.com/.test(html), `${route || "/"} still contains AdSense`);
 }
 
@@ -38,8 +41,15 @@ const home = htmlFor("");
 assert.ok(home.includes("adsterra-slot"), "homepage lost the Adsterra slot");
 assert.ok(home.includes("document.write"), "Adsterra must load during HTML parsing");
 assert.ok(home.includes("IntersectionObserver"), "Adsterra must stop before the footer");
+assert.ok(home.includes("MutationObserver"), "Adsterra must wait for a real creative before becoming visible");
 assert.ok(home.includes("data-site-footer"), "footer lost its Adsterra visibility marker");
 assert.ok(!/srcdoc=|srcDoc=/.test(home), "Adsterra must not run inside a srcDoc iframe");
+
+const dialogsSource = fs.readFileSync(path.resolve("src/components/MenuResultDialogs.tsx"), "utf8");
+assert.equal(dialogsSource.match(/<InlineAdsterraAd\s*\/>/g)?.length, 2, "detail and recommendation cards need inline ads");
+const inlineAdSource = fs.readFileSync(path.resolve("src/components/InlineAdsterraAd.tsx"), "utf8");
+assert.ok(inlineAdSource.includes("adsterra-ready"), "inline ads must wait for a real creative");
+assert.ok(!inlineAdSource.includes("allow-same-origin"), "inline ads must remain isolated from the parent origin");
 
 for (const route of noIndexRoutes) {
   const html = htmlFor(route);

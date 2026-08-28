@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { shouldLoadAdsterra } from "../src/lib/adsterra.ts";
 
-for (const route of ["/", "/how-it-works/", "/menu-translation-guide", "/menu-examples", "/supported-languages"]) {
+for (const route of ["/", "/how-it-works/", "/menu-translation-guide", "/menu-examples", "/supported-languages", "/about", "/contact", "/privacy-policy", "/terms-of-service"]) {
   assert.equal(shouldLoadAdsterra(route, true, true), true, `${route} should allow ads`);
 }
 
-for (const route of ["/about", "/contact", "/download", "/login", "/history", "/cart", "/settings", "/privacy-policy", "/terms-of-service", "/account-deletion"]) {
+for (const route of ["/download", "/login", "/history", "/cart", "/settings", "/account-deletion"]) {
   assert.equal(shouldLoadAdsterra(route, true, true), false, `${route} must never load ads`);
 }
 

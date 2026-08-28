@@ -74,8 +74,8 @@
   "saved": {
     "loading": "正在加载...",
     "signInPrompt": "请先登录以查看保存的内容。",
-    "emptyHistory": "还没有保存的菜单历史。",
-    "emptyCart": "点餐清单为空。",
+    "emptyHistory": "历史记录为空。",
+    "emptyCart": "购物车为空。",
     "openMenu": "打开菜单",
     "quantity": "数量",
     "updated": "更新于",
