@@ -37,6 +37,8 @@ for (const [route, minimumWords] of Object.entries(contentRoutes)) {
 const home = htmlFor("");
 assert.ok(home.includes("adsterra-slot"), "homepage lost the Adsterra slot");
 assert.ok(home.includes("document.write"), "Adsterra must load during HTML parsing");
+assert.ok(home.includes("IntersectionObserver"), "Adsterra must stop before the footer");
+assert.ok(home.includes("data-site-footer"), "footer lost its Adsterra visibility marker");
 assert.ok(!/srcdoc=|srcDoc=/.test(home), "Adsterra must not run inside a srcDoc iframe");
 
 for (const route of noIndexRoutes) {

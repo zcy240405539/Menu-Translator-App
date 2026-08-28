@@ -383,9 +383,9 @@ export default function Home() {
 
       <main className="flex-1">
         {showResultView ? (
-          <section className="min-h-screen w-full bg-[#fbf8f4] py-10">
-            <div className="container mx-auto max-w-5xl px-4">
-              <Card className="border-purple-100 bg-white shadow-lg">
+          <section className="min-h-screen w-full bg-[#f7f7f8] py-4 sm:py-6 lg:py-8">
+            <div className="w-full px-3 sm:px-5 lg:px-8">
+              <Card className="w-full overflow-hidden border-purple-100 bg-white shadow-lg">
                 <CardHeader className="border-b bg-purple-50/60">
                   <CardTitle className="flex flex-col gap-2 text-2xl text-purple-950 sm:flex-row sm:items-center sm:justify-between">
                     <span>{menuData?.business_name || text.result.restaurantMenu}</span>
@@ -405,7 +405,7 @@ export default function Home() {
                     </a>
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6 lg:p-8">
                   {isLoadingMenu ? (
                     <p className="py-12 text-center text-gray-500">{text.result.loadingResult}</p>
                   ) : sections.length > 0 ? (
@@ -418,7 +418,7 @@ export default function Home() {
                               <p className="pt-1 text-sm text-gray-500">{section.originalTitle}</p>
                             )}
                           </div>
-                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-4">
                             {section.items.map((item, index) => {
                               const clickableItem = actionDish(item, sectionIndex, index, section.title);
                               const name = dishName(item, text.result.unnamedDish);
@@ -426,7 +426,7 @@ export default function Home() {
                               const price = dishPrice(item, menuData?.currency);
                               return (
                                 <button key={`${section.title}-${name}-${index}`} type="button" className="h-full text-left" onClick={() => setSelectedDish(clickableItem)}>
-                                  <Card className="h-full border border-gray-100 shadow-sm transition-all hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md">
+                                  <Card className="h-full min-h-44 border border-gray-100 shadow-sm transition-all hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md">
                                     <CardContent className="flex h-full flex-col justify-between p-4">
                                       <div>
                                         <h4 className="text-lg font-bold text-gray-950">{name}</h4>

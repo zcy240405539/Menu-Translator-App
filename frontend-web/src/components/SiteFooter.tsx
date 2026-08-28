@@ -38,7 +38,7 @@ export default function SiteFooter() {
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
 
   return (
-    <footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
+    <footer data-site-footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
       <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 md:flex-row">
         <p className="text-sm">© {new Date().getFullYear()} {text.common.brand}. {text.footer.rights}</p>
         <nav aria-label={text.publisher.navigation} className="flex flex-wrap justify-center gap-x-5 gap-y-2">

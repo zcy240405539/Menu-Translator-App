@@ -19,10 +19,8 @@ export function isAdsterraContentPath(pathname: string) {
 
 export function shouldLoadAdsterra(
   pathname: string,
-  searchParams: Pick<URLSearchParams, "has">,
   enabled: boolean,
   hasPlacement: boolean,
 ) {
-  const isMenuResult = searchParams.has("menu_hash") || searchParams.has("show_recommend");
-  return enabled && hasPlacement && isAdsterraContentPath(pathname) && !isMenuResult;
+  return enabled && hasPlacement && isAdsterraContentPath(pathname);
 }

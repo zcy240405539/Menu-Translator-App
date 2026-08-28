@@ -135,4 +135,32 @@
 
 .adsterra-slot[data-adsterra-active="true"] {
   display: flex;
+  position: fixed;
+  z-index: 40;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 66px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgb(229 231 235 / 90%);
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 -8px 24px rgb(17 24 39 / 10%);
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+}
+
+.adsterra-slot[data-adsterra-active="true"][data-footer-visible="true"] {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .adsterra-slot[data-adsterra-active="true"] {
+    min-height: 106px;
+  }
 }

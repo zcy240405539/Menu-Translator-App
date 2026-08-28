@@ -24,16 +24,27 @@ export default function AdsterraAds({ enabled, desktop, mobile }: AdsterraAdsPro
     (() => {
       const config = ${config};
       const pathname = location.pathname === "/" ? "/" : location.pathname.replace(/\\/+$/, "");
-      const search = new URLSearchParams(location.search);
       const mayLoad = config.enabled
-        && config.paths.includes(pathname)
-        && !search.has("menu_hash")
-        && !search.has("show_recommend");
+        && config.paths.includes(pathname);
       const placement = matchMedia("(max-width: 767px)").matches ? config.mobile : config.desktop;
       if (!mayLoad || !placement.key || !placement.scriptUrl) return;
 
       const container = document.currentScript && document.currentScript.parentElement;
-      if (container) container.dataset.adsterraActive = "true";
+      if (container) {
+        container.dataset.adsterraActive = "true";
+        const observeFooter = () => {
+          const footer = document.querySelector("[data-site-footer]");
+          if (!footer || !("IntersectionObserver" in window)) return;
+          new IntersectionObserver(([entry]) => {
+            container.dataset.footerVisible = entry.isIntersecting ? "true" : "false";
+          }).observe(footer);
+        };
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", observeFooter, { once: true });
+        } else {
+          observeFooter();
+        }
+      }
       window.atOptions = {
         key: placement.key,
         format: "iframe",
@@ -53,7 +64,7 @@ export default function AdsterraAds({ enabled, desktop, mobile }: AdsterraAdsPro
     <aside
       suppressHydrationWarning
       aria-label="Advertisement"
-      className="adsterra-slot mx-auto w-full justify-center overflow-hidden px-0 py-5 sm:px-4"
+      className="adsterra-slot"
       dangerouslySetInnerHTML={{ __html: `<script>${loader}<\/script>` }}
     />
   );
