@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.services.rule_menu_parser import parse_menu_markdown_with_rules
+from app.services.rule_menu_parser import is_rule_menu_result_reliable, parse_menu_markdown_with_rules
 
 
 def test_html_heading_menu_items_stay_under_parent_section():
@@ -87,6 +87,46 @@ def test_numbered_image_ocr_line_splits_multiple_items():
     ]
     assert items[0]["price"] == "4.50"
     assert items[1]["price"] == "5.75"
+
+
+def test_rule_result_rejects_duplicate_extraction_and_vintage_prices():
+    result = {
+        "menu_items": [
+            {
+                "original_name": "GARNACHA, SYRAH",
+                "section_heading_original": "RED",
+                "price": "2024",
+            },
+            {
+                "original_name": "TEMPRANILLO",
+                "section_heading_original": "RED",
+                "price": "2022",
+            },
+            {
+                "original_name": "GARNACHA, SYRAH",
+                "section_heading_original": "RED",
+                "price": "7",
+            },
+        ]
+    }
+
+    assert is_rule_menu_result_reliable(result) is False
+
+
+def test_rule_result_accepts_normal_menu_items():
+    result = parse_menu_markdown_with_rules(
+        """
+        # DINNER
+        ## Roast Chicken
+        $24
+        ## Mushroom Pasta
+        $19
+        """,
+        target_lang="zh",
+        source_lang="en",
+    )
+
+    assert is_rule_menu_result_reliable(result) is True
 
 
 if __name__ == "__main__":

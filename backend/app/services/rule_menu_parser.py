@@ -18,6 +18,8 @@ NUMBERED_ITEM_RE = re.compile(r"#\s*(?P<code>\d+(?:\.\d+)?)\s+")
 INLINE_DECIMAL_PRICE_RE = re.compile(
     r"^(?P<body>.*?)(?:\s*[-–]\s*)?(?P<price>\d{1,3}\.\d{2})(?:\s|,|$)"
 )
+YEAR_ONLY_RE = re.compile(r"^(?:19|20)\d{2}$")
+SIZE_ONLY_ITEM_RE = re.compile(r"^\d+(?:\.\d+)?\s*(?:oz|ml|cl|l)$", re.IGNORECASE)
 
 NOISE_FRAGMENTS = (
     "source page:",
@@ -253,6 +255,35 @@ def _looks_like_section(
 def _normalized_category(section: str) -> str:
     category = re.sub(r"[^\w]+", "_", section.strip().lower(), flags=re.UNICODE).strip("_")
     return category or "menu"
+
+
+def is_rule_menu_result_reliable(result: dict) -> bool:
+    items = result.get("menu_items") if isinstance(result, dict) else None
+    if not isinstance(items, list) or not items:
+        return False
+
+    year_prices = 0
+    signatures = set()
+    duplicate_count = 0
+    for item in items:
+        if not isinstance(item, dict):
+            return False
+        price = re.sub(r"\s+", "", str(item.get("price") or ""))
+        if YEAR_ONLY_RE.fullmatch(price):
+            year_prices += 1
+
+        name = str(item.get("original_name") or "").strip()
+        if not name or SIZE_ONLY_ITEM_RE.fullmatch(name):
+            return False
+        section = str(item.get("section_heading_original") or item.get("category") or "")
+        signature = re.sub(r"[^\w]+", " ", f"{section} {name}".lower(), flags=re.UNICODE).strip()
+        if signature in signatures:
+            duplicate_count += 1
+        signatures.add(signature)
+
+    if year_prices >= 2:
+        return False
+    return duplicate_count / len(items) <= 0.15
 
 
 def parse_menu_markdown_with_rules(

@@ -30,6 +30,20 @@ def test_spanish_menu_with_accents_stays_spanish():
     assert detect_source_language(extracted_markdown=text, requested_source_lang="auto") == "es"
 
 
+def test_english_bar_menu_with_spanish_names_stays_english():
+    text = """
+    BRAVAS POTATOES pepper sauce, alioli
+    TOMATO BREAD garlic, olive oil, pan de cristal
+    CLASSIC Lustau rose vermouth, soda water, orange and olive
+    TINTO DE VERANO Red wine, lemon syrup, soda water
+    PAPER PLANE Bourbon, amaro, aperol, lemon
+    BRANDY ALEXANDER Lustau brandy, creme de cacao, cream
+    BEEF CHEEKS Tempranillo, black pepper, olive oil potatoes
+    """
+
+    assert detect_source_language(extracted_markdown=text, requested_source_lang="auto") == "en"
+
+
 @pytest.mark.parametrize(
     ("expected", "text"),
     [

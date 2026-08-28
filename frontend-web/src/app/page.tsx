@@ -115,12 +115,16 @@ function displaySections(menuData: MenuData | null, otherLabel: string): Display
       .filter((section) => section.items.length > 0);
   }
 
-  const grouped = new Map<string, MenuItem[]>();
+  const grouped = new Map<string, DisplaySection>();
   for (const item of menuData.menu_items || []) {
     const title = sectionTitle(item, otherLabel);
-    grouped.set(title, [...(grouped.get(title) || []), item]);
+    const originalTitle = item.section_heading_original || item.category || undefined;
+    const key = `${title}::${originalTitle || ""}`;
+    const section = grouped.get(key) || { title, originalTitle, items: [] };
+    section.items.push(item);
+    grouped.set(key, section);
   }
-  return Array.from(grouped, ([title, items]) => ({ title, items }));
+  return Array.from(grouped.values());
 }
 
 function dishName(item: MenuItem, fallback: string) {
@@ -411,11 +415,11 @@ export default function Home() {
                   ) : sections.length > 0 ? (
                     <div className="space-y-8">
                       {sections.map((section, sectionIndex) => (
-                        <div key={section.title} className="space-y-4">
-                          <div>
-                            <h3 className="border-b pb-2 text-xl font-bold text-gray-900">{section.title}</h3>
+                        <div key={`${section.title}-${section.originalTitle || sectionIndex}`} className="space-y-4">
+                          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-b pb-2">
+                            <h3 className="text-xl font-bold text-gray-900">{section.title}</h3>
                             {section.originalTitle && section.originalTitle !== section.title && (
-                              <p className="pt-1 text-sm text-gray-500">{section.originalTitle}</p>
+                              <span className="text-sm font-normal text-gray-500">({section.originalTitle})</span>
                             )}
                           </div>
                           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-4">

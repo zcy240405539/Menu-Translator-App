@@ -101,6 +101,54 @@ def _clean_text(value) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()
 
 
+def _looks_like_proper_name(value) -> bool:
+    words = re.findall(r"[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ.'’\-]*", _clean_text(value))
+    if len(words) < 2:
+        return False
+    connectors = {"de", "del", "la", "las", "los", "el", "y", "of", "the"}
+    return all(
+        word.strip(".'’-").lower() in connectors
+        or word.strip(".'’-").isupper()
+        or word.strip(".'’-")[:1].isupper()
+        for word in words
+    )
+
+
+def _short_comma_terms(value) -> list[str]:
+    parts = [_clean_text(part) for part in str(value or "").split(",")]
+    if len(parts) < 2 or len(parts) > 4 or any(not part for part in parts):
+        return []
+    words = [re.findall(r"[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ.'’\-]*", part) for part in parts]
+    if any(not part_words or len(part_words) > 2 for part_words in words):
+        return []
+    return parts if all(part.upper() == part for part in parts) else []
+
+
+def _leading_uppercase_identity(value) -> tuple[str, str] | None:
+    text = _clean_text(value)
+    if not re.search(r"[\"'‘’“”]|\b(?:19|20)\d{2}\b", text):
+        return None
+    matches = list(re.finditer(r"[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ.'’\-]*", text))
+    if len(matches) < 2:
+        return None
+
+    uppercase_count = 0
+    for match in matches:
+        word = match.group(0).strip(".'’-")
+        if word and word.upper() == word:
+            uppercase_count += 1
+            continue
+        if not uppercase_count:
+            return None
+        boundary = match.start()
+        while boundary > 0 and text[boundary - 1] in " \t'\"‘“":
+            boundary -= 1
+        prefix = text[:boundary].strip(" ,")
+        suffix = text[boundary:].strip()
+        return (prefix, suffix) if prefix and suffix else None
+    return None
+
+
 def get_google_access_token(scopes: list[str] | tuple[str, ...] | None = None) -> str:
     if GOOGLE_CLOUD_ACCESS_TOKEN:
         return GOOGLE_CLOUD_ACCESS_TOKEN
@@ -344,14 +392,20 @@ def _translate_value(value, translation_map: dict[str, str]):
 def _collect_menu_texts(result: dict) -> list[str]:
     texts = []
     for item in result.get("menu_items") or []:
+        original_name = item.get("original_name")
         texts.extend(
             [
-                item.get("original_name"),
+                original_name,
                 item.get("description_original"),
                 item.get("description"),
                 item.get("section_heading_original"),
             ]
         )
+        texts.extend(_short_comma_terms(original_name))
+        identity = _leading_uppercase_identity(original_name)
+        if identity:
+            texts.append(identity[0])
+            texts.extend(_short_comma_terms(identity[0]))
 
     business_description = result.get("business_description") or {}
     if isinstance(business_description, dict):
@@ -395,9 +449,24 @@ def translate_menu_result_with_google(
         section_original = _clean_text(item.get("section_heading_original") or item.get("category"))
 
         if original_name:
-            item["translated_name"] = translation_map.get(original_name) or item.get("translated_name") or original_name
+            translated_name = translation_map.get(original_name) or item.get("translated_name") or original_name
+            identity = _leading_uppercase_identity(original_name)
+            translatable_name = identity[0] if identity else original_name
+            comma_terms = _short_comma_terms(translatable_name)
+            if comma_terms:
+                separator = "，" if target_lang in {"zh", "zh-Hant"} else ", "
+                translated_name = separator.join(translation_map.get(term) or term for term in comma_terms)
+            elif identity:
+                translated_name = translation_map.get(translatable_name) or translatable_name
+            if identity:
+                translated_name = f"{translated_name} {identity[1]}"
+            item["translated_name"] = translated_name
         if description_original:
-            item["description"] = translation_map.get(description_original) or item.get("description") or ""
+            item["description"] = (
+                description_original
+                if _looks_like_proper_name(description_original)
+                else translation_map.get(description_original) or item.get("description") or ""
+            )
         else:
             item["description"] = item.get("description") or ""
         if section_original:

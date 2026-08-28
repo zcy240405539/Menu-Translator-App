@@ -1075,6 +1075,8 @@ def call_openrouter_for_menu(ocr_text: str, target_lang: str = "zh", source_lang
     target_language_name = get_language_name(target_lang)
     source_language_name = get_language_name(source_lang)
     language_context = build_language_prompt_context(source_lang, target_lang)
+    language_profile = get_language_profile(source_lang)
+    selected_model = language_profile.openrouter_layout_model or OPENROUTER_LAYOUT_MODEL
 
     system_prompt = """
 You are a professional restaurant menu parser.
@@ -1108,8 +1110,18 @@ Dish name extraction rules:
   description_original: "L, T, O, P, M"
 - section_heading_translated must be translated into target_language.
 - category_display_name must equal section_heading_translated.
+- If the input contains Document AI text followed by a PDF text-layer cross-check, both blocks describe the same pages. Reconcile them and return each item exactly once.
+- A four-digit year from 1900 through 2099 beside wine, beer, cider, or spirits is a vintage year, never a price.
+- For wine rows, use the leading grape or style as original_name. Preserve the producer, label, region, and vintage exactly as printed in description_original so the complete product identity remains available without corrupting proper names.
+- Split a wine row before the first mixed-case producer/label word after its leading uppercase grape/style. Example: "GARNACHA, SYRAH Care ‘Tinto Sobre Lias’ Carinea 2024" becomes original_name "GARNACHA, SYRAH" and description_original "Care ‘Tinto Sobre Lias’ Carinea 2024".
+- For other branded beverages, preserve brand and product names exactly as printed. Put tasting notes or ingredients in description_original.
+- For draft drinks with several size columns, return one item and put the combined labeled prices in price, for example "7oz: 6 / 12oz: 10 / 17oz: 14". Do not put these prices in description_original.
+- Merge adjacent heading fragments when they form one visible heading, such as "Wine" plus "By The Glass". Never return size headers such as "7oz 12oz 17oz" as menu items.
+- PDF text-layer headings can appear after their item rows. In that case, apply the heading to the immediately preceding group of rows.
+- Preserve the most specific visible subsection, such as ESPUMOSO, WHITE, ROSÉ / ORANGE, or RED, as section_heading_original. Do not prepend that subsection text to original_name.
 
 Rules:
+- Process the entire extracted menu. Do not stop after the first page or first section.
 - If source_lang is not "auto", treat the menu source language as {source_language_name}.
 - If OCR contains mixed languages, preserve original_name exactly as printed.
 - source_language in output must use the detected or requested language code.
@@ -1152,36 +1164,42 @@ Return valid JSON only:
     "notes": [],
     "description": ""
   }},
-  "menu_items": [
+  "sections": [
     {{
-      "id": "dish_001",
-      "original_name": "",
-      "translated_name": "",
-      "price": null,
-      "category": "",
       "section_heading_original": "",
       "section_heading_translated": "",
-      "description_original": "",
-      "description": "",
-      "ingredients": [],
-      "allergens": [],
-      "spicy_level": 0,
-      "image_prompt": "",
-      "confidence": 0.0
+      "items": [
+        {{
+          "original_name": "",
+          "translated_name": "",
+          "price": null,
+          "description_original": ""
+        }}
+      ]
     }}
   ]
 }}
 """
 
-    payload = _build_payload(system_prompt=system_prompt, user_prompt=user_prompt, max_tokens=6500)
+    payload = _build_payload(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        max_tokens=6500,
+        model=selected_model,
+    )
 
     data = _post_openrouter(payload, timeout=OPENROUTER_LAYOUT_TIMEOUT)
     content = data["choices"][0]["message"]["content"]
 
     result = _extract_json_from_text(content)
+    if "menu_items" not in result and "sections" in result:
+        result = flatten_nested_menu_json(result)
     if not result.get("source_language") or result.get("source_language") == "auto":
         result["source_language"] = source_lang
-    return sanitize_menu_result_structure(result)
+    result = sanitize_menu_result_structure(result)
+    result["analysis_model"] = selected_model
+    result["analysis_prompt"] = "grouped_text_menu"
+    return result
 
 
 def call_openrouter_for_dish_detail(dish_name: str, target_lang: str = "zh", source_lang: str = "en") -> dict:

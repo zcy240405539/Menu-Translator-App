@@ -170,13 +170,17 @@ Return exactly one valid JSON object with this shape:
     "notes": [],
     "description": ""
   }},
-  "menu_items": [
+  "sections": [
     {{
-      "original_name": "",
-      "price": null,
       "section_heading_original": "VISIBLE SECTION HEADING",
-      "description_original": "",
-      "confidence": 0.9
+      "items": [
+        {{
+          "original_name": "",
+          "price": null,
+          "description_original": "",
+          "confidence": 0.9
+        }}
+      ]
     }}
   ]
 }}
@@ -215,8 +219,8 @@ Extracted menu content:
 {ocr_text}
 
 Structure rules:
-- Return a flat menu_items array. Do not return nested sections.
-- Every item must include its visible section in section_heading_original.
+- Return grouped sections using the JSON contract below.
+- Process the entire extracted menu. Do not stop after the first page or first section.
 - Use actual visible menu section headings as section_heading_original.
 - Do not classify by food type if a visible section heading exists.
 - Do not use a dish name as its own section unless it is the only item sold as a set under that heading.
@@ -233,6 +237,14 @@ Structure rules:
 - Use null for missing prices. Do not invent prices.
 - Omit translated_name, section_heading_translated, ingredients, allergens, image_prompt, and description unless they are explicitly printed.
 - Process the full menu, including drinks, coffee, tea, dessert, brunch, sides, pastries, and happy hour.
+- If Document AI text is followed by a PDF text-layer cross-check, reconcile both representations and return each item exactly once.
+- A four-digit year from 1900 through 2099 beside wine, beer, cider, or spirits is a vintage year, never a price.
+- For wine rows, use the leading grape or style as original_name. Preserve the producer, label, region, and vintage exactly as printed in description_original.
+- Split a wine row before the first mixed-case producer/label word after its leading uppercase grape/style. Example: "GARNACHA, SYRAH Care ‘Tinto Sobre Lias’ Carinea 2024" becomes original_name "GARNACHA, SYRAH" and description_original "Care ‘Tinto Sobre Lias’ Carinea 2024".
+- For draft drinks with several size columns, return one item and put the combined labeled prices in price, for example "7oz: 6 / 12oz: 10 / 17oz: 14".
+- Merge adjacent heading fragments such as "Wine" plus "By The Glass". Never return size headers such as "7oz 12oz 17oz" as menu items.
+- PDF text-layer headings can appear after their item rows. In that case, apply the heading to the immediately preceding group.
+- Preserve the most specific visible subsection, such as ESPUMOSO, WHITE, ROSÉ / ORANGE, or RED. Do not prepend subsection text to original_name.
 
 Business info:
 - Put restaurant intro, hours, address, social links, notes, and footer text in business_description, not menu_items.
@@ -280,8 +292,7 @@ OCR blocks with coordinates:
 {json.dumps(_compact_ocr_blocks(ocr_blocks), ensure_ascii=False)}
 
 Layout rules:
-- Return a flat menu_items array. Do not return nested sections.
-- Every item must include its visible section in section_heading_original.
+- Return grouped sections using the JSON contract below.
 - Use coordinates to preserve columns, visual groups, section headings, item order, and page order.
 - Assign each dish to the closest visible section heading above it in the same column/group/box.
 - Do not infer categories from food type when a visible heading exists.

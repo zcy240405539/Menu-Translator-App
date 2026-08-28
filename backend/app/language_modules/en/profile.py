@@ -58,6 +58,7 @@ PROFILE = LanguageProfile(
     detection_regexes=(
         r"\$\s?\d",
         r"\b(?:oz|lb|lbs|cup|bowl|side|add)\b",
+        r"\b(?:with|and|served|sauce|butter|bread|potatoes|chicken|beef|syrup|cream)\b",
     ),
     default_noise_keywords=(
         "tax", "gratuity", "substitutions", "extra charge", "follow us", "instagram",

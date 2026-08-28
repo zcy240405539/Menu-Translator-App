@@ -646,6 +646,8 @@ def call_menu_structure_parser(
     content_type: str | None = None,
     file_name: str | None = None,
 ) -> dict:
+    from app.services.rule_menu_parser import is_rule_menu_result_reliable
+
     requested_provider = get_requested_structure_provider(structure_provider)
 
     def short_error(exc: Exception | str) -> str:
@@ -674,6 +676,8 @@ def call_menu_structure_parser(
             rule_result = preflight_rule_result or build_rule_result()
         except Exception:
             return model_result
+        if not is_rule_menu_result_reliable(rule_result):
+            return model_result
         rule_count = len(rule_result.get("menu_items") or [])
         if rule_count >= max(20, int(model_count * 1.35)) and rule_count - model_count >= 10:
             rule_result["analysis_error"] = (
@@ -687,7 +691,10 @@ def call_menu_structure_parser(
         try:
             preflight_rule_result = build_rule_result()
             min_rule_items = int(os.getenv("MENU_STRUCTURE_RULE_FAST_PATH_MIN_ITEMS", "20"))
-            if len(preflight_rule_result.get("menu_items") or []) >= min_rule_items:
+            if (
+                len(preflight_rule_result.get("menu_items") or []) >= min_rule_items
+                and is_rule_menu_result_reliable(preflight_rule_result)
+            ):
                 return preflight_rule_result
         except Exception:
             preflight_rule_result = None
@@ -716,7 +723,7 @@ def call_menu_structure_parser(
             print(f"Gemini structure parser failed in auto mode; falling back to OpenRouter: {short_error(exc)}")
             try:
                 rule_result = build_rule_result(exc)
-                if len(rule_result.get("menu_items") or []) >= 20:
+                if len(rule_result.get("menu_items") or []) >= 20 and is_rule_menu_result_reliable(rule_result):
                     return rule_result
             except Exception:
                 pass
@@ -1970,7 +1977,7 @@ def apply_restaurant_type_display(db, result: dict, target_lang: str, source_lan
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 23
+MENU_CACHE_SCHEMA_VERSION = 24
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
     "MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE",
