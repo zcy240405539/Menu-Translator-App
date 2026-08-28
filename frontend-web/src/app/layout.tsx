@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import AdSenseGate from "@/components/AdSenseGate";
+import AdsterraAds, { type AdsterraPlacement } from "@/components/AdsterraAds";
 import SiteFooter from "@/components/SiteFooter";
 import { getText } from "@/lib/i18n";
 import "./globals.css";
@@ -20,13 +20,27 @@ export const metadata: Metadata = {
     description: defaultMetadata.description,
   },
   robots: { index: true, follow: true },
-  other: {
-    "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465",
-  },
 };
 
-const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-8286400764174465";
-const adsenseEnabled = process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true";
+function scriptUrl(value: string | undefined) {
+  const url = value?.trim() || "";
+  if (url.startsWith("//")) return `https:${url}`;
+  return url.startsWith("https://") ? url : "";
+}
+
+const adsterraEnabled = process.env.NEXT_PUBLIC_ADSTERRA_ENABLED === "true";
+const desktopAd: AdsterraPlacement = {
+  key: process.env.NEXT_PUBLIC_ADSTERRA_DESKTOP_KEY?.trim() || "",
+  scriptUrl: scriptUrl(process.env.NEXT_PUBLIC_ADSTERRA_DESKTOP_SCRIPT_URL),
+  width: 728,
+  height: 90,
+};
+const mobileAd: AdsterraPlacement = {
+  key: process.env.NEXT_PUBLIC_ADSTERRA_MOBILE_KEY?.trim() || "",
+  scriptUrl: scriptUrl(process.env.NEXT_PUBLIC_ADSTERRA_MOBILE_SCRIPT_URL),
+  width: 320,
+  height: 50,
+};
 const organizationData = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -53,10 +67,10 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-full flex-col">
-        <Suspense fallback={null}>
-          <AdSenseGate enabled={adsenseEnabled} client={adsenseClient} />
-        </Suspense>
         {children}
+        <Suspense fallback={null}>
+          <AdsterraAds enabled={adsterraEnabled} desktop={desktopAd} mobile={mobileAd} />
+        </Suspense>
         <SiteFooter />
       </body>
     </html>

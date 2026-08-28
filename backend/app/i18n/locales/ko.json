@@ -67,7 +67,7 @@
         {
           "heading": "서비스 제공업체",
           "items": [
-            "활성화된 기능에 따라 데이터는 Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense 및 Google AdMob에서 처리될 수 있습니다.",
+            "활성화된 기능에 따라 데이터는 Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra 및 Google AdMob에서 처리될 수 있습니다.",
             "메뉴 콘텐츠는 요청된 기능을 제공하는 데 필요한 경우에만 AI 및 클라우드 서비스로 전송됩니다. 각 서비스 제공업체는 자체 약관 및 개인정보 보호 정책에 따라 데이터를 처리합니다."
           ]
         },

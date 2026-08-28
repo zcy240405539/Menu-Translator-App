@@ -39,7 +39,7 @@ PROTECTED_EXACT = {
     "Facebook",
     "Google",
     "Google AdMob",
-    "Google AdSense",
+    "Adsterra",
     "Instagram",
     "Meta",
     "OpenAI",

@@ -67,7 +67,7 @@
         {
           "heading": "prestataires de services",
           "items": [
-            "En fonction des fonctionnalités activées, les données peuvent être traitées par Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense et Google AdMob.",
+            "En fonction des fonctionnalités activées, les données peuvent être traitées par Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra et Google AdMob.",
             "Le contenu des menus est transmis aux services d'IA et de cloud uniquement lorsque cela est nécessaire pour fournir la fonctionnalité demandée. Chaque fournisseur traite les données selon ses propres conditions et politiques de confidentialité."
           ]
         },

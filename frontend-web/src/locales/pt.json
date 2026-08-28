@@ -225,7 +225,7 @@
           "heading": "Serviços de terceiros",
           "items": [
             "O aplicativo pode processar dados por meio de provedores de serviços utilizados para hospedagem, armazenamento de banco de dados, autenticação, processamento de modelos de IA, recuperação de imagens, análises e publicidade.",
-            "Esses provedores podem incluir Render, Supabase, Meta, OpenRouter, OpenAI, Google AdSense, Google AdMob, Pexels, Unsplash e Wikimedia Commons, dependendo dos recursos ativados."
+            "Esses provedores podem incluir Render, Supabase, Meta, OpenRouter, OpenAI, Adsterra, Google AdMob, Pexels, Unsplash e Wikimedia Commons, dependendo dos recursos ativados."
           ]
         },
         {
@@ -289,7 +289,7 @@
         {
           "heading": "Prestadores de serviços",
           "items": [
-            "Dependendo dos recursos ativados, os dados podem ser processados ​​por Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense e Google AdMob.",
+            "Dependendo dos recursos ativados, os dados podem ser processados ​​por Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra e Google AdMob.",
             "O conteúdo do menu é enviado para serviços de IA e nuvem somente quando necessário para fornecer o recurso solicitado. Cada provedor processa os dados de acordo com seus próprios termos e práticas de privacidade."
           ]
         },

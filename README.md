@@ -47,7 +47,7 @@ Users can:
 - React Native Google Mobile Ads
 - Next.js web frontend in `frontend-web/`
 - Tailwind CSS
-- Google AdSense
+- Adsterra web ads
 
 ## Backend
 - FastAPI
@@ -384,21 +384,27 @@ OPENAI_IMAGE_MODEL=gpt-image-1-mini
 ENABLE_GENERATED_IMAGE_FALLBACK=true
 EXPO_PUBLIC_API_BASE_URL=https://ai-menu-app.onrender.com
 NEXT_PUBLIC_API_URL=https://menu-translator-app.onrender.com
-NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-8286400764174465
-NEXT_PUBLIC_ADSENSE_ENABLED=false
+NEXT_PUBLIC_ADSTERRA_ENABLED=false
+NEXT_PUBLIC_ADSTERRA_DESKTOP_KEY=YOUR_728X90_PLACEMENT_KEY
+NEXT_PUBLIC_ADSTERRA_DESKTOP_SCRIPT_URL=https://YOUR_ADSTERRA_DOMAIN/PATH/invoke.js
+NEXT_PUBLIC_ADSTERRA_MOBILE_KEY=YOUR_320X50_PLACEMENT_KEY
+NEXT_PUBLIC_ADSTERRA_MOBILE_SCRIPT_URL=https://YOUR_ADSTERRA_DOMAIN/PATH/invoke.js
 ```
 
 `.github/workflows/monitor-supabase-ca.yml` checks the bundled Supabase CA every
 month. If it is missing, invalid, or expires within one year, the workflow opens
 a GitHub issue and remains failed until the certificate is replaced.
 
-The Web app keeps its AdSense publisher verification meta tag active during site
-review but does not request ads while `NEXT_PUBLIC_ADSENSE_ENABLED=false`. Keep it
-disabled during review. After approval, the route gate permits the AdSense script
-only on the home page and manually reviewed menu guides; login, history, cart,
-settings, download, contact, legal, and generated menu-result screens remain
-excluded. Run `npm run test:adsense`, `npm run test:adsense-routes`, and
-`npm run build` from `frontend-web` before deployment.
+The Web app loads Adsterra banners only when `NEXT_PUBLIC_ADSTERRA_ENABLED=true`
+and the matching viewport placement has both a key and HTTPS script URL. Create
+separate 728x90 desktop and 320x50 mobile Banner placements in the Adsterra
+publisher dashboard and copy the values from each generated ad code. The Adsterra
+API token is for server-side reporting and must not be exposed as a `NEXT_PUBLIC_`
+variable. The route gate permits banners only on the home page and manually
+reviewed menu guides; login, history, cart, settings, download, contact, legal,
+and generated menu-result screens remain excluded. Run `npm run test:adsterra`,
+`npm run test:adsterra-routes`, and `npm run build` from `frontend-web` before
+deployment.
 
 Current default parsing flow:
 

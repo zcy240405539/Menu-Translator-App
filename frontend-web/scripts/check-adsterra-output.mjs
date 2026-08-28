@@ -29,21 +29,24 @@ function visibleWordCount(html) {
 for (const [route, minimumWords] of Object.entries(contentRoutes)) {
   const html = htmlFor(route);
   assert.ok(visibleWordCount(html) >= minimumWords, `${route || "/"} publisher content became too thin`);
-  assert.ok(html.includes("google-adsense-account"), `${route || "/"} lost AdSense ownership verification`);
   assert.ok(html.includes('rel="canonical"'), `${route || "/"} lost its canonical URL`);
   assert.ok(html.includes("application/ld+json"), `${route || "/"} lost structured data`);
-  assert.ok(!/adsbygoogle|pagead2\.googlesyndication\.com/.test(html), `${route || "/"} requested ads during review`);
+  assert.ok(!/google-adsense-account|adsbygoogle|pagead2\.googlesyndication\.com/.test(html), `${route || "/"} still contains AdSense`);
 }
 
 for (const route of noIndexRoutes) {
   const html = htmlFor(route);
   assert.ok(html.includes('name="robots" content="noindex'), `/${route} must remain noindex`);
-  assert.ok(!/adsbygoogle|pagead2\.googlesyndication\.com/.test(html), `/${route} requested ads`);
+  assert.ok(!/google-adsense-account|adsbygoogle|pagead2\.googlesyndication\.com/.test(html), `/${route} still contains AdSense`);
 }
 
+const adsTxtPath = path.join(output, "ads.txt");
+if (fs.existsSync(adsTxtPath)) {
+  assert.ok(!fs.readFileSync(adsTxtPath, "utf8").includes("pub-8286400764174465"), "AdSense ads.txt entry must not be published");
+}
 assert.ok(fs.readFileSync(path.join(output, "robots.txt"), "utf8").includes("Sitemap: https://aimenu.us.kg/sitemap.xml"));
 const sitemap = fs.readFileSync(path.join(output, "sitemap.xml"), "utf8");
 assert.ok(sitemap.includes("https://aimenu.us.kg/how-it-works/"));
 assert.ok(sitemap.includes("https://aimenu.us.kg/menu-examples/"));
 assert.ok(!sitemap.includes("https://aimenu.us.kg/download/"));
-console.log("AdSense static-output checks passed.");
+console.log("Adsterra static-output checks passed.");

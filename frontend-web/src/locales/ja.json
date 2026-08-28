@@ -225,7 +225,7 @@
           "heading": "第三者サービス",
           "items": [
             "このアプリは、ホスティング、データベースストレージ、認証、AIモデル処理、画像取得、分析、広告などに使用されるサービスプロバイダーを通じてデータを処理する場合があります。",
-            "これらのプロバイダーには、有効化されている機能に応じて、Render、Supabase、Meta、OpenRouter、OpenAI、Google AdSense、Google AdMob、Pexels、Unsplash、Wikimedia Commonsなどが含まれる場合があります。"
+            "これらのプロバイダーには、有効化されている機能に応じて、Render、Supabase、Meta、OpenRouter、OpenAI、Adsterra、Google AdMob、Pexels、Unsplash、Wikimedia Commonsなどが含まれる場合があります。"
           ]
         },
         {
@@ -289,7 +289,7 @@
         {
           "heading": "サービスプロバイダー",
           "items": [
-            "有効化されている機能によっては、データはSupabase、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Google AdSense、およびGoogle AdMobによって処理される場合があります。",
+            "有効化されている機能によっては、データはSupabase、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Adsterra、およびGoogle AdMobによって処理される場合があります。",
             "メニューコンテンツは、リクエストされた機能を提供するために必要な場合にのみ、AIおよびクラウドサービスに送信されます。各プロバイダーは、独自の利用規約およびプライバシーポリシーに基づいてデータを処理します。"
           ]
         },

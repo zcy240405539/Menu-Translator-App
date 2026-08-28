@@ -27,7 +27,8 @@ npm run dev
 ```bash
 npm run lint
 npm run build
-npm run test:adsense
+npm run test:adsterra
+npm run test:adsterra-routes
 ```
 
 ## Render
@@ -38,10 +39,18 @@ npm run test:adsense
 - Publish directory: `out`
 - Environment:
   - `NEXT_PUBLIC_API_URL=https://menu-translator-app.onrender.com`
-  - `NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-8286400764174465`
-  - `NEXT_PUBLIC_ADSENSE_ENABLED=false`
+  - `NEXT_PUBLIC_ADSTERRA_ENABLED=false`
+  - `NEXT_PUBLIC_ADSTERRA_DESKTOP_KEY=YOUR_728X90_PLACEMENT_KEY`
+  - `NEXT_PUBLIC_ADSTERRA_DESKTOP_SCRIPT_URL=https://YOUR_ADSTERRA_DOMAIN/PATH/invoke.js`
+  - `NEXT_PUBLIC_ADSTERRA_MOBILE_KEY=YOUR_320X50_PLACEMENT_KEY`
+  - `NEXT_PUBLIC_ADSTERRA_MOBILE_SCRIPT_URL=https://YOUR_ADSTERRA_DOMAIN/PATH/invoke.js`
 
-The publisher verification meta tag remains active while AdSense is under review.
-Keep `NEXT_PUBLIC_ADSENSE_ENABLED=false` so Google-served ads cannot appear on
-login, loading, empty-state, legal, or automatically generated result screens.
-After the site is approved, add ads only to manually reviewed, content-rich pages.
+Create separate 728x90 desktop and 320x50 mobile Banner placements in the
+Adsterra publisher dashboard, then copy the key and HTTPS `invoke.js` URL from
+each generated ad code. Keep `NEXT_PUBLIC_ADSTERRA_ENABLED=false` until both
+placements are approved and configured. The API token is only for server-side
+reporting and must never be stored in a `NEXT_PUBLIC_` variable.
+
+Adsterra banners are limited to manually reviewed, content-rich routes. Login,
+loading, empty-state, legal, account, and generated result screens stay ad-free.
+The implementation intentionally does not enable Popunder or forced redirects.

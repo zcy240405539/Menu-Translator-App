@@ -67,7 +67,7 @@
         {
           "heading": "Поставщики услуг",
           "items": [
-            "В зависимости от включенных функций, данные могут обрабатываться Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Google AdSense и Google AdMob.",
+            "В зависимости от включенных функций, данные могут обрабатываться Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra и Google AdMob.",
             "Содержимое меню отправляется в сервисы искусственного интеллекта и облачные сервисы только по мере необходимости для предоставления запрошенной функции. Каждый поставщик обрабатывает данные в соответствии со своими собственными условиями и политикой конфиденциальности."
           ]
         },
