@@ -33,10 +33,15 @@ export default function AdsterraAds({ enabled, desktop, mobile }: AdsterraAdsPro
       if (container) {
         const observeFooter = () => {
           const footer = document.querySelector("[data-site-footer]");
-          if (!footer || !("IntersectionObserver" in window)) return;
-          new IntersectionObserver(([entry]) => {
-            container.dataset.footerVisible = entry.isIntersecting ? "true" : "false";
-          }).observe(footer);
+          if (!footer) return;
+          const positionAboveFooter = () => {
+            const overlap = Math.max(0, window.innerHeight - footer.getBoundingClientRect().top);
+            container.style.setProperty("--adsterra-footer-offset", overlap + "px");
+            container.dataset.footerVisible = overlap > 0 ? "true" : "false";
+          };
+          positionAboveFooter();
+          window.addEventListener("scroll", positionAboveFooter, { passive: true });
+          window.addEventListener("resize", positionAboveFooter, { passive: true });
         };
         const revealWhenReady = () => {
           if (!container.querySelector("iframe, object, embed, ins")) return false;

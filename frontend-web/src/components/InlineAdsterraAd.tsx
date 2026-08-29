@@ -14,6 +14,7 @@ export default function InlineAdsterraAd() {
   const enabled = process.env.NEXT_PUBLIC_ADSTERRA_ENABLED === "true"
     && Boolean(process.env.NEXT_PUBLIC_ADSTERRA_MOBILE_KEY?.trim())
     && Boolean(scriptUrl(process.env.NEXT_PUBLIC_ADSTERRA_MOBILE_SCRIPT_URL));
+  const frameUrl = `/ad-frame.html?key=${encodeURIComponent(process.env.NEXT_PUBLIC_ADSTERRA_MOBILE_KEY?.trim() || "")}&source=${encodeURIComponent(scriptUrl(process.env.NEXT_PUBLIC_ADSTERRA_MOBILE_SCRIPT_URL))}`;
 
   useEffect(() => {
     if (!enabled) return;
@@ -40,7 +41,7 @@ export default function InlineAdsterraAd() {
         scrolling="no"
         sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
         referrerPolicy="strict-origin-when-cross-origin"
-        src="/ad-frame/"
+        src={frameUrl}
         className="block max-w-full border-0"
       />
     </aside>

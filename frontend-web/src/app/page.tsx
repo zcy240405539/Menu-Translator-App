@@ -286,7 +286,6 @@ export default function Home() {
   const sections = useMemo(() => displaySections(menuData, text.result.other), [menuData, text.result.other]);
   const itemCount = sections.reduce((total, section) => total + section.items.length, 0);
   const showResultView = Boolean(menuHash);
-  const showSavedMenuLinks = showResultView || hasUserSession;
   const langQuery = `?lang=${encodeURIComponent(lang)}`;
   const historyHref = `/history${langQuery}`;
   const cartHref = `/cart${langQuery}`;
@@ -359,16 +358,12 @@ export default function Home() {
             <a href={shareHref} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.share} onClick={handleShare}>
               <Share2 className="h-5 w-5" />
             </a>
-            {showSavedMenuLinks && (
-              <>
-                <Link href={historyHref} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.history}>
-                  <History className="h-5 w-5" />
-                </Link>
-                <Link href={cartHref} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.cart}>
-                  <ShoppingCart className="h-5 w-5" />
-                </Link>
-              </>
-            )}
+            <Link href={historyHref} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.history}>
+              <History className="h-5 w-5" />
+            </Link>
+            <Link href={cartHref} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.cart}>
+              <ShoppingCart className="h-5 w-5" />
+            </Link>
             <Link href={`/settings${langQuery}`} prefetch={false} className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-purple-50 hover:text-purple-600" aria-label={text.nav.settings}>
               <Settings className="h-5 w-5" />
             </Link>

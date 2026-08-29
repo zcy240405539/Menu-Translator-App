@@ -146,7 +146,7 @@
   position: fixed;
   z-index: 40;
   right: 0;
-  bottom: 0;
+  bottom: var(--adsterra-footer-offset, 0px);
   left: 0;
   width: auto;
   max-width: none;
@@ -161,14 +161,7 @@
   box-shadow: 0 -8px 24px rgb(17 24 39 / 10%);
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
-}
-
-.adsterra-slot[data-adsterra-active="true"][data-footer-visible="true"] {
-  visibility: hidden;
-  opacity: 0;
-  transform: translateY(100%);
-  pointer-events: none;
+  transition: bottom 120ms ease;
 }
 
 @media (min-width: 768px) {

@@ -14,7 +14,7 @@ const contentRoutes = {
   "privacy-policy": 300,
   "terms-of-service": 300,
 };
-const noIndexRoutes = ["login", "register", "history", "cart", "settings", "account-deletion", "download", "ad-frame"];
+const noIndexRoutes = ["login", "register", "history", "cart", "settings", "account-deletion", "download"];
 
 function htmlFor(route) {
   return fs.readFileSync(path.join(output, route, "index.html"), "utf8");
@@ -40,7 +40,7 @@ for (const [route, minimumWords] of Object.entries(contentRoutes)) {
 const home = htmlFor("");
 assert.ok(home.includes("adsterra-slot"), "homepage lost the Adsterra slot");
 assert.ok(home.includes("document.write"), "Adsterra must load during HTML parsing");
-assert.ok(home.includes("IntersectionObserver"), "Adsterra must stop before the footer");
+assert.ok(home.includes("--adsterra-footer-offset"), "Adsterra must move above the footer");
 assert.ok(home.includes("MutationObserver"), "Adsterra must wait for a real creative before becoming visible");
 assert.ok(home.includes("data-site-footer"), "footer lost its Adsterra visibility marker");
 assert.ok(!/srcdoc=|srcDoc=/.test(home), "Adsterra must not run inside a srcDoc iframe");
@@ -49,13 +49,16 @@ const dialogsSource = fs.readFileSync(path.resolve("src/components/MenuResultDia
 assert.equal(dialogsSource.match(/<InlineAdsterraAd\s*\/>/g)?.length, 3, "detail, recommendation, and recommendation-item cards need inline ads");
 const inlineAdSource = fs.readFileSync(path.resolve("src/components/InlineAdsterraAd.tsx"), "utf8");
 assert.ok(inlineAdSource.includes("adsterra-ready"), "inline ads must wait for a real creative");
-assert.ok(inlineAdSource.includes('src="/ad-frame/"'), "inline ads must use the same-origin ad frame");
+assert.ok(inlineAdSource.includes("/ad-frame.html?key="), "inline ads must use the static same-origin ad frame");
 assert.ok(!inlineAdSource.includes("allow-same-origin"), "the ad frame must remain isolated from the parent document");
 assert.ok(!inlineAdSource.includes("srcDoc"), "inline ads must not use an anonymous srcDoc frame");
 
-const adFrame = htmlFor("ad-frame");
+const adFrame = fs.readFileSync(path.join(output, "ad-frame.html"), "utf8");
 assert.ok(adFrame.includes("adsterra-ready"), "the ad frame must notify its parent after a creative loads");
 assert.ok(adFrame.includes("document.write"), "the ad frame must load Adsterra during HTML parsing");
+assert.ok(!adFrame.includes("data-site-footer"), "the ad frame must not inherit the site layout");
+const homeSource = fs.readFileSync(path.resolve("src/app/page.tsx"), "utf8");
+assert.ok(!homeSource.includes("showSavedMenuLinks"), "history and cart must remain visible on the mobile homepage");
 const login = htmlFor("login");
 const register = htmlFor("register");
 assert.ok(login.includes("google-g-logo.svg"), "login must show the Google G logo");

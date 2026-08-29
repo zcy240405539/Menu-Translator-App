@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Advertisement</title>
+  <style>html,body{width:320px;height:50px;margin:0;overflow:hidden;background:transparent}</style>
+</head>
+<body>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const key = params.get("key") || "";
+  const sourceValue = params.get("source") || "";
+  const source = sourceValue.startsWith("//") ? `https:${sourceValue}` : sourceValue;
+  if (!key || !source.startsWith("https://")) return;
+
+  const notifyWhenReady = () => {
+    if (!document.querySelector("iframe,object,embed,ins")) return false;
+    parent.postMessage({ type: "adsterra-ready" }, "*");
+    return true;
+  };
+  const observer = new MutationObserver(() => {
+    if (notifyWhenReady()) observer.disconnect();
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+  setTimeout(() => {
+    notifyWhenReady();
+    observer.disconnect();
+  }, 10000);
+
+  window.atOptions = { key, format: "iframe", height: 50, width: 320, params: {} };
+  const escapedSource = source
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;");
+  document.write('<script type="text/javascript" src="' + escapedSource + '"><\/script>');
+})();
+</script>
+</body>
+</html>
