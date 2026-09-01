@@ -35,13 +35,18 @@ export default function AccountPage() {
   const [ready, setReady] = useState(false);
   const text = useText(lang);
   const query = `?lang=${encodeURIComponent(lang)}`;
-  const loginHref = `/login${query}&next=${encodeURIComponent(`/account${query}`)}`;
 
   useEffect(() => {
     queueMicrotask(() => {
       const nextLang = getPageLanguage();
+      const nextUser = storedUser();
       setLang(nextLang);
-      setUser(storedUser());
+      if (!nextUser) {
+        const accountPath = `/account?lang=${encodeURIComponent(nextLang)}`;
+        window.location.replace(`/login?lang=${encodeURIComponent(nextLang)}&next=${encodeURIComponent(accountPath)}`);
+        return;
+      }
+      setUser(nextUser);
       setReady(true);
       applyDocumentLanguage(nextLang);
     });
@@ -73,18 +78,6 @@ export default function AccountPage() {
 
             <div className="min-w-0 flex-1">
               {!ready && <p className="py-2 text-gray-500">{text.saved.loading}</p>}
-
-              {ready && !user && (
-                <div>
-                  <p className="text-gray-600">{text.saved.signInPrompt}</p>
-                  <Link
-                    href={loginHref}
-                    className="mt-5 inline-flex h-11 items-center justify-center rounded-md bg-purple-700 px-5 font-semibold text-white hover:bg-purple-800"
-                  >
-                    {text.auth.signIn}
-                  </Link>
-                </div>
-              )}
 
               {ready && user && (
                 <dl className="space-y-4">

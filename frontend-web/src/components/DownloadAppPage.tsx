@@ -43,7 +43,7 @@ export default function DownloadAppPage() {
       <header className="border-b border-purple-100 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
           <Link href={`/${langQuery}`} className="flex min-w-0 items-center gap-3 rounded-md transition-opacity hover:opacity-85">
-            <Image src="/ai-menu-logo.png" alt="" width={38} height={38} className="rounded-md" priority />
+            <Image src="/ai-menu-logo.png" alt="" width={38} height={38} className="scale-150 object-contain" priority />
             <span className="min-w-0 font-extrabold text-[#5f259f]">{text.common.brand}</span>
           </Link>
           <label className="relative flex h-10 items-center gap-2 rounded-md border border-purple-100 bg-purple-50 px-3 text-sm font-semibold text-purple-800">
@@ -65,7 +65,7 @@ export default function DownloadAppPage() {
 
       <section className="flex min-h-[calc(100vh-73px)] items-center border-b border-purple-100 px-5 py-14 sm:py-20">
         <div className="mx-auto flex min-w-0 w-full max-w-3xl flex-col items-center text-center">
-          <Image src="/ai-menu-logo.png" alt="" width={88} height={88} className="rounded-lg shadow-sm" priority />
+          <Image src="/ai-menu-logo.png" alt="" width={88} height={88} className="scale-150 object-contain" priority />
           <p className="mt-7 max-w-full break-words text-sm font-bold uppercase text-purple-700">{text.download.eyebrow}</p>
           <h1 className="mt-4 w-full max-w-full break-words text-4xl font-extrabold leading-tight text-gray-950 sm:text-5xl">{text.download.title}</h1>
           <p className="mt-6 w-full max-w-2xl break-words text-lg leading-8 text-gray-600">{text.download.description}</p>

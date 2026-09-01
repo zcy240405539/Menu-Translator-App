@@ -17,7 +17,7 @@ export default function UtilityPageHeader({ lang }: { lang: WebLanguageCode }) {
         {text.settings.backHome}
       </Link>
       <Link href={homeHref} className="inline-flex items-center gap-2 rounded-md hover:opacity-85">
-        <Image src="/ai-menu-logo.png" alt="" width={34} height={34} className="rounded-md" priority />
+        <Image src="/ai-menu-logo.png" alt="" width={34} height={34} className="scale-150 object-contain" priority />
         <span className="font-bold text-[#5f259f]">{text.common.brand}</span>
       </Link>
     </header>

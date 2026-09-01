@@ -3,7 +3,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Apple, Eye, EyeOff, Globe, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Globe, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -139,7 +139,7 @@ export default function LoginForm({ mode = "login" }: { mode?: "login" | "regist
           <CardContent className="space-y-6 p-8">
             <div className="flex items-start justify-between gap-4">
               <Link href={homeHref} className="inline-flex items-center gap-2">
-                <Image src="/ai-menu-logo.png" alt="" width={40} height={40} className="rounded-md" priority />
+                <Image src="/ai-menu-logo.png" alt="" width={40} height={40} className="scale-150 object-contain" priority />
                 <span className="text-xl font-bold text-[#5f259f]">{text.common.brand}</span>
               </Link>
               <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center text-gray-700 transition-colors hover:text-purple-600" aria-label={text.nav.language}>
@@ -235,7 +235,14 @@ export default function LoginForm({ mode = "login" }: { mode?: "login" | "regist
               onClick={handleAppleLogin}
               className="h-12 w-full rounded-xl bg-black text-white hover:bg-gray-900"
             >
-              <Apple aria-hidden="true" className="mr-2 h-[18px] w-[18px]" />
+              <Image
+                src="/apple-login-logo.png"
+                alt=""
+                width={18}
+                height={22}
+                aria-hidden="true"
+                className="mr-2 h-5 w-auto object-contain"
+              />
               {text.auth.apple}
             </Button>
 

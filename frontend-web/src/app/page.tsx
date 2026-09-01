@@ -142,12 +142,23 @@ function actionDish(item: MenuItem, sectionIndex: number, itemIndex: number, sec
   return { ...item, id: `${sectionIndex}-${itemIndex}-${sectionTitle}-${name}` };
 }
 
+function hasStoredSession() {
+  try {
+    return Boolean(
+      window.localStorage.getItem("menu_app_token") || window.sessionStorage.getItem("menu_app_token")
+    );
+  } catch {
+    return false;
+  }
+}
+
 export default function Home() {
   const [menuHash, setMenuHash] = useState("");
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
   const [menuData, setMenuData] = useState<MenuData | null>(null);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [menuError, setMenuError] = useState("");
+  const [hasUserSession, setHasUserSession] = useState(false);
   const [shareHref, setShareHref] = useState("/");
   const [selectedDish, setSelectedDish] = useState<MenuItem | null>(null);
   const [showRecommendation, setShowRecommendation] = useState(false);
@@ -170,6 +181,7 @@ export default function Home() {
       const nextLang = normalizeLanguage(params.get("lang") || getInitialLanguage());
       setMenuHash(hash);
       setLang(nextLang);
+      setHasUserSession(hasStoredSession());
       setShareHref(window.location.href);
       setShowRecommendation(Boolean(hash && openRecommendation));
 
@@ -276,7 +288,10 @@ export default function Home() {
   const historyHref = `/history${langQuery}`;
   const cartHref = `/cart${langQuery}`;
   const homeHref = `/${langQuery}`;
-  const accountHref = `/account${langQuery}`;
+  const accountPath = `/account${langQuery}`;
+  const accountHref = hasUserSession
+    ? accountPath
+    : `/login${langQuery}&next=${encodeURIComponent(accountPath)}`;
   const recommendHref = `/?menu_hash=${encodeURIComponent(menuHash)}&lang=${encodeURIComponent(lang)}&show_recommend=1`;
   const actionItems = useMemo(
     () => sections.flatMap((section, sectionIndex) =>
@@ -318,7 +333,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 w-full border-b border-purple-100/70 bg-white/90 shadow-sm backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <a href={homeHref} onClick={handleHomeClick} className="group flex min-w-0 flex-1 items-center gap-2 rounded-md transition-all hover:opacity-90" aria-label={text.common.brand}>
-            <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="rounded-md transition-shadow group-hover:shadow-md" priority />
+            <Image src="/ai-menu-logo.png" alt="" width={36} height={36} className="scale-150 object-contain transition-opacity group-hover:opacity-80" priority />
             <span className="hidden text-xl font-bold text-[#5f259f] transition-colors group-hover:text-purple-700 sm:inline">{text.common.brand}</span>
           </a>
           <div className="flex shrink-0 items-center gap-0.5 text-gray-700 sm:gap-1 md:gap-3">

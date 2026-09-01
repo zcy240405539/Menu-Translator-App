@@ -23,7 +23,7 @@ export default function ContentPageHeader({
     <header className="border-b border-purple-100 bg-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
         <Link href={`/${langQuery}`} className="flex items-center gap-3 rounded-md hover:opacity-85">
-          <Image src="/ai-menu-logo.png" alt="" width={38} height={38} className="rounded-md" priority />
+          <Image src="/ai-menu-logo.png" alt="" width={38} height={38} className="scale-150 object-contain" priority />
           <span className="font-extrabold text-[#5f259f]">{text.common.brand}</span>
         </Link>
         <label className="relative flex h-10 items-center gap-2 rounded-md border border-purple-100 bg-purple-50 px-3 text-sm font-semibold text-purple-800">
