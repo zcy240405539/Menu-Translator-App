@@ -4,7 +4,7 @@ Next.js App Router frontend for the browser version of AI Menu APP.
 
 The header language selector controls both the web page copy and the target language used for menu parsing/cache reads.
 Chinese variants display as `Chinese-Simplified` and `Chinese-Traditional` in menus, and compact to `Chinese` after selection.
-Header action icons are links so browsers show their destination on hover; the account icon opens `/login` instead of starting Google OAuth directly.
+Header action icons are links so browsers show their destination on hover; the account icon opens `/account`, where signed-out users can continue to `/login` and signed-in users can access their saved pages and settings.
 History and cart header icons link to `/history` and `/cart`; those pages read signed-in user data from the backend.
 The checked-in UI components are deployed directly; the `shadcn` generator is a development-only dependency.
 

@@ -160,7 +160,9 @@
     "redirectUnsupported": "Die Anmeldeseite kann auf diesem Gerät nicht geöffnet werden.",
     "googleLoginFailed": "Google-Anmeldung konnte nicht gestartet werden",
     "facebookLogin": "Mit Facebook fortfahren",
-    "facebookLoginFailed": "Die Facebook-Anmeldung konnte nicht gestartet werden"
+    "facebookLoginFailed": "Die Facebook-Anmeldung konnte nicht gestartet werden",
+    "appleLogin": "Mit Apple fortfahren",
+    "appleLoginFailed": "Die Apple-Anmeldung konnte nicht gestartet werden"
   },
   "profile": {
     "title": "Profileinstellungen",
@@ -254,7 +256,7 @@
         {
           "heading": "Dienstleister",
           "items": [
-            "Je nach aktivierten Funktionen können die Daten von Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons und Google AdMob verarbeitet werden.",
+            "Je nach aktivierten Funktionen können die Daten von Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons und Google AdMob verarbeitet werden.",
             "Diese Anbieter verarbeiten Informationen gemäß ihren eigenen Bedingungen und Datenschutzrichtlinien. Menüinhalte werden nur dann an KI- und Cloud-Dienste gesendet, wenn dies zur Bereitstellung der angeforderten Funktion erforderlich ist."
           ]
         },

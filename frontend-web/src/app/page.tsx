@@ -142,25 +142,12 @@ function actionDish(item: MenuItem, sectionIndex: number, itemIndex: number, sec
   return { ...item, id: `${sectionIndex}-${itemIndex}-${sectionTitle}-${name}` };
 }
 
-function hasStoredSession() {
-  try {
-    return [window.localStorage, window.sessionStorage].some((storage) =>
-      Array.from({ length: storage.length }, (_, index) => storage.key(index) || "").some((key) =>
-        /auth|session|token/i.test(key) && Boolean(storage.getItem(key))
-      )
-    );
-  } catch {
-    return false;
-  }
-}
-
 export default function Home() {
   const [menuHash, setMenuHash] = useState("");
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
   const [menuData, setMenuData] = useState<MenuData | null>(null);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [menuError, setMenuError] = useState("");
-  const [hasUserSession, setHasUserSession] = useState(false);
   const [shareHref, setShareHref] = useState("/");
   const [selectedDish, setSelectedDish] = useState<MenuItem | null>(null);
   const [showRecommendation, setShowRecommendation] = useState(false);
@@ -183,7 +170,6 @@ export default function Home() {
       const nextLang = normalizeLanguage(params.get("lang") || getInitialLanguage());
       setMenuHash(hash);
       setLang(nextLang);
-      setHasUserSession(hasStoredSession());
       setShareHref(window.location.href);
       setShowRecommendation(Boolean(hash && openRecommendation));
 
@@ -290,7 +276,7 @@ export default function Home() {
   const historyHref = `/history${langQuery}`;
   const cartHref = `/cart${langQuery}`;
   const homeHref = `/${langQuery}`;
-  const accountHref = hasUserSession ? `/settings${langQuery}` : `/login${langQuery}`;
+  const accountHref = `/account${langQuery}`;
   const recommendHref = `/?menu_hash=${encodeURIComponent(menuHash)}&lang=${encodeURIComponent(lang)}&show_recommend=1`;
   const actionItems = useMemo(
     () => sections.flatMap((section, sectionIndex) =>
@@ -506,13 +492,13 @@ export default function Home() {
                   { icon: Smartphone, ...text.features.cards[3], color: "text-pink-600", bg: "bg-pink-100" },
                 ].map((feature) => (
                   <Card key={feature.title} className="border-0 bg-gray-50/70 shadow-sm">
-                    <CardHeader className="items-center pb-2 text-center">
-                      <div className={`mb-4 flex h-14 w-14 items-center justify-center rounded-full ${feature.bg}`}>
-                        <feature.icon className={`h-7 w-7 ${feature.color}`} />
+                    <CardHeader className="flex min-h-14 flex-row items-center gap-4 pb-2 text-left">
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${feature.bg}`}>
+                        <feature.icon className={`h-6 w-6 ${feature.color}`} />
                       </div>
-                      <CardTitle className="text-xl font-bold text-gray-900">{feature.title}</CardTitle>
+                      <CardTitle className="min-w-0 flex-1 text-lg font-bold text-gray-900">{feature.title}</CardTitle>
                     </CardHeader>
-                    <CardContent className="text-center">
+                    <CardContent className="text-left">
                       <p className="text-sm leading-relaxed text-gray-600">{feature.desc}</p>
                     </CardContent>
                   </Card>

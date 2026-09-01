@@ -3,7 +3,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, EyeOff, Globe, Loader2 } from "lucide-react";
+import { Apple, Eye, EyeOff, Globe, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -115,7 +115,7 @@ export default function LoginForm({ mode = "login" }: { mode?: "login" | "regist
     }
   };
 
-  const handleOAuthLogin = async (provider: "facebook" | "google", fallback: string) => {
+  const handleOAuthLogin = async (provider: "apple" | "facebook" | "google", fallback: string) => {
     setIsLoading(true);
     setError("");
     try {
@@ -131,6 +131,7 @@ export default function LoginForm({ mode = "login" }: { mode?: "login" | "regist
   };
 
   const handleGoogleLogin = () => handleOAuthLogin("google", text.auth.googleFailed);
+  const handleAppleLogin = () => handleOAuthLogin("apple", text.auth.appleFailed);
   return (
     <main className="min-h-screen bg-[#fbf8f4] px-4 py-10">
       <section className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-md flex-col justify-center">
@@ -226,6 +227,16 @@ export default function LoginForm({ mode = "login" }: { mode?: "login" | "regist
             >
               <Image src="/google-g-logo.svg" alt="" width={18} height={18} className="mr-2" />
               {text.auth.google}
+            </Button>
+
+            <Button
+              type="button"
+              disabled={isLoading}
+              onClick={handleAppleLogin}
+              className="h-12 w-full rounded-xl bg-black text-white hover:bg-gray-900"
+            >
+              <Apple aria-hidden="true" className="mr-2 h-[18px] w-[18px]" />
+              {text.auth.apple}
             </Button>
 
             <Link href={alternateHref} className="block text-center text-sm font-semibold text-purple-700 hover:text-purple-800">

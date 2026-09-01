@@ -21,7 +21,7 @@ import {
   IconButton,
   useTheme,
 } from "react-native-paper";
-import { login, register, passwordReset, getGoogleAuthUrl } from "../api";
+import { login, register, passwordReset, getAppleAuthUrl, getGoogleAuthUrl } from "../api";
 import { getText } from "../i18n";
 
 const DIET_OPTIONS = [
@@ -173,6 +173,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   };
 
   const handleGoogleLogin = () => handleOAuthLogin(getGoogleAuthUrl, t.googleLoginFailed);
+  const handleAppleLogin = () => handleOAuthLogin(getAppleAuthUrl, t.appleLoginFailed);
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -449,16 +450,29 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
 
                   <Divider style={styles.divider} />
 
-                  {/* Google Login Button */}
                   <Button
                     mode="outlined"
                     icon="google"
                     onPress={handleGoogleLogin}
-                    style={styles.googleBtn}
-                    contentStyle={styles.googleBtnContent}
+                    disabled={loading}
+                    style={styles.oauthBtn}
+                    contentStyle={styles.oauthBtnContent}
                     textColor="#1D1B20"
                   >
                     {t.googleLogin}
+                  </Button>
+
+                  <Button
+                    mode="contained"
+                    icon="apple"
+                    onPress={handleAppleLogin}
+                    disabled={loading}
+                    style={[styles.oauthBtn, styles.appleBtn]}
+                    contentStyle={styles.oauthBtnContent}
+                    buttonColor="#000000"
+                    textColor="#FFFFFF"
+                  >
+                    {t.appleLogin}
                   </Button>
 
                 </Card.Content>
@@ -584,12 +598,16 @@ const styles = StyleSheet.create({
   divider: {
     marginVertical: 20,
   },
-  googleBtn: {
+  oauthBtn: {
     borderRadius: 100,
     borderColor: "#79747E",
   },
-  googleBtnContent: {
+  oauthBtnContent: {
     height: 52,
+  },
+  appleBtn: {
+    marginTop: 12,
+    borderColor: "#000000",
   },
   errorText: {
     color: "#B3261E",

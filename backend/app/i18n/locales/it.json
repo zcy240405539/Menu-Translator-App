@@ -67,7 +67,7 @@
         {
           "heading": "Fornitori di servizi",
           "items": [
-            "A seconda delle funzionalità abilitate, i dati possono essere elaborati da Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra e Google AdMob.",
+            "A seconda delle funzionalità abilitate, i dati possono essere elaborati da Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra e Google AdMob.",
             "Il contenuto del menu viene inviato ai servizi di intelligenza artificiale e cloud solo nella misura necessaria a fornire la funzionalità richiesta. Ciascun fornitore elabora i dati secondo i propri termini e le proprie politiche sulla privacy."
           ]
         },

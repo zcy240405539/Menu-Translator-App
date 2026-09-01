@@ -36,6 +36,7 @@ LANGUAGE_NAMES = {
 PROTECTED_EXACT = {
     "AI Menu APP",
     "AI Menu APP 2.3",
+    "Apple",
     "Facebook",
     "Google",
     "Google AdMob",
@@ -201,6 +202,8 @@ APP_EN_PATCH = {
         "resetFailed": "Failed to send reset email",
         "authenticationFailed": "Authentication failed",
         "redirectUnsupported": "Cannot open the sign-in page on this device",
+        "appleLogin": "Continue with Apple",
+        "appleLoginFailed": "Failed to start Apple sign-in",
         "facebookLogin": "Continue with Facebook",
         "facebookLoginFailed": "Failed to start Facebook sign-in",
         "googleLoginFailed": "Failed to start Google sign-in",
@@ -244,6 +247,8 @@ APP_EN_PATCH = {
 WEB_EN_PATCH = {
     "common": {"brand": "AI Menu APP"},
     "auth": {
+        "apple": "Continue with Apple",
+        "appleFailed": "Unable to open Apple sign in.",
         "facebook": "Continue with Facebook",
         "facebookFailed": "Unable to open Facebook sign in.",
     },

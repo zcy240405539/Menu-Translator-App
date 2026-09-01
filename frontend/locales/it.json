@@ -160,7 +160,9 @@
     "redirectUnsupported": "Impossibile aprire la pagina di accesso su questo dispositivo",
     "googleLoginFailed": "Impossibile avviare l'accesso a Google",
     "facebookLogin": "Continua con Facebook",
-    "facebookLoginFailed": "Impossibile avviare l’accesso con Facebook"
+    "facebookLoginFailed": "Impossibile avviare l’accesso con Facebook",
+    "appleLogin": "Continua con Apple",
+    "appleLoginFailed": "Impossibile avviare l’accesso con Apple"
   },
   "profile": {
     "title": "Impostazioni del profilo",
@@ -254,7 +256,7 @@
         {
           "heading": "Fornitori di servizi",
           "items": [
-            "A seconda delle funzionalità abilitate, i dati possono essere elaborati da Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons e Google AdMob.",
+            "A seconda delle funzionalità abilitate, i dati possono essere elaborati da Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons e Google AdMob.",
             "Questi fornitori elaborano le informazioni secondo i propri termini e le proprie politiche sulla privacy. Il contenuto del menu può essere inviato a servizi di intelligenza artificiale e cloud solo se necessario per fornire la funzionalità richiesta."
           ]
         },

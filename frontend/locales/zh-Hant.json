@@ -160,7 +160,9 @@
     "redirectUnsupported": "此裝置上無法開啟登入頁面",
     "googleLoginFailed": "Google 登入失敗",
     "facebookLogin": "使用 Facebook 帳號快捷登入",
-    "facebookLoginFailed": "Facebook 登入失敗"
+    "facebookLoginFailed": "Facebook 登入失敗",
+    "appleLogin": "使用 Apple 帳號快捷登入",
+    "appleLoginFailed": "Apple 登入失敗"
   },
   "profile": {
     "title": "個人中心",
@@ -254,7 +256,7 @@
         {
           "heading": "服務提供者",
           "items": [
-            "根據啟用的功能，資料可能由 Supabase、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons 和 Google AdMob 處理。",
+            "根據啟用的功能，資料可能由 Supabase、Apple、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons 和 Google AdMob 處理。",
             "這些服務商依各自條款和隱私規則處理資訊。菜單內容只會在提供您要求的功能所需範圍內傳送給 AI 和雲端服務。"
           ]
         },

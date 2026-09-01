@@ -23,7 +23,7 @@ Users can:
 - Dish image search with Pexels, Unsplash, Wikimedia Commons, and OpenAI image fallback
 - PostgreSQL dish, category, and menu parse cache
 - DB-backed restaurant cuisine/type display labels
-- Supabase Auth user accounts with Google OAuth, profile preferences, avatars, and subscription records
+- Supabase Auth user accounts with Google and Apple OAuth, profile preferences, avatars, and subscription records
 - AI recommendation module
 - Web result page dish-detail dialog and AI recommendation form
 - Shareable cached menu URLs
@@ -117,6 +117,26 @@ retained as migration history and is not the GitHub integration source.
 `20260727170752_production_baseline.sql` is a schema-only baseline of the current
 production `public` schema. It contains no production rows or credentials and is
 recorded as already applied in production.
+
+## Apple OAuth Setup
+
+The APP and Web login screens use Supabase's browser-based Apple OAuth flow.
+Complete these external settings before exposing the Apple button in production:
+
+1. In Apple Developer, enable **Sign in with Apple** on the primary App ID.
+2. Create a **Services ID** for the website and associate it with that primary
+   App ID. Configure the Supabase project domain and
+   `https://<project-ref>.supabase.co/auth/v1/callback` as the return URL.
+3. Create a Sign in with Apple key and download its `.p8` file once. Keep the
+   key outside Git and use it with the Team ID, Services ID, and Key ID to
+   generate the Apple client secret.
+4. In Supabase **Authentication > Sign In / Providers > Apple**, enter the
+   Services ID as the client ID and save the generated secret. Add the Web login
+   URL and `aimenuapp://auth/callback` to the Supabase redirect allow list.
+5. Rotate the Apple OAuth client secret before its six-month maximum expiry.
+
+For a future native iOS release, add the iOS bundle identifier and Sign in with
+Apple entitlement, then prefer the native Apple authentication flow on iOS.
 
 ## APP Structure
 ```
@@ -442,6 +462,7 @@ Current default parsing flow:
 ```POST /auth/google```
 ```GET /auth/google/url```
 ```GET /auth/facebook/url```
+```GET /auth/apple/url```
 ```GET /auth/oauth/{provider}/url```
 ```GET /auth/me```
 ```POST /auth/profile```
@@ -558,7 +579,7 @@ web_found
 - Source/target menu support for English, simplified Chinese, traditional Chinese, Spanish, French, Japanese, Korean, Russian, Portuguese, German, Italian, and Arabic
 - Independent source-language OCR, layout, price, unit, noise, and detection profiles
 - AI smart recommendation modal and backend recommendation endpoint
-- Supabase Auth login, registration, Google OAuth handoff, password reset, profile preferences, and avatar upload
+- Supabase Auth login, registration, Google and Apple OAuth handoff, password reset, profile preferences, and avatar upload
 - Native AdMob integration with web-safe fallback modules
 - Share dialog and shareable cached menu URLs
 - Currency extraction and frontend price formatting

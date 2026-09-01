@@ -69,7 +69,9 @@
     "googleFailed": "No se pudo abrir el inicio de sesión con Google.",
     "signedIn": "Sesión iniciada. Redirigiendo...",
     "facebook": "Continuar con Facebook",
-    "facebookFailed": "No se pudo abrir el inicio de sesión con Facebook."
+    "facebookFailed": "No se pudo abrir el inicio de sesión con Facebook.",
+    "apple": "Continuar con Apple",
+    "appleFailed": "No se pudo abrir el inicio de sesión con Apple."
   },
   "saved": {
     "loading": "Cargando...",
@@ -225,7 +227,7 @@
           "heading": "Servicios de terceros",
           "items": [
             "La app puede procesar datos mediante proveedores de alojamiento, almacenamiento de base de datos, autenticación, modelos de AI, búsqueda de imágenes, analítica y publicidad.",
-            "Estos proveedores pueden incluir Render, Supabase, Meta, OpenRouter, OpenAI, Adsterra, Google AdMob, Pexels, Unsplash y Wikimedia Commons, según las funciones habilitadas."
+            "Estos proveedores pueden incluir Render, Supabase, Apple, Meta, OpenRouter, OpenAI, Adsterra, Google AdMob, Pexels, Unsplash y Wikimedia Commons, según las funciones habilitadas."
           ]
         },
         {
@@ -289,7 +291,7 @@
         {
           "heading": "Proveedores de servicios",
           "items": [
-            "Según las funciones habilitadas, Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra y Google AdMob pueden procesar datos.",
+            "Según las funciones habilitadas, Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra y Google AdMob pueden procesar datos.",
             "El contenido del menú se envía a servicios de IA y nube solo cuando es necesario. Cada proveedor aplica sus propios términos y políticas."
           ]
         },

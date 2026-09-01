@@ -67,7 +67,7 @@
         {
           "heading": "Dienstleister",
           "items": [
-            "Je nach aktivierten Funktionen können die Daten von Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra und Google AdMob verarbeitet werden.",
+            "Je nach aktivierten Funktionen können die Daten von Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra und Google AdMob verarbeitet werden.",
             "Menüinhalte werden nur dann an KI- und Cloud-Dienste gesendet, wenn dies zur Bereitstellung der angeforderten Funktion erforderlich ist. Jeder Anbieter verarbeitet Daten gemäß seinen eigenen Nutzungsbedingungen und Datenschutzrichtlinien."
           ]
         },

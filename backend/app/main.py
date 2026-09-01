@@ -305,6 +305,11 @@ def get_facebook_auth_url(redirect_to: str = "http://localhost:19006"):
     return get_oauth_auth_url("facebook", redirect_to)
 
 
+@app.get("/auth/apple/url")
+def get_apple_auth_url(redirect_to: str = "http://localhost:19006"):
+    return get_oauth_auth_url("apple", redirect_to)
+
+
 @app.get("/auth/oauth/{provider}/url")
 def get_oauth_auth_url(provider: str, redirect_to: str = "http://localhost:19006"):
     try:

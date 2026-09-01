@@ -67,7 +67,7 @@
         {
           "heading": "サービスプロバイダー",
           "items": [
-            "有効化されている機能によっては、データはSupabase、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Adsterra、およびGoogle AdMobによって処理される場合があります。",
+            "有効化されている機能によっては、データはSupabase、Apple、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Adsterra、およびGoogle AdMobによって処理される場合があります。",
             "メニューコンテンツは、リクエストされた機能を提供するために必要な場合にのみ、AIおよびクラウドサービスに送信されます。各プロバイダーは、独自の利用規約およびプライバシーポリシーに基づいてデータを処理します。"
           ]
         },

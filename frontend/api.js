@@ -507,6 +507,10 @@ export function getFacebookAuthUrl(redirectTo) {
   return getOAuthAuthUrl("facebook", redirectTo);
 }
 
+export function getAppleAuthUrl(redirectTo) {
+  return getOAuthAuthUrl("apple", redirectTo);
+}
+
 
 export async function getUnitTranslations() {
   const res = await fetch(`${API_BASE_URL}/i18n/units`);

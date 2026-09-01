@@ -160,7 +160,9 @@
     "redirectUnsupported": "No se puede abrir la página de inicio de sesión en este dispositivo.",
     "googleLoginFailed": "No se pudo iniciar sesión en Google.",
     "facebookLogin": "Continuar con Facebook",
-    "facebookLoginFailed": "No se pudo iniciar sesión con Facebook"
+    "facebookLoginFailed": "No se pudo iniciar sesión con Facebook",
+    "appleLogin": "Continuar con Apple",
+    "appleLoginFailed": "No se pudo iniciar sesión con Apple"
   },
   "profile": {
     "title": "Configuración de Perfil",
@@ -254,7 +256,7 @@
         {
           "heading": "Proveedores de servicios",
           "items": [
-            "Según las funciones habilitadas, Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons y Google AdMob pueden procesar datos.",
+            "Según las funciones habilitadas, Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons y Google AdMob pueden procesar datos.",
             "Estos proveedores procesan información según sus propios términos y políticas. El contenido del menú se envía a servicios de IA y nube solo cuando es necesario para la función solicitada."
           ]
         },

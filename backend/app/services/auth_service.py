@@ -7,7 +7,7 @@ from supabase import create_client
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-SUPPORTED_OAUTH_PROVIDERS = frozenset({"facebook", "google"})
+SUPPORTED_OAUTH_PROVIDERS = frozenset({"apple", "facebook", "google"})
 
 # Hardcoded password for mock Google users in development/testing
 MOCK_GOOGLE_PASSWORD = "GoogleMockUserPassword123!"

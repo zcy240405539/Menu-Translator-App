@@ -20,6 +20,20 @@ def test_oauth_authorize_url_preserves_redirect_query():
     }
 
 
+def test_oauth_authorize_url_supports_apple():
+    url = build_oauth_authorize_url(
+        " Apple ",
+        "aimenuapp://auth/callback",
+        "https://example.supabase.co",
+    )
+    parsed = urlparse(url)
+
+    assert parse_qs(parsed.query) == {
+        "provider": ["apple"],
+        "redirect_to": ["aimenuapp://auth/callback"],
+    }
+
+
 def test_oauth_authorize_url_rejects_unknown_provider():
     with pytest.raises(ValueError, match="Unsupported OAuth provider"):
         build_oauth_authorize_url("unknown", "https://aimenu.us.kg/login", "https://example.supabase.co")

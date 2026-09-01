@@ -67,7 +67,7 @@
         {
           "heading": "服務提供者",
           "items": [
-            "根據啟用的功能，資料可能由 Supabase、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Adsterra 和 Google AdMob 處理。",
+            "根據啟用的功能，資料可能由 Supabase、Apple、Meta、Render、Google Cloud、Gemini、OpenRouter、OpenAI、Pexels、Unsplash、Wikimedia Commons、Adsterra 和 Google AdMob 處理。",
             "菜單內容僅在需要提供所需功能時才會發送至人工智慧和雲端服務。每個服務提供者均根據其自身的條款和隱私權慣例處理資料。"
           ]
         },

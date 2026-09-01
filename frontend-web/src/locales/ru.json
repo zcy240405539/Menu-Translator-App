@@ -69,7 +69,9 @@
     "googleFailed": "Не удаётся открыть вход через Google.",
     "signedIn": "Вход выполнен. Перенаправление...",
     "facebook": "Продолжить с Facebook",
-    "facebookFailed": "Не удалось открыть вход через Facebook."
+    "facebookFailed": "Не удалось открыть вход через Facebook.",
+    "apple": "Продолжить с Apple",
+    "appleFailed": "Не удалось открыть вход через Apple."
   },
   "saved": {
     "loading": "Загрузка...",
@@ -225,7 +227,7 @@
           "heading": "Сторонние сервисы",
           "items": [
             "Приложение может обрабатывать данные через поставщиков услуг, используемых для хостинга, хранения баз данных, аутентификации, обработки моделей ИИ, поиска изображений, аналитики и рекламы.",
-            "В зависимости от включенных функций, к таким поставщикам могут относиться Render, Supabase, Meta, OpenRouter, OpenAI, Adsterra, Google AdMob, Pexels, Unsplash и Wikimedia Commons."
+            "В зависимости от включенных функций, к таким поставщикам могут относиться Render, Supabase, Apple, Meta, OpenRouter, OpenAI, Adsterra, Google AdMob, Pexels, Unsplash и Wikimedia Commons."
           ]
         },
         {
@@ -289,7 +291,7 @@
         {
           "heading": "Поставщики услуг",
           "items": [
-            "В зависимости от включенных функций, данные могут обрабатываться Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra и Google AdMob.",
+            "В зависимости от включенных функций, данные могут обрабатываться Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, Adsterra и Google AdMob.",
             "Содержимое меню отправляется в сервисы искусственного интеллекта и облачные сервисы только по мере необходимости для предоставления запрошенной функции. Каждый поставщик обрабатывает данные в соответствии со своими собственными условиями и политикой конфиденциальности."
           ]
         },

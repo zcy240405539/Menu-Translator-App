@@ -68,7 +68,7 @@ export default function SettingsPage() {
         <section className="border-b border-purple-100 py-7">
           <h2 className="text-xl font-bold">{text.settings.account}</h2>
           <p className="mt-1 text-sm text-gray-600">{text.settings.accountDescription}</p>
-          <Link href={`/login${query}`} className="mt-4 inline-flex items-center gap-2 font-bold text-purple-700 hover:text-purple-900">
+          <Link href={`/account${query}`} className="mt-4 inline-flex items-center gap-2 font-bold text-purple-700 hover:text-purple-900">
             <User className="h-5 w-5" />
             {text.nav.account}
           </Link>

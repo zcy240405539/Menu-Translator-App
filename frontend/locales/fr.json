@@ -160,7 +160,9 @@
     "redirectUnsupported": "Impossible d'ouvrir la page de connexion sur cet appareil",
     "googleLoginFailed": "Échec de la connexion à Google",
     "facebookLogin": "Continuer avec Facebook",
-    "facebookLoginFailed": "Impossible de démarrer la connexion Facebook"
+    "facebookLoginFailed": "Impossible de démarrer la connexion Facebook",
+    "appleLogin": "Continuer avec Apple",
+    "appleLoginFailed": "Impossible de démarrer la connexion Apple"
   },
   "profile": {
     "title": "Paramètres du profil",
@@ -254,7 +256,7 @@
         {
           "heading": "prestataires de services",
           "items": [
-            "Selon les fonctionnalités activées, les données peuvent être traitées par Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons et Google AdMob.",
+            "Selon les fonctionnalités activées, les données peuvent être traitées par Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons et Google AdMob.",
             "Ces fournisseurs traitent les informations conformément à leurs propres conditions et politiques de confidentialité. Le contenu des menus peut être transmis aux services d'IA et de cloud uniquement dans la mesure nécessaire à la fourniture de la fonctionnalité demandée."
           ]
         },

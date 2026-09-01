@@ -160,7 +160,9 @@
     "redirectUnsupported": "Cannot open the sign-in page on this device",
     "googleLoginFailed": "Failed to start Google sign-in",
     "facebookLogin": "Continue with Facebook",
-    "facebookLoginFailed": "Failed to start Facebook sign-in"
+    "facebookLoginFailed": "Failed to start Facebook sign-in",
+    "appleLogin": "Continue with Apple",
+    "appleLoginFailed": "Failed to start Apple sign-in"
   },
   "profile": {
     "title": "Profile Settings",
@@ -254,7 +256,7 @@
         {
           "heading": "Service providers",
           "items": [
-            "Depending on enabled features, data may be processed by Supabase, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, and Google AdMob.",
+            "Depending on enabled features, data may be processed by Supabase, Apple, Meta, Render, Google Cloud, Gemini, OpenRouter, OpenAI, Pexels, Unsplash, Wikimedia Commons, and Google AdMob.",
             "These providers process information under their own terms and privacy practices. Menu content may be sent to AI and cloud services only as needed to provide the requested feature."
           ]
         },
