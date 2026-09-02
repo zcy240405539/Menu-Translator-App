@@ -135,8 +135,9 @@ Complete these external settings before exposing the Apple button in production:
    URL and `aimenuapp://auth/callback` to the Supabase redirect allow list.
 5. Rotate the Apple OAuth client secret before its six-month maximum expiry.
 
-For a future native iOS release, add the iOS bundle identifier and Sign in with
-Apple entitlement, then prefer the native Apple authentication flow on iOS.
+The iOS release uses bundle identifier `com.agentscottystudio.aimenuapp`, URL
+scheme `aimenuapp`, and the Sign in with Apple capability. The current APP uses
+the same Supabase browser OAuth handoff as the Web client.
 
 ## APP Structure
 ```
@@ -289,6 +290,31 @@ cd frontend\android
 The signed bundle is written to
 `frontend/android/app/build/outputs/bundle/release/app-release.aab`.
 
+## iOS Release Bundle
+
+The iOS release is built and signed with EAS Build, so it can be produced from
+Windows without committing Apple credentials:
+
+```powershell
+cd frontend
+npx eas-cli login
+npx eas-cli build:configure
+npx eas-cli build --platform ios --profile production
+```
+
+The production profile in `frontend/eas.json` creates an App Store `.ipa` and
+increments the remote iOS build number. EAS can create and manage the Apple
+Distribution certificate and App Store provisioning profile after an authorized
+Apple Developer account signs in. Submit a completed build with:
+
+```powershell
+npx eas-cli submit --platform ios --profile production
+```
+
+The iOS icon is `frontend/assets/ios-icon.png` and must remain 1024x1024 without
+an alpha channel. Until dedicated iOS AdMob identifiers are configured, native
+iOS ad placements stay disabled; Android continues to use its existing ids.
+
 Mobile legal routes are also available on Expo Web:
 
 ```text
@@ -405,6 +431,12 @@ OPENAI_API_KEY=XXXXXXX
 OPENAI_IMAGE_MODEL=gpt-image-1-mini
 ENABLE_GENERATED_IMAGE_FALLBACK=true
 EXPO_PUBLIC_API_BASE_URL=https://ai-menu-app.onrender.com
+EXPO_PUBLIC_IOS_AD_APP_ID=ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY
+EXPO_PUBLIC_IOS_AD_INTERSTITIAL_ID=ca-app-pub-XXXXXXXXXXXXXXXX/AAAAAAAAAA
+EXPO_PUBLIC_IOS_AD_BOTTOM_BANNER_ID=ca-app-pub-XXXXXXXXXXXXXXXX/BBBBBBBBBB
+EXPO_PUBLIC_IOS_AD_ITEM_BANNER_ID=ca-app-pub-XXXXXXXXXXXXXXXX/CCCCCCCCCC
+EXPO_PUBLIC_IOS_AD_RECOMMEND_INTERSTITIAL_ID=ca-app-pub-XXXXXXXXXXXXXXXX/DDDDDDDDDD
+EXPO_PUBLIC_IOS_AD_RECOMMEND_BANNER_ID=ca-app-pub-XXXXXXXXXXXXXXXX/EEEEEEEEEE
 NEXT_PUBLIC_API_URL=https://menu-translator-app.onrender.com
 NEXT_PUBLIC_ADSTERRA_ENABLED=false
 NEXT_PUBLIC_ADSTERRA_DESKTOP_KEY=YOUR_728X90_PLACEMENT_KEY
