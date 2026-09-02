@@ -12,6 +12,7 @@
       "extends": "production",
       "env": {
         "APP_VERSION": "1.0",
+        "AIMENU_EXCLUDE_GOOGLE_MOBILE_ADS": "true",
         "EXPO_PUBLIC_IOS_ADS_ENABLED": "false"
       }
     }

@@ -313,9 +313,10 @@ npx eas-cli submit --platform ios --profile production-ios
 ```
 
 The iOS icon is `frontend/assets/ios-icon.png` and must remain 1024x1024 without
-an alpha channel. Native iOS ads stay disabled unless
-`EXPO_PUBLIC_IOS_ADS_ENABLED=true` and every dedicated iOS AdMob unit id is
-configured; Android continues to use its existing ids.
+an alpha channel. The first iOS release excludes the Google Mobile Ads native
+SDK and resolves ad components to no-ops; Android continues to use its existing
+ids. Re-enabling iOS ads requires removing the iOS autolinking exclusion and
+adding dedicated iOS AdMob identifiers.
 
 Mobile legal routes are also available on Expo Web:
 
