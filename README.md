@@ -271,7 +271,7 @@ npm install
 npx expo start -c
 ```
 
-The mobile settings screen supports the system theme plus explicit light and dark modes. First-run onboarding state and theme preference are stored locally with AsyncStorage. Release `2.3` uses Android `versionCode` 6.
+The mobile settings screen supports the system theme plus explicit light and dark modes. First-run onboarding state and theme preference are stored locally with AsyncStorage. Release `2.4` uses Android `versionCode` 7.
 
 ## Android Release Bundle
 

@@ -596,7 +596,6 @@ export default function App() {
       <PaperProvider theme={theme}>
         <StatusBar
           barStyle={theme.dark ? "light-content" : "dark-content"}
-          backgroundColor={theme.colors.background}
         />
         {staticPolicyRoute ? (
           <StaticPolicyPage route={staticPolicyRoute} />

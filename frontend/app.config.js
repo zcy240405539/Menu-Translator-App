@@ -1,6 +1,6 @@
 const ANDROID_AD_APP_ID = "ca-app-pub-8286400764174465~6115841032";
 const GOOGLE_IOS_TEST_APP_ID = "ca-app-pub-3940256099942544~1458002511";
-const APP_VERSION = process.env.APP_VERSION || "2.3";
+const APP_VERSION = process.env.APP_VERSION || "2.4";
 const EXCLUDE_GOOGLE_MOBILE_ADS =
   process.env.AIMENU_EXCLUDE_GOOGLE_MOBILE_ADS === "true";
 
@@ -23,7 +23,7 @@ module.exports = {
     icon: "./assets/favicon.png",
     android: {
       package: "com.agentscottystudio.aimenuapp",
-      versionCode: 6,
+      versionCode: 7,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF"
@@ -57,7 +57,8 @@ module.exports = {
           "microphonePermission": false
         }
       ],
-      ...(!EXCLUDE_GOOGLE_MOBILE_ADS ? [googleMobileAdsPlugin] : [])
+      ...(!EXCLUDE_GOOGLE_MOBILE_ADS ? [googleMobileAdsPlugin] : []),
+      "./plugins/withAndroidPlayCompliance"
     ],
     web: {
       favicon: "./assets/favicon.png"
