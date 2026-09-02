@@ -271,7 +271,7 @@ npm install
 npx expo start -c
 ```
 
-The mobile settings screen supports the system theme plus explicit light and dark modes. First-run onboarding state and theme preference are stored locally with AsyncStorage. Release `2.3` uses Android `versionCode` 5.
+The mobile settings screen supports the system theme plus explicit light and dark modes. First-run onboarding state and theme preference are stored locally with AsyncStorage. Release `2.3` uses Android `versionCode` 6.
 
 ## Android Release Bundle
 
@@ -299,21 +299,23 @@ Windows without committing Apple credentials:
 cd frontend
 npx eas-cli login
 npx eas-cli build:configure
-npx eas-cli build --platform ios --profile production
+npx eas-cli build --platform ios --profile production-ios
 ```
 
-The production profile in `frontend/eas.json` creates an App Store `.ipa` and
-increments the remote iOS build number. EAS can create and manage the Apple
+The `production-ios` profile in `frontend/eas.json` creates an ad-free App Store
+`.ipa` with display version `1.0` and increments the remote iOS build number.
+EAS can create and manage the Apple
 Distribution certificate and App Store provisioning profile after an authorized
 Apple Developer account signs in. Submit a completed build with:
 
 ```powershell
-npx eas-cli submit --platform ios --profile production
+npx eas-cli submit --platform ios --profile production-ios
 ```
 
 The iOS icon is `frontend/assets/ios-icon.png` and must remain 1024x1024 without
-an alpha channel. Until dedicated iOS AdMob identifiers are configured, native
-iOS ad placements stay disabled; Android continues to use its existing ids.
+an alpha channel. Native iOS ads stay disabled unless
+`EXPO_PUBLIC_IOS_ADS_ENABLED=true` and every dedicated iOS AdMob unit id is
+configured; Android continues to use its existing ids.
 
 Mobile legal routes are also available on Expo Web:
 

@@ -23,7 +23,9 @@ const IOS_PROD_IDS = {
   recommendBanner: process.env.EXPO_PUBLIC_IOS_AD_RECOMMEND_BANNER_ID,
 };
 
-const iosAdsConfigured = Object.values(IOS_PROD_IDS).every(Boolean);
+const iosAdsConfigured =
+  process.env.EXPO_PUBLIC_IOS_ADS_ENABLED === "true" &&
+  Object.values(IOS_PROD_IDS).every(Boolean);
 const adsEnabled = Platform.OS !== "ios" || iosAdsConfigured;
 const productionIds = Platform.OS === "ios" ? IOS_PROD_IDS : ANDROID_PROD_IDS;
 

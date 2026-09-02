@@ -7,9 +7,17 @@
     "production": {
       "distribution": "store",
       "autoIncrement": true
+    },
+    "production-ios": {
+      "extends": "production",
+      "env": {
+        "APP_VERSION": "1.0",
+        "EXPO_PUBLIC_IOS_ADS_ENABLED": "false"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {},
+    "production-ios": {}
   }
 }
