@@ -14,6 +14,10 @@
         "APP_VERSION": "1.0"
       }
     },
+    "production-android": {
+      "extends": "production",
+      "autoIncrement": false
+    },
     "android-apk": {
       "extends": "production",
       "distribution": "internal",
