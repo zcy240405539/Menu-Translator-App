@@ -13,6 +13,14 @@
       "env": {
         "APP_VERSION": "1.0"
       }
+    },
+    "android-apk": {
+      "extends": "production",
+      "distribution": "internal",
+      "autoIncrement": false,
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {
