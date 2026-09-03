@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Apple, ExternalLink, Globe, Play } from "lucide-react";
+import { ExternalLink, Globe, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ANDROID_PLAY_STORE_URL, APPLE_APP_STORE_URL } from "@/lib/appLinks";
 import { useText } from "@/hooks/useText";
@@ -78,7 +78,7 @@ export default function DownloadAppPage() {
               className="inline-flex min-h-14 items-center justify-center gap-3 rounded-xl bg-[#5f259f] px-5 py-3 text-center font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
             >
               <Play className="h-5 w-5 fill-current" aria-hidden />
-              <span>{text.download.storeLabel}</span>
+              <span>Google Play Store</span>
               <ExternalLink className="h-4 w-4" aria-hidden />
             </a>
             <a
@@ -87,8 +87,15 @@ export default function DownloadAppPage() {
               rel="noreferrer"
               className="inline-flex min-h-14 items-center justify-center gap-3 rounded-xl bg-black px-5 py-3 text-center font-bold text-white shadow-sm transition-colors hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
             >
-              <Apple className="h-6 w-6" aria-hidden />
-              <span>{text.download.appleStoreLabel}</span>
+              <Image
+                src="/apple-login-logo.png"
+                alt=""
+                width={18}
+                height={22}
+                aria-hidden="true"
+                className="h-5 w-auto object-contain"
+              />
+              <span>Apple App Store</span>
               <ExternalLink className="h-4 w-4" aria-hidden />
             </a>
           </div>
