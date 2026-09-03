@@ -12,6 +12,11 @@ const R8_PROPERTIES = {
   "android.r8.optimizedResourceShrinking": "true"
 };
 
+const OPTIONAL_CAMERA_FEATURES = [
+  "android.hardware.camera",
+  "android.hardware.camera.autofocus"
+];
+
 function withAdaptiveActivity(config) {
   return withAndroidManifest(config, (androidConfig) => {
     const mainActivity = AndroidConfig.Manifest.getMainActivityOrThrow(
@@ -43,6 +48,27 @@ function withModernSystemBars(config) {
   });
 }
 
+function withOptionalCameraFeatures(config) {
+  return withAndroidManifest(config, (androidConfig) => {
+    const manifest = androidConfig.modResults.manifest;
+    const features = manifest["uses-feature"] || [];
+
+    for (const name of OPTIONAL_CAMERA_FEATURES) {
+      const feature = features.find((item) => item.$["android:name"] === name);
+      if (feature) {
+        feature.$["android:required"] = "false";
+      } else {
+        features.push({
+          $: { "android:name": name, "android:required": "false" }
+        });
+      }
+    }
+
+    manifest["uses-feature"] = features;
+    return androidConfig;
+  });
+}
+
 function withR8Properties(config) {
   config = withGradleProperties(config, (androidConfig) => {
     for (const [name, value] of Object.entries(R8_PROPERTIES)) {
@@ -67,6 +93,7 @@ function withR8Properties(config) {
 
 module.exports = function withAndroidPlayCompliance(config) {
   config = withAdaptiveActivity(config);
+  config = withOptionalCameraFeatures(config);
   config = withModernSystemBars(config);
   return withR8Properties(config);
 };
