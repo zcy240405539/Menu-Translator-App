@@ -183,10 +183,16 @@
     "deleteAccountLink": "حذف الحساب",
     "deleteAccountHelp": "هل تريد حذف حسابك؟ افتح صفحة طلب الحذف.",
     "deleteAccountOpenFailed": "تعذر فتح صفحة حذف الحساب.",
-    "updateFailed": "فشل تحديث الملف الشخصي"
+    "updateFailed": "فشل تحديث الملف الشخصي",
+    "deleteAccountConfirmTitle": "حذف الحساب",
+    "deleteAccountConfirmMessage": "سيؤدي هذا إلى حذف حسابك والبيانات المرتبطة به نهائيًا، ولا يمكن التراجع عنه.",
+    "deleteAccountCancel": "إلغاء",
+    "deleteAccountConfirm": "حذف نهائي",
+    "deleteAccountSuccess": "تم حذف الحساب",
+    "deleteAccountFailed": "تعذر حذف الحساب"
   },
   "settings": {
-    "title": "إعدادات",
+    "title": "التفضيلات",
     "appearance": "مظهر",
     "system": "نظام",
     "light": "ضوء",
@@ -194,13 +200,17 @@
     "help": "المساعدة والتعليقات",
     "replayTutorial": "إعادة تشغيل البرنامج التعليمي",
     "replayTutorialDescription": "راجع كيفية مسح قائمة الطعام وترجمتها وفهمها.",
-    "rateApp": "قيّم تطبيق قائمة الذكاء الاصطناعي",
+    "rateApp": "قيّم هذا التطبيق",
     "rateAppDescription": "افتح تطبيق قائمة الذكاء الاصطناعي على متجر جوجل بلاي.",
     "legal": "قانوني",
     "privacy": "سياسة الخصوصية",
     "terms": "شروط الخدمة",
     "version": "AI Menu APP 2.3",
-    "done": "منتهي"
+    "done": "منتهي",
+    "general": "عام",
+    "language": "اللغة",
+    "adPrivacy": "خصوصية الإعلانات",
+    "adPrivacyUnavailable": "خيارات خصوصية الإعلانات غير متاحة الآن."
   },
   "onboarding": {
     "skip": "يتخطى",
@@ -402,13 +412,22 @@
     "items": "أغراض",
     "total": "المجموع",
     "remove": "يزيل",
-    "empty": "لم تتم إضافة أي أطباق بعد"
+    "empty": "لم تتم إضافة أي أطباق بعد",
+    "clear": "مسح الطلب"
   },
   "history": {
     "title": "سجل القائمة",
     "shareMessage": "اطلع على سجل قوائم الطعام الخاصة بي في تطبيق AI Menu.",
     "items": "أغراض",
     "open": "انقر لفتح",
-    "empty": "لا يوجد سجل للقوائم حتى الآن"
+    "empty": "لا يوجد سجل للقوائم حتى الآن",
+    "clear": "مسح السجل"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "share": "مشاركة",
+    "history": "السجل",
+    "cart": "الطلب",
+    "preferences": "التفضيلات"
   }
 }

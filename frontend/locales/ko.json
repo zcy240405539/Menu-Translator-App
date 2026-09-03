@@ -183,10 +183,16 @@
     "deleteAccountLink": "계정 삭제",
     "deleteAccountHelp": "계정을 삭제하시겠습니까? 삭제 요청 페이지를 열어주세요.",
     "deleteAccountOpenFailed": "계정 삭제 페이지를 열 수 없습니다.",
-    "updateFailed": "프로필 업데이트에 실패했습니다."
+    "updateFailed": "프로필 업데이트에 실패했습니다.",
+    "deleteAccountConfirmTitle": "계정 삭제",
+    "deleteAccountConfirmMessage": "계정과 관련 데이터가 영구 삭제되며 되돌릴 수 없습니다.",
+    "deleteAccountCancel": "취소",
+    "deleteAccountConfirm": "영구 삭제",
+    "deleteAccountSuccess": "계정이 삭제되었습니다",
+    "deleteAccountFailed": "계정을 삭제할 수 없습니다"
   },
   "settings": {
-    "title": "설정",
+    "title": "환경설정",
     "appearance": "모습",
     "system": "체계",
     "light": "빛",
@@ -194,13 +200,17 @@
     "help": "도움말 및 피드백",
     "replayTutorial": "튜토리얼 다시보기",
     "replayTutorialDescription": "메뉴를 읽고, 번역하고, 이해하는 방법을 복습하세요.",
-    "rateApp": "AI 메뉴 앱 평가하기",
+    "rateApp": "이 APP 평가하기",
     "rateAppDescription": "Google Play에서 AI Menu 앱을 열어보세요.",
     "legal": "합법적인",
     "privacy": "개인정보 보호정책",
     "terms": "서비스 약관",
     "version": "AI Menu APP 2.3",
-    "done": "완료"
+    "done": "완료",
+    "general": "일반",
+    "language": "언어",
+    "adPrivacy": "광고 개인정보 보호",
+    "adPrivacyUnavailable": "지금은 광고 개인정보 보호 옵션을 사용할 수 없습니다."
   },
   "onboarding": {
     "skip": "건너뛰다",
@@ -402,13 +412,22 @@
     "items": "품목",
     "total": "총",
     "remove": "제거하다",
-    "empty": "아직 추가된 요리가 없습니다."
+    "empty": "아직 추가된 요리가 없습니다.",
+    "clear": "주문 목록 지우기"
   },
   "history": {
     "title": "메뉴 내역",
     "shareMessage": "AI 메뉴 앱에서 제 메뉴 이용 내역을 확인해 보세요.",
     "items": "품목",
     "open": "탭하여 열기",
-    "empty": "아직 메뉴 기록이 없습니다."
+    "empty": "아직 메뉴 기록이 없습니다.",
+    "clear": "기록 지우기"
+  },
+  "navigation": {
+    "home": "홈",
+    "share": "공유",
+    "history": "기록",
+    "cart": "주문",
+    "preferences": "환경설정"
   }
 }

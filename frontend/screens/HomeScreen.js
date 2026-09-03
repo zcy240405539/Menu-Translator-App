@@ -38,6 +38,7 @@ import {
   LANGUAGES,
   SOURCE_LANGUAGES,
 } from "../i18n";
+import FloatingToolbar from "../components/FloatingToolbar";
 
 
 const DOCUMENT_PICKER_TYPES = [
@@ -57,7 +58,7 @@ const DOCUMENT_PICKER_TYPES = [
 
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"];
 
-export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, onOpenSettings, initialMenuUrl }) {
+export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onGoHome, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, onOpenSettings, initialMenuUrl, adsReady }) {
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sourceLang, setSourceLang] = useState("auto");
@@ -254,7 +255,7 @@ const selectFromFile = async () => {
         });
 
       // 2. Start Loading Ad (if on native platform and InterstitialAd is available)
-      if (Platform.OS !== "web" && InterstitialAd) {
+      if (Platform.OS !== "web" && adsReady && InterstitialAd) {
         const interstitial = InterstitialAd.createForAdRequest(AD_UNIT_IDS.interstitial);
         
         let adTimeout = setTimeout(() => {
@@ -508,15 +509,17 @@ const selectFromFile = async () => {
   ];
 
   return (
-    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
-      <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop, { backgroundColor: theme.colors.background }]}>
-        <Appbar.Content title={shouldHideAppTitle ? "" : t.appTitle} />
-        <Appbar.Action icon="cog-outline" accessibilityLabel={t.settings.title} onPress={onOpenSettings} />
-        <Appbar.Action icon="share-variant" onPress={handleShare} />
-        <Appbar.Action icon="history" onPress={onOpenHistory} />
-        <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
-        <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={handleLogin} />
-      </Appbar.Header>
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: Platform.OS === "web" ? insets.bottom : 0, backgroundColor: theme.colors.background }]}>
+      {Platform.OS === "web" && (
+        <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop, { backgroundColor: theme.colors.background }]}>
+          <Appbar.Content title={shouldHideAppTitle ? "" : t.appTitle} />
+          <Appbar.Action icon="cog-outline" accessibilityLabel={t.settings.title} onPress={onOpenSettings} />
+          <Appbar.Action icon="share-variant" onPress={handleShare} />
+          <Appbar.Action icon="history" onPress={onOpenHistory} />
+          <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
+          <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={handleLogin} />
+        </Appbar.Header>
+      )}
 
       <ScrollView
         contentContainerStyle={[
@@ -538,7 +541,7 @@ const selectFromFile = async () => {
             <View style={styles.featureRow}>
               {homeFeatureItems.map((item, index) => (
                 <View key={item} style={[styles.featurePill, isDesktopLayout && styles.featurePillDesktop, { backgroundColor: theme.colors.surfaceVariant }]}>
-                  <Text style={styles.featureNumber}>{String(index + 1).padStart(2, "0")}</Text>
+                  <Text style={[styles.featureNumber, { color: theme.dark ? "#FFFFFF" : theme.colors.primary }]}>{String(index + 1).padStart(2, "0")}</Text>
                   <Text style={[styles.featureText, { color: theme.colors.onSurface }]}>{item}</Text>
                 </View>
               ))}
@@ -552,7 +555,7 @@ const selectFromFile = async () => {
 
               <View style={styles.languageRow}>
                 <View style={styles.languageBox}>
-                  <Text style={styles.languageLabel}>{t.home.sourceLanguage}</Text>
+                  <Text style={[styles.languageLabel, { color: theme.colors.onSurfaceVariant }]}>{t.home.sourceLanguage}</Text>
 
                   <Menu
                     visible={sourceLangMenuVisible}
@@ -582,7 +585,7 @@ const selectFromFile = async () => {
                 </View>
 
                 <View style={styles.languageBox}>
-                  <Text style={styles.languageLabel}>{t.home.targetLanguage}</Text>
+                  <Text style={[styles.languageLabel, { color: theme.colors.onSurfaceVariant }]}>{t.home.targetLanguage}</Text>
 
                   <Menu
                     visible={targetLangMenuVisible}
@@ -648,26 +651,26 @@ const selectFromFile = async () => {
                   autoCorrect={false}
                   keyboardType="url"
                   left={<TextInput.Icon icon="link-variant" />}
-                  style={styles.urlInput}
+                  style={[styles.urlInput, { backgroundColor: theme.colors.surface }]}
                 />
               </View>
 
               {(imageUri || selectedFile) && (
                 <View style={[styles.previewSection, isDesktopLayout && styles.previewSectionDesktop]}>
-                  <Text variant="titleMedium" style={styles.previewTitle}>
+                  <Text variant="titleMedium" style={[styles.previewTitle, { color: theme.colors.onSurface }]}>
                     {t.home.selectedMenu}
                   </Text>
 
                   {selectedFile && !isImageFile(selectedFile) ? (
                     <View style={[styles.pdfPreview, isDesktopLayout && styles.pdfPreviewDesktop]}>
-                      <Text style={styles.pdfTitle}>
+                      <Text style={[styles.pdfTitle, { color: theme.colors.onSurface }]}>
                         {isPdfFile(selectedFile)
                           ? t.home.pdfFileSelected
                           : t.home.documentFileSelected}
                       </Text>
 
                       <Text
-                        style={styles.pdfName}
+                        style={[styles.pdfName, { color: theme.colors.onSurfaceVariant }]}
                         numberOfLines={2}
                       >
                         {selectedFile?.name || "menu.pdf"}
@@ -684,11 +687,11 @@ const selectFromFile = async () => {
 
               {loading ? (
                 <View style={styles.loadingBox}>
-                  <Text style={styles.holdOnText}>
+                  <Text style={[styles.holdOnText, { color: theme.colors.onSurface }]}>
                     {t.home.holdOnText}
                   </Text>
                   <ActivityIndicator size="large" />
-                  <Text style={styles.loadingText}>
+                  <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>
                     {t.home.analyzingMenu}
                   </Text>
                 </View>
@@ -710,8 +713,17 @@ const selectFromFile = async () => {
           </Card>
         </View>
       </ScrollView>
-
-
+      {Platform.OS !== "web" && (
+        <FloatingToolbar
+          activeKey="home"
+          targetLang={targetLang}
+          onGoHome={onGoHome}
+          onShare={handleShare}
+          onOpenHistory={onOpenHistory}
+          onOpenCart={onOpenCart}
+          onOpenPreferences={onOpenSettings}
+        />
+      )}
     </Surface>
   );
 }

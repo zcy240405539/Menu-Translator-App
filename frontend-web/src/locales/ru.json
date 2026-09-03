@@ -45,13 +45,14 @@
     ]
   },
   "download": {
-    "homeCta": "Скачать приложение для Android",
-    "eyebrow": "AI MenuLens для Android",
+    "homeCta": "Скачать мобильное приложение",
+    "eyebrow": "AI Menu APP для iPhone и Android",
     "title": "Переводите меню, где бы вы ни ели",
-    "description": "Установите AI MenuLens из Google Play, чтобы сканировать и переводить меню на телефоне Android.",
+    "description": "Установите AI Menu APP из App Store или Google Play, чтобы сканировать и переводить меню на телефоне.",
     "storeLabel": "Скачать в Google Play",
-    "availability": "Доступно для Android в Google Play.",
-    "backHome": "Вернуться к переводу меню"
+    "availability": "Доступно для iPhone и Android.",
+    "backHome": "Вернуться к переводу меню",
+    "appleStoreLabel": "Загрузить в App Store"
   },
   "auth": {
     "title": "Войти",

@@ -17,6 +17,7 @@ import AIRecommendModal from "../components/AIRecommendModal";
 import { getText, isChineseLanguage, getUrlLangParam } from "../i18n";
 import { formatPrice } from "../utils/price";
 import { BannerAd, BannerAdSize, AD_UNIT_IDS } from "../utils/ads";
+import FloatingToolbar from "../components/FloatingToolbar";
 
 function getTranslatedName(item) {
   return (
@@ -94,7 +95,7 @@ function getSectionTitle(category, categoryItems, targetLang) {
   );
 }
 
-export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, onOpenSettings }) {
+export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, onOpenSettings, adsReady }) {
   const [selectedDish, setSelectedDish] = useState(null);
   const [showRecommend, setShowRecommend] = useState(false);
   const [cameFromRecommend, setCameFromRecommend] = useState(false);
@@ -307,16 +308,18 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   };
 
   return (
-    <Surface style={[styles.screen, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
-      <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
-        <Appbar.BackAction onPress={onBack} />
-        <Appbar.Content title={isDesktop ? t.result.title : ""} />
-        <Appbar.Action icon="cog-outline" accessibilityLabel={t.settings.title} onPress={onOpenSettings} />
-        <Appbar.Action icon="share-variant" onPress={handleShare} />
-        <Appbar.Action icon="history" onPress={onOpenHistory} />
-        <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
-        <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
-      </Appbar.Header>
+    <Surface style={[styles.screen, { paddingBottom: Platform.OS === "web" ? insets.bottom : 0, backgroundColor: theme.colors.background }]}>
+      {Platform.OS === "web" && (
+        <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
+          <Appbar.BackAction onPress={onBack} />
+          <Appbar.Content title={isDesktop ? t.result.title : ""} />
+          <Appbar.Action icon="cog-outline" accessibilityLabel={t.settings.title} onPress={onOpenSettings} />
+          <Appbar.Action icon="share-variant" onPress={handleShare} />
+          <Appbar.Action icon="history" onPress={onOpenHistory} />
+          <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
+          <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
+        </Appbar.Header>
+      )}
 
       <ScrollView contentContainerStyle={styles.listContent}>
         <Card mode="elevated" style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
@@ -423,6 +426,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
+        adsReady={adsReady}
       />
 
       <DishDetailModal
@@ -448,14 +452,26 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
+        adsReady={adsReady}
       />
-      {BannerAd && (
+      {adsReady && BannerAd && (
         <View style={styles.adContainer}>
           <BannerAd
             unitId={AD_UNIT_IDS.bottomBanner}
             size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           />
         </View>
+      )}
+      {Platform.OS !== "web" && (
+        <FloatingToolbar
+          activeKey="home"
+          targetLang={targetLang}
+          onGoHome={onBack}
+          onShare={handleShare}
+          onOpenHistory={onOpenHistory}
+          onOpenCart={onOpenCart}
+          onOpenPreferences={onOpenSettings}
+        />
       )}
     </Surface>
   );

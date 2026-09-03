@@ -183,10 +183,16 @@
     "deleteAccountLink": "删除账号",
     "deleteAccountHelp": "需要删除账号？打开账号删除申请页面。",
     "deleteAccountOpenFailed": "无法打开账号删除页面。",
-    "updateFailed": "更新个人资料失败"
+    "updateFailed": "更新个人资料失败",
+    "deleteAccountConfirmTitle": "删除账号",
+    "deleteAccountConfirmMessage": "此操作将永久删除您的账号及关联数据，且无法撤销。",
+    "deleteAccountCancel": "取消",
+    "deleteAccountConfirm": "永久删除",
+    "deleteAccountSuccess": "账号已删除",
+    "deleteAccountFailed": "无法删除账号"
   },
   "settings": {
-    "title": "设置",
+    "title": "偏好设置",
     "appearance": "外观",
     "system": "系统",
     "light": "浅色",
@@ -194,13 +200,17 @@
     "help": "帮助与反馈",
     "replayTutorial": "重新查看新手引导",
     "replayTutorialDescription": "再次了解如何扫描、翻译和看懂菜单。",
-    "rateApp": "评价AI点菜通",
+    "rateApp": "评价此 APP",
     "rateAppDescription": "在 Google Play 中打开AI点菜通。",
     "legal": "法律信息",
     "privacy": "隐私政策",
     "terms": "服务条款",
     "version": "AI点菜通 2.3",
-    "done": "完成"
+    "done": "完成",
+    "general": "常规",
+    "language": "语言",
+    "adPrivacy": "广告隐私选项",
+    "adPrivacyUnavailable": "当前无法打开广告隐私选项。"
   },
   "onboarding": {
     "skip": "跳过",
@@ -402,13 +412,22 @@
     "items": "项目",
     "total": "全部的",
     "remove": "消除",
-    "empty": "尚未添加菜品"
+    "empty": "尚未添加菜品",
+    "clear": "清空点单"
   },
   "history": {
     "title": "菜单历史记录",
     "shareMessage": "在AI点菜通中查看我的菜单历史记录。",
     "items": "项目",
     "open": "点击打开",
-    "empty": "暂无菜单历史记录"
+    "empty": "暂无菜单历史记录",
+    "clear": "清空历史记录"
+  },
+  "navigation": {
+    "home": "首页",
+    "share": "分享",
+    "history": "历史记录",
+    "cart": "点单",
+    "preferences": "偏好设置"
   }
 }

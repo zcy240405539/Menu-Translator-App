@@ -45,13 +45,14 @@
     ]
   },
   "download": {
-    "homeCta": "下載 Android APP",
-    "eyebrow": "Android 版 AI菜單通",
+    "homeCta": "下載手機 APP",
+    "eyebrow": "iPhone 與 Android 版 AI点菜通",
     "title": "隨時隨地看懂菜單",
-    "description": "從 Google Play 安裝 AI点菜通，直接使用 Android 手機掃描並翻譯菜單。",
+    "description": "從 App Store 或 Google Play 安裝 AI点菜通，直接使用手機掃描並翻譯菜單。",
     "storeLabel": "前往 Google Play 下載",
-    "availability": "目前透過 Google Play 提供 Android 版本。",
-    "backHome": "返回菜單翻譯"
+    "availability": "支援 iPhone 與 Android。",
+    "backHome": "返回菜單翻譯",
+    "appleStoreLabel": "前往 App Store 下載"
   },
   "auth": {
     "title": "登入",

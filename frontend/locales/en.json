@@ -183,10 +183,16 @@
     "deleteAccountLink": "Delete account",
     "deleteAccountHelp": "Need to delete your account? Open the deletion request page.",
     "deleteAccountOpenFailed": "Unable to open account deletion page.",
-    "updateFailed": "Failed to update profile"
+    "updateFailed": "Failed to update profile",
+    "deleteAccountConfirmTitle": "Delete account",
+    "deleteAccountConfirmMessage": "This permanently deletes your account and associated data. This action cannot be undone.",
+    "deleteAccountCancel": "Cancel",
+    "deleteAccountConfirm": "Delete permanently",
+    "deleteAccountSuccess": "Account deleted",
+    "deleteAccountFailed": "Unable to delete account"
   },
   "settings": {
-    "title": "Settings",
+    "title": "Preferences",
     "appearance": "Appearance",
     "system": "System",
     "light": "Light",
@@ -194,13 +200,17 @@
     "help": "Help & feedback",
     "replayTutorial": "Replay tutorial",
     "replayTutorialDescription": "Review how to scan, translate, and understand a menu.",
-    "rateApp": "Rate AI Menu APP",
+    "rateApp": "Rate This APP",
     "rateAppDescription": "Open AI Menu APP on Google Play.",
     "legal": "Legal",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "version": "AI Menu APP 2.3",
-    "done": "Done"
+    "done": "Done",
+    "general": "General",
+    "language": "Language",
+    "adPrivacy": "Ad privacy choices",
+    "adPrivacyUnavailable": "Ad privacy choices are not available right now."
   },
   "onboarding": {
     "skip": "Skip",
@@ -402,13 +412,22 @@
     "items": "items",
     "total": "Total",
     "remove": "Remove",
-    "empty": "No dishes added yet"
+    "empty": "No dishes added yet",
+    "clear": "Clear order list"
   },
   "history": {
     "title": "Menu History",
     "shareMessage": "Check out my menu history in AI Menu APP.",
     "items": "items",
     "open": "Tap to open",
-    "empty": "No menu history yet"
+    "empty": "No menu history yet",
+    "clear": "Clear history"
+  },
+  "navigation": {
+    "home": "Home",
+    "share": "Share",
+    "history": "History",
+    "cart": "Order",
+    "preferences": "Preferences"
   }
 }

@@ -183,10 +183,16 @@
     "deleteAccountLink": "Supprimer le compte",
     "deleteAccountHelp": "Vous souhaitez supprimer votre compte ? Ouvrez la page de demande de suppression.",
     "deleteAccountOpenFailed": "Impossible d'ouvrir la page de suppression de compte.",
-    "updateFailed": "Impossible de mettre à jour le profil"
+    "updateFailed": "Impossible de mettre à jour le profil",
+    "deleteAccountConfirmTitle": "Supprimer le compte",
+    "deleteAccountConfirmMessage": "Cette action supprime définitivement votre compte et les données associées. Elle est irréversible.",
+    "deleteAccountCancel": "Annuler",
+    "deleteAccountConfirm": "Supprimer définitivement",
+    "deleteAccountSuccess": "Compte supprimé",
+    "deleteAccountFailed": "Impossible de supprimer le compte"
   },
   "settings": {
-    "title": "Paramètres",
+    "title": "Préférences",
     "appearance": "Apparence",
     "system": "Système",
     "light": "Lumière",
@@ -194,13 +200,17 @@
     "help": "Aide et commentaires",
     "replayTutorial": "Tutoriel de rediffusion",
     "replayTutorialDescription": "Revoyez comment scanner, traduire et comprendre un menu.",
-    "rateApp": "Évaluez l'application Menu IA",
+    "rateApp": "Noter cette APP",
     "rateAppDescription": "Ouvrez l'application Menu IA sur Google Play.",
     "legal": "Légal",
     "privacy": "politique de confidentialité",
     "terms": "Conditions d'utilisation",
     "version": "AI Menu APP 2.3",
-    "done": "Fait"
+    "done": "Fait",
+    "general": "Général",
+    "language": "Langue",
+    "adPrivacy": "Confidentialité des annonces",
+    "adPrivacyUnavailable": "Les options de confidentialité des annonces sont indisponibles pour le moment."
   },
   "onboarding": {
     "skip": "Sauter",
@@ -402,13 +412,22 @@
     "items": "articles",
     "total": "Total",
     "remove": "Retirer",
-    "empty": "Aucun plat ajouté pour le moment"
+    "empty": "Aucun plat ajouté pour le moment",
+    "clear": "Vider la commande"
   },
   "history": {
     "title": "Historique du menu",
     "shareMessage": "Consultez l'historique de mes menus dans l'application AI Menu.",
     "items": "articles",
     "open": "Appuyez pour ouvrir",
-    "empty": "Aucun historique de menu pour le moment"
+    "empty": "Aucun historique de menu pour le moment",
+    "clear": "Effacer l’historique"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "share": "Partager",
+    "history": "Historique",
+    "cart": "Commande",
+    "preferences": "Préférences"
   }
 }

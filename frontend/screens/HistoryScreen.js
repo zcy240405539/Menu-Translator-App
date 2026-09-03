@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Platform, StyleSheet, FlatList } from "react-native";
+import { Platform, StyleSheet, FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Appbar,
@@ -7,6 +7,7 @@ import {
   Text,
   Surface,
   Chip,
+  IconButton,
   useTheme,
 } from "react-native-paper";
 
@@ -15,8 +16,9 @@ import {
   clearMenuHistory,
 } from "../storage/menuStorage";
 import { getText } from "../i18n";
+import FloatingToolbar from "../components/FloatingToolbar";
 
-export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome }) {
+export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome, onOpenSettings }) {
   const [history, setHistory] = useState([]);
   const t = getText(targetLang);
   const insets = useSafeAreaInsets();
@@ -32,8 +34,8 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
   }, []);
 
   return (
-    <Surface style={[styles.screen, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
-      <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
+    <Surface style={[styles.screen, { paddingBottom: Platform.OS === "web" ? insets.bottom : 0, backgroundColor: theme.colors.background }]}>
+      {Platform.OS === "web" && <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
         {hasMenuResult ? (
           <>
             <Appbar.Action icon="close" onPress={onBackToResult} />
@@ -54,12 +56,25 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
           }}
         />
         <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
-      </Appbar.Header>
+      </Appbar.Header>}
 
       <FlatList
         contentContainerStyle={styles.content}
         data={history}
         keyExtractor={(item) => item.id}
+        ListHeaderComponent={Platform.OS === "web" ? null : (
+          <View style={styles.pageHeader}>
+            <Text variant="headlineSmall" style={[styles.pageTitle, { color: theme.colors.onSurface }]}>{t.history.title}</Text>
+            <IconButton
+              icon="delete-outline"
+              accessibilityLabel={t.history.clear}
+              onPress={async () => {
+                await clearMenuHistory();
+                setHistory([]);
+              }}
+            />
+          </View>
+        )}
         renderItem={({ item }) => (
           <Card
             mode="elevated"
@@ -92,6 +107,17 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
           </Text>
         }
       />
+      {Platform.OS !== "web" && (
+        <FloatingToolbar
+          activeKey="history"
+          targetLang={targetLang}
+          onGoHome={onGoHome || onBack}
+          onShare={() => onShare && onShare(null, t.history.shareMessage)}
+          onOpenHistory={onOpenHistory}
+          onOpenCart={onOpenCart}
+          onOpenPreferences={onOpenSettings}
+        />
+      )}
     </Surface>
   );
 }
@@ -114,6 +140,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
     maxWidth: 960,
+  },
+  pageHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  pageTitle: {
+    fontWeight: "800",
   },
   card: {
     borderRadius: 22,

@@ -32,3 +32,11 @@ export const BannerAdSize = {
   ANCHORED_ADAPTIVE_BANNER: "anchored_adaptive_banner",
   INLINE_ADAPTIVE_BANNER: "inline_adaptive_banner",
 };
+
+export async function initializeAds() {
+  return false;
+}
+
+export async function showAdPrivacyOptions() {
+  return false;
+}

@@ -45,13 +45,14 @@
     ]
   },
   "download": {
-    "homeCta": "Android-App herunterladen",
-    "eyebrow": "AI MenuLens für Android",
+    "homeCta": "Mobile App herunterladen",
+    "eyebrow": "AI Menu APP für iPhone und Android",
     "title": "Menüs überall übersetzen",
-    "description": "Installiere AI MenuLens über Google Play, um Menüs mit deinem Android-Smartphone zu scannen und zu übersetzen.",
+    "description": "Installieren Sie AI Menu APP aus dem App Store oder bei Google Play, um Speisekarten auf dem Smartphone zu scannen und zu übersetzen.",
     "storeLabel": "Bei Google Play herunterladen",
-    "availability": "Für Android über Google Play verfügbar.",
-    "backHome": "Zurück zum Menü-Übersetzer"
+    "availability": "Für iPhone und Android verfügbar.",
+    "backHome": "Zurück zum Menü-Übersetzer",
+    "appleStoreLabel": "Im App Store laden"
   },
   "auth": {
     "title": "anmelden",

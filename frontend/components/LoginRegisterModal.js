@@ -195,7 +195,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                     <Text variant="displaySmall" style={styles.brandIcon}>
                       🍽️
                     </Text>
-                    <Text variant="titleMedium" style={styles.brandName}>
+                    <Text variant="titleMedium" style={[styles.brandName, { color: theme.colors.onSurface }]}>
                       {getText(targetLang).appTitle}
                     </Text>
                   </View>
@@ -228,7 +228,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: theme.colors.surface }]}
                         left={<TextInput.Icon icon="email" />}
                       />
 
@@ -268,7 +268,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                           mode="outlined"
                           value={username}
                           onChangeText={setUsername}
-                          style={styles.input}
+                          style={[styles.input, { backgroundColor: theme.colors.surface }]}
                           left={<TextInput.Icon icon="account" />}
                         />
                       )}
@@ -281,7 +281,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: theme.colors.surface }]}
                         left={<TextInput.Icon icon="email" />}
                       />
 
@@ -292,7 +292,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry={!showPassword}
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: theme.colors.surface }]}
                         left={<TextInput.Icon icon="lock" />}
                         right={
                           <TextInput.Icon
@@ -329,7 +329,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
                             secureTextEntry={!showConfirmPassword}
-                            style={styles.input}
+                            style={[styles.input, { backgroundColor: theme.colors.surface }]}
                             left={<TextInput.Icon icon="lock-check" />}
                             right={
                               <TextInput.Icon
@@ -346,7 +346,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                             value={phone}
                             onChangeText={setPhone}
                             keyboardType="phone-pad"
-                            style={styles.input}
+                            style={[styles.input, { backgroundColor: theme.colors.surface }]}
                             left={<TextInput.Icon icon="phone" />}
                           />
 
@@ -356,7 +356,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                             onPress={() => setShowPreferences(!showPreferences)}
                             activeOpacity={0.8}
                           >
-                            <Text variant="titleSmall" style={styles.prefToggleText}>
+                            <Text variant="titleSmall" style={[styles.prefToggleText, { color: theme.colors.onSurface }]}>
                               {t.prefTitle}
                             </Text>
                             <IconButton
@@ -368,7 +368,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
 
                           {showPreferences && (
                             <View style={styles.preferencesBox}>
-                              <Text style={styles.prefLabel}>{t.diets}</Text>
+                              <Text style={[styles.prefLabel, { color: theme.colors.onSurface }]}>{t.diets}</Text>
                               <View style={styles.chipRow}>
                                 {DIET_OPTIONS.map((diet) => {
                                   const isSelected = selectedDiets.includes(diet.key);
@@ -390,31 +390,31 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                                 })}
                               </View>
 
-                              <Text style={styles.prefLabel}>{t.allergies}</Text>
+                              <Text style={[styles.prefLabel, { color: theme.colors.onSurface }]}>{t.allergies}</Text>
                               <TextInput
                                 mode="outlined"
                                 placeholder={t.allergiesPlaceholder}
                                 value={allergiesText}
                                 onChangeText={setAllergiesText}
-                                style={styles.prefInput}
+                                style={[styles.prefInput, { backgroundColor: theme.colors.surface }]}
                               />
 
-                              <Text style={styles.prefLabel}>{t.budget}</Text>
+                              <Text style={[styles.prefLabel, { color: theme.colors.onSurface }]}>{t.budget}</Text>
                               <TextInput
                                 mode="outlined"
                                 placeholder={t.budgetPlaceholder}
                                 value={budget}
                                 onChangeText={setBudget}
-                                style={styles.prefInput}
+                                style={[styles.prefInput, { backgroundColor: theme.colors.surface }]}
                               />
 
-                              <Text style={styles.prefLabel}>{t.taste}</Text>
+                              <Text style={[styles.prefLabel, { color: theme.colors.onSurface }]}>{t.taste}</Text>
                               <TextInput
                                 mode="outlined"
                                 placeholder={t.tastePlaceholder}
                                 value={taste}
                                 onChangeText={setTaste}
-                                style={styles.prefInput}
+                                style={[styles.prefInput, { backgroundColor: theme.colors.surface }]}
                               />
                             </View>
                           )}
@@ -457,7 +457,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
                     disabled={loading}
                     style={styles.oauthBtn}
                     contentStyle={styles.oauthBtnContent}
-                    textColor="#1D1B20"
+                    textColor={theme.colors.onSurface}
                   >
                     {t.googleLogin}
                   </Button>

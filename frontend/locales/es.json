@@ -183,10 +183,16 @@
     "deleteAccountLink": "Eliminar cuenta",
     "deleteAccountHelp": "¿Necesitas eliminar tu cuenta? Abre la página de solicitud de eliminación.",
     "deleteAccountOpenFailed": "No se pudo abrir la página de eliminación de cuenta.",
-    "updateFailed": "No se pudo actualizar el perfil."
+    "updateFailed": "No se pudo actualizar el perfil.",
+    "deleteAccountConfirmTitle": "Eliminar cuenta",
+    "deleteAccountConfirmMessage": "Esto eliminará permanentemente tu cuenta y sus datos. Esta acción no se puede deshacer.",
+    "deleteAccountCancel": "Cancelar",
+    "deleteAccountConfirm": "Eliminar permanentemente",
+    "deleteAccountSuccess": "Cuenta eliminada",
+    "deleteAccountFailed": "No se pudo eliminar la cuenta"
   },
   "settings": {
-    "title": "Ajustes",
+    "title": "Preferencias",
     "appearance": "Apariencia",
     "system": "Sistema",
     "light": "Claro",
@@ -194,13 +200,17 @@
     "help": "Ayuda y comentarios",
     "replayTutorial": "Repetir tutorial",
     "replayTutorialDescription": "Repasa cómo escanear, traducir y entender un menú.",
-    "rateApp": "Calificar AI Menu APP",
+    "rateApp": "Calificar esta APP",
     "rateAppDescription": "Abrir AI Menu APP en Google Play.",
     "legal": "Legal",
     "privacy": "Política de privacidad",
     "terms": "Términos del servicio",
     "version": "AI Menu APP 2.3",
-    "done": "Listo"
+    "done": "Listo",
+    "general": "General",
+    "language": "Idioma",
+    "adPrivacy": "Privacidad de anuncios",
+    "adPrivacyUnavailable": "Las opciones de privacidad de anuncios no están disponibles ahora."
   },
   "onboarding": {
     "skip": "Omitir",
@@ -402,13 +412,22 @@
     "items": "elementos",
     "total": "Total",
     "remove": "Eliminar",
-    "empty": "Aún no se han añadido platos."
+    "empty": "Aún no se han añadido platos.",
+    "clear": "Vaciar pedido"
   },
   "history": {
     "title": "Historial del menú",
     "shareMessage": "Consulta mi historial de menús en la aplicación AI Menu.",
     "items": "elementos",
     "open": "Toca para abrir",
-    "empty": "Aún no hay historial de menú."
+    "empty": "Aún no hay historial de menú.",
+    "clear": "Borrar historial"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "share": "Compartir",
+    "history": "Historial",
+    "cart": "Pedido",
+    "preferences": "Preferencias"
   }
 }

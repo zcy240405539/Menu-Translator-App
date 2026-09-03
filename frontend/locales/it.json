@@ -183,10 +183,16 @@
     "deleteAccountLink": "Elimina l'account",
     "deleteAccountHelp": "Devi eliminare il tuo account? Apri la pagina di richiesta di eliminazione.",
     "deleteAccountOpenFailed": "Impossibile aprire la pagina di eliminazione dell'account.",
-    "updateFailed": "Impossibile aggiornare il profilo"
+    "updateFailed": "Impossibile aggiornare il profilo",
+    "deleteAccountConfirmTitle": "Elimina account",
+    "deleteAccountConfirmMessage": "Questa azione elimina definitivamente l’account e i dati associati. Non può essere annullata.",
+    "deleteAccountCancel": "Annulla",
+    "deleteAccountConfirm": "Elimina definitivamente",
+    "deleteAccountSuccess": "Account eliminato",
+    "deleteAccountFailed": "Impossibile eliminare l’account"
   },
   "settings": {
-    "title": "Impostazioni",
+    "title": "Preferenze",
     "appearance": "Aspetto",
     "system": "Sistema",
     "light": "Leggero",
@@ -194,13 +200,17 @@
     "help": "Aiuto e feedback",
     "replayTutorial": "Tutorial di riproduzione",
     "replayTutorialDescription": "Ripassa come scansionare, tradurre e comprendere un menu.",
-    "rateApp": "Valuta l'app del menu AI",
+    "rateApp": "Valuta questa APP",
     "rateAppDescription": "Apri l'app AI Menu su Google Play.",
     "legal": "Legal",
     "privacy": "politica sulla riservatezza",
     "terms": "Termini di servizio",
     "version": "AI Menu APP 2.3",
-    "done": "Fatto"
+    "done": "Fatto",
+    "general": "Generali",
+    "language": "Lingua",
+    "adPrivacy": "Privacy degli annunci",
+    "adPrivacyUnavailable": "Le opzioni sulla privacy degli annunci non sono disponibili al momento."
   },
   "onboarding": {
     "skip": "Saltare",
@@ -402,13 +412,22 @@
     "items": "elementi",
     "total": "Totale",
     "remove": "Rimuovere",
-    "empty": "Nessun piatto aggiunto finora"
+    "empty": "Nessun piatto aggiunto finora",
+    "clear": "Svuota ordine"
   },
   "history": {
     "title": "Cronologia del menu",
     "shareMessage": "Consulta la cronologia dei miei menu nell'app AI Menu.",
     "items": "elementi",
     "open": "Tocca per aprire",
-    "empty": "Nessuna cronologia del menu ancora"
+    "empty": "Nessuna cronologia del menu ancora",
+    "clear": "Cancella cronologia"
+  },
+  "navigation": {
+    "home": "Home",
+    "share": "Condividi",
+    "history": "Cronologia",
+    "cart": "Ordine",
+    "preferences": "Preferenze"
   }
 }

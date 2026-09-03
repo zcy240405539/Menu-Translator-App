@@ -183,10 +183,16 @@
     "deleteAccountLink": "Excluir conta",
     "deleteAccountHelp": "Precisa excluir sua conta? Abra a página de solicitação de exclusão.",
     "deleteAccountOpenFailed": "Não foi possível abrir a página de exclusão de conta.",
-    "updateFailed": "Falha ao atualizar o perfil"
+    "updateFailed": "Falha ao atualizar o perfil",
+    "deleteAccountConfirmTitle": "Excluir conta",
+    "deleteAccountConfirmMessage": "Isso excluirá permanentemente sua conta e os dados associados. Esta ação não pode ser desfeita.",
+    "deleteAccountCancel": "Cancelar",
+    "deleteAccountConfirm": "Excluir permanentemente",
+    "deleteAccountSuccess": "Conta excluída",
+    "deleteAccountFailed": "Não foi possível excluir a conta"
   },
   "settings": {
-    "title": "Configurações",
+    "title": "Preferências",
     "appearance": "Aparência",
     "system": "Sistema",
     "light": "Luz",
@@ -194,13 +200,17 @@
     "help": "Ajuda e feedback",
     "replayTutorial": "Tutorial de reprodução",
     "replayTutorialDescription": "Veja como analisar, traduzir e compreender um menu.",
-    "rateApp": "Avalie o aplicativo AI Menu",
+    "rateApp": "Avaliar este APP",
     "rateAppDescription": "Abra o aplicativo AI Menu no Google Play.",
     "legal": "Jurídico",
     "privacy": "política de Privacidade",
     "terms": "Termos de Serviço",
     "version": "AI Menu APP 2.3",
-    "done": "Feito"
+    "done": "Feito",
+    "general": "Geral",
+    "language": "Idioma",
+    "adPrivacy": "Privacidade dos anúncios",
+    "adPrivacyUnavailable": "As opções de privacidade dos anúncios não estão disponíveis agora."
   },
   "onboarding": {
     "skip": "Pular",
@@ -402,13 +412,22 @@
     "items": "Unid",
     "total": "Total",
     "remove": "Remover",
-    "empty": "Nenhum prato adicionado ainda"
+    "empty": "Nenhum prato adicionado ainda",
+    "clear": "Limpar pedido"
   },
   "history": {
     "title": "Histórico do menu",
     "shareMessage": "Confira meu histórico de menus no aplicativo AI Menu.",
     "items": "Unid",
     "open": "Toque para abrir",
-    "empty": "Ainda não há histórico de menu."
+    "empty": "Ainda não há histórico de menu.",
+    "clear": "Limpar histórico"
+  },
+  "navigation": {
+    "home": "Início",
+    "share": "Compartilhar",
+    "history": "Histórico",
+    "cart": "Pedido",
+    "preferences": "Preferências"
   }
 }

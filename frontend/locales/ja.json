@@ -183,10 +183,16 @@
     "deleteAccountLink": "アカウントを削除",
     "deleteAccountHelp": "アカウントを削除する必要がありますか？削除リクエストページを開いてください。",
     "deleteAccountOpenFailed": "アカウント削除ページを開くことができません。",
-    "updateFailed": "プロフィールの更新に失敗しました"
+    "updateFailed": "プロフィールの更新に失敗しました",
+    "deleteAccountConfirmTitle": "アカウントを削除",
+    "deleteAccountConfirmMessage": "アカウントと関連データを完全に削除します。この操作は取り消せません。",
+    "deleteAccountCancel": "キャンセル",
+    "deleteAccountConfirm": "完全に削除",
+    "deleteAccountSuccess": "アカウントを削除しました",
+    "deleteAccountFailed": "アカウントを削除できません"
   },
   "settings": {
-    "title": "設定",
+    "title": "環境設定",
     "appearance": "外観",
     "system": "システム",
     "light": "ライト",
@@ -194,13 +200,17 @@
     "help": "ヘルプとフィードバック",
     "replayTutorial": "チュートリアルを再生する",
     "replayTutorialDescription": "メニューの読み方、翻訳方法、理解の仕方を復習しましょう。",
-    "rateApp": "AIメニューアプリを評価する",
+    "rateApp": "このAPPを評価",
     "rateAppDescription": "Google PlayでAIメニューアプリを開いてください。",
     "legal": "法律上の",
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
     "version": "AI Menu APP 2.3",
-    "done": "終わり"
+    "done": "終わり",
+    "general": "一般",
+    "language": "言語",
+    "adPrivacy": "広告のプライバシー",
+    "adPrivacyUnavailable": "現在、広告のプライバシー設定を利用できません。"
   },
   "onboarding": {
     "skip": "スキップ",
@@ -402,13 +412,22 @@
     "items": "商品",
     "total": "合計",
     "remove": "取り除く",
-    "empty": "まだ料理は追加されていません"
+    "empty": "まだ料理は追加されていません",
+    "clear": "注文を消去"
   },
   "history": {
     "title": "メニュー履歴",
     "shareMessage": "AIメニューアプリで私のメニュー履歴を確認してみてください。",
     "items": "商品",
     "open": "タップして開く",
-    "empty": "メニュー履歴はまだありません"
+    "empty": "メニュー履歴はまだありません",
+    "clear": "履歴を消去"
+  },
+  "navigation": {
+    "home": "ホーム",
+    "share": "共有",
+    "history": "履歴",
+    "cart": "注文",
+    "preferences": "環境設定"
   }
 }

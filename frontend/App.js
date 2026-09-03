@@ -19,6 +19,7 @@ import SettingsModal from "./components/SettingsModal";
 import { getCartItems, setCartCloudSyncHandler, setCartItems } from "./storage/cartStorage";
 import { getLegalContent } from "./legalContent";
 import { resolveTheme, THEME_MODES, THEME_STORAGE_KEY } from "./theme";
+import { initializeAds } from "./utils/ads";
 
 // Ignore third-party deprecation and platform-specific fallback warnings
 LogBox.ignoreLogs([
@@ -149,6 +150,17 @@ function AppContent({ themeMode, onThemeModeChange }) {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [incomingMenuUrl, setIncomingMenuUrl] = useState("");
+  const [adsReady, setAdsReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    initializeAds()
+      .then((ready) => mounted && setAdsReady(Boolean(ready)))
+      .catch((error) => console.warn("Mobile ads initialization failed:", error));
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     AsyncStorage.getItem(ONBOARDING_STORAGE_KEY)
@@ -449,6 +461,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
   const onOpenLogin = () => setShowLoginModal(true);
   const onOpenProfile = () => setShowProfileModal(true);
   const onOpenSettings = () => setShowSettingsModal(true);
+  const onOpenAccount = () => currentUser ? onOpenProfile() : onOpenLogin();
 
   if (screen === "cart") {
     screenComponent = (
@@ -465,6 +478,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
         onBackToResult={() => setScreen("result")}
         onGoHome={() => setScreen("home")}
         onOpenSettings={onOpenSettings}
+        adsReady={adsReady}
       />
     );
   } else if (screen === "history") {
@@ -487,6 +501,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
         onBackToResult={() => setScreen("result")}
         onGoHome={() => setScreen("home")}
         onOpenSettings={onOpenSettings}
+        adsReady={adsReady}
       />
     );
   } else if (screen === "result" && menuResult) {
@@ -502,6 +517,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
         onOpenSettings={onOpenSettings}
+        adsReady={adsReady}
       />
     );
   } else {
@@ -513,6 +529,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
           setMenuResult(data);
           setScreen("result");
         }}
+        onGoHome={() => setScreen("home")}
         onOpenCart={() => setScreen("cart")}
         onOpenHistory={() => setScreen("history")}
         onShare={handleShareGlobal}
@@ -521,6 +538,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
         onOpenProfile={onOpenProfile}
         onOpenSettings={onOpenSettings}
         initialMenuUrl={incomingMenuUrl}
+        adsReady={adsReady}
       />
     );
   }
@@ -552,8 +570,11 @@ function AppContent({ themeMode, onThemeModeChange }) {
       <SettingsModal
         visible={showSettingsModal}
         targetLang={targetLang}
+        currentUser={currentUser}
         themeMode={themeMode}
         onThemeModeChange={onThemeModeChange}
+        onTargetLangChange={setTargetLang}
+        onOpenAccount={onOpenAccount}
         onReplayOnboarding={() => setShowOnboarding(true)}
         onClose={() => setShowSettingsModal(false)}
       />

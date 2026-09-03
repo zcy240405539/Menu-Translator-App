@@ -8,6 +8,7 @@ import {
   Surface,
   Button,
   Chip,
+  IconButton,
   useTheme,
 } from "react-native-paper";
 
@@ -19,12 +20,13 @@ import {
 } from "../storage/cartStorage";
 import { extractPriceNumber, formatPrice, getCurrencySymbol, getUserCurrencySymbol } from "../utils/price";
 import { getText } from "../i18n";
+import FloatingToolbar from "../components/FloatingToolbar";
 
 function getDishName(dish, fallback) {
   return dish.translated_name || dish.original_name || fallback;
 }
 
-export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome }) {
+export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome, onOpenSettings }) {
   const [items, setItems] = useState([]);
   const t = getText(targetLang);
   const insets = useSafeAreaInsets();
@@ -56,8 +58,8 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   }, 0);
 
   return (
-    <Surface style={[styles.screen, { paddingBottom: insets.bottom, backgroundColor: theme.colors.background }]}>
-      <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
+    <Surface style={[styles.screen, { paddingBottom: Platform.OS === "web" ? insets.bottom : 0, backgroundColor: theme.colors.background }]}>
+      {Platform.OS === "web" && <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
         {hasMenuResult ? (
           <>
             <Appbar.Action icon="close" onPress={onBackToResult} />
@@ -78,14 +80,26 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
           }}
         />
         <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
-      </Appbar.Header>
+      </Appbar.Header>}
 
       <View style={styles.content}>
         <Card mode="elevated" style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
-              {t.cart.heading}
-            </Text>
+            <View style={styles.summaryHeader}>
+              <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
+                {t.cart.heading}
+              </Text>
+              {Platform.OS !== "web" && (
+                <IconButton
+                  icon="delete-outline"
+                  accessibilityLabel={t.cart.clear}
+                  onPress={async () => {
+                    await clearCart();
+                    setItems([]);
+                  }}
+                />
+              )}
+            </View>
             <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
               {items.length} {t.cart.items} · {t.cart.total}: {cartCurrencySymbol}{total.toFixed(2)}
             </Text>
@@ -100,7 +114,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
               <Card.Content>
                 <View style={styles.row}>
                   <View style={styles.nameBox}>
-                    <Text variant="titleMedium" style={styles.name}>
+                    <Text variant="titleMedium" style={[styles.name, { color: theme.colors.onSurface }]}>
                       {getDishName(item.dish, t.common.dishFallback)}
                     </Text>
 
@@ -142,7 +156,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
                         <Text style={styles.quantityBtnText}>-</Text>
                     </TouchableRipple>
 
-                    <Text style={styles.quantityText}>
+                    <Text style={[styles.quantityText, { color: theme.colors.onSurface }]}>
                         {item.quantity || 1}
                     </Text>
 
@@ -180,6 +194,17 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
           }
         />
       </View>
+      {Platform.OS !== "web" && (
+        <FloatingToolbar
+          activeKey="cart"
+          targetLang={targetLang}
+          onGoHome={onGoHome || onBack}
+          onShare={() => onShare && onShare(null, t.cart.shareMessage)}
+          onOpenHistory={onOpenHistory}
+          onOpenCart={onOpenCart}
+          onOpenPreferences={onOpenSettings}
+        />
+      )}
     </Surface>
   );
 }
@@ -207,6 +232,11 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     marginBottom: 18,
     backgroundColor: "#FFFFFF",
+  },
+  summaryHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   title: {
     fontWeight: "800",

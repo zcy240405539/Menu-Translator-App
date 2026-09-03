@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, Globe, Smartphone } from "lucide-react";
+import { Apple, ExternalLink, Globe, Play } from "lucide-react";
 import { useEffect, useState } from "react";
-import { ANDROID_PLAY_STORE_URL } from "@/lib/appLinks";
+import { ANDROID_PLAY_STORE_URL, APPLE_APP_STORE_URL } from "@/lib/appLinks";
 import { useText } from "@/hooks/useText";
 import {
   DEFAULT_LANGUAGE,
@@ -70,16 +70,28 @@ export default function DownloadAppPage() {
           <h1 className="mt-4 w-full max-w-full break-words text-4xl font-extrabold leading-tight text-gray-950 sm:text-5xl">{text.download.title}</h1>
           <p className="mt-6 w-full max-w-2xl break-words text-lg leading-8 text-gray-600">{text.download.description}</p>
 
-          <a
-            href={ANDROID_PLAY_STORE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-9 inline-flex min-h-12 max-w-full flex-wrap items-center justify-center gap-3 rounded-md bg-[#5f259f] px-6 py-3 text-center font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
-          >
-            <Smartphone className="h-5 w-5" />
-            <span>{text.download.storeLabel}</span>
-            <ExternalLink className="h-4 w-4" />
-          </a>
+          <div className="mt-9 grid w-full max-w-xl gap-3 sm:grid-cols-2">
+            <a
+              href={ANDROID_PLAY_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-14 items-center justify-center gap-3 rounded-xl bg-[#5f259f] px-5 py-3 text-center font-bold text-white shadow-sm transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
+            >
+              <Play className="h-5 w-5 fill-current" aria-hidden />
+              <span>{text.download.storeLabel}</span>
+              <ExternalLink className="h-4 w-4" aria-hidden />
+            </a>
+            <a
+              href={APPLE_APP_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-14 items-center justify-center gap-3 rounded-xl bg-black px-5 py-3 text-center font-bold text-white shadow-sm transition-colors hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+            >
+              <Apple className="h-6 w-6" aria-hidden />
+              <span>{text.download.appleStoreLabel}</span>
+              <ExternalLink className="h-4 w-4" aria-hidden />
+            </a>
+          </div>
           <p className="mt-4 text-sm text-gray-500">{text.download.availability}</p>
 
           <Link href={`/${langQuery}`} className="mt-10 font-bold text-purple-700 transition-colors hover:text-purple-900">

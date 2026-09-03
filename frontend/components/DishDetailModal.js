@@ -89,6 +89,7 @@ export default function DishDetailModal({
   currentUser,
   onOpenLogin,
   onOpenProfile,
+  adsReady,
 }) {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
@@ -578,7 +579,7 @@ export default function DishDetailModal({
                   {t.close}
                 </Button>
 
-                {BannerAd && (
+                {adsReady && BannerAd && (
                   <View style={styles.adContainer}>
                     <BannerAd
                       unitId={AD_UNIT_IDS.itemBanner}

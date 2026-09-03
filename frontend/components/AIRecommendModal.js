@@ -56,6 +56,7 @@ export default function AIRecommendModal({
   currentUser,
   onOpenLogin,
   onOpenProfile,
+  adsReady,
 }) {
   const theme = useTheme();
   const [people, setPeople] = useState("");
@@ -176,7 +177,7 @@ export default function AIRecommendModal({
       });
 
       // 2. Start Ad
-      if (Platform.OS !== "web" && InterstitialAd) {
+      if (Platform.OS !== "web" && adsReady && InterstitialAd) {
         const interstitial = InterstitialAd.createForAdRequest(AD_UNIT_IDS.recommendInterstitial);
         
         let adTimeout = setTimeout(() => {
@@ -372,7 +373,7 @@ export default function AIRecommendModal({
                 </Button>
               </ScrollView>
 
-                {Platform.OS !== "web" && BannerAd && (
+                {Platform.OS !== "web" && adsReady && BannerAd && (
                   <View style={styles.bannerContainer}>
                     <BannerAd
                       unitId={AD_UNIT_IDS.recommendBanner}
@@ -396,7 +397,7 @@ export default function AIRecommendModal({
 
                     <View style={[styles.formGrid, isDesktopLayout && styles.formGridDesktop]}>
                       <View style={styles.formField}>
-                        <Text variant="titleSmall" style={styles.label}>
+                        <Text variant="titleSmall" style={[styles.label, { color: theme.colors.onSurface }]}>
                           {t.recommend.peopleLabel}
                         </Text>
                         <TextInput
@@ -410,7 +411,7 @@ export default function AIRecommendModal({
                       </View>
 
                       <View style={styles.formField}>
-                        <Text variant="titleSmall" style={styles.label}>
+                        <Text variant="titleSmall" style={[styles.label, { color: theme.colors.onSurface }]}>
                           {t.recommend.budgetLabel}
                         </Text>
                         <TextInput
@@ -423,7 +424,7 @@ export default function AIRecommendModal({
                       </View>
 
                       <View style={styles.formFieldWide}>
-                        <Text variant="titleSmall" style={styles.label}>
+                        <Text variant="titleSmall" style={[styles.label, { color: theme.colors.onSurface }]}>
                           {t.recommend.dietLabel}
                         </Text>
                         <View style={styles.chipRow}>
@@ -449,7 +450,7 @@ export default function AIRecommendModal({
                       </View>
 
                       <View style={styles.formField}>
-                        <Text variant="titleSmall" style={styles.label}>
+                        <Text variant="titleSmall" style={[styles.label, { color: theme.colors.onSurface }]}>
                           {t.detail.allergens}
                         </Text>
                         <TextInput
@@ -462,7 +463,7 @@ export default function AIRecommendModal({
                       </View>
 
                       <View style={styles.formField}>
-                        <Text variant="titleSmall" style={styles.label}>
+                        <Text variant="titleSmall" style={[styles.label, { color: theme.colors.onSurface }]}>
                           {t.recommend.tasteLabel}
                         </Text>
                         <TextInput

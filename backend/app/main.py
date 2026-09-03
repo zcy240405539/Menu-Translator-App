@@ -13,7 +13,7 @@ from fastapi import (
     UploadFile,
     File,
     HTTPException,
-    Depends, Body, Request,
+    Depends, Body, Request, Response,
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, PlainTextResponse
@@ -43,6 +43,7 @@ from app.services.auth_service import (
     get_user_from_token as sb_get_user_from_token,
     google_login_or_register as sb_google_login_or_register,
     reset_password as sb_reset_password,
+    delete_user_account as sb_delete_user_account,
 )
 from fastapi import Header
 from typing import Optional
@@ -343,6 +344,15 @@ def update_profile(request: UserProfileUpdate, current_user: User = Depends(get_
     db.commit()
     db.refresh(current_user)
     return to_user_response(current_user)
+
+
+@app.delete("/auth/account", status_code=204)
+def delete_account(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        sb_delete_user_account(db, current_user)
+        return Response(status_code=204)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Unable to delete account") from exc
 
 
 @app.post("/user/menu-history")

@@ -45,13 +45,14 @@
     ]
   },
   "download": {
-    "homeCta": "Scarica l’app Android",
-    "eyebrow": "AI MenuLens per Android",
+    "homeCta": "Scarica l’app mobile",
+    "eyebrow": "AI Menu APP per iPhone e Android",
     "title": "Traduci i menu ovunque mangi",
-    "description": "Installa AI MenuLens da Google Play per scansionare e tradurre i menu con il tuo telefono Android.",
+    "description": "Installa AI Menu APP da App Store o Google Play per scansionare e tradurre i menu sul telefono.",
     "storeLabel": "Scarica da Google Play",
-    "availability": "Disponibile per Android tramite Google Play.",
-    "backHome": "Torna al traduttore di menu"
+    "availability": "Disponibile per iPhone e Android.",
+    "backHome": "Torna al traduttore di menu",
+    "appleStoreLabel": "Scarica su App Store"
   },
   "auth": {
     "title": "Registrazione",

@@ -476,6 +476,18 @@ export async function logout() {
   setAuthToken(null);
 }
 
+export async function deleteAccount() {
+  const res = await fetch(`${API_BASE_URL}/auth/account`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to delete account");
+  }
+  setAuthToken(null);
+}
+
 export async function passwordReset(email) {
   const res = await fetch(`${API_BASE_URL}/auth/password-reset`, {
     method: "POST",

@@ -302,8 +302,8 @@ npx eas-cli build:configure
 npx eas-cli build --platform ios --profile production-ios
 ```
 
-The `production-ios` profile in `frontend/eas.json` creates an ad-free App Store
-`.ipa` with display version `1.0` and increments the remote iOS build number.
+The `production-ios` profile in `frontend/eas.json` creates an App Store `.ipa`
+with display version `1.0` and increments the remote iOS build number.
 EAS can create and manage the Apple
 Distribution certificate and App Store provisioning profile after an authorized
 Apple Developer account signs in. Submit a completed build with:
@@ -313,10 +313,11 @@ npx eas-cli submit --platform ios --profile production-ios
 ```
 
 The iOS icon is `frontend/assets/ios-icon.png` and must remain 1024x1024 without
-an alpha channel. The first iOS release excludes the Google Mobile Ads native
-SDK and resolves ad components to no-ops; Android continues to use its existing
-ids. Re-enabling iOS ads requires removing the iOS autolinking exclusion and
-adding dedicated iOS AdMob identifiers.
+an alpha channel. iOS and Android both include Google Mobile Ads. Consent is
+collected before ad requests, app measurement is delayed until initialization,
+and bottom banners render above the floating navigation toolbar. Development
+builds use Google test ads. A production iOS build also falls back to test ads
+until all dedicated iOS AdMob identifiers below are configured in EAS.
 
 Mobile legal routes are also available on Expo Web:
 

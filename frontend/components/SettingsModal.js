@@ -1,38 +1,61 @@
 import React, { useState } from "react";
-import { Linking, Modal, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Linking, Modal, Platform, ScrollView, StyleSheet, View } from "react-native";
 import {
   Appbar,
   Button,
   Divider,
   List,
+  Menu,
   SegmentedButtons,
   Surface,
   Text,
   useTheme,
 } from "react-native-paper";
-import { getText } from "../i18n";
+import { getLanguageLabel, getText, LANGUAGES, saveLanguage } from "../i18n";
+import { showAdPrivacyOptions } from "../utils/ads";
 import LegalDocumentModal from "./LegalDocumentModal";
 
 const PLAY_STORE_WEB_URL =
   "https://play.google.com/store/apps/details?id=com.agentscottystudio.aimenuapp";
 const PLAY_STORE_APP_URL = "market://details?id=com.agentscottystudio.aimenuapp";
+const APP_STORE_URL = "https://apps.apple.com/app/id6807476485";
 
 export default function SettingsModal({
   visible,
   targetLang,
+  currentUser,
   themeMode,
   onThemeModeChange,
+  onTargetLangChange,
+  onOpenAccount,
   onReplayOnboarding,
   onClose,
 }) {
   const [legalKind, setLegalKind] = useState(null);
+  const [languageMenuVisible, setLanguageMenuVisible] = useState(false);
   const theme = useTheme();
-  const text = getText(targetLang).settings;
+  const catalog = getText(targetLang);
+  const text = catalog.settings;
 
   const openStore = async () => {
-    const preferredUrl = Platform.OS === "android" ? PLAY_STORE_APP_URL : PLAY_STORE_WEB_URL;
+    const fallbackUrl = Platform.OS === "ios" ? APP_STORE_URL : PLAY_STORE_WEB_URL;
+    const preferredUrl = Platform.OS === "android" ? PLAY_STORE_APP_URL : fallbackUrl;
     const supported = await Linking.canOpenURL(preferredUrl).catch(() => false);
-    await Linking.openURL(supported ? preferredUrl : PLAY_STORE_WEB_URL);
+    await Linking.openURL(supported ? preferredUrl : fallbackUrl);
+  };
+
+  const changeLanguage = (language) => {
+    saveLanguage(language);
+    onTargetLangChange(language);
+    setLanguageMenuVisible(false);
+  };
+
+  const openAdPrivacy = async () => {
+    try {
+      await showAdPrivacyOptions();
+    } catch (error) {
+      Alert.alert(text.adPrivacy, text.adPrivacyUnavailable);
+    }
   };
 
   return (
@@ -44,6 +67,38 @@ export default function SettingsModal({
             <Appbar.Content title={text.title} />
           </Appbar.Header>
           <ScrollView contentContainerStyle={styles.content}>
+            <Text variant="titleMedium" style={styles.sectionTitle}>{text.general}</Text>
+            <List.Item
+              title={currentUser ? catalog.profile.title : catalog.auth.signInTitle}
+              left={(props) => <List.Icon {...props} icon={currentUser ? "account-check" : "account-circle-outline"} />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => {
+                onClose();
+                onOpenAccount();
+              }}
+            />
+            <Menu
+              visible={languageMenuVisible}
+              onDismiss={() => setLanguageMenuVisible(false)}
+              anchor={
+                <List.Item
+                  title={`${text.language}: ${getLanguageLabel(targetLang, targetLang)}`}
+                  left={(props) => <List.Icon {...props} icon="translate" />}
+                  right={(props) => <List.Icon {...props} icon="chevron-down" />}
+                  onPress={() => setLanguageMenuVisible(true)}
+                />
+              }
+            >
+              {LANGUAGES.map((language) => (
+                <Menu.Item
+                  key={language.code}
+                  title={`${language.flag} ${getLanguageLabel(targetLang, language.code)}`}
+                  onPress={() => changeLanguage(language.code)}
+                />
+              ))}
+            </Menu>
+
+            <Divider style={styles.divider} />
             <Text variant="titleMedium" style={styles.sectionTitle}>{text.appearance}</Text>
             <SegmentedButtons
               value={themeMode}
@@ -59,7 +114,6 @@ export default function SettingsModal({
             <Text variant="titleMedium" style={styles.sectionTitle}>{text.help}</Text>
             <List.Item
               title={text.replayTutorial}
-              description={text.replayTutorialDescription}
               left={(props) => <List.Icon {...props} icon="compass-outline" />}
               right={(props) => <List.Icon {...props} icon="chevron-right" />}
               onPress={() => {
@@ -69,11 +123,18 @@ export default function SettingsModal({
             />
             <List.Item
               title={text.rateApp}
-              description={text.rateAppDescription}
               left={(props) => <List.Icon {...props} icon="star-outline" />}
               right={(props) => <List.Icon {...props} icon="open-in-new" />}
               onPress={openStore}
             />
+            {Platform.OS !== "web" && (
+              <List.Item
+                title={text.adPrivacy}
+                left={(props) => <List.Icon {...props} icon="shield-account-outline" />}
+                right={(props) => <List.Icon {...props} icon="chevron-right" />}
+                onPress={openAdPrivacy}
+              />
+            )}
 
             <Divider style={styles.divider} />
             <Text variant="titleMedium" style={styles.sectionTitle}>{text.legal}</Text>

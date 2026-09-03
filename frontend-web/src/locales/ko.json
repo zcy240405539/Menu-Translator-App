@@ -45,13 +45,14 @@
     ]
   },
   "download": {
-    "homeCta": "Android 앱 다운로드",
-    "eyebrow": "Android용 AI MenuLens",
+    "homeCta": "모바일 앱 다운로드",
+    "eyebrow": "iPhone 및 Android용 AI 메뉴 APP",
     "title": "어디서나 메뉴를 번역하세요",
-    "description": "Google Play에서 AI MenuLens을 설치하고 Android 휴대전화로 메뉴를 스캔하고 번역하세요.",
+    "description": "App Store 또는 Google Play에서 AI 메뉴 APP을 설치하여 휴대폰으로 메뉴를 스캔하고 번역하세요.",
     "storeLabel": "Google Play에서 다운로드",
-    "availability": "Android 버전은 Google Play에서 제공됩니다.",
-    "backHome": "메뉴 번역기로 돌아가기"
+    "availability": "iPhone 및 Android에서 사용할 수 있습니다.",
+    "backHome": "메뉴 번역기로 돌아가기",
+    "appleStoreLabel": "App Store에서 다운로드"
   },
   "auth": {
     "title": "로그인",

@@ -45,13 +45,14 @@
     ]
   },
   "download": {
-    "homeCta": "Androidアプリをダウンロード",
-    "eyebrow": "Android版 AI MenuLens",
+    "homeCta": "モバイルアプリをダウンロード",
+    "eyebrow": "iPhone・Android版 AIメニューAPP",
     "title": "どこでもメニューを翻訳",
-    "description": "Google PlayからAI MenuLensをインストールして、Androidスマートフォンでメニューをスキャンして翻訳できます。",
+    "description": "App StoreまたはGoogle PlayからAIメニューAPPをインストールして、スマートフォンでメニューをスキャン・翻訳できます。",
     "storeLabel": "Google Playでダウンロード",
-    "availability": "Android版をGoogle Playで提供しています。",
-    "backHome": "メニュー翻訳に戻る"
+    "availability": "iPhoneとAndroidで利用できます。",
+    "backHome": "メニュー翻訳に戻る",
+    "appleStoreLabel": "App Storeからダウンロード"
   },
   "auth": {
     "title": "サインイン",

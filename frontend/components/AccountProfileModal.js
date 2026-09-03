@@ -8,7 +8,7 @@ import {
   Platform,
   TouchableOpacity,
   Image,
-  Linking,
+  Alert,
 } from "react-native";
 import {
   Appbar,
@@ -25,8 +25,8 @@ import {
   useTheme,
 } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
-import { updateProfile, uploadAvatar, logout } from "../api";
-import { getText, getUrlLangParam } from "../i18n";
+import { deleteAccount, updateProfile, uploadAvatar, logout } from "../api";
+import { getText } from "../i18n";
 
 const DIET_OPTIONS = [
   { key: "Vegetarian" },
@@ -35,10 +35,6 @@ const DIET_OPTIONS = [
   { key: "Keto" },
   { key: "Gluten-Free" },
 ];
-
-const ACCOUNT_DELETION_URL = `${
-  process.env.EXPO_PUBLIC_API_BASE_URL || "https://menu-translator-app.onrender.com"
-}`.replace(/\/$/, "") + "/account-deletion";
 
 export default function AccountProfileModal({
   visible,
@@ -170,13 +166,29 @@ export default function AccountProfileModal({
     }
   };
 
-  const handleOpenAccountDeletion = async () => {
-    try {
-      await Linking.openURL(`${ACCOUNT_DELETION_URL}?lang=${getUrlLangParam(targetLang)}`);
-    } catch (err) {
-      console.warn("Open account deletion link failed:", err);
-      setError(t.deleteAccountOpenFailed);
-    }
+  const handleDeleteAccount = () => {
+    Alert.alert(t.deleteAccountConfirmTitle, t.deleteAccountConfirmMessage, [
+      { text: t.deleteAccountCancel, style: "cancel" },
+      {
+        text: t.deleteAccountConfirm,
+        style: "destructive",
+        onPress: async () => {
+          setLoading(true);
+          setError("");
+          try {
+            await deleteAccount();
+            onLogout();
+            onClose();
+            Alert.alert(t.deleteAccountSuccess);
+          } catch (err) {
+            console.warn("Account deletion failed:", err);
+            setError(t.deleteAccountFailed);
+          } finally {
+            setLoading(false);
+          }
+        },
+      },
+    ]);
   };
 
   if (!currentUser) return null;
@@ -221,13 +233,13 @@ export default function AccountProfileModal({
 
                   {/* Username & Email (read-only) */}
                   <View style={styles.readOnlyField}>
-                    <Text variant="titleSmall" style={styles.readOnlyLabel}>{t.username}</Text>
-                    <Text variant="bodyLarge" style={styles.readOnlyValue}>{currentUser.username}</Text>
+                    <Text variant="titleSmall" style={[styles.readOnlyLabel, { color: theme.colors.onSurfaceVariant }]}>{t.username}</Text>
+                    <Text variant="bodyLarge" style={[styles.readOnlyValue, { color: theme.colors.onSurface }]}>{currentUser.username}</Text>
                   </View>
 
                   <View style={styles.readOnlyField}>
-                    <Text variant="titleSmall" style={styles.readOnlyLabel}>{t.email}</Text>
-                    <Text variant="bodyLarge" style={styles.readOnlyValue}>{currentUser.email}</Text>
+                    <Text variant="titleSmall" style={[styles.readOnlyLabel, { color: theme.colors.onSurfaceVariant }]}>{t.email}</Text>
+                    <Text variant="bodyLarge" style={[styles.readOnlyValue, { color: theme.colors.onSurface }]}>{currentUser.email}</Text>
                   </View>
 
                   <Divider style={styles.cardDivider} />
@@ -243,7 +255,7 @@ export default function AccountProfileModal({
                     value={phone}
                     onChangeText={setPhone}
                     keyboardType="phone-pad"
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: theme.colors.surface }]}
                     left={<TextInput.Icon icon="phone" />}
                   />
 
@@ -277,7 +289,7 @@ export default function AccountProfileModal({
                     placeholder={t.allergiesPlaceholder}
                     value={allergiesText}
                     onChangeText={setAllergiesText}
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: theme.colors.surface }]}
                     left={<TextInput.Icon icon="alert-circle-outline" />}
                   />
 
@@ -288,7 +300,7 @@ export default function AccountProfileModal({
                     placeholder={t.budgetPlaceholder}
                     value={budget}
                     onChangeText={setBudget}
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: theme.colors.surface }]}
                     left={<TextInput.Icon icon="currency-usd" />}
                   />
 
@@ -299,7 +311,7 @@ export default function AccountProfileModal({
                     placeholder={t.tastePlaceholder}
                     value={taste}
                     onChangeText={setTaste}
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: theme.colors.surface }]}
                     left={<TextInput.Icon icon="silverware-fork-knife" />}
                   />
 
@@ -335,7 +347,7 @@ export default function AccountProfileModal({
                     </Text>
                     <Button
                       mode="text"
-                      onPress={handleOpenAccountDeletion}
+                      onPress={handleDeleteAccount}
                       disabled={loading || avatarLoading}
                       icon="account-remove-outline"
                       textColor="#B3261E"

@@ -22,6 +22,18 @@ def get_supabase_client():
     return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 
+def delete_user_account(db: Session, user: User) -> None:
+    """Delete the authenticated user from Supabase Auth and the app database."""
+    client = get_supabase_client()
+    client.auth.admin.delete_user(user.id)
+    try:
+        db.delete(user)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
+
 def build_oauth_authorize_url(provider: str, redirect_to: str, supabase_url: str | None = None) -> str:
     normalized_provider = str(provider or "").strip().lower()
     if normalized_provider not in SUPPORTED_OAUTH_PROVIDERS:

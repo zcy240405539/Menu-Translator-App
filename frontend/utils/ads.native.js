@@ -1,5 +1,8 @@
 import { Platform } from "react-native";
 import {
+  default as mobileAds,
+  AdsConsent,
+  MaxAdContentRating,
   TestIds,
   InterstitialAd as NativeInterstitialAd,
   AdEventType,
@@ -23,20 +26,49 @@ const IOS_PROD_IDS = {
   recommendBanner: process.env.EXPO_PUBLIC_IOS_AD_RECOMMEND_BANNER_ID,
 };
 
-const iosAdsConfigured =
-  process.env.EXPO_PUBLIC_IOS_ADS_ENABLED === "true" &&
-  Object.values(IOS_PROD_IDS).every(Boolean);
-const adsEnabled = Platform.OS !== "ios" || iosAdsConfigured;
+const iosAdsConfigured = Object.values(IOS_PROD_IDS).every(Boolean);
+const useTestIds = __DEV__ || (Platform.OS === "ios" && !iosAdsConfigured);
 const productionIds = Platform.OS === "ios" ? IOS_PROD_IDS : ANDROID_PROD_IDS;
 
 export const AD_UNIT_IDS = {
-  interstitial: __DEV__ || !adsEnabled ? TestIds.INTERSTITIAL : productionIds.interstitial,
-  bottomBanner: __DEV__ || !adsEnabled ? TestIds.BANNER : productionIds.bottomBanner,
-  itemBanner: __DEV__ || !adsEnabled ? TestIds.BANNER : productionIds.itemBanner,
-  recommendInterstitial: __DEV__ || !adsEnabled ? TestIds.INTERSTITIAL : productionIds.recommendInterstitial,
-  recommendBanner: __DEV__ || !adsEnabled ? TestIds.BANNER : productionIds.recommendBanner,
+  interstitial: useTestIds ? TestIds.INTERSTITIAL : productionIds.interstitial,
+  bottomBanner: useTestIds ? TestIds.BANNER : productionIds.bottomBanner,
+  itemBanner: useTestIds ? TestIds.BANNER : productionIds.itemBanner,
+  recommendInterstitial: useTestIds ? TestIds.INTERSTITIAL : productionIds.recommendInterstitial,
+  recommendBanner: useTestIds ? TestIds.BANNER : productionIds.recommendBanner,
 };
 
-export const InterstitialAd = adsEnabled ? NativeInterstitialAd : null;
-export const BannerAd = adsEnabled ? NativeBannerAd : null;
+let initializationPromise;
+
+export function initializeAds() {
+  if (!initializationPromise) {
+    initializationPromise = (async () => {
+      try {
+        await AdsConsent.gatherConsent({ tagForUnderAgeOfConsent: false });
+        const consentInfo = await AdsConsent.getConsentInfo();
+        if (!consentInfo.canRequestAds) return false;
+      } catch (error) {
+        const consentInfo = await AdsConsent.getConsentInfo().catch(() => null);
+        if (!consentInfo?.canRequestAds) throw error;
+      }
+
+      await mobileAds().setRequestConfiguration({
+        maxAdContentRating: MaxAdContentRating.G,
+        tagForChildDirectedTreatment: false,
+        tagForUnderAgeOfConsent: false,
+        testDeviceIdentifiers: __DEV__ ? ["EMULATOR"] : [],
+      });
+      await mobileAds().initialize();
+      return true;
+    })();
+  }
+  return initializationPromise;
+}
+
+export function showAdPrivacyOptions() {
+  return AdsConsent.showPrivacyOptionsForm();
+}
+
+export const InterstitialAd = NativeInterstitialAd;
+export const BannerAd = NativeBannerAd;
 export { AdEventType, BannerAdSize };

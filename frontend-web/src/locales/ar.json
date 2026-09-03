@@ -45,13 +45,14 @@
     ]
   },
   "download": {
-    "homeCta": "تنزيل تطبيق Android",
-    "eyebrow": "AI MenuLens لنظام Android",
+    "homeCta": "تنزيل تطبيق الهاتف",
+    "eyebrow": "تطبيق قائمة الذكاء الاصطناعي لـ iPhone وAndroid",
     "title": "ترجم قوائم الطعام أينما تناولت طعامك",
-    "description": "ثبّت AI MenuLens من Google Play لمسح قوائم الطعام وترجمتها باستخدام هاتف Android.",
+    "description": "ثبّت تطبيق قائمة الذكاء الاصطناعي من App Store أو Google Play لمسح القوائم وترجمتها على هاتفك.",
     "storeLabel": "التنزيل من Google Play",
-    "availability": "متاح لنظام Android عبر Google Play.",
-    "backHome": "العودة إلى مترجم قوائم الطعام"
+    "availability": "متاح لأجهزة iPhone وAndroid.",
+    "backHome": "العودة إلى مترجم قوائم الطعام",
+    "appleStoreLabel": "تنزيل من App Store"
   },
   "auth": {
     "title": "تسجيل الدخول",

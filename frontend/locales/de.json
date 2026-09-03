@@ -183,7 +183,13 @@
     "deleteAccountLink": "Konto löschen",
     "deleteAccountHelp": "Möchten Sie Ihr Konto löschen? Öffnen Sie die Seite für die Löschungsanfrage.",
     "deleteAccountOpenFailed": "Die Seite zum Löschen des Kontos konnte nicht geöffnet werden.",
-    "updateFailed": "Profil konnte nicht aktualisiert werden"
+    "updateFailed": "Profil konnte nicht aktualisiert werden",
+    "deleteAccountConfirmTitle": "Konto löschen",
+    "deleteAccountConfirmMessage": "Ihr Konto und die zugehörigen Daten werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
+    "deleteAccountCancel": "Abbrechen",
+    "deleteAccountConfirm": "Dauerhaft löschen",
+    "deleteAccountSuccess": "Konto gelöscht",
+    "deleteAccountFailed": "Konto konnte nicht gelöscht werden"
   },
   "settings": {
     "title": "Einstellungen",
@@ -194,13 +200,17 @@
     "help": "Hilfe & Feedback",
     "replayTutorial": "Wiederholungs-Tutorial",
     "replayTutorialDescription": "Lernen Sie, wie man eine Speisekarte scannt, übersetzt und versteht.",
-    "rateApp": "Bewerte die AI Menu App",
+    "rateApp": "Diese APP bewerten",
     "rateAppDescription": "Öffnen Sie die AI Menu App im Google Play Store.",
     "legal": "Recht",
     "privacy": "Datenschutzrichtlinie",
     "terms": "Nutzungsbedingungen",
     "version": "AI Menu APP 2.3",
-    "done": "Erledigt"
+    "done": "Erledigt",
+    "general": "Allgemein",
+    "language": "Sprache",
+    "adPrivacy": "Datenschutz für Werbung",
+    "adPrivacyUnavailable": "Die Datenschutzoptionen für Werbung sind derzeit nicht verfügbar."
   },
   "onboarding": {
     "skip": "Überspringen",
@@ -402,13 +412,22 @@
     "items": "Artikel",
     "total": "Gesamt",
     "remove": "Entfernen",
-    "empty": "Noch keine Gerichte hinzugefügt"
+    "empty": "Noch keine Gerichte hinzugefügt",
+    "clear": "Bestellung leeren"
   },
   "history": {
     "title": "Menüverlauf",
     "shareMessage": "Sieh dir meinen Menüverlauf in der AI Menu APP an.",
     "items": "Artikel",
     "open": "Zum Öffnen tippen",
-    "empty": "Noch keine Menühistorie"
+    "empty": "Noch keine Menühistorie",
+    "clear": "Verlauf löschen"
+  },
+  "navigation": {
+    "home": "Start",
+    "share": "Teilen",
+    "history": "Verlauf",
+    "cart": "Bestellung",
+    "preferences": "Einstellungen"
   }
 }

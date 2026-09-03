@@ -183,10 +183,16 @@
     "deleteAccountLink": "刪除帳號",
     "deleteAccountHelp": "需要刪除帳號？打開帳號刪除申請頁面。",
     "deleteAccountOpenFailed": "無法打開帳號刪除頁面。",
-    "updateFailed": "更新個人資料失敗"
+    "updateFailed": "更新個人資料失敗",
+    "deleteAccountConfirmTitle": "刪除帳號",
+    "deleteAccountConfirmMessage": "此操作將永久刪除您的帳號及相關資料，且無法復原。",
+    "deleteAccountCancel": "取消",
+    "deleteAccountConfirm": "永久刪除",
+    "deleteAccountSuccess": "帳號已刪除",
+    "deleteAccountFailed": "無法刪除帳號"
   },
   "settings": {
-    "title": "設定",
+    "title": "偏好設定",
     "appearance": "外觀",
     "system": "系統",
     "light": "淺色",
@@ -194,13 +200,17 @@
     "help": "說明與意見回饋",
     "replayTutorial": "重新查看新手引導",
     "replayTutorialDescription": "再次了解如何掃描、翻譯和看懂菜單。",
-    "rateApp": "評價AI点菜通",
+    "rateApp": "評價此 APP",
     "rateAppDescription": "在 Google Play 中開啟AI点菜通。",
     "legal": "法律資訊",
     "privacy": "隱私政策",
     "terms": "服務條款",
     "version": "AI点菜通 2.3",
-    "done": "完成"
+    "done": "完成",
+    "general": "一般",
+    "language": "語言",
+    "adPrivacy": "廣告隱私選項",
+    "adPrivacyUnavailable": "目前無法開啟廣告隱私選項。"
   },
   "onboarding": {
     "skip": "跳過",
@@ -402,13 +412,22 @@
     "items": "專案",
     "total": "全部的",
     "remove": "消除",
-    "empty": "尚未添加菜品"
+    "empty": "尚未添加菜品",
+    "clear": "清空點單"
   },
   "history": {
     "title": "選單歷史記錄",
     "shareMessage": "在AI点菜通中查看我的選單歷史記錄。",
     "items": "專案",
     "open": "點擊打開",
-    "empty": "暫無選單歷史紀錄"
+    "empty": "暫無選單歷史紀錄",
+    "clear": "清空歷史記錄"
+  },
+  "navigation": {
+    "home": "首頁",
+    "share": "分享",
+    "history": "歷史記錄",
+    "cart": "點單",
+    "preferences": "偏好設定"
   }
 }
