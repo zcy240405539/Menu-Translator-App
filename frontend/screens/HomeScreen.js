@@ -10,13 +10,11 @@ import {
   ScrollView,
   useWindowDimensions,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { saveMenuHistory } from "../storage/menuStorage";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import {
-  Appbar,
   Button,
   Card,
   Text,
@@ -58,7 +56,7 @@ const DOCUMENT_PICKER_TYPES = [
 
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"];
 
-export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onGoHome, onOpenCart, onOpenHistory, onShare, currentUser, onOpenLogin, onOpenProfile, onOpenSettings, initialMenuUrl, adsReady }) {
+export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onGoHome, onOpenCart, onOpenHistory, onShare, onOpenSettings, initialMenuUrl, adsReady }) {
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sourceLang, setSourceLang] = useState("auto");
@@ -67,15 +65,13 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [menuUrl, setMenuUrl] = useState("");
-  const insets = useSafeAreaInsets();
   const theme = useTheme();
 
   const lang = targetLang;
   const t = getText(lang);
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const isWeb = Platform.OS === "web";
   const isDesktopLayout = isWeb && width >= 900;
-  const shouldHideAppTitle = isWeb && (width < 520 || height < 560);
 
   useEffect(() => {
     if (initialMenuUrl) {
@@ -493,14 +489,6 @@ const selectFromFile = async () => {
     }
   };
 
-  const handleLogin = () => {
-    if (currentUser) {
-      if (onOpenProfile) onOpenProfile();
-    } else {
-      if (onOpenLogin) onOpenLogin();
-    }
-  };
-
   const homeFeatureItems = [
     t.home.featureDocuments,
     t.home.featureTranslation,
@@ -509,18 +497,7 @@ const selectFromFile = async () => {
   ];
 
   return (
-    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { paddingBottom: Platform.OS === "web" ? insets.bottom : 0, backgroundColor: theme.colors.background }]}>
-      {Platform.OS === "web" && (
-        <Appbar.Header mode="center-aligned" style={[styles.appbar, isDesktopLayout && styles.appbarDesktop, { backgroundColor: theme.colors.background }]}>
-          <Appbar.Content title={shouldHideAppTitle ? "" : t.appTitle} />
-          <Appbar.Action icon="cog-outline" accessibilityLabel={t.settings.title} onPress={onOpenSettings} />
-          <Appbar.Action icon="share-variant" onPress={handleShare} />
-          <Appbar.Action icon="history" onPress={onOpenHistory} />
-          <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
-          <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={handleLogin} />
-        </Appbar.Header>
-      )}
-
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { backgroundColor: theme.colors.background }]}>
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -713,17 +690,15 @@ const selectFromFile = async () => {
           </Card>
         </View>
       </ScrollView>
-      {Platform.OS !== "web" && (
-        <FloatingToolbar
-          activeKey="home"
-          targetLang={targetLang}
-          onGoHome={onGoHome}
-          onShare={handleShare}
-          onOpenHistory={onOpenHistory}
-          onOpenCart={onOpenCart}
-          onOpenPreferences={onOpenSettings}
-        />
-      )}
+      <FloatingToolbar
+        activeKey="home"
+        targetLang={targetLang}
+        onGoHome={onGoHome}
+        onShare={handleShare}
+        onOpenHistory={onOpenHistory}
+        onOpenCart={onOpenCart}
+        onOpenPreferences={onOpenSettings}
+      />
     </Surface>
   );
 }
@@ -735,18 +710,6 @@ const styles = StyleSheet.create({
   },
   screenDesktop: {
     backgroundColor: "#F7F7FA",
-  },
-  appbar: {
-    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
-    elevation: 0,
-    width: "100%",
-    maxWidth: Platform.OS === 'web' ? 800 : '100%',
-    alignSelf: "center",
-  },
-  appbarDesktop: {
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E7E0EC",
   },
   scrollContent: {
     flexGrow: 1,

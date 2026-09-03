@@ -8,8 +8,7 @@ const ICONS = ["camera-outline", "translate", "food-apple-outline", "lightbulb-o
 export default function OnboardingModal({ visible, targetLang, onComplete }) {
   const [step, setStep] = useState(0);
   const theme = useTheme();
-  const catalog = getText(targetLang);
-  const text = catalog.onboarding;
+  const text = getText(targetLang).onboarding;
   const current = text.steps[step];
   const isLast = step === text.steps.length - 1;
 
@@ -22,7 +21,6 @@ export default function OnboardingModal({ visible, targetLang, onComplete }) {
     <Modal visible={visible} animationType="fade" onRequestClose={finish}>
       <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
         <View style={styles.topRow}>
-          <Text variant="titleMedium" style={{ color: theme.colors.primary }}>{catalog.common.brand}</Text>
           <Button mode="text" onPress={finish}>{text.skip}</Button>
         </View>
 
@@ -60,7 +58,7 @@ export default function OnboardingModal({ visible, targetLang, onComplete }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, paddingHorizontal: 24, paddingVertical: 20 },
-  topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  topRow: { flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   body: { flex: 1, justifyContent: "center", alignItems: "center", width: "100%", maxWidth: 560, alignSelf: "center" },
   iconStage: { width: 200, height: 200, borderRadius: 8, alignItems: "center", justifyContent: "center", marginBottom: 38 },
   title: { textAlign: "center", fontWeight: "800", letterSpacing: 0 },

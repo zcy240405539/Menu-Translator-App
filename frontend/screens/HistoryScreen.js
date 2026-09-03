@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Platform, StyleSheet, FlatList, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { StyleSheet, FlatList, View } from "react-native";
 import {
-  Appbar,
   Card,
   Text,
   Surface,
@@ -18,10 +16,9 @@ import {
 import { getText } from "../i18n";
 import FloatingToolbar from "../components/FloatingToolbar";
 
-export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome, onOpenSettings }) {
+export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHistory, onOpenCart, onShare, onGoHome, onOpenSettings }) {
   const [history, setHistory] = useState([]);
   const t = getText(targetLang);
-  const insets = useSafeAreaInsets();
   const theme = useTheme();
 
   const loadHistory = async () => {
@@ -34,35 +31,12 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
   }, []);
 
   return (
-    <Surface style={[styles.screen, { paddingBottom: Platform.OS === "web" ? insets.bottom : 0, backgroundColor: theme.colors.background }]}>
-      {Platform.OS === "web" && <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
-        {hasMenuResult ? (
-          <>
-            <Appbar.Action icon="close" onPress={onBackToResult} />
-            <Appbar.Action icon="home-outline" onPress={onGoHome} />
-          </>
-        ) : (
-          <Appbar.BackAction onPress={onBack} />
-        )}
-        <Appbar.Content title={t.history.title} />
-        <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, t.history.shareMessage)} />
-        <Appbar.Action icon="history" onPress={onOpenHistory} />
-        <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
-        <Appbar.Action
-          icon="delete-outline"
-          onPress={async () => {
-            await clearMenuHistory();
-            setHistory([]);
-          }}
-        />
-        <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
-      </Appbar.Header>}
-
+    <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <FlatList
         contentContainerStyle={styles.content}
         data={history}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={Platform.OS === "web" ? null : (
+        ListHeaderComponent={(
           <View style={styles.pageHeader}>
             <Text variant="headlineSmall" style={[styles.pageTitle, { color: theme.colors.onSurface }]}>{t.history.title}</Text>
             <IconButton
@@ -107,17 +81,15 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
           </Text>
         }
       />
-      {Platform.OS !== "web" && (
-        <FloatingToolbar
-          activeKey="history"
-          targetLang={targetLang}
-          onGoHome={onGoHome || onBack}
-          onShare={() => onShare && onShare(null, t.history.shareMessage)}
-          onOpenHistory={onOpenHistory}
-          onOpenCart={onOpenCart}
-          onOpenPreferences={onOpenSettings}
-        />
-      )}
+      <FloatingToolbar
+        activeKey="history"
+        targetLang={targetLang}
+        onGoHome={onGoHome || onBack}
+        onShare={() => onShare && onShare(null, t.history.shareMessage)}
+        onOpenHistory={onOpenHistory}
+        onOpenCart={onOpenCart}
+        onOpenPreferences={onOpenSettings}
+      />
     </Surface>
   );
 }
@@ -126,13 +98,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: "#FDF8F3",
-  },
-  appbar: {
-    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
-    elevation: 0,
-    width: "100%",
-    maxWidth: Platform.OS === 'web' ? 800 : '100%',
-    alignSelf: "center",
   },
   content: {
     padding: 16,

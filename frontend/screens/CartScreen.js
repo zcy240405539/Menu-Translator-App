@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, FlatList, Platform, TouchableRipple } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  Appbar,
   Card,
   Text,
   Surface,
@@ -26,10 +24,9 @@ function getDishName(dish, fallback) {
   return dish.translated_name || dish.original_name || fallback;
 }
 
-export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare, currentUser, onOpenLogin, onOpenProfile, hasMenuResult, onBackToResult, onGoHome, onOpenSettings }) {
+export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCart, onShare, onGoHome, onOpenSettings }) {
   const [items, setItems] = useState([]);
   const t = getText(targetLang);
-  const insets = useSafeAreaInsets();
   const theme = useTheme();
 
   const loadCart = async () => {
@@ -58,30 +55,7 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
   }, 0);
 
   return (
-    <Surface style={[styles.screen, { paddingBottom: Platform.OS === "web" ? insets.bottom : 0, backgroundColor: theme.colors.background }]}>
-      {Platform.OS === "web" && <Appbar.Header mode="center-aligned" style={[styles.appbar, { backgroundColor: theme.colors.background }]}>
-        {hasMenuResult ? (
-          <>
-            <Appbar.Action icon="close" onPress={onBackToResult} />
-            <Appbar.Action icon="home-outline" onPress={onGoHome} />
-          </>
-        ) : (
-          <Appbar.BackAction onPress={onBack} />
-        )}
-        <Appbar.Content title={t.cart.title} />
-        <Appbar.Action icon="share-variant" onPress={() => onShare && onShare(null, t.cart.shareMessage)} />
-        <Appbar.Action icon="history" onPress={onOpenHistory} />
-        <Appbar.Action icon="cart-outline" onPress={onOpenCart} />
-        <Appbar.Action
-          icon="delete-outline"
-          onPress={async () => {
-            await clearCart();
-            setItems([]);
-          }}
-        />
-        <Appbar.Action icon={currentUser ? "account-check" : "account-circle-outline"} onPress={() => currentUser ? onOpenProfile() : onOpenLogin()} />
-      </Appbar.Header>}
-
+    <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <View style={styles.content}>
         <Card mode="elevated" style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
@@ -89,16 +63,14 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
               <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
                 {t.cart.heading}
               </Text>
-              {Platform.OS !== "web" && (
-                <IconButton
-                  icon="delete-outline"
-                  accessibilityLabel={t.cart.clear}
-                  onPress={async () => {
-                    await clearCart();
-                    setItems([]);
-                  }}
-                />
-              )}
+              <IconButton
+                icon="delete-outline"
+                accessibilityLabel={t.cart.clear}
+                onPress={async () => {
+                  await clearCart();
+                  setItems([]);
+                }}
+              />
             </View>
             <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
               {items.length} {t.cart.items} · {t.cart.total}: {cartCurrencySymbol}{total.toFixed(2)}
@@ -194,17 +166,15 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
           }
         />
       </View>
-      {Platform.OS !== "web" && (
-        <FloatingToolbar
-          activeKey="cart"
-          targetLang={targetLang}
-          onGoHome={onGoHome || onBack}
-          onShare={() => onShare && onShare(null, t.cart.shareMessage)}
-          onOpenHistory={onOpenHistory}
-          onOpenCart={onOpenCart}
-          onOpenPreferences={onOpenSettings}
-        />
-      )}
+      <FloatingToolbar
+        activeKey="cart"
+        targetLang={targetLang}
+        onGoHome={onGoHome || onBack}
+        onShare={() => onShare && onShare(null, t.cart.shareMessage)}
+        onOpenHistory={onOpenHistory}
+        onOpenCart={onOpenCart}
+        onOpenPreferences={onOpenSettings}
+      />
     </Surface>
   );
 }
@@ -213,13 +183,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: "#FDF8F3",
-  },
-  appbar: {
-    backgroundColor: Platform.OS === 'web' ? 'transparent' : '#FDF8F3',
-    elevation: 0,
-    width: "100%",
-    maxWidth: Platform.OS === 'web' ? 800 : '100%',
-    alignSelf: "center",
   },
   content: {
     flex: 1,

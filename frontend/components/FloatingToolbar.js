@@ -80,13 +80,12 @@ export default function FloatingToolbar({
 
 const styles = StyleSheet.create({
   safeArea: {
-    paddingHorizontal: 14,
     paddingTop: 8,
   },
   toolbar: {
     minHeight: 68,
     maxWidth: 720,
-    width: "100%",
+    width: "92%",
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
