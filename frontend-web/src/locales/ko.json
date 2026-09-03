@@ -1,5 +1,5 @@
 {
-  "metaTitle": "AI 메뉴 앱 - 메뉴를 번역하고 간편하게 주문하세요",
+  "metaTitle": "AI MenuLens - 메뉴를 번역하고 간편하게 주문하세요",
   "languageNames": {
     "en": "영어",
     "zh-cn": "중국어 간체",
@@ -46,9 +46,9 @@
   },
   "download": {
     "homeCta": "Android 앱 다운로드",
-    "eyebrow": "Android용 AI Menu APP",
+    "eyebrow": "Android용 AI MenuLens",
     "title": "어디서나 메뉴를 번역하세요",
-    "description": "Google Play에서 AI Menu APP을 설치하고 Android 휴대전화로 메뉴를 스캔하고 번역하세요.",
+    "description": "Google Play에서 AI MenuLens을 설치하고 Android 휴대전화로 메뉴를 스캔하고 번역하세요.",
     "storeLabel": "Google Play에서 다운로드",
     "availability": "Android 버전은 Google Play에서 제공됩니다.",
     "backHome": "메뉴 번역기로 돌아가기"
@@ -197,7 +197,7 @@
   },
   "legal": {
     "back": "AI 메뉴 앱으로 돌아가기",
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "연락하다",
     "privacy": {
       "title": "개인정보 보호정책",
@@ -241,7 +241,7 @@
       ]
     },
     "deletion": {
-      "title": "AI 메뉴 앱 계정을 삭제하세요",
+      "title": "AI MenuLens 계정을 삭제하세요",
       "subtitle": "계정 및 관련 계정 데이터 삭제를 요청하세요.",
       "emailButton": "이메일 계정 삭제 요청",
       "sections": [
@@ -313,7 +313,7 @@
     },
     "terms": {
       "title": "서비스 약관",
-      "intro": "본 약관은 AI Menu APP 이용에 적용됩니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.",
+      "intro": "본 약관은 AI MenuLens 이용에 적용됩니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.",
       "sections": [
         {
           "heading": "서비스",
@@ -355,64 +355,64 @@
     }
   },
   "common": {
-    "brand": "AI Menu APP"
+    "brand": "AI MenuLens"
   },
   "metaDescription": "사진, PDF, 텍스트 및 링크에서 다국어 메뉴를 번역합니다.",
   "metadata": {
     "home": {
-      "title": "AI 메뉴 앱 - 메뉴를 번역하고 간편하게 주문하세요",
+      "title": "AI MenuLens - 메뉴를 번역하고 간편하게 주문하세요",
       "description": "사진, PDF, 텍스트 및 링크에서 다국어 메뉴를 번역합니다."
     },
     "login": {
-      "title": "로그인 - AI 메뉴 앱",
+      "title": "로그인 - AI MenuLens",
       "description": "AI 메뉴 앱에 로그인하세요."
     },
     "history": {
-      "title": "히스토리 - AI 메뉴 앱",
+      "title": "히스토리 - AI MenuLens",
       "description": "AI 메뉴 앱의 저장된 메뉴 기록입니다."
     },
     "cart": {
-      "title": "카트 - AI 메뉴 앱",
+      "title": "카트 - AI MenuLens",
       "description": "AI 메뉴 앱용 저장된 주문 목록입니다."
     },
     "settings": {
-      "title": "설정 | AI 메뉴 앱",
+      "title": "설정 | AI MenuLens",
       "description": "AI 메뉴 앱 웹사이트 설정 및 법적 정보를 관리하세요."
     },
     "privacy": {
-      "title": "개인정보 보호정책 - AI 메뉴 앱",
+      "title": "개인정보 보호정책 - AI MenuLens",
       "description": "AI 메뉴 앱 개인정보 보호정책입니다."
     },
     "terms": {
-      "title": "서비스 약관 | AI 메뉴 앱",
+      "title": "서비스 약관 | AI MenuLens",
       "description": "AI 메뉴 앱 이용 약관."
     },
     "deletion": {
-      "title": "계정 삭제 - AI 메뉴 앱",
+      "title": "계정 삭제 - AI MenuLens",
       "description": "AI Menu 앱 계정 삭제를 요청하세요."
     },
     "howItWorks": {
-      "title": "AI Menu APP는 어떻게 작동하나요?",
-      "description": "AI Menu APP는 어떻게 레스토랑 메뉴를 추출, 정리 및 번역하는가?"
+      "title": "AI MenuLens는 어떻게 작동하나요?",
+      "description": "AI MenuLens는 어떻게 레스토랑 메뉴를 추출, 정리 및 번역하는가?"
     },
     "guide": {
-      "title": "메뉴 번역 가이드 | AI Menu APP",
+      "title": "메뉴 번역 가이드 | AI MenuLens",
       "description": "메뉴 번역 및 주문 세부 정보 확인을 위한 실용적인 지침."
     },
     "languages": {
-      "title": "지원 언어 | AI Menu APP",
-      "description": "AI Menu APP 메뉴 번역에 지원되는 원어 및 대상 언어입니다."
+      "title": "지원 언어 | AI MenuLens",
+      "description": "AI MenuLens 메뉴 번역에 지원되는 원어 및 대상 언어입니다."
     },
     "about": {
-      "title": "소개 | AI Menu APP",
-      "description": "AI Menu APP가 만들어진 이유와 메뉴 번역을 책임감 있게 사용하는 방법."
+      "title": "소개 | AI MenuLens",
+      "description": "AI MenuLens가 만들어진 이유와 메뉴 번역을 책임감 있게 사용하는 방법."
     },
     "contact": {
-      "title": "연락처 | AI Menu APP",
-      "description": "제품 관련 의견, 개인정보 보호 또는 계정 지원이 필요하시면 AI Menu APP로 연락주세요."
+      "title": "연락처 | AI MenuLens",
+      "description": "제품 관련 의견, 개인정보 보호 또는 계정 지원이 필요하시면 AI MenuLens로 연락주세요."
     },
     "examples": {
-      "title": "메뉴 번역 예시 | AI Menu APP",
+      "title": "메뉴 번역 예시 | AI MenuLens",
       "description": "번역 과정에서 메뉴 카테고리, 요리, 설명 및 가격을 서로 연결 상태로 유지하는 방법에 대한 예시입니다."
     }
   },
@@ -432,7 +432,7 @@
     "home": {
       "title": "주문하기 전에 메뉴를 숙지하세요",
       "paragraphs": [
-        "AI Menu APP는 단어 대 단어 번역보다 더 많은 맥락 정보를 필요로 하는 여행객과 식당 이용객을 위해 설계되었습니다. 텍스트 추출, 메뉴 구조 감지 및 번역 기능을 결합하여 메뉴의 섹션, 음식 이름, 설명 및 가격을 더 쉽게 비교할 수 있도록 합니다.",
+        "AI MenuLens는 단어 대 단어 번역보다 더 많은 맥락 정보를 필요로 하는 여행객과 식당 이용객을 위해 설계되었습니다. 텍스트 추출, 메뉴 구조 감지 및 번역 기능을 결합하여 메뉴의 섹션, 음식 이름, 설명 및 가격을 더 쉽게 비교할 수 있도록 합니다.",
         "메뉴 사진과 문서는 매우 다양합니다. 조명, 장식적인 글꼴, 여러 단으로 구성된 페이지, 손글씨 메모, 혼합 언어 등은 모두 인식에 영향을 미칠 수 있습니다. 일반적으로 선명하고 반듯한 이미지와 완전한 PDF 페이지가 가장 유용한 결과를 제공합니다.",
         "번역된 메뉴는 참고용이며, 레스토랑의 실제 메뉴나 직원을 대체하는 것이 아닙니다. 주문 전에 가격, 재고 여부, 재료 및 알레르기 정보는 반드시 레스토랑에 직접 확인하십시오."
       ],
@@ -462,7 +462,7 @@
     },
     "pages": {
       "howItWorks": {
-        "title": "AI Menu APP는 메뉴를 어떻게 읽나요?",
+        "title": "AI MenuLens는 메뉴를 어떻게 읽나요?",
         "summary": "사진, PDF 또는 웹페이지를 체계적으로 번역된 메뉴로 변환하는 단계를 실용적으로 설명하고, 사용자가 주문 전에 확인해야 할 제한 사항도 포함합니다.",
         "sections": [
           {
@@ -567,7 +567,7 @@
       },
       "languages": {
         "title": "지원되는 메뉴 언어",
-        "summary": "AI Menu APP는 12개의 원어 및 대상 언어를 지원하며, 문자 체계, 구두점, 메뉴 용어 및 일반적인 가격 형식에 대한 언어 인식 처리를 제공합니다.",
+        "summary": "AI MenuLens는 12개의 원어 및 대상 언어를 지원하며, 문자 체계, 구두점, 메뉴 용어 및 일반적인 가격 형식에 대한 언어 인식 처리를 제공합니다.",
         "sections": [
           {
             "heading": "사용 가능한 언어",
@@ -606,14 +606,14 @@
         ]
       },
       "about": {
-        "title": "AI Menu APP에 대하여",
-        "summary": "AI Menu APP는 식사하는 사람들이 익숙하지 않은 요리를 이해하는 데 도움을 주면서도 원본 메뉴를 확인할 수 있도록 제작된 메뉴 읽기 도구입니다.",
+        "title": "AI MenuLens에 대하여",
+        "summary": "AI MenuLens는 식사하는 사람들이 익숙하지 않은 요리를 이해하는 데 도움을 주면서도 원본 메뉴를 확인할 수 있도록 제작된 메뉴 읽기 도구입니다.",
         "sections": [
           {
             "heading": "이 프로젝트가 존재하는 이유",
             "paragraphs": [
               "레스토랑 메뉴에는 일반적인 문장 번역으로는 놓칠 수 있는 맥락이 담겨 있습니다. 유용한 번역 도구는 메뉴의 각 항목, 음식 이름, 설명, 가격을 함께 전달하여 고객이 단편적인 단어들을 읽는 대신 메뉴를 비교할 수 있도록 해야 합니다.",
-              "AI Menu APP는 실질적인 작업에 집중하여 원문과 함께 검토할 수 있는 정리된 결과를 반환합니다."
+              "AI MenuLens는 실질적인 작업에 집중하여 원문과 함께 검토할 수 있는 정리된 결과를 반환합니다."
             ],
             "items": [
               "여행객들이 주문하기 전에 현지 음식에 대해 알 수 있도록 도와주세요.",
@@ -646,7 +646,7 @@
         ]
       },
       "contact": {
-        "title": "AI Menu APP에 문의하세요",
+        "title": "AI MenuLens에 문의하세요",
         "summary": "제품 관련 의견, 인정 사례, 개인정보 보호 관련 질문 또는 계정 요청은 아래 지원 주소로 보내주세요.",
         "sections": [
           {

@@ -1,5 +1,5 @@
 {
-  "metaTitle": "Application de menus IA - Traduisez les menus et commandez facilement",
+  "metaTitle": "AI MenuLens - Traduisez les menus et commandez facilement",
   "languageNames": {
     "en": "Anglais",
     "zh-cn": "Chinois simplifié",
@@ -46,9 +46,9 @@
   },
   "download": {
     "homeCta": "Télécharger l’application Android",
-    "eyebrow": "AI Menu APP pour Android",
+    "eyebrow": "AI MenuLens pour Android",
     "title": "Traduisez les menus où que vous mangiez",
-    "description": "Installez AI Menu APP depuis Google Play pour scanner et traduire des menus avec votre téléphone Android.",
+    "description": "Installez AI MenuLens depuis Google Play pour scanner et traduire des menus avec votre téléphone Android.",
     "storeLabel": "Télécharger sur Google Play",
     "availability": "Disponible sur Android via Google Play.",
     "backHome": "Retour au traducteur de menus"
@@ -197,7 +197,7 @@
   },
   "legal": {
     "back": "Retour à l'application de menu IA",
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "Contact",
     "privacy": {
       "title": "politique de confidentialité",
@@ -241,7 +241,7 @@
       ]
     },
     "deletion": {
-      "title": "Supprimez votre compte AI Menu APP",
+      "title": "Supprimez votre compte AI MenuLens",
       "subtitle": "Demandez la suppression de votre compte et des données associées.",
       "emailButton": "demande de suppression de compte de messagerie",
       "sections": [
@@ -355,64 +355,64 @@
     }
   },
   "common": {
-    "brand": "AI Menu APP"
+    "brand": "AI MenuLens"
   },
   "metaDescription": "Traduire des menus multilingues à partir de photos, de PDF, de textes et de liens.",
   "metadata": {
     "home": {
-      "title": "Application de menus IA - Traduisez les menus et commandez facilement",
+      "title": "AI MenuLens - Traduisez les menus et commandez facilement",
       "description": "Traduire des menus multilingues à partir de photos, de PDF, de textes et de liens."
     },
     "login": {
-      "title": "Connexion - Application Menu IA",
+      "title": "Connexion - AI MenuLens",
       "description": "Connectez-vous à l'application AI Menu."
     },
     "history": {
-      "title": "Historique - Application de menu IA",
+      "title": "Historique - AI MenuLens",
       "description": "Historique des menus enregistré pour l'application AI Menu."
     },
     "cart": {
-      "title": "Application de menu IA pour panier",
+      "title": "AI MenuLens pour panier",
       "description": "Liste de commandes enregistrées pour l'application AI Menu."
     },
     "settings": {
-      "title": "Paramètres | Application Menu IA",
+      "title": "Paramètres | AI MenuLens",
       "description": "Gérer les paramètres du site web et les informations légales de l'application AI Menu."
     },
     "privacy": {
-      "title": "Politique de confidentialité - Application Menu IA",
+      "title": "Politique de confidentialité - AI MenuLens",
       "description": "Politique de confidentialité de l'application AI Menu."
     },
     "terms": {
-      "title": "Conditions d'utilisation | Application Menu IA",
+      "title": "Conditions d'utilisation | AI MenuLens",
       "description": "Conditions générales d'utilisation de l'application AI Menu."
     },
     "deletion": {
-      "title": "Suppression de compte - Application Menu IA",
-      "description": "Demander la suppression de votre compte AI Menu APP."
+      "title": "Suppression de compte - AI MenuLens",
+      "description": "Demander la suppression de votre compte AI MenuLens."
     },
     "howItWorks": {
-      "title": "Comment fonctionne AI Menu APP",
-      "description": "Comment AI Menu APP extrait, organise et traduit les menus de restaurants."
+      "title": "Comment fonctionne AI MenuLens",
+      "description": "Comment AI MenuLens extrait, organise et traduit les menus de restaurants."
     },
     "guide": {
-      "title": "Guide de traduction des menus | AI Menu APP",
+      "title": "Guide de traduction des menus | AI MenuLens",
       "description": "Conseils pratiques pour traduire les menus et vérifier les détails des commandes."
     },
     "languages": {
-      "title": "Langues prises en charge | AI Menu APP",
-      "description": "Langues source et cible prises en charge pour la traduction du menu AI Menu APP."
+      "title": "Langues prises en charge | AI MenuLens",
+      "description": "Langues source et cible prises en charge pour la traduction du menu AI MenuLens."
     },
     "about": {
-      "title": "À propos | AI Menu APP",
-      "description": "Pourquoi AI Menu APP a été créé et comment utiliser les traductions de menus de manière responsable."
+      "title": "À propos | AI MenuLens",
+      "description": "Pourquoi AI MenuLens a été créé et comment utiliser les traductions de menus de manière responsable."
     },
     "contact": {
-      "title": "Contact | AI Menu APP",
-      "description": "Contactez AI Menu APP pour tout commentaire sur le produit, toute question relative à la confidentialité ou pour obtenir de l'aide concernant votre compte."
+      "title": "Contact | AI MenuLens",
+      "description": "Contactez AI MenuLens pour tout commentaire sur le produit, toute question relative à la confidentialité ou pour obtenir de l'aide concernant votre compte."
     },
     "examples": {
-      "title": "Exemples de traduction de menus fonctionnels | AI Menu APP",
+      "title": "Exemples de traduction de menus fonctionnels | AI MenuLens",
       "description": "Exemples pratiques pour maintenir la cohérence entre les catégories de menus, les plats, les descriptions et les prix lors de la traduction."
     }
   },
@@ -432,7 +432,7 @@
     "home": {
       "title": "Prenez connaissance du menu avant de commander.",
       "paragraphs": [
-        "AI Menu APP est conçu pour les voyageurs et les gourmets qui ont besoin de plus de contexte qu'une simple traduction littérale. Il combine l'extraction de texte, la détection de la structure du menu et la traduction afin de faciliter la comparaison des sections, des noms de plats, des descriptions et des prix.",
+        "AI MenuLens est conçu pour les voyageurs et les gourmets qui ont besoin de plus de contexte qu'une simple traduction littérale. Il combine l'extraction de texte, la détection de la structure du menu et la traduction afin de faciliter la comparaison des sections, des noms de plats, des descriptions et des prix.",
         "Les photos et documents relatifs aux menus varient considérablement. L'éclairage, les polices décoratives, la mise en page en colonnes, les notes manuscrites et la présence de plusieurs langues peuvent tous nuire à la reconnaissance. Des images nettes et droites ainsi que des pages PDF complètes donnent généralement les meilleurs résultats.",
         "Le menu traduit est un outil de lecture et ne remplace ni le menu officiel du restaurant ni le personnel. Veuillez toujours vérifier les prix, la disponibilité, les ingrédients et les informations relatives aux allergies directement auprès du restaurant avant de commander."
       ],
@@ -462,7 +462,7 @@
     },
     "pages": {
       "howItWorks": {
-        "title": "Comment AI Menu APP lit un menu",
+        "title": "Comment AI MenuLens lit un menu",
         "summary": "Une explication pratique des étapes à suivre pour passer d'une photo, d'un PDF ou d'une page web à un menu traduit et organisé, y compris les limites que les utilisateurs doivent vérifier avant de commander.",
         "sections": [
           {
@@ -567,7 +567,7 @@
       },
       "languages": {
         "title": "Langues des menus prises en charge",
-        "summary": "AI Menu APP prend en charge douze langues sources et cibles, avec une gestion adaptée à la langue pour les scripts, la ponctuation, les termes de menu et les formats de prix courants.",
+        "summary": "AI MenuLens prend en charge douze langues sources et cibles, avec une gestion adaptée à la langue pour les scripts, la ponctuation, les termes de menu et les formats de prix courants.",
         "sections": [
           {
             "heading": "Langues disponibles",
@@ -606,14 +606,14 @@
         ]
       },
       "about": {
-        "title": "À propos de AI Menu APP",
-        "summary": "AI Menu APP est un outil de lecture de menu conçu pour aider les clients à comprendre les plats qu'ils ne connaissent pas, tout en conservant le menu original disponible pour vérification.",
+        "title": "À propos de AI MenuLens",
+        "summary": "AI MenuLens est un outil de lecture de menu conçu pour aider les clients à comprendre les plats qu'ils ne connaissent pas, tout en conservant le menu original disponible pour vérification.",
         "sections": [
           {
             "heading": "Pourquoi ce projet existe-t-il ?",
             "paragraphs": [
               "Les menus de restaurant véhiculent un contexte que la traduction automatique ne permet pas toujours de saisir. Un outil efficace doit donc conserver l'ensemble des sections, noms des plats, descriptions et prix afin que les clients puissent comparer les options au lieu de lire des mots isolés.",
-              "AI Menu APP se concentre sur cette tâche pratique et renvoie un résultat organisé qui peut être examiné en parallèle avec le texte original."
+              "AI MenuLens se concentre sur cette tâche pratique et renvoie un résultat organisé qui peut être examiné en parallèle avec le texte original."
             ],
             "items": [
               "Aidez les voyageurs à comprendre les plats locaux avant de commander.",
@@ -646,7 +646,7 @@
         ]
       },
       "contact": {
-        "title": "Contactez AI Menu APP",
+        "title": "Contactez AI MenuLens",
         "summary": "Envoyez vos commentaires sur les produits, des exemples de reconnaissance, des questions relatives à la confidentialité ou des demandes concernant votre compte à l'adresse d'assistance ci-dessous.",
         "sections": [
           {

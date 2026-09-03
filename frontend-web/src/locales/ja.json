@@ -1,5 +1,5 @@
 {
-  "metaTitle": "AIメニューアプリ - メニューの翻訳と注文が簡単に",
+  "metaTitle": "AI MenuLens - メニューの翻訳と注文が簡単に",
   "languageNames": {
     "en": "英語",
     "zh-cn": "中国語（簡体字）",
@@ -46,9 +46,9 @@
   },
   "download": {
     "homeCta": "Androidアプリをダウンロード",
-    "eyebrow": "Android版 AI Menu APP",
+    "eyebrow": "Android版 AI MenuLens",
     "title": "どこでもメニューを翻訳",
-    "description": "Google PlayからAI Menu APPをインストールして、Androidスマートフォンでメニューをスキャンして翻訳できます。",
+    "description": "Google PlayからAI MenuLensをインストールして、Androidスマートフォンでメニューをスキャンして翻訳できます。",
     "storeLabel": "Google Playでダウンロード",
     "availability": "Android版をGoogle Playで提供しています。",
     "backHome": "メニュー翻訳に戻る"
@@ -197,7 +197,7 @@
   },
   "legal": {
     "back": "AIメニューアプリに戻る",
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "接触",
     "privacy": {
       "title": "プライバシーポリシー",
@@ -241,7 +241,7 @@
       ]
     },
     "deletion": {
-      "title": "AIメニューアプリのアカウントを削除してください",
+      "title": "AI MenuLensのアカウントを削除してください",
       "subtitle": "アカウントおよび関連するアカウントデータの削除をリクエストしてください。",
       "emailButton": "メールアカウント削除依頼",
       "sections": [
@@ -355,64 +355,64 @@
     }
   },
   "common": {
-    "brand": "AI Menu APP"
+    "brand": "AI MenuLens"
   },
   "metaDescription": "写真、PDF、テキスト、リンクから多言語メニューを翻訳します。",
   "metadata": {
     "home": {
-      "title": "AIメニューアプリ - メニューの翻訳と注文が簡単に",
+      "title": "AI MenuLens - メニューの翻訳と注文が簡単に",
       "description": "写真、PDF、テキスト、リンクから多言語メニューを翻訳します。"
     },
     "login": {
-      "title": "サインイン - AIメニューアプリ",
+      "title": "サインイン - AI MenuLens",
       "description": "AIメニューアプリにログインしてください。"
     },
     "history": {
-      "title": "履歴 - AIメニューアプリ",
+      "title": "履歴 - AI MenuLens",
       "description": "AIメニューアプリのメニュー履歴を保存しました。"
     },
     "cart": {
-      "title": "カート - AIメニューアプリ",
+      "title": "カート - AI MenuLens",
       "description": "AIメニューアプリ用に注文リストを保存しました。"
     },
     "settings": {
-      "title": "設定 | AIメニューアプリ",
+      "title": "設定 | AI MenuLens",
       "description": "AIメニューアプリのウェブサイト設定と法的情報を管理します。"
     },
     "privacy": {
-      "title": "プライバシーポリシー - AIメニューアプリ",
+      "title": "プライバシーポリシー - AI MenuLens",
       "description": "AIメニューアプリのプライバシーポリシー。"
     },
     "terms": {
-      "title": "利用規約 | AIメニューアプリ",
+      "title": "利用規約 | AI MenuLens",
       "description": "AIメニューアプリの使用に関する規約。"
     },
     "deletion": {
-      "title": "アカウント削除 - AIメニューアプリ",
+      "title": "アカウント削除 - AI MenuLens",
       "description": "AIメニューアプリのアカウント削除をリクエストしてください。"
     },
     "howItWorks": {
-      "title": "AI Menu APPの仕組み",
-      "description": "AI Menu APPがレストランのメニューを抽出、整理、翻訳する方法。"
+      "title": "AI MenuLensの仕組み",
+      "description": "AI MenuLensがレストランのメニューを抽出、整理、翻訳する方法。"
     },
     "guide": {
-      "title": "メニュー翻訳ガイド | AI Menu APP",
+      "title": "メニュー翻訳ガイド | AI MenuLens",
       "description": "メニューの翻訳と注文内容の確認に関する実践的なガイダンス。"
     },
     "languages": {
-      "title": "対応言語 | AI Menu APP",
-      "description": "AI Menu APPメニュー翻訳でサポートされているソース言語とターゲット言語。"
+      "title": "対応言語 | AI MenuLens",
+      "description": "AI MenuLensメニュー翻訳でサポートされているソース言語とターゲット言語。"
     },
     "about": {
-      "title": "概要 | AI Menu APP",
-      "description": "AI Menu APPが作成された理由と、メニュー翻訳を責任を持って使用する方法。"
+      "title": "概要 | AI MenuLens",
+      "description": "AI MenuLensが作成された理由と、メニュー翻訳を責任を持って使用する方法。"
     },
     "contact": {
-      "title": "お問い合わせ | AI Menu APP",
-      "description": "製品に関するご意見、プライバシーに関するご質問、またはアカウントに関するサポートについては、AI Menu APPまでお問い合わせください。"
+      "title": "お問い合わせ | AI MenuLens",
+      "description": "製品に関するご意見、プライバシーに関するご質問、またはアカウントに関するサポートについては、AI MenuLensまでお問い合わせください。"
     },
     "examples": {
-      "title": "メニュー翻訳例 | AI Menu APP",
+      "title": "メニュー翻訳例 | AI MenuLens",
       "description": "翻訳時にメニューのカテゴリ、料理、説明、価格を関連付けるための具体的な例。"
     }
   },
@@ -432,7 +432,7 @@
     "home": {
       "title": "注文する前にメニューを理解しましょう",
       "paragraphs": [
-        "AI Menu APPは、逐語訳以上の情報を必要とする旅行者や食事客向けに設計されています。テキスト抽出、メニュー構造の検出、翻訳を組み合わせることで、セクション、料理名、説明、価格などを簡単に比較できるようにします。",
+        "AI MenuLensは、逐語訳以上の情報を必要とする旅行者や食事客向けに設計されています。テキスト抽出、メニュー構造の検出、翻訳を組み合わせることで、セクション、料理名、説明、価格などを簡単に比較できるようにします。",
         "メニューの写真や資料は多種多様です。照明、装飾的なフォント、複数段組、手書きのメモ、複数の言語の混在などは、認識に影響を与える可能性があります。通常、鮮明でまっすぐな画像と完全なPDFページが最も効果的な結果をもたらします。",
         "翻訳されたメニューはあくまでも参考情報であり、レストランの最新のメニューやスタッフに代わるものではありません。ご注文前に、価格、在庫状況、食材、アレルギー情報などを必ずレストランに直接ご確認ください。"
       ],
@@ -462,7 +462,7 @@
     },
     "pages": {
       "howItWorks": {
-        "title": "AI Menu APPがメニューを読み取る方法",
+        "title": "AI MenuLensがメニューを読み取る方法",
         "summary": "写真、PDF、またはウェブページから、整理された翻訳済みメニューを作成するまでの手順を、ユーザーが注文前に確認すべき制限事項も含めて、実践的に解説します。",
         "sections": [
           {
@@ -567,7 +567,7 @@
       },
       "languages": {
         "title": "サポートされているメニュー言語",
-        "summary": "AI Menu APPは、12種類のソース言語とターゲット言語をサポートしており、スクリプト、句読点、メニュー用語、一般的な価格形式などについて、言語に応じた処理を行います。",
+        "summary": "AI MenuLensは、12種類のソース言語とターゲット言語をサポートしており、スクリプト、句読点、メニュー用語、一般的な価格形式などについて、言語に応じた処理を行います。",
         "sections": [
           {
             "heading": "利用可能な言語",
@@ -606,14 +606,14 @@
         ]
       },
       "about": {
-        "title": "AI Menu APPについて",
-        "summary": "AI Menu APPは、食事客が馴染みのない料理を理解できるように設計されたメニュー読み上げツールであり、確認のために元のメニューも表示できるようになっています。",
+        "title": "AI MenuLensについて",
+        "summary": "AI MenuLensは、食事客が馴染みのない料理を理解できるように設計されたメニュー読み上げツールであり、確認のために元のメニューも表示できるようになっています。",
         "sections": [
           {
             "heading": "このプロジェクトが存在する理由",
             "paragraphs": [
               "レストランのメニューには、通常の文章翻訳では見落とされがちな文脈が含まれています。便利なツールは、セクション、料理名、説明、価格をまとめて表示し、客がバラバラの単語を読むのではなく、選択肢を比較できるようにする必要があります。",
-              "AI Menu APPは、その実用的なタスクに焦点を当て、元の文言と並べて確認できる整理された結果を返します。"
+              "AI MenuLensは、その実用的なタスクに焦点を当て、元の文言と並べて確認できる整理された結果を返します。"
             ],
             "items": [
               "旅行者が注文する前に、地元の料理について理解できるように手助けしましょう。",
@@ -646,7 +646,7 @@
         ]
       },
       "contact": {
-        "title": "AI Menu APPに連絡してください",
+        "title": "AI MenuLensに連絡してください",
         "summary": "製品に関するフィードバック、表彰事例、プライバシーに関する質問、アカウントに関するリクエストは、下記のサポートアドレスまでお送りください。",
         "sections": [
           {

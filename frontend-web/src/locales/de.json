@@ -1,5 +1,5 @@
 {
-  "metaTitle": "KI-Menü-App – Menüs übersetzen & einfach bestellen",
+  "metaTitle": "AI MenuLens – Menüs übersetzen & einfach bestellen",
   "languageNames": {
     "en": "Englisch",
     "zh-cn": "Chinesisch (vereinfacht)",
@@ -46,9 +46,9 @@
   },
   "download": {
     "homeCta": "Android-App herunterladen",
-    "eyebrow": "AI Menu APP für Android",
+    "eyebrow": "AI MenuLens für Android",
     "title": "Menüs überall übersetzen",
-    "description": "Installiere AI Menu APP über Google Play, um Menüs mit deinem Android-Smartphone zu scannen und zu übersetzen.",
+    "description": "Installiere AI MenuLens über Google Play, um Menüs mit deinem Android-Smartphone zu scannen und zu übersetzen.",
     "storeLabel": "Bei Google Play herunterladen",
     "availability": "Für Android über Google Play verfügbar.",
     "backHome": "Zurück zum Menü-Übersetzer"
@@ -197,7 +197,7 @@
   },
   "legal": {
     "back": "Zurück zur KI-Menü-App",
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "Kontakt",
     "privacy": {
       "title": "Datenschutzrichtlinie",
@@ -241,7 +241,7 @@
       ]
     },
     "deletion": {
-      "title": "Löschen Sie Ihr AI Menu APP-Konto",
+      "title": "Löschen Sie Ihr AI MenuLens-Konto",
       "subtitle": "Beantragen Sie die Löschung Ihres Kontos und der zugehörigen Kontodaten.",
       "emailButton": "Antrag auf Löschung des E-Mail-Kontos",
       "sections": [
@@ -313,12 +313,12 @@
     },
     "terms": {
       "title": "Nutzungsbedingungen",
-      "intro": "Diese Nutzungsbedingungen regeln Ihre Nutzung der AI Menu App. Durch die Nutzung des Dienstes stimmen Sie diesen Nutzungsbedingungen zu.",
+      "intro": "Diese Nutzungsbedingungen regeln Ihre Nutzung der AI MenuLens. Durch die Nutzung des Dienstes stimmen Sie diesen Nutzungsbedingungen zu.",
       "sections": [
         {
           "heading": "Der Service",
           "items": [
-            "Die AI Menu App nutzt OCR, Übersetzung, Suche und KI-Systeme, um Nutzern das Verständnis von Restaurantmenüs zu erleichtern. Funktionen können sich ändern, unterbrochen oder eingestellt werden.",
+            "Die AI MenuLens nutzt OCR, Übersetzung, Suche und KI-Systeme, um Nutzern das Verständnis von Restaurantmenüs zu erleichtern. Funktionen können sich ändern, unterbrochen oder eingestellt werden.",
             "Sie müssen korrekte Kontoinformationen angeben und sind für alle Aktivitäten auf Ihrem Konto verantwortlich."
           ]
         },
@@ -332,7 +332,7 @@
         {
           "heading": "Allergie- und Gesundheitshinweis",
           "items": [
-            "Die AI Menu APP bietet keine medizinische Beratung und kann nicht garantieren, dass ein Gericht frei von Allergenen oder für eine Diät geeignet ist.",
+            "Die AI MenuLens bietet keine medizinische Beratung und kann nicht garantieren, dass ein Gericht frei von Allergenen oder für eine Diät geeignet ist.",
             "Bei Allergien oder medizinischen Einschränkungen kontaktieren Sie bitte vor der Bestellung das Restaurant und einen qualifizierten Arzt."
           ]
         },
@@ -355,64 +355,64 @@
     }
   },
   "common": {
-    "brand": "AI Menu APP"
+    "brand": "AI MenuLens"
   },
   "metaDescription": "Mehrsprachige Menüs aus Fotos, PDFs, Texten und Links übersetzen.",
   "metadata": {
     "home": {
-      "title": "KI-Menü-App – Menüs übersetzen & einfach bestellen",
+      "title": "AI MenuLens – Menüs übersetzen & einfach bestellen",
       "description": "Mehrsprachige Menüs aus Fotos, PDFs, Texten und Links übersetzen."
     },
     "login": {
-      "title": "Anmelden – KI-Menü-App",
-      "description": "Melden Sie sich bei der AI Menu App an."
+      "title": "Anmelden – AI MenuLens",
+      "description": "Melden Sie sich bei der AI MenuLens an."
     },
     "history": {
-      "title": "Geschichte – KI-Menü-App",
+      "title": "Geschichte – AI MenuLens",
       "description": "Gespeicherter Menüverlauf für die KI-Menü-App."
     },
     "cart": {
-      "title": "Warenkorb – KI-Menü-App",
-      "description": "Gespeicherte Bestellliste für die AI Menu App."
+      "title": "Warenkorb – AI MenuLens",
+      "description": "Gespeicherte Bestellliste für die AI MenuLens."
     },
     "settings": {
-      "title": "Einstellungen | KI-Menü-App",
-      "description": "Verwalten Sie die Website-Einstellungen und rechtlichen Informationen der AI Menu APP."
+      "title": "Einstellungen | AI MenuLens",
+      "description": "Verwalten Sie die Website-Einstellungen und rechtlichen Informationen der AI MenuLens."
     },
     "privacy": {
-      "title": "Datenschutzrichtlinie – AI Menu App",
-      "description": "Datenschutzerklärung für die AI Menu App."
+      "title": "Datenschutzrichtlinie – AI MenuLens",
+      "description": "Datenschutzerklärung für die AI MenuLens."
     },
     "terms": {
-      "title": "Nutzungsbedingungen | KI-Menü-App",
-      "description": "Nutzungsbedingungen der AI Menu APP."
+      "title": "Nutzungsbedingungen | AI MenuLens",
+      "description": "Nutzungsbedingungen der AI MenuLens."
     },
     "deletion": {
-      "title": "Kontolöschung – KI-Menü-App",
-      "description": "Beantragen Sie die Löschung Ihres AI Menu APP-Kontos."
+      "title": "Kontolöschung – AI MenuLens",
+      "description": "Beantragen Sie die Löschung Ihres AI MenuLens-Kontos."
     },
     "howItWorks": {
-      "title": "So funktioniert AI Menu APP",
-      "description": "Wie AI Menu APP Restaurantmenüs extrahiert, organisiert und übersetzt."
+      "title": "So funktioniert AI MenuLens",
+      "description": "Wie AI MenuLens Restaurantmenüs extrahiert, organisiert und übersetzt."
     },
     "guide": {
-      "title": "Menüübersetzungsleitfaden | AI Menu APP",
+      "title": "Menüübersetzungsleitfaden | AI MenuLens",
       "description": "Praktische Hinweise zur Übersetzung von Speisekarten und zur Überprüfung von Bestelldetails."
     },
     "languages": {
-      "title": "Unterstützte Sprachen | AI Menu APP",
-      "description": "Unterstützte Quell- und Zielsprachen für die Menüübersetzung von AI Menu APP."
+      "title": "Unterstützte Sprachen | AI MenuLens",
+      "description": "Unterstützte Quell- und Zielsprachen für die Menüübersetzung von AI MenuLens."
     },
     "about": {
-      "title": "Über uns | AI Menu APP",
-      "description": "Warum AI Menu APP erstellt wurde und wie man Menüübersetzungen verantwortungsvoll nutzt."
+      "title": "Über uns | AI MenuLens",
+      "description": "Warum AI MenuLens erstellt wurde und wie man Menüübersetzungen verantwortungsvoll nutzt."
     },
     "contact": {
-      "title": "Kontakt | AI Menu APP",
-      "description": "Für Produktfeedback, Datenschutzfragen oder Kontosupport wenden Sie sich bitte an AI Menu APP."
+      "title": "Kontakt | AI MenuLens",
+      "description": "Für Produktfeedback, Datenschutzfragen oder Kontosupport wenden Sie sich bitte an AI MenuLens."
     },
     "examples": {
-      "title": "Ausgearbeitete Menüübersetzungsbeispiele | AI Menu APP",
+      "title": "Ausgearbeitete Menüübersetzungsbeispiele | AI MenuLens",
       "description": "Praxisbeispiele, wie Menükategorien, Gerichte, Beschreibungen und Preise während der Übersetzung miteinander verknüpft bleiben können."
     }
   },
@@ -432,7 +432,7 @@
     "home": {
       "title": "Informieren Sie sich über die Speisekarte, bevor Sie bestellen.",
       "paragraphs": [
-        "AI Menu APP wurde für Reisende und Restaurantbesucher entwickelt, die mehr Kontext als eine wörtliche Übersetzung benötigen. Es kombiniert Textextraktion, Menüstrukturerkennung und Übersetzung, sodass Abschnitte, Gerichte, Beschreibungen und Preise leichter vergleichbar bleiben.",
+        "AI MenuLens wurde für Reisende und Restaurantbesucher entwickelt, die mehr Kontext als eine wörtliche Übersetzung benötigen. Es kombiniert Textextraktion, Menüstrukturerkennung und Übersetzung, sodass Abschnitte, Gerichte, Beschreibungen und Preise leichter vergleichbar bleiben.",
         "Speisekartenfotos und -dokumente variieren stark. Beleuchtung, Schriftarten, Spaltenlayouts, handschriftliche Notizen und verschiedene Sprachen können die Verständlichkeit beeinträchtigen. Klare, scharfe Bilder und vollständige PDF-Seiten liefern in der Regel das beste Ergebnis.",
         "Die übersetzte Speisekarte dient als Lesehilfe und ersetzt weder die aktuelle Speisekarte noch die Beratung durch das Restaurantpersonal. Bitte bestätigen Sie Preise, Verfügbarkeit, Zutaten und Informationen zu Allergenen immer direkt im Restaurant, bevor Sie bestellen."
       ],
@@ -462,7 +462,7 @@
     },
     "pages": {
       "howItWorks": {
-        "title": "Wie AI Menu APP ein Menü liest",
+        "title": "Wie AI MenuLens ein Menü liest",
         "summary": "Eine praktische Erklärung der Schritte von einem Foto, einer PDF-Datei oder einer Webseite zu einer übersichtlichen, übersetzten Speisekarte, einschließlich der Einschränkungen, die Benutzer vor der Bestellung überprüfen sollten.",
         "sections": [
           {
@@ -567,7 +567,7 @@
       },
       "languages": {
         "title": "Unterstützte Menüsprachen",
-        "summary": "AI Menu APP unterstützt zwölf Quell- und Zielsprachen und bietet eine sprachspezifische Behandlung für Schriftsysteme, Interpunktion, Menübegriffe und gängige Preisformate.",
+        "summary": "AI MenuLens unterstützt zwölf Quell- und Zielsprachen und bietet eine sprachspezifische Behandlung für Schriftsysteme, Interpunktion, Menübegriffe und gängige Preisformate.",
         "sections": [
           {
             "heading": "Verfügbare Sprachen",
@@ -606,14 +606,14 @@
         ]
       },
       "about": {
-        "title": "Über AI Menu APP",
-        "summary": "AI Menu APP ist ein Menülese-Tool, das entwickelt wurde, um Restaurantbesuchern zu helfen, unbekannte Gerichte zu verstehen, während die Originalkarte zur Überprüfung weiterhin verfügbar bleibt.",
+        "title": "Über AI MenuLens",
+        "summary": "AI MenuLens ist ein Menülese-Tool, das entwickelt wurde, um Restaurantbesuchern zu helfen, unbekannte Gerichte zu verstehen, während die Originalkarte zur Überprüfung weiterhin verfügbar bleibt.",
         "sections": [
           {
             "heading": "Warum dieses Projekt existiert",
             "paragraphs": [
               "Speisekarten vermitteln einen Kontext, der bei einer einfachen Satzübersetzung verloren gehen kann. Ein hilfreiches Tool muss Abschnitte, Gerichte, Beschreibungen und Preise zusammenhalten, damit Gäste die Auswahl vergleichen können, anstatt einzelne Wörter zu lesen.",
-              "AI Menu APP konzentriert sich auf diese praktische Aufgabe und liefert ein übersichtliches Ergebnis, das zusammen mit dem Originaltext überprüft werden kann."
+              "AI MenuLens konzentriert sich auf diese praktische Aufgabe und liefert ein übersichtliches Ergebnis, das zusammen mit dem Originaltext überprüft werden kann."
             ],
             "items": [
               "Helfen Sie Reisenden, die lokalen Gerichte zu verstehen, bevor sie bestellen.",
@@ -646,7 +646,7 @@
         ]
       },
       "contact": {
-        "title": "Kontakt: AI Menu APP",
+        "title": "Kontakt: AI MenuLens",
         "summary": "Senden Sie Produktfeedback, Beispiele für Auszeichnungen, Fragen zum Datenschutz oder Kontoanfragen an die unten stehende Supportadresse.",
         "sections": [
           {

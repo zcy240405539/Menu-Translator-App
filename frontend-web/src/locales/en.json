@@ -1,5 +1,5 @@
 {
-  "metaTitle": "AI Menu APP - Translate Menus & Order with Ease",
+  "metaTitle": "AI MenuLens - Translate Menus & Order with Ease",
   "languageNames": {
     "en": "English",
     "zh-cn": "Chinese-Simplified",
@@ -23,7 +23,7 @@
   "nav": {
     "language": "Select page language",
     "share": "Share",
-    "shareMessage": "Translate and understand menus with AI Menu APP.",
+    "shareMessage": "Translate and understand menus with AI MenuLens.",
     "history": "History",
     "cart": "Cart",
     "account": "Account",
@@ -46,9 +46,9 @@
   },
   "download": {
     "homeCta": "Download the Android app",
-    "eyebrow": "AI Menu APP for Android",
+    "eyebrow": "AI MenuLens for Android",
     "title": "Translate menus wherever you eat",
-    "description": "Install AI Menu APP from Google Play to scan and translate menus from your Android phone.",
+    "description": "Install AI MenuLens from Google Play to scan and translate menus from your Android phone.",
     "storeLabel": "Get it on Google Play",
     "availability": "Available for Android through Google Play.",
     "backHome": "Back to the menu translator"
@@ -194,7 +194,7 @@
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Manage how AI Menu APP works for you.",
+    "subtitle": "Manage how AI MenuLens works for you.",
     "language": "Page language",
     "languageDescription": "Use the same language across the website.",
     "account": "Account",
@@ -206,12 +206,12 @@
     "backHome": "Back to home"
   },
   "legal": {
-    "back": "Back to AI Menu APP",
-    "brand": "AI Menu APP",
+    "back": "Back to AI MenuLens",
+    "brand": "AI MenuLens",
     "contact": "Contact",
     "privacy": {
       "title": "Privacy Policy",
-      "intro": "AI Menu APP helps users translate and understand restaurant menus from photos, files, documents, and menu links. This Privacy Policy explains what information we collect, how we use it, and the choices available to users.",
+      "intro": "AI MenuLens helps users translate and understand restaurant menus from photos, files, documents, and menu links. This Privacy Policy explains what information we collect, how we use it, and the choices available to users.",
       "sections": [
         {
           "heading": "Information we collect",
@@ -251,7 +251,7 @@
       ]
     },
     "deletion": {
-      "title": "Delete your AI Menu APP account",
+      "title": "Delete your AI MenuLens account",
       "subtitle": "Request deletion of your account and associated account data.",
       "emailButton": "Email account deletion request",
       "sections": [
@@ -281,7 +281,7 @@
   "legalDocuments": {
     "privacy": {
       "title": "Privacy Policy",
-      "intro": "AI Menu APP translates and explains restaurant menus. This policy describes the information we process, why we use it, and the choices available to you.",
+      "intro": "AI MenuLens translates and explains restaurant menus. This policy describes the information we process, why we use it, and the choices available to you.",
       "sections": [
         {
           "heading": "Information we process",
@@ -323,12 +323,12 @@
     },
     "terms": {
       "title": "Terms of Service",
-      "intro": "These Terms govern your use of AI Menu APP. By using the service, you agree to these Terms.",
+      "intro": "These Terms govern your use of AI MenuLens. By using the service, you agree to these Terms.",
       "sections": [
         {
           "heading": "The service",
           "items": [
-            "AI Menu APP uses OCR, translation, search, and AI systems to help users understand restaurant menus. Features may change, be interrupted, or be discontinued.",
+            "AI MenuLens uses OCR, translation, search, and AI systems to help users understand restaurant menus. Features may change, be interrupted, or be discontinued.",
             "You must provide accurate account information and are responsible for activity under your account."
           ]
         },
@@ -342,7 +342,7 @@
         {
           "heading": "Allergy and health notice",
           "items": [
-            "AI Menu APP does not provide medical advice and cannot guarantee that a dish is free of allergens or suitable for a diet.",
+            "AI MenuLens does not provide medical advice and cannot guarantee that a dish is free of allergens or suitable for a diet.",
             "For allergies or medical restrictions, contact the restaurant and a qualified healthcare professional before ordering."
           ]
         },
@@ -365,64 +365,64 @@
     }
   },
   "common": {
-    "brand": "AI Menu APP"
+    "brand": "AI MenuLens"
   },
   "metaDescription": "Translate multilingual menus from photos, PDFs, text, and links.",
   "metadata": {
     "home": {
-      "title": "AI Menu APP - Translate Menus & Order with Ease",
+      "title": "AI MenuLens - Translate Menus & Order with Ease",
       "description": "Translate multilingual menus from photos, PDFs, text, and links."
     },
     "login": {
-      "title": "Sign in - AI Menu APP",
-      "description": "Sign in to AI Menu APP."
+      "title": "Sign in - AI MenuLens",
+      "description": "Sign in to AI MenuLens."
     },
     "history": {
-      "title": "History - AI Menu APP",
-      "description": "Saved menu history for AI Menu APP."
+      "title": "History - AI MenuLens",
+      "description": "Saved menu history for AI MenuLens."
     },
     "cart": {
-      "title": "Cart - AI Menu APP",
-      "description": "Saved order list for AI Menu APP."
+      "title": "Cart - AI MenuLens",
+      "description": "Saved order list for AI MenuLens."
     },
     "settings": {
-      "title": "Settings | AI Menu APP",
-      "description": "Manage AI Menu APP website settings and legal information."
+      "title": "Settings | AI MenuLens",
+      "description": "Manage AI MenuLens website settings and legal information."
     },
     "privacy": {
-      "title": "Privacy Policy - AI Menu APP",
-      "description": "Privacy Policy for AI Menu APP."
+      "title": "Privacy Policy - AI MenuLens",
+      "description": "Privacy Policy for AI MenuLens."
     },
     "terms": {
-      "title": "Terms of Service | AI Menu APP",
-      "description": "Terms governing the use of AI Menu APP."
+      "title": "Terms of Service | AI MenuLens",
+      "description": "Terms governing the use of AI MenuLens."
     },
     "deletion": {
-      "title": "Account Deletion - AI Menu APP",
-      "description": "Request deletion of your AI Menu APP account."
+      "title": "Account Deletion - AI MenuLens",
+      "description": "Request deletion of your AI MenuLens account."
     },
     "howItWorks": {
-      "title": "How AI Menu APP Works",
-      "description": "How AI Menu APP extracts, organizes, and translates restaurant menus."
+      "title": "How AI MenuLens Works",
+      "description": "How AI MenuLens extracts, organizes, and translates restaurant menus."
     },
     "guide": {
-      "title": "Menu Translation Guide | AI Menu APP",
+      "title": "Menu Translation Guide | AI MenuLens",
       "description": "Practical guidance for translating menus and checking ordering details."
     },
     "languages": {
-      "title": "Supported Languages | AI Menu APP",
-      "description": "Supported source and target languages for AI Menu APP menu translation."
+      "title": "Supported Languages | AI MenuLens",
+      "description": "Supported source and target languages for AI MenuLens menu translation."
     },
     "about": {
-      "title": "About | AI Menu APP",
-      "description": "Why AI Menu APP was created and how to use menu translations responsibly."
+      "title": "About | AI MenuLens",
+      "description": "Why AI MenuLens was created and how to use menu translations responsibly."
     },
     "contact": {
-      "title": "Contact | AI Menu APP",
-      "description": "Contact AI Menu APP for product feedback, privacy, or account support."
+      "title": "Contact | AI MenuLens",
+      "description": "Contact AI MenuLens for product feedback, privacy, or account support."
     },
     "examples": {
-      "title": "Worked Menu Translation Examples | AI Menu APP",
+      "title": "Worked Menu Translation Examples | AI MenuLens",
       "description": "Worked examples for keeping menu categories, dishes, descriptions, and prices connected during translation."
     }
   },
@@ -442,7 +442,7 @@
     "home": {
       "title": "Understand a menu before you order",
       "paragraphs": [
-        "AI Menu APP is designed for travelers and diners who need more context than a word-for-word translation. It combines text extraction, menu structure detection, and translation so sections, dish names, descriptions, and prices remain easier to compare.",
+        "AI MenuLens is designed for travelers and diners who need more context than a word-for-word translation. It combines text extraction, menu structure detection, and translation so sections, dish names, descriptions, and prices remain easier to compare.",
         "Menu photos and documents vary widely. Lighting, decorative fonts, multiple columns, handwritten notes, and mixed languages can all affect recognition. Clear, straight images and complete PDF pages usually produce the most useful result.",
         "The translated menu is a reading aid, not a replacement for the restaurant's current menu or staff. Always confirm prices, availability, ingredients, and allergy information directly with the restaurant before ordering."
       ],
@@ -472,7 +472,7 @@
     },
     "pages": {
       "howItWorks": {
-        "title": "How AI Menu APP reads a menu",
+        "title": "How AI MenuLens reads a menu",
         "summary": "A practical explanation of the steps from a photo, PDF, or webpage to an organized translated menu, including the limits users should check before ordering.",
         "sections": [
           {
@@ -577,7 +577,7 @@
       },
       "languages": {
         "title": "Supported menu languages",
-        "summary": "AI Menu APP supports twelve source and target languages, with language-aware handling for scripts, punctuation, menu terms, and common price formats.",
+        "summary": "AI MenuLens supports twelve source and target languages, with language-aware handling for scripts, punctuation, menu terms, and common price formats.",
         "sections": [
           {
             "heading": "Available languages",
@@ -616,14 +616,14 @@
         ]
       },
       "about": {
-        "title": "About AI Menu APP",
-        "summary": "AI Menu APP is a menu-reading tool built to help diners understand unfamiliar dishes while keeping the original menu available for verification.",
+        "title": "About AI MenuLens",
+        "summary": "AI MenuLens is a menu-reading tool built to help diners understand unfamiliar dishes while keeping the original menu available for verification.",
         "sections": [
           {
             "heading": "Why the project exists",
             "paragraphs": [
               "Restaurant menus carry context that ordinary sentence translation can miss. A useful tool must preserve sections, dish names, descriptions, and prices together so diners can compare choices instead of reading disconnected words.",
-              "AI Menu APP focuses on that practical task and returns an organized result that can be reviewed alongside the original wording."
+              "AI MenuLens focuses on that practical task and returns an organized result that can be reviewed alongside the original wording."
             ],
             "items": [
               "Help travelers understand local dishes before ordering.",
@@ -656,7 +656,7 @@
         ]
       },
       "contact": {
-        "title": "Contact AI Menu APP",
+        "title": "Contact AI MenuLens",
         "summary": "Send product feedback, recognition examples, privacy questions, or account requests to the support address below.",
         "sections": [
           {

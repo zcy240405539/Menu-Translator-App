@@ -4,7 +4,9 @@ import SiteFooter from "@/components/SiteFooter";
 import { getText } from "@/lib/i18n";
 import "./globals.css";
 
-const defaultMetadata = getText("en").metadata.home;
+const defaultText = getText("en");
+const defaultMetadata = defaultText.metadata.home;
+const defaultBrand = defaultText.common.brand;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://aimenu.us.kg"),
@@ -14,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "AI Menu APP",
+    siteName: defaultBrand,
     title: defaultMetadata.title,
     description: defaultMetadata.description,
   },
@@ -43,7 +45,7 @@ const mobileAd: AdsterraPlacement = {
 const organizationData = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "AI Menu APP",
+  name: defaultBrand,
   url: "https://aimenu.us.kg/",
   email: "support@aimenu.us.kg",
   logo: "https://aimenu.us.kg/ai-menu-logo.png",

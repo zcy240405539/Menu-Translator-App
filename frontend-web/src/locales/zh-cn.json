@@ -1,5 +1,5 @@
 {
-  "metaTitle": "AI点菜通 - 翻译菜单，轻松点餐",
+  "metaTitle": "AI菜单通 - 翻译菜单，轻松点餐",
   "languageNames": {
     "en": "英语",
     "zh-cn": "中文-简体",
@@ -46,7 +46,7 @@
   },
   "download": {
     "homeCta": "下载 Android APP",
-    "eyebrow": "Android 版 AI点菜通",
+    "eyebrow": "Android 版 AI菜单通",
     "title": "随时随地看懂菜单",
     "description": "从 Google Play 安装 AI点菜通，直接使用 Android 手机扫描并翻译菜单。",
     "storeLabel": "前往 Google Play 下载",
@@ -207,7 +207,7 @@
   },
   "legal": {
     "back": "返回AI点菜通",
-    "brand": "AI点菜通",
+    "brand": "AI菜单通",
     "contact": "联系邮箱",
     "privacy": {
       "title": "隐私政策",
@@ -251,7 +251,7 @@
       ]
     },
     "deletion": {
-      "title": "删除你的AI点菜通账号",
+      "title": "删除你的AI菜单通账号",
       "subtitle": "请求删除你的账号及相关账号数据。",
       "emailButton": "发送账号删除请求邮件",
       "sections": [
@@ -365,64 +365,64 @@
     }
   },
   "common": {
-    "brand": "AI点菜通"
+    "brand": "AI菜单通"
   },
   "metaDescription": "根据照片、PDF、文本和链接翻译多语言菜单。",
   "metadata": {
     "home": {
-      "title": "AI点菜通 - 轻松翻译菜单并下单",
+      "title": "AI菜单通 - 轻松翻译菜单并下单",
       "description": "根据照片、PDF、文本和链接翻译多语言菜单。"
     },
     "login": {
-      "title": "登录 - AI点菜通",
+      "title": "登录 - AI菜单通",
       "description": "登录AI点菜通。"
     },
     "history": {
-      "title": "历史记录 - AI点菜通",
+      "title": "历史记录 - AI菜单通",
       "description": "AI点菜通的已保存菜单历史记录。"
     },
     "cart": {
-      "title": "购物车 - AI点菜通",
+      "title": "购物车 - AI菜单通",
       "description": "AI点菜通的已保存订单列表。"
     },
     "settings": {
-      "title": "设置 | AI点菜通",
+      "title": "设置 | AI菜单通",
       "description": "管理AI点菜通网站设置和法律信息。"
     },
     "privacy": {
-      "title": "隐私政策 - AI点菜通",
+      "title": "隐私政策 - AI菜单通",
       "description": "AI点菜通隐私政策。"
     },
     "terms": {
-      "title": "服务条款 | AI点菜通",
+      "title": "服务条款 | AI菜单通",
       "description": "AI点菜通使用条款。"
     },
     "deletion": {
-      "title": "账户删除 - AI点菜通",
+      "title": "账户删除 - AI菜单通",
       "description": "请求删除您的AI点菜通账号。"
     },
     "howItWorks": {
-      "title": "AI点菜通的工作原理",
+      "title": "AI菜单通的工作原理",
       "description": "AI点菜通如何提取、整理和翻译餐厅菜单。"
     },
     "guide": {
-      "title": "菜单翻译指南 | AI点菜通",
+      "title": "菜单翻译指南 | AI菜单通",
       "description": "菜单翻译和订单详情核对的实用指南。"
     },
     "languages": {
-      "title": "支持的语言 | AI点菜通",
+      "title": "支持的语言 | AI菜单通",
       "description": "AI点菜通菜单翻译支持的源语言和目标语言。"
     },
     "about": {
-      "title": "关于 | AI点菜通",
+      "title": "关于 | AI菜单通",
       "description": "创建AI点菜通的原因以及如何负责任地使用菜单翻译。"
     },
     "contact": {
-      "title": "联系方式 | AI点菜通",
+      "title": "联系方式 | AI菜单通",
       "description": "如需产品反馈、隐私或帐户支持，请联系AI点菜通。"
     },
     "examples": {
-      "title": "菜单翻译示例 | AI Menu APP",
+      "title": "菜单翻译示例 | AI菜单通",
       "description": "翻译过程中如何保持菜单类别、菜品、描述和价格之间的关联性的示例。"
     }
   },
@@ -472,7 +472,7 @@
     },
     "pages": {
       "howItWorks": {
-        "title": "AI点菜通如何读取菜单",
+        "title": "AI菜单通如何读取菜单",
         "summary": "对如何从照片、PDF 或网页生成有条理的翻译菜单的步骤进行实用说明，包括用户在下单前应检查的限制。",
         "sections": [
           {
@@ -616,7 +616,7 @@
         ]
       },
       "about": {
-        "title": "关于AI点菜通",
+        "title": "关于AI菜单通",
         "summary": "AI点菜通是一款菜单阅读工具，旨在帮助食客了解不熟悉的菜肴，同时保留原始菜单以供核实。",
         "sections": [
           {
@@ -656,7 +656,7 @@
         ]
       },
       "contact": {
-        "title": "联系方式AI点菜通",
+        "title": "联系方式AI菜单通",
         "summary": "请将产品反馈、表扬示例、隐私问题或帐户请求发送至以下支持地址。",
         "sections": [
           {

@@ -1,5 +1,5 @@
 {
-  "metaTitle": "Aplicativo AI Menu - Traduza cardápios e faça pedidos com facilidade",
+  "metaTitle": "AI MenuLens - Traduza cardápios e faça pedidos com facilidade",
   "languageNames": {
     "en": "Inglês",
     "zh-cn": "Chinês simplificado",
@@ -46,9 +46,9 @@
   },
   "download": {
     "homeCta": "Baixar o app para Android",
-    "eyebrow": "AI Menu APP para Android",
+    "eyebrow": "AI MenuLens para Android",
     "title": "Traduza cardápios onde quer que você coma",
-    "description": "Instale o AI Menu APP pelo Google Play para digitalizar e traduzir cardápios no seu celular Android.",
+    "description": "Instale o AI MenuLens pelo Google Play para digitalizar e traduzir cardápios no seu celular Android.",
     "storeLabel": "Baixar no Google Play",
     "availability": "Disponível para Android pelo Google Play.",
     "backHome": "Voltar ao tradutor de cardápios"
@@ -197,7 +197,7 @@
   },
   "legal": {
     "back": "Voltar ao aplicativo de menu de IA",
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "Contato",
     "privacy": {
       "title": "política de Privacidade",
@@ -241,7 +241,7 @@
       ]
     },
     "deletion": {
-      "title": "Exclua sua conta do aplicativo AI Menu.",
+      "title": "Exclua sua conta do AI MenuLens.",
       "subtitle": "Solicite a exclusão da sua conta e dos dados associados a ela.",
       "emailButton": "Solicitação de exclusão de conta de e-mail",
       "sections": [
@@ -355,64 +355,64 @@
     }
   },
   "common": {
-    "brand": "AI Menu APP"
+    "brand": "AI MenuLens"
   },
   "metaDescription": "Traduza menus multilíngues a partir de fotos, PDFs, texto e links.",
   "metadata": {
     "home": {
-      "title": "Aplicativo AI Menu - Traduza cardápios e faça pedidos com facilidade",
+      "title": "AI MenuLens - Traduza cardápios e faça pedidos com facilidade",
       "description": "Traduza menus multilíngues a partir de fotos, PDFs, texto e links."
     },
     "login": {
-      "title": "Faça login - Aplicativo AI Menu",
+      "title": "Faça login - AI MenuLens",
       "description": "Faça login no aplicativo AI Menu."
     },
     "history": {
-      "title": "Histórico - Aplicativo de Menu com IA",
+      "title": "Histórico - AI MenuLens",
       "description": "Histórico de menus salvo para o aplicativo AI Menu."
     },
     "cart": {
-      "title": "Carrinho - Aplicativo de Menu com IA",
+      "title": "Carrinho - AI MenuLens",
       "description": "Lista de pedidos salva para o aplicativo AI Menu."
     },
     "settings": {
-      "title": "Configurações | Aplicativo Menu IA",
+      "title": "Configurações | AI MenuLens",
       "description": "Gerencie as configurações do site e as informações legais do aplicativo AI Menu."
     },
     "privacy": {
-      "title": "Política de Privacidade - Aplicativo AI Menu",
+      "title": "Política de Privacidade - AI MenuLens",
       "description": "Política de Privacidade do aplicativo AI Menu."
     },
     "terms": {
-      "title": "Termos de Serviço | Aplicativo AI Menu",
+      "title": "Termos de Serviço | AI MenuLens",
       "description": "Termos que regem o uso do aplicativo AI Menu."
     },
     "deletion": {
-      "title": "Exclusão de conta - Aplicativo AI Menu",
+      "title": "Exclusão de conta - AI MenuLens",
       "description": "Solicite a exclusão da sua conta do aplicativo AI Menu."
     },
     "howItWorks": {
-      "title": "Como funciona o AI Menu APP",
-      "description": "Como o AI Menu APP extrai, organiza e traduz cardápios de restaurantes."
+      "title": "Como funciona o AI MenuLens",
+      "description": "Como o AI MenuLens extrai, organiza e traduz cardápios de restaurantes."
     },
     "guide": {
-      "title": "Guia de Tradução de Cardápios | AI Menu APP",
+      "title": "Guia de Tradução de Cardápios | AI MenuLens",
       "description": "Orientações práticas para traduzir menus e verificar detalhes de pedidos."
     },
     "languages": {
-      "title": "Idiomas suportados | AI Menu APP",
-      "description": "Idiomas de origem e destino suportados para a tradução do menu AI Menu APP."
+      "title": "Idiomas suportados | AI MenuLens",
+      "description": "Idiomas de origem e destino suportados para a tradução do menu AI MenuLens."
     },
     "about": {
-      "title": "Sobre | AI Menu APP",
-      "description": "Por que AI Menu APP foi criado e como usar traduções de menu de forma responsável."
+      "title": "Sobre | AI MenuLens",
+      "description": "Por que AI MenuLens foi criado e como usar traduções de menu de forma responsável."
     },
     "contact": {
-      "title": "Contato | AI Menu APP",
-      "description": "Para feedback sobre o produto, questões de privacidade ou suporte à conta, entre em contato com AI Menu APP."
+      "title": "Contato | AI MenuLens",
+      "description": "Para feedback sobre o produto, questões de privacidade ou suporte à conta, entre em contato com AI MenuLens."
     },
     "examples": {
-      "title": "Exemplos de Tradução de Menu Funcional | AI Menu APP",
+      "title": "Exemplos de Tradução de Menu Funcional | AI MenuLens",
       "description": "Exemplos práticos de como manter as categorias do menu, os pratos, as descrições e os preços interligados durante a tradução."
     }
   },
@@ -432,7 +432,7 @@
     "home": {
       "title": "Entenda o cardápio antes de fazer seu pedido.",
       "paragraphs": [
-        "O AI Menu APP foi desenvolvido para viajantes e clientes que precisam de mais contexto do que uma tradução literal. Ele combina extração de texto, detecção da estrutura do menu e tradução, para que seções, nomes de pratos, descrições e preços permaneçam mais fáceis de comparar.",
+        "O AI MenuLens foi desenvolvido para viajantes e clientes que precisam de mais contexto do que uma tradução literal. Ele combina extração de texto, detecção da estrutura do menu e tradução, para que seções, nomes de pratos, descrições e preços permaneçam mais fáceis de comparar.",
         "As fotos e os documentos do menu variam bastante. Iluminação, fontes decorativas, múltiplas colunas, anotações manuscritas e idiomas misturados podem afetar o reconhecimento. Imagens nítidas e páginas completas em PDF geralmente produzem o resultado mais útil.",
         "O menu traduzido serve como auxílio de leitura e não substitui o menu ou a equipe do restaurante. Sempre confirme preços, disponibilidade, ingredientes e informações sobre alergias diretamente com o restaurante antes de fazer o pedido."
       ],
@@ -462,7 +462,7 @@
     },
     "pages": {
       "howItWorks": {
-        "title": "Como AI Menu APP lê um menu",
+        "title": "Como AI MenuLens lê um menu",
         "summary": "Uma explicação prática dos passos para transformar uma foto, um PDF ou uma página da web em um menu traduzido e organizado, incluindo as limitações que os usuários devem verificar antes de fazer o pedido.",
         "sections": [
           {
@@ -567,7 +567,7 @@
       },
       "languages": {
         "title": "Idiomas de menu suportados",
-        "summary": "O controlador AI Menu APP suporta doze idiomas de origem e destino, com tratamento adaptado ao idioma para scripts, pontuação, termos de menu e formatos de preço comuns.",
+        "summary": "O controlador AI MenuLens suporta doze idiomas de origem e destino, com tratamento adaptado ao idioma para scripts, pontuação, termos de menu e formatos de preço comuns.",
         "sections": [
           {
             "heading": "Idiomas disponíveis",
@@ -606,14 +606,14 @@
         ]
       },
       "about": {
-        "title": "Sobre AI Menu APP",
-        "summary": "AI Menu APP é uma ferramenta de leitura de cardápios criada para ajudar os clientes a entender pratos desconhecidos, mantendo o cardápio original disponível para consulta.",
+        "title": "Sobre AI MenuLens",
+        "summary": "AI MenuLens é uma ferramenta de leitura de cardápios criada para ajudar os clientes a entender pratos desconhecidos, mantendo o cardápio original disponível para consulta.",
         "sections": [
           {
             "heading": "Por que o projeto existe?",
             "paragraphs": [
               "Os cardápios de restaurantes contêm um contexto que a tradução simples de frases pode não capturar. Uma ferramenta útil deve preservar as seções, os nomes dos pratos, as descrições e os preços de forma integrada, para que os clientes possam comparar as opções em vez de ler palavras desconexas.",
-              "AI Menu APP concentra-se nessa tarefa prática e retorna um resultado organizado que pode ser revisado juntamente com a redação original."
+              "AI MenuLens concentra-se nessa tarefa prática e retorna um resultado organizado que pode ser revisado juntamente com a redação original."
             ],
             "items": [
               "Ajude os viajantes a entender os pratos locais antes de fazerem seus pedidos.",
@@ -646,7 +646,7 @@
         ]
       },
       "contact": {
-        "title": "Contate AI Menu APP",
+        "title": "Contate AI MenuLens",
         "summary": "Envie comentários sobre o produto, exemplos de reconhecimento, dúvidas sobre privacidade ou solicitações de conta para o endereço de suporte abaixo.",
         "sections": [
           {

@@ -13,17 +13,18 @@ export const PUBLISHER_PAGES = [
 export type PublisherPageKey = (typeof PUBLISHER_PAGES)[number]["key"];
 
 export function publisherPageMetadata(key: PublisherPageKey): Metadata {
-  const page = getText("en").publisher.pages[key];
+  const text = getText("en");
+  const page = text.publisher.pages[key];
   const route = PUBLISHER_PAGES.find((item) => item.key === key);
   const canonical = route?.href || "/";
   return {
-    title: `${page.title} | AI Menu APP`,
+    title: `${page.title} | ${text.common.brand}`,
     description: page.summary,
     alternates: { canonical },
     openGraph: {
       type: "website",
       url: canonical,
-      siteName: "AI Menu APP",
+      siteName: text.common.brand,
       title: page.title,
       description: page.summary,
     },

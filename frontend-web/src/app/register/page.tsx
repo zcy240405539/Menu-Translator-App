@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import LoginForm from "@/components/LoginForm";
+import { getText } from "@/lib/i18n";
+
+const brand = getText("en").common.brand;
 
 export const metadata: Metadata = {
-  title: "Create account | AI Menu APP",
-  description: "Create an AI Menu APP account to save menu history and order lists.",
+  title: `Create account | ${brand}`,
+  description: `Create an ${brand} account to save menu history and order lists.`,
   robots: { index: false, follow: false },
 };
 
