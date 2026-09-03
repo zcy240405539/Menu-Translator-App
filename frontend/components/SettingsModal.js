@@ -5,7 +5,6 @@ import {
   Button,
   Divider,
   List,
-  Menu,
   SegmentedButtons,
   Surface,
   Text,
@@ -32,7 +31,7 @@ export default function SettingsModal({
   onClose,
 }) {
   const [legalKind, setLegalKind] = useState(null);
-  const [languageMenuVisible, setLanguageMenuVisible] = useState(false);
+  const [languageExpanded, setLanguageExpanded] = useState(false);
   const theme = useTheme();
   const catalog = getText(targetLang);
   const text = catalog.settings;
@@ -47,7 +46,7 @@ export default function SettingsModal({
   const changeLanguage = (language) => {
     saveLanguage(language);
     onTargetLangChange(language);
-    setLanguageMenuVisible(false);
+    setLanguageExpanded(false);
   };
 
   const openAdPrivacy = async () => {
@@ -77,26 +76,26 @@ export default function SettingsModal({
                 onOpenAccount();
               }}
             />
-            <Menu
-              visible={languageMenuVisible}
-              onDismiss={() => setLanguageMenuVisible(false)}
-              anchor={
-                <List.Item
-                  title={`${text.language}: ${getLanguageLabel(targetLang, targetLang)}`}
-                  left={(props) => <List.Icon {...props} icon="translate" />}
-                  right={(props) => <List.Icon {...props} icon="chevron-down" />}
-                  onPress={() => setLanguageMenuVisible(true)}
-                />
-              }
+            <List.Accordion
+              title={`${text.language}: ${getLanguageLabel(targetLang, targetLang)}`}
+              left={(props) => <List.Icon {...props} icon="translate" />}
+              expanded={languageExpanded}
+              onPress={() => setLanguageExpanded((expanded) => !expanded)}
             >
               {LANGUAGES.map((language) => (
-                <Menu.Item
+                <List.Item
                   key={language.code}
                   title={`${language.flag} ${getLanguageLabel(targetLang, language.code)}`}
+                  left={(props) => (
+                    <List.Icon
+                      {...props}
+                      icon={language.code === targetLang ? "check-circle" : "circle-outline"}
+                    />
+                  )}
                   onPress={() => changeLanguage(language.code)}
                 />
               ))}
-            </Menu>
+            </List.Accordion>
 
             <Divider style={styles.divider} />
             <Text variant="titleMedium" style={styles.sectionTitle}>{text.appearance}</Text>
