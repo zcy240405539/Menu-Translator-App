@@ -40,3 +40,7 @@ export async function initializeAds() {
 export async function showAdPrivacyOptions() {
   return false;
 }
+
+export async function isAdPrivacyOptionsRequired() {
+  return false;
+}

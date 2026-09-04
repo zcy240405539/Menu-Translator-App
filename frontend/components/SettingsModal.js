@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import { getLanguageLabel, getText, LANGUAGES, saveLanguage } from "../i18n";
-import { showAdPrivacyOptions } from "../utils/ads";
+import { showAdPrivacyOptions, isAdPrivacyOptionsRequired } from "../utils/ads";
 import LegalDocumentModal from "./LegalDocumentModal";
 
 const PLAY_STORE_WEB_URL =
@@ -32,9 +32,16 @@ export default function SettingsModal({
 }) {
   const [legalKind, setLegalKind] = useState(null);
   const [languageExpanded, setLanguageExpanded] = useState(false);
+  const [showPrivacyButton, setShowPrivacyButton] = useState(false);
   const theme = useTheme();
   const catalog = getText(targetLang);
   const text = catalog.settings;
+
+  React.useEffect(() => {
+    if (visible && Platform.OS !== "web") {
+      isAdPrivacyOptionsRequired().then(setShowPrivacyButton);
+    }
+  }, [visible]);
 
   const openStore = async () => {
     const fallbackUrl = Platform.OS === "ios" ? APP_STORE_URL : PLAY_STORE_WEB_URL;
@@ -126,7 +133,7 @@ export default function SettingsModal({
               right={(props) => <List.Icon {...props} icon="open-in-new" />}
               onPress={openStore}
             />
-            {Platform.OS !== "web" && (
+            {Platform.OS !== "web" && showPrivacyButton && (
               <List.Item
                 title={text.adPrivacy}
                 left={(props) => <List.Icon {...props} icon="shield-account-outline" />}

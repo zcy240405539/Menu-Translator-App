@@ -69,6 +69,15 @@ export function showAdPrivacyOptions() {
   return AdsConsent.showPrivacyOptionsForm();
 }
 
+export async function isAdPrivacyOptionsRequired() {
+  try {
+    const info = await AdsConsent.getConsentInfo();
+    return info.privacyOptionsRequirementStatus === "REQUIRED" || info.privacyOptionsRequirementStatus === 2;
+  } catch (e) {
+    return false;
+  }
+}
+
 export const InterstitialAd = NativeInterstitialAd;
 export const BannerAd = NativeBannerAd;
 export { AdEventType, BannerAdSize };
