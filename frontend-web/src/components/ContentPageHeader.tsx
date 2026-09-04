@@ -43,12 +43,12 @@ export default function ContentPageHeader({
       </div>
       <nav aria-label={text.publisher.navigation} className="mx-auto flex max-w-5xl gap-x-5 gap-y-2 overflow-x-auto px-4 pb-4 text-sm font-semibold text-gray-700">
         {PUBLISHER_PAGES.map(({ key, href }) => (
-          <Link key={href} href={`${href}${langQuery}`} className={`shrink-0 hover:text-purple-700 ${key === currentPage ? "text-purple-700" : ""}`}>
+          <Link key={href} href={`${href}${langQuery}`} prefetch={false} className={`shrink-0 hover:text-purple-700 ${key === currentPage ? "text-purple-700" : ""}`}>
             {text.publisher.nav[key]}
           </Link>
         ))}
-        <Link href={`/privacy-policy${langQuery}`} className="shrink-0 hover:text-purple-700">{text.footer.privacy}</Link>
-        <Link href={`/terms-of-service${langQuery}`} className="shrink-0 hover:text-purple-700">{text.footer.terms}</Link>
+        <Link href={`/privacy-policy${langQuery}`} prefetch={false} className="shrink-0 hover:text-purple-700">{text.footer.privacy}</Link>
+        <Link href={`/terms-of-service${langQuery}`} prefetch={false} className="shrink-0 hover:text-purple-700">{text.footer.terms}</Link>
       </nav>
     </header>
   );

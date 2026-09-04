@@ -43,14 +43,14 @@ export default function SiteFooter() {
         <p className="text-sm">© {new Date().getFullYear()} {text.common.brand}. {text.footer.rights}</p>
         <nav aria-label={text.publisher.navigation} className="flex flex-wrap justify-center gap-x-5 gap-y-2">
           {PUBLISHER_PAGES.map(({ href, key }) => (
-            <Link key={href} href={`${href}${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
+            <Link key={href} href={`${href}${langQuery}`} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
               {text.publisher.nav[key]}
             </Link>
           ))}
-            <Link href={`/privacy-policy${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
+            <Link href={`/privacy-policy${langQuery}`} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.privacy}
             </Link>
-            <Link href={`/terms-of-service${langQuery}`} className="text-sm transition-colors hover:text-purple-600">
+            <Link href={`/terms-of-service${langQuery}`} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.terms}
             </Link>
         </nav>
