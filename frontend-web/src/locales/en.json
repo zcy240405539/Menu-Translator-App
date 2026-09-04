@@ -696,60 +696,55 @@
         ]
       },
       "examples": {
-        "title": "Worked menu translation examples",
-        "summary": "Concrete examples showing how dish names, descriptions, categories, and prices should stay connected when a menu is translated.",
+        "title": "Menu translations made simple",
+        "summary": "See how common menu phrases and price signs turn into clear choices you can order with confidence.",
         "sections": [
           {
-            "heading": "Example 1: a Spanish tapas section",
+            "heading": "Example 1: sharing tapas in Spain",
             "paragraphs": [
-              "Consider a section headed PARA COMPARTIR with three lines: Pan con tomate 6,50; Gambas al ajillo 14; and Pulpo a la gallega 18. The heading means dishes intended for sharing, not a dish with its own price. Each number belongs to the dish on the same line, and the comma in 6,50 is a decimal separator.",
-              "A useful English result keeps the section as To Share and renders the dishes as Tomato Bread, Garlic Shrimp, and Galician-style Octopus while preserving 6.50, 14, and 18 beside the correct items. The original Spanish names should remain visible because they are the clearest way to point out the order to staff."
+              "You're in a Spanish restaurant and see PARA COMPARTIR above Pan con tomate 6,50, Gambas al ajillo 14, and Pulpo a la gallega 18. PARA COMPARTIR means 'to share'—it is a section title, not a dish.",
+              "The translated menu keeps each dish beside its own price. Show the original Spanish name to the server when you order, and everyone knows exactly which dish you mean."
             ],
             "items": [
-              "Category: PARA COMPARTIR becomes To Share.",
-              "Dish: Pan con tomate keeps the price 6,50.",
-              "Dish: Gambas al ajillo keeps the price 14.",
-              "Dish: Pulpo a la gallega keeps the price 18."
+              "Pan con tomate → Tomato bread · 6.50",
+              "Gambas al ajillo → Garlic shrimp · 14",
+              "Pulpo a la gallega → Galician-style octopus · 18"
             ]
           },
           {
-            "heading": "Example 2: a Simplified Chinese noodle menu",
+            "heading": "Example 2: 'extra noodles +¥6' is not a dish",
             "paragraphs": [
-              "Now consider a heading 面食 followed by 红烧牛肉面 ¥38, 番茄鸡蛋面 ¥30, and 加面 +¥6. The heading identifies a noodle section. The first two lines are complete dishes, while 加面 is an add-on for an extra portion of noodles and should not be presented as a standalone main dish.",
-              "An English translation can organize the entries as Braised Beef Noodles at ¥38 and Tomato and Egg Noodles at ¥30, with Extra Noodles +¥6 clearly marked as an add-on. The plus sign is essential context: dropping it changes the meaning of the price."
+              "On a Chinese menu, 红烧牛肉面 ¥38 and 番茄鸡蛋面 ¥30 are dishes. 加面 +¥6 means add extra noodles for ¥6, so it belongs with your order instead of appearing as another main dish.",
+              "Keeping the plus sign makes the choice clear: your noodles cost ¥38 or ¥30, and an extra portion costs ¥6 more."
             ],
             "items": [
-              "Category: 面食 becomes Noodles or Noodle Dishes.",
-              "Dish: 红烧牛肉面 remains associated with ¥38.",
-              "Dish: 番茄鸡蛋面 remains associated with ¥30.",
-              "Add-on: 加面 preserves the +¥6 qualifier."
+              "红烧牛肉面 → Braised beef noodles · ¥38",
+              "番茄鸡蛋面 → Tomato and egg noodles · ¥30",
+              "加面 → Extra noodles · +¥6"
             ]
           },
           {
-            "heading": "Price patterns that need context",
+            "heading": "Quick guide to common price signs",
             "paragraphs": [
-              "Menus use compact price notation to save space. The same digits can represent a price, a choice of sizes, a supplement, a quantity, or part of a set-menu rule. Layout and nearby labels must be considered together before assigning a number to a dish."
+              "Small signs can change what you pay. Read them together with the words beside them."
             ],
             "items": [
-              "14 / 22 can mean small and large, glass and bottle, or two portion sizes.",
-              "MP or market price means the current price must be confirmed with the restaurant.",
-              "+3 is usually a supplement and must remain linked to the option it modifies.",
-              "12,50 € and $12.50 use different symbol placement and decimal conventions.",
-              "45 per person may require a minimum party size stated elsewhere on the menu."
+              "14 / 22 usually means two sizes, such as small and large or glass and bottle.",
+              "MP means market price—ask the server for today's price.",
+              "+3 means that option costs 3 more.",
+              "12,50 € is the same style of price as €12.50, written the local way."
             ]
           },
           {
-            "heading": "How to review an automated result",
+            "heading": "A 10-second check before ordering",
             "paragraphs": [
-              "Start by checking completeness rather than wording. Compare the number of categories and dishes, then inspect price placement and only then refine translations. A fluent dish name is not useful if it belongs to the wrong section or carries another item's price.",
-              "Finally, verify ingredient and dietary claims against the original description. A menu may list only notable ingredients, and neither OCR nor translation can reveal substitutions, shared equipment, or cross-contact that the restaurant did not publish."
+              "Before you show the order to the server, check three things: no dish is missing, each price sits beside the right dish, and extras still have their + sign.",
+              "If you have an allergy or dietary need, ask the restaurant directly. A translation can explain the menu, but only the restaurant can confirm ingredients and kitchen handling."
             ],
             "items": [
-              "Check that every source category has a corresponding result section.",
-              "Check that each visible source dish appears exactly once.",
-              "Check that prices, size labels, and add-ons remain attached to the correct dish.",
-              "Keep the original wording available for restaurant staff.",
-              "Ask the restaurant to confirm allergies, availability, and the final bill."
+              "Is every dish included?",
+              "Is each price beside the right dish?",
+              "Do extras and upgrades still show their + sign?"
             ]
           }
         ]
