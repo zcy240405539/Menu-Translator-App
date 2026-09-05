@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, FlatList, View } from "react-native";
 import {
   Card,
+  Appbar,
   Text,
   Surface,
   Chip,
   IconButton,
-  useTheme,
-} from "react-native-paper";
 
 import {
   getMenuHistory,
@@ -32,23 +31,16 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
 
   return (
     <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header style={{ backgroundColor: theme.colors.background }}>
+  <Appbar.BackAction onPress={onBack || onGoHome} />
+  <Appbar.Content title={t.history.title} />
+  <Appbar.Action icon="delete-outline" accessibilityLabel={t.history.clear} onPress={async () => { await clearMenuHistory(); setHistory([]); }} />
+</Appbar.Header>
       <FlatList
         contentContainerStyle={styles.content}
         data={history}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={(
-          <View style={styles.pageHeader}>
-            <Text variant="headlineSmall" style={[styles.pageTitle, { color: theme.colors.onSurface }]}>{t.history.title}</Text>
-            <IconButton
-              icon="delete-outline"
-              accessibilityLabel={t.history.clear}
-              onPress={async () => {
-                await clearMenuHistory();
-                setHistory([]);
-              }}
-            />
-          </View>
-        )}
+        
         renderItem={({ item }) => (
           <Card
             mode="elevated"

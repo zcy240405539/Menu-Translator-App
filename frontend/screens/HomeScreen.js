@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Image,
@@ -8,8 +8,10 @@ import {
   Platform,
   Share,
   ScrollView,
+  KeyboardAvoidingView,
   useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { saveMenuHistory } from "../storage/menuStorage";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
@@ -65,6 +67,8 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [menuUrl, setMenuUrl] = useState("");
+  const interstitialRef = useRef(null);
+  const insets = useSafeAreaInsets();
   const theme = useTheme();
 
   const lang = targetLang;
@@ -134,6 +138,30 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
     const mimeType = (file?.mimeType || file?.type || "").toLowerCase();
     const fileName = (file?.name || file?.uri || "").toLowerCase();
     return mimeType === "application/pdf" || fileName.endsWith(".pdf");
+  };
+
+
+  const selectFromPhotoLibrary = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert(t.home.permissionRequired || "Permission Required", "Photo library permission is required.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      quality: 0.4,
+      allowsEditing: false,
+    });
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setSelectedFile({
+        uri: asset.uri,
+        name: asset.fileName || "library-menu.jpg",
+        mimeType: asset.mimeType || "image/jpeg",
+      });
+      setImageUri(asset.uri);
+      setMenuUrl("");
+    }
   };
 
   const takePicture = async () => {
@@ -252,7 +280,8 @@ const selectFromFile = async () => {
 
       // 2. Start Loading Ad (if on native platform and InterstitialAd is available)
       if (Platform.OS !== "web" && adsReady && InterstitialAd) {
-        const interstitial = InterstitialAd.createForAdRequest(AD_UNIT_IDS.interstitial);
+        interstitialRef.current = InterstitialAd.createForAdRequest(AD_UNIT_IDS.interstitial);
+        const interstitial = interstitialRef.current;
         
         let adTimeout = setTimeout(() => {
           if (!adShown) {
@@ -384,7 +413,7 @@ const selectFromFile = async () => {
       return window.location.href;
     }
 
-    return "https://ai-menu-app.onrender.com";
+    return "https://aimenu.us.kg";
   };
 
   const getShareMessage = () => `${t.home.shareMessage}\n${getCurrentShareUrl()}`;
@@ -497,7 +526,8 @@ const selectFromFile = async () => {
   ];
 
   return (
-    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { backgroundColor: theme.colors.background }]}>
+    <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { backgroundColor: theme.colors.background, paddingTop: insets.top }]}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -539,6 +569,19 @@ const selectFromFile = async () => {
                     onDismiss={() => setSourceLangMenuVisible(false)}
                     anchor={
                       <Button
+                    mode="contained-tonal"
+                    icon="image-outline"
+                    style={styles.button}
+                    contentStyle={styles.buttonContent}
+                    buttonColor="#EADDFF"
+                    textColor="#21005D"
+                    onPress={selectFromPhotoLibrary}
+                    disabled={loading}
+                  >
+                    {t.home.selectFromGallery || "Photo Library"}
+                  </Button>
+
+                  <Button
                         mode="outlined"
                         onPress={() => setSourceLangMenuVisible(true)}
                         style={styles.languageButton}
@@ -690,6 +733,8 @@ const selectFromFile = async () => {
           </Card>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
+
       <FloatingToolbar
         activeKey="home"
         targetLang={targetLang}

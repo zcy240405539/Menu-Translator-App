@@ -17,9 +17,22 @@ export default function OnboardingModal({ visible, targetLang, onComplete }) {
     onComplete();
   };
 
+  const [touchStart, setTouchStart] = useState(null);
+  const onTouchStart = (e) => setTouchStart(e.nativeEvent.pageX);
+  const onTouchEnd = (e) => {
+    if (!touchStart) return;
+    const distance = touchStart - e.nativeEvent.pageX;
+    if (distance > 50 && !isLast) setStep(s => s + 1);
+    if (distance < -50 && step > 0) setStep(s => s - 1);
+  };
+
   return (
     <Modal visible={visible} animationType="fade" onRequestClose={finish}>
-      <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+      <Surface 
+        style={[styles.screen, { backgroundColor: theme.colors.background }]}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <View style={styles.topRow}>
           <Button mode="text" onPress={finish}>{text.skip}</Button>
         </View>

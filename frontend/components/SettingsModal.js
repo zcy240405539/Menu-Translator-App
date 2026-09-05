@@ -163,6 +163,12 @@ export default function SettingsModal({
             </View>
           </ScrollView>
         </Surface>
+        <LegalDocumentModal
+        visible={Boolean(legalKind)}
+        kind={legalKind}
+        targetLang={targetLang}
+        onClose={() => setLegalKind(null)}
+      />
       </Modal>
       <LegalDocumentModal
         visible={Boolean(legalKind)}

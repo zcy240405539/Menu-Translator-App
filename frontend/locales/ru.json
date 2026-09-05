@@ -52,7 +52,8 @@
       "x": "X / Twitter",
       "whatsapp": "WhatsApp",
       "email": "Электронная почта"
-    }
+    },
+    "selectFromGallery": "Photo Library"
   },
   "result": {
     "title": "Результаты меню",

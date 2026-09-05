@@ -4,6 +4,7 @@ import {
   Card,
   Text,
   Surface,
+  Appbar,
   Chip,
   TouchableRipple,
   Button,
@@ -104,7 +105,7 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
   const handleShare = () => {
     if (onShare) {
       const hash = parsedResult?.image_hash || "";
-      const baseUrl = "https://ai-menu-app.onrender.com";
+      const baseUrl = "https://aimenu.us.kg";
       const langParam = getUrlLangParam(targetLang);
       let shareUrl = hash ? `${baseUrl}/?menu_hash=${hash}&lang=${langParam}` : baseUrl;
       
@@ -306,6 +307,10 @@ export default function MenuResultScreen({ menuResult, targetLang, onBack, onOpe
 
   return (
     <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header style={{ backgroundColor: theme.colors.background }}>
+  <Appbar.BackAction onPress={onBack} />
+  <Appbar.Content title={parsedResult?.business_name || t.result.title} />
+</Appbar.Header>
       <ScrollView contentContainerStyle={styles.listContent}>
         <Card mode="elevated" style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>

@@ -52,7 +52,8 @@
       "x": "X / Twitter",
       "whatsapp": "WhatsApp",
       "email": "電子郵件"
-    }
+    },
+    "selectFromGallery": "从相册选择"
   },
   "result": {
     "title": "菜單分析結果",
@@ -61,11 +62,11 @@
     "originalUnavailable": "暫無原文名稱",
     "restaurantFallback": "餐廳",
     "sourceFallback": "未知語言",
-    "aiRecommendBtn": "AI智能推薦",
+    "aiRecommendBtn": "AI推薦",
     "other": "其他"
   },
   "recommend": {
-    "title": "AI 智能推薦",
+    "title": "AI推薦",
     "peopleLabel": "用餐人數",
     "peoplePlaceholder": "例如：2",
     "dietLabel": "飲食習慣 (選填)",

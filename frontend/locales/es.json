@@ -52,7 +52,8 @@
       "x": "X / Twitter",
       "whatsapp": "WhatsApp",
       "email": "Correo electrónico"
-    }
+    },
+    "selectFromGallery": "Photo Library"
   },
   "result": {
     "title": "Resultados del Menú",

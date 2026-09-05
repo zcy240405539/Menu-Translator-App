@@ -52,7 +52,8 @@
       "x": "X / Twitter",
       "whatsapp": "WhatsApp",
       "email": "メール"
-    }
+    },
+    "selectFromGallery": "Photo Library"
   },
   "result": {
     "title": "メニュー結果",

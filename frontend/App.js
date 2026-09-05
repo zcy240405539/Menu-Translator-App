@@ -399,7 +399,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
   }, [languageInitialized]);
 
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
-  const [shareUrl, setShareUrl] = useState("https://ai-menu-app.onrender.com");
+  const [shareUrl, setShareUrl] = useState("https://aimenu.us.kg");
   const [shareMessage, setShareMessage] = useState("");
 
   const handleShareGlobal = async (customUrl, customMessage) => {
@@ -408,7 +408,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
     if (Platform.OS === "web" && typeof window !== "undefined" && window.location?.href) {
       url = window.location.href;
     } else if (!url) {
-      url = "https://ai-menu-app.onrender.com";
+      url = "https://aimenu.us.kg";
     }
     const msg = customMessage || t.home.shareMessage;
 

@@ -52,7 +52,8 @@
       "x": "X / Twitter",
       "whatsapp": "WhatsApp",
       "email": "电子邮件"
-    }
+    },
+    "selectFromGallery": "从相册选择"
   },
   "result": {
     "title": "菜单分析结果",
@@ -61,11 +62,11 @@
     "originalUnavailable": "暂无原文名称",
     "restaurantFallback": "餐厅",
     "sourceFallback": "未知语言",
-    "aiRecommendBtn": "AI智能推荐",
+    "aiRecommendBtn": "AI推荐",
     "other": "其他"
   },
   "recommend": {
-    "title": "AI 智能推荐",
+    "title": "AI推荐",
     "peopleLabel": "用餐人数",
     "peoplePlaceholder": "例如：2",
     "dietLabel": "饮食习惯 (选填)",

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, FlatList, Platform, TouchableRipple } from "react-native";
 import {
   Card,
+  Appbar,
   Text,
   Surface,
   Button,
@@ -56,27 +57,15 @@ export default function CartScreen({ onBack, targetLang, onOpenHistory, onOpenCa
 
   return (
     <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header style={{ backgroundColor: theme.colors.background }}>
+        <Appbar.BackAction onPress={onBack || onGoHome} />
+        <Appbar.Content title={t.cart.heading} subtitle={`${items.length} ${t.cart.items} · ${t.cart.total}: ${cartCurrencySymbol}${total.toFixed(2)}`} />
+        <Appbar.Action icon="delete-outline" accessibilityLabel={t.cart.clear} onPress={async () => {
+          await clearCart();
+          setItems([]);
+        }} />
+      </Appbar.Header>
       <View style={styles.content}>
-        <Card mode="elevated" style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
-            <View style={styles.summaryHeader}>
-              <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
-                {t.cart.heading}
-              </Text>
-              <IconButton
-                icon="delete-outline"
-                accessibilityLabel={t.cart.clear}
-                onPress={async () => {
-                  await clearCart();
-                  setItems([]);
-                }}
-              />
-            </View>
-            <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-              {items.length} {t.cart.items} · {t.cart.total}: {cartCurrencySymbol}{total.toFixed(2)}
-            </Text>
-          </Card.Content>
-        </Card>
 
         <FlatList
           data={items}

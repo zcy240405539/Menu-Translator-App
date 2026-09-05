@@ -52,7 +52,8 @@
       "x": "X / Twitter",
       "whatsapp": "WhatsApp",
       "email": "이메일"
-    }
+    },
+    "selectFromGallery": "Photo Library"
   },
   "result": {
     "title": "메뉴 결과",

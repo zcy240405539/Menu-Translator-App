@@ -8,11 +8,11 @@ export default function LegalDocumentModal({ visible, kind, targetLang, onClose 
   const legal = getLegalContent(targetLang);
   const document = legal[kind];
 
-  if (!document) return null;
+  if (!visible || !document) return null;
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
+    
+      <Surface style={[StyleSheet.absoluteFill, { backgroundColor: theme.colors.background, zIndex: 100 }]}>
         <Appbar.Header style={{ backgroundColor: theme.colors.background }}>
           <Appbar.BackAction onPress={onClose} />
           <Appbar.Content title={document.title} />
@@ -39,7 +39,7 @@ export default function LegalDocumentModal({ visible, kind, targetLang, onClose 
           </Text>
         </ScrollView>
       </Surface>
-    </Modal>
+    
   );
 }
 
