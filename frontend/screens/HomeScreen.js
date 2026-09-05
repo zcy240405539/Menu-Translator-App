@@ -569,19 +569,6 @@ const selectFromFile = async () => {
                     onDismiss={() => setSourceLangMenuVisible(false)}
                     anchor={
                       <Button
-                    mode="contained-tonal"
-                    icon="image-outline"
-                    style={styles.button}
-                    contentStyle={styles.buttonContent}
-                    buttonColor="#EADDFF"
-                    textColor="#21005D"
-                    onPress={selectFromPhotoLibrary}
-                    disabled={loading}
-                  >
-                    {t.home.selectFromGallery || "Photo Library"}
-                  </Button>
-
-                  <Button
                         mode="outlined"
                         onPress={() => setSourceLangMenuVisible(true)}
                         style={styles.languageButton}
@@ -637,8 +624,21 @@ const selectFromFile = async () => {
 
               <View style={styles.inputActions}>
                 <Button
-                  mode="contained-tonal"
-                  icon="camera-outline"
+                    mode="contained-tonal"
+                    icon="image-outline"
+                    style={styles.button}
+                    contentStyle={styles.buttonContent}
+                    buttonColor="#EADDFF"
+                    textColor="#21005D"
+                    onPress={selectFromPhotoLibrary}
+                    disabled={loading}
+                  >
+                    {t.home.selectFromGallery || "Photo Library"}
+                  </Button>
+
+                  <Button
+                    mode="contained-tonal"
+                    icon="camera-outline"
                   style={styles.button}
                   contentStyle={styles.buttonContent}
                   buttonColor="#EADDFF"
