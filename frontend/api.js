@@ -1,575 +1,574 @@
-import { Platform } from "react-native";
-import * as FileSystem from "expo-file-system/legacy";
-
-const getApiBaseUrl = () => {
-  if (process.env.EXPO_PUBLIC_API_BASE_URL) {
-    return process.env.EXPO_PUBLIC_API_BASE_URL;
-  }
-  if (Platform.OS === "web") {
-    if (typeof window !== "undefined" && window.location) {
-      if (["localhost", "127.0.0.1"].includes(window.location.hostname)) {
-        return "http://127.0.0.1:8000";
-      }
-    }
-  }
-  return "https://menu-translator-app.onrender.com";
-};
-
-const API_BASE_URL = getApiBaseUrl();
-
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function pollParseTask(taskId) {
-  let consecutiveErrors = 0;
-  let attempts = 0;
-  const maxAttempts = 150; // 5 minutes max
-
-  while (attempts < maxAttempts) {
-    attempts++;
-    await sleep(2000);
-
-    try {
-      const statusRes = await fetch(
-        `${API_BASE_URL}/menus/parse/status/${taskId}`
-      );
-
-      if (!statusRes.ok) {
-        throw new Error(`HTTP error ${statusRes.status}`);
-      }
-
-      const statusData = await statusRes.json();
-      consecutiveErrors = 0;
-
-      if (statusData.status === "done") {
-        return statusData.result;
-      }
-
-      if (statusData.status === "error") {
-        throw new Error(statusData.error || "Menu analysis failed");
-      }
-    } catch (err) {
-      console.warn(`Error checking parsing status (attempt ${attempts}):`, err);
-      consecutiveErrors++;
-      if (consecutiveErrors >= 5) {
-        throw new Error(`Failed to retrieve analysis status: ${err.message}`);
-      }
-    }
-  }
-
-  throw new Error("Menu analysis timed out after 5 minutes.");
-}
-
-export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto") {
-  const url = `${API_BASE_URL}/menus/parse/start?target_lang=${encodeURIComponent(targetLang)}&source_lang=${encodeURIComponent(sourceLang)}`;
-
-  if (Platform.OS === "web") {
-    const formData = new FormData();
-    const fileName = file.name || "menu-upload";
-    const mimeType = file.mimeType || file.type || "application/octet-stream";
-
-    const fileResponse = await fetch(file.uri);
-    const blob = await fileResponse.blob();
-    const uploadFile = new File([blob], fileName, { type: mimeType });
-    formData.append("file", uploadFile);
-
-    const startRes = await fetch(url, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!startRes.ok) {
-      const text = await startRes.text();
-      console.log("Start parse failed:", startRes.status, text);
-      throw new Error(`Failed to start menu analysis: ${startRes.status}`);
-    }
-
-    const startData = await startRes.json();
-    return pollParseTask(startData.task_id);
-  } else {
-    // Native (Android/iOS): Use expo-file-system's native Multipart upload task.
-    // This completely bypasses the JS-side FormData and fetch serialization issues.
-    const headers = getHeaders(true);
-
-    const uploadTask = FileSystem.createUploadTask(
-      url,
-      file.uri,
-      {
-        httpMethod: "POST",
-        fieldName: "file",
-        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-        headers: headers,
-      }
-    );
-
-    const result = await uploadTask.uploadAsync();
-
-    if (!result || result.status < 200 || result.status >= 300) {
-      console.log("Start native parse failed:", result?.status, result?.body);
-      throw new Error(`Failed to start menu analysis: ${result?.status || 'Unknown error'} (URL: ${url})`);
-    }
-
-    let startData;
-    try {
-      startData = JSON.parse(result.body);
-    } catch (err) {
-      console.log("Parse native JSON failed:", result.body);
-      throw new Error(`JSON Parse error: ${err.message} (Status: ${result.status}, Body: ${result.body || '(empty)'}, URL: ${url})`);
-    }
-    return pollParseTask(startData.task_id);
-  }
-}
-
-export async function parseMenuUrl(menuUrl, targetLang = "zh", sourceLang = "auto") {
-  const startRes = await fetch(`${API_BASE_URL}/menus/parse/url/start`, {
-    method: "POST",
+import { Platform } from "react-native";
+import * as FileSystem from "expo-file-system/legacy";
+
+const getApiBaseUrl = () => {
+  if (process.env.EXPO_PUBLIC_API_BASE_URL) {
+    return process.env.EXPO_PUBLIC_API_BASE_URL;
+  }
+  if (Platform.OS === "web") {
+    if (typeof window !== "undefined" && window.location) {
+      if (["localhost", "127.0.0.1"].includes(window.location.hostname)) {
+        return "http://127.0.0.1:8000";
+      }
+    }
+  }
+  return "https://menu-translator-app.onrender.com";
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function pollParseTask(taskId) {
+  let consecutiveErrors = 0;
+  let attempts = 0;
+  const maxAttempts = 150; // 5 minutes max
+
+  while (attempts < maxAttempts) {
+    attempts++;
+    await sleep(2000);
+
+    try {
+      const statusRes = await fetch(
+        `${API_BASE_URL}/menus/parse/status/${taskId}`
+      );
+
+      if (!statusRes.ok) {
+        throw new Error(`HTTP error ${statusRes.status}`);
+      }
+
+      const statusData = await statusRes.json();
+      consecutiveErrors = 0;
+
+      if (statusData.status === "done") {
+        return statusData.result;
+      }
+
+      if (statusData.status === "error") {
+        throw new Error(statusData.error || "Menu analysis failed");
+      }
+    } catch (err) {
+      console.warn(`Error checking parsing status (attempt ${attempts}):`, err);
+      consecutiveErrors++;
+      if (consecutiveErrors >= 5) {
+        throw new Error(`Failed to retrieve analysis status: ${err.message}`);
+      }
+    }
+  }
+
+  throw new Error("Menu analysis timed out after 5 minutes.");
+}
+
+export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto") {
+  const url = `${API_BASE_URL}/menus/parse/start?target_lang=${encodeURIComponent(targetLang)}&source_lang=${encodeURIComponent(sourceLang)}`;
+
+  if (Platform.OS === "web") {
+    const formData = new FormData();
+    const fileName = file.name || "menu-upload";
+    const mimeType = file.mimeType || file.type || "application/octet-stream";
+
+    const fileResponse = await fetch(file.uri);
+    const blob = await fileResponse.blob();
+    const uploadFile = new File([blob], fileName, { type: mimeType });
+    formData.append("file", uploadFile);
+
+    const startRes = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!startRes.ok) {
+      const text = await startRes.text();
+      console.log("Start parse failed:", startRes.status, text);
+      throw new Error(`Failed to start menu analysis: ${startRes.status}`);
+    }
+
+    const startData = await startRes.json();
+    return pollParseTask(startData.task_id);
+  } else {
+    // Native (Android/iOS): Use expo-file-system's native Multipart upload task.
+    // This completely bypasses the JS-side FormData and fetch serialization issues.
+    const headers = getHeaders(true);
+
+    const uploadTask = FileSystem.createUploadTask(
+      url,
+      file.uri,
+      {
+        httpMethod: "POST",
+        fieldName: "file",
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        headers: headers,
+      }
+    );
+
+    const result = await uploadTask.uploadAsync();
+
+    if (!result || result.status < 200 || result.status >= 300) {
+      console.log("Start native parse failed:", result?.status, result?.body);
+      throw new Error(`Failed to start menu analysis: ${result?.status || 'Unknown error'} (URL: ${url})`);
+    }
+
+    let startData;
+    try {
+      startData = JSON.parse(result.body);
+    } catch (err) {
+      console.log("Parse native JSON failed:", result.body);
+      throw new Error(`JSON Parse error: ${err.message} (Status: ${result.status}, Body: ${result.body || '(empty)'}, URL: ${url})`);
+    }
+    return pollParseTask(startData.task_id);
+  }
+}
+
+export async function parseMenuUrl(menuUrl, targetLang = "zh", sourceLang = "auto") {
+  const startRes = await fetch(`${API_BASE_URL}/menus/parse/url/start`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      url: menuUrl,
+      target_lang: targetLang,
+      source_lang: sourceLang,
+    }),
+  });
+
+  if (!startRes.ok) {
+    let message = `Failed to start URL menu analysis: ${startRes.status}`;
+    const responseText = await startRes.text();
+    try {
+      const payload = JSON.parse(responseText);
+      if (payload?.detail) {
+        message = payload.detail;
+      }
+    } catch (err) {
+      if (responseText) {
+        message = responseText;
+      }
+    }
+    console.log("Start URL parse failed:", startRes.status, message);
+    throw new Error(message);
+  }
+
+  const startData = await startRes.json();
+  return pollParseTask(startData.task_id);
+}
+
+
+let authToken = null;
+
+export function setAuthToken(token) {
+  authToken = token;
+}
+
+export function hasAuthToken() {
+  return Boolean(authToken);
+}
+
+function getHeaders(isFormData = false) {
+  const headers = {};
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+  return headers;
+}
+
+export async function getDishDetail(
+  dishName,
+  targetLang = "zh",
+  sourceLang = "auto",
+  dishContext = {},
+  refreshImage = false,
+  rejectImageUrl = null
+) {
+  const res = await fetch(`${API_BASE_URL}/dish/detail`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      dish_name: dishName,
+      target_lang: targetLang,
+      source_lang: sourceLang,
+      original_name: dishContext.original_name,
+      translated_name: dishContext.translated_name || dishContext.name,
+      description: dishContext.description,
+      ingredients: dishContext.ingredients,
+      cuisine: dishContext.cuisine,
+      image_prompt: dishContext.image_prompt,
+      section_heading_original: dishContext.section_heading_original,
+      refresh_image: refreshImage,
+      reject_image_url: rejectImageUrl,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to load dish detail");
+  }
+
+  return await res.json();
+}
+
+export async function getAIRecommendations(menuItems, people, diets, budget, taste, targetLang = "zh", allergies = null) {
+  const res = await fetch(`${API_BASE_URL}/menus/recommend`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      menu_items: menuItems,
+      people: people ? parseInt(people, 10) : null,
+      diets: diets && diets.length > 0 ? diets : null,
+      budget: budget || null,
+      taste: taste || null,
+      target_lang: targetLang,
+      allergies: allergies && allergies.length > 0 ? allergies : null,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to load AI recommendations");
+  }
+
+  return await res.json();
+}
+
+export async function getCachedMenu(imageHash, targetLang = "zh") {
+  const res = await fetch(`${API_BASE_URL}/menus/cache/${imageHash}?target_lang=${encodeURIComponent(targetLang)}`);
+  if (!res.ok) {
+    throw new Error("Failed to load cached menu");
+  }
+  return await res.json();
+}
+
+async function getErrorMessage(res) {
+  try {
+    const data = await res.json();
+    return data?.detail || data?.message || null;
+  } catch (e) {
+    try {
+      const text = await res.text();
+      return text || null;
+    } catch (err) {
+      return null;
+    }
+  }
+}
+
+export async function register(username, email, password, phone, diets, allergies, budget, taste, preferredLanguage) {
+  const res = await fetch(`${API_BASE_URL}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+      phone,
+      diets,
+      allergies,
+      budget,
+      taste,
+      preferred_language: preferredLanguage,
+    }),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to register");
+  }
+  const data = await res.json();
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  return data;
+}
+
+export async function login(email, password) {
+  const res = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to login");
+  }
+  const data = await res.json();
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  return data;
+}
+
+export async function loginWithGoogle(email, name, avatarUrl) {
+  const res = await fetch(`${API_BASE_URL}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, name, avatar_url: avatarUrl }),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to login with Google");
+  }
+  const data = await res.json();
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  return data;
+}
+
+export async function getProfile() {
+  const res = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to fetch user profile");
+  }
+  return await res.json();
+}
+
+export async function updateProfile(profileData) {
+  const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(profileData),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to update profile");
+  }
+  return await res.json();
+}
+
+export async function saveUserMenuHistory(record) {
+  if (!authToken || !record?.raw) {
+    return null;
+  }
+
+  const res = await fetch(`${API_BASE_URL}/user/menu-history`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      menu_result: record.raw,
+      source_uri: record.imageUri,
+      target_lang: record.targetLang,
+    }),
+  });
+
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to save user menu history");
+  }
+
+  return await res.json();
+}
+
+export async function getUserCart() {
+  if (!authToken) {
+    return { items: [] };
+  }
+
+  const res = await fetch(`${API_BASE_URL}/user/cart`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to fetch user cart");
+  }
+
+  return await res.json();
+}
+
+export async function saveUserCart(items) {
+  if (!authToken) {
+    return null;
+  }
+
+  const res = await fetch(`${API_BASE_URL}/user/cart`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify({
+      items: Array.isArray(items) ? items : [],
+    }),
+  });
+
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to save user cart");
+  }
+
+  return await res.json();
+}
+
+export async function uploadAvatar(file) {
+  const url = `${API_BASE_URL}/auth/avatar`;
+
+  if (Platform.OS === "web") {
+    const formData = new FormData();
+    const fileName = file.name || "avatar.jpg";
+    const mimeType = file.mimeType || file.type || "image/jpeg";
+
+    const fileResponse = await fetch(file.uri);
+    const blob = await fileResponse.blob();
+    formData.append("file", new File([blob], fileName, { type: mimeType }));
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errMsg = await getErrorMessage(res);
+      throw new Error(errMsg || "Failed to upload avatar");
+    }
+    return await res.json();
+  } else {
+    // Native (Android/iOS): Use expo-file-system
+    const headers = getHeaders(true);
+
+    const uploadTask = FileSystem.createUploadTask(
+      url,
+      file.uri,
+      {
+        httpMethod: "POST",
+        fieldName: "file",
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        headers: headers,
+      }
+    );
+
+    const result = await uploadTask.uploadAsync();
+
+    if (!result || result.status < 200 || result.status >= 300) {
+      let errMsg = "Failed to upload avatar";
+      try {
+        const payload = JSON.parse(result.body);
+        if (payload?.detail) {
+          errMsg = payload.detail;
+        } else if (payload?.message) {
+          errMsg = payload.message;
+        }
+      } catch (err) {
+        if (result?.body) {
+          errMsg = result.body;
+        }
+      }
+      throw new Error(errMsg);
+    }
+
+    return JSON.parse(result.body);
+  }
+}
+
+export async function logout() {
+  try {
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+  } catch (err) {
+    console.warn("Logout request failed:", err);
+  }
+  setAuthToken(null);
+}
+
+export async function deleteAccount() {
+  const res = await fetch(`${API_BASE_URL}/auth/account`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to delete account");
+  }
+  setAuthToken(null);
+}
+
+export async function passwordReset(email) {
+  const res = await fetch(`${API_BASE_URL}/auth/password-reset`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to send password reset email");
+  }
+  return await res.json();
+}
+
+export async function getOAuthAuthUrl(provider, redirectTo) {
+  const url = `${API_BASE_URL}/auth/oauth/${encodeURIComponent(provider)}/url?redirect_to=${encodeURIComponent(redirectTo)}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to get OAuth URL");
+  }
+  return await res.json();
+}
+
+export function getGoogleAuthUrl(redirectTo) {
+  return getOAuthAuthUrl("google", redirectTo);
+}
+
+export function getFacebookAuthUrl(redirectTo) {
+  return getOAuthAuthUrl("facebook", redirectTo);
+}
+
+export function getAppleAuthUrl(redirectTo) {
+  return getOAuthAuthUrl("apple", redirectTo);
+}
+
+
+export async function getUnitTranslations() {
+  const res = await fetch(`${API_BASE_URL}/i18n/units`);
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || "Failed to fetch unit translations");
+  }
+  return await res.json();
+}
+
+
+export async function loginWithAppleIdToken(idToken, nonce) {
+  const res = await fetch(`${API_BASE_URL}/auth/apple/id_token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id_token: idToken, nonce })
+  });
+  if (!res.ok) {
+    const errMsg = await getErrorMessage(res);
+    throw new Error(errMsg || 'Failed to authenticate with Apple');
+  }
+  return await res.json();
+}
+export async function checkHasPassword() {
+  const res = await fetch(`${API_BASE_URL}/auth/has-password`, {
     headers: getHeaders(),
-    body: JSON.stringify({
-      url: menuUrl,
-      target_lang: targetLang,
-      source_lang: sourceLang,
-    }),
-  });
-
-  if (!startRes.ok) {
-    let message = `Failed to start URL menu analysis: ${startRes.status}`;
-    const responseText = await startRes.text();
-    try {
-      const payload = JSON.parse(responseText);
-      if (payload?.detail) {
-        message = payload.detail;
-      }
-    } catch (err) {
-      if (responseText) {
-        message = responseText;
-      }
-    }
-    console.log("Start URL parse failed:", startRes.status, message);
-    throw new Error(message);
-  }
-
-  const startData = await startRes.json();
-  return pollParseTask(startData.task_id);
-}
-
-
-let authToken = null;
-
-export function setAuthToken(token) {
-  authToken = token;
-}
-
-export function hasAuthToken() {
-  return Boolean(authToken);
-}
-
-function getHeaders(isFormData = false) {
-  const headers = {};
-  if (!isFormData) {
-    headers["Content-Type"] = "application/json";
-  }
-  if (authToken) {
-    headers["Authorization"] = `Bearer ${authToken}`;
-  }
-  return headers;
-}
-
-export async function getDishDetail(
-  dishName,
-  targetLang = "zh",
-  sourceLang = "auto",
-  dishContext = {},
-  refreshImage = false,
-  rejectImageUrl = null
-) {
-  const res = await fetch(`${API_BASE_URL}/dish/detail`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify({
-      dish_name: dishName,
-      target_lang: targetLang,
-      source_lang: sourceLang,
-      original_name: dishContext.original_name,
-      translated_name: dishContext.translated_name || dishContext.name,
-      description: dishContext.description,
-      ingredients: dishContext.ingredients,
-      cuisine: dishContext.cuisine,
-      image_prompt: dishContext.image_prompt,
-      section_heading_original: dishContext.section_heading_original,
-      refresh_image: refreshImage,
-      reject_image_url: rejectImageUrl,
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to load dish detail");
-  }
-
-  return await res.json();
-}
-
-export async function getAIRecommendations(menuItems, people, diets, budget, taste, targetLang = "zh", allergies = null) {
-  const res = await fetch(`${API_BASE_URL}/menus/recommend`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify({
-      menu_items: menuItems,
-      people: people ? parseInt(people, 10) : null,
-      diets: diets && diets.length > 0 ? diets : null,
-      budget: budget || null,
-      taste: taste || null,
-      target_lang: targetLang,
-      allergies: allergies && allergies.length > 0 ? allergies : null,
-    }),
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(errorText || "Failed to load AI recommendations");
-  }
-
-  return await res.json();
-}
-
-export async function getCachedMenu(imageHash, targetLang = "zh") {
-  const res = await fetch(`${API_BASE_URL}/menus/cache/${imageHash}?target_lang=${encodeURIComponent(targetLang)}`);
-  if (!res.ok) {
-    throw new Error("Failed to load cached menu");
-  }
-  return await res.json();
-}
-
-async function getErrorMessage(res) {
-  try {
-    const data = await res.json();
-    return data?.detail || data?.message || null;
-  } catch (e) {
-    try {
-      const text = await res.text();
-      return text || null;
-    } catch (err) {
-      return null;
-    }
-  }
-}
-
-export async function register(username, email, password, phone, diets, allergies, budget, taste, preferredLanguage) {
-  const res = await fetch(`${API_BASE_URL}/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username,
-      email,
-      password,
-      phone,
-      diets,
-      allergies,
-      budget,
-      taste,
-      preferred_language: preferredLanguage,
-    }),
   });
   if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to register");
+    return false;
   }
   const data = await res.json();
-  if (data.token) {
-    setAuthToken(data.token);
-  }
-  return data;
+  return data.has_password;
 }
 
-export async function login(email, password) {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to login");
-  }
-  const data = await res.json();
-  if (data.token) {
-    setAuthToken(data.token);
-  }
-  return data;
-}
-
-export async function loginWithGoogle(email, name, avatarUrl) {
-  const res = await fetch(`${API_BASE_URL}/auth/google`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, name, avatar_url: avatarUrl }),
-  });
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to login with Google");
-  }
-  const data = await res.json();
-  if (data.token) {
-    setAuthToken(data.token);
-  }
-  return data;
-}
-
-export async function getProfile() {
-  const res = await fetch(`${API_BASE_URL}/auth/me`, {
-    method: "GET",
-    headers: getHeaders(),
-  });
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to fetch user profile");
-  }
-  return await res.json();
-}
-
-export async function updateProfile(profileData) {
-  const res = await fetch(`${API_BASE_URL}/auth/profile`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify(profileData),
-  });
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to update profile");
-  }
-  return await res.json();
-}
-
-export async function saveUserMenuHistory(record) {
-  if (!authToken || !record?.raw) {
-    return null;
-  }
-
-  const res = await fetch(`${API_BASE_URL}/user/menu-history`, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify({
-      menu_result: record.raw,
-      source_uri: record.imageUri,
-      target_lang: record.targetLang,
-    }),
-  });
-
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to save user menu history");
-  }
-
-  return await res.json();
-}
-
-export async function getUserCart() {
-  if (!authToken) {
-    return { items: [] };
-  }
-
-  const res = await fetch(`${API_BASE_URL}/user/cart`, {
-    method: "GET",
-    headers: getHeaders(),
-  });
-
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to fetch user cart");
-  }
-
-  return await res.json();
-}
-
-export async function saveUserCart(items) {
-  if (!authToken) {
-    return null;
-  }
-
-  const res = await fetch(`${API_BASE_URL}/user/cart`, {
+export async function updatePassword(oldPassword, newPassword) {
+  const res = await fetch(`${API_BASE_URL}/auth/password`, {
     method: "PUT",
     headers: getHeaders(),
     body: JSON.stringify({
-      items: Array.isArray(items) ? items : [],
+      old_password: oldPassword || null,
+      new_password: newPassword,
     }),
   });
-
   if (!res.ok) {
     const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to save user cart");
+    throw new Error(errMsg || "Failed to update password");
   }
-
-  return await res.json();
-}
-
-export async function uploadAvatar(file) {
-  const url = `${API_BASE_URL}/auth/avatar`;
-
-  if (Platform.OS === "web") {
-    const formData = new FormData();
-    const fileName = file.name || "avatar.jpg";
-    const mimeType = file.mimeType || file.type || "image/jpeg";
-
-    const fileResponse = await fetch(file.uri);
-    const blob = await fileResponse.blob();
-    formData.append("file", new File([blob], fileName, { type: mimeType }));
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: getHeaders(true),
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const errMsg = await getErrorMessage(res);
-      throw new Error(errMsg || "Failed to upload avatar");
-    }
-    return await res.json();
-  } else {
-    // Native (Android/iOS): Use expo-file-system
-    const headers = getHeaders(true);
-
-    const uploadTask = FileSystem.createUploadTask(
-      url,
-      file.uri,
-      {
-        httpMethod: "POST",
-        fieldName: "file",
-        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-        headers: headers,
-      }
-    );
-
-    const result = await uploadTask.uploadAsync();
-
-    if (!result || result.status < 200 || result.status >= 300) {
-      let errMsg = "Failed to upload avatar";
-      try {
-        const payload = JSON.parse(result.body);
-        if (payload?.detail) {
-          errMsg = payload.detail;
-        } else if (payload?.message) {
-          errMsg = payload.message;
-        }
-      } catch (err) {
-        if (result?.body) {
-          errMsg = result.body;
-        }
-      }
-      throw new Error(errMsg);
-    }
-
-    return JSON.parse(result.body);
-  }
-}
-
-export async function logout() {
-  try {
-    await fetch(`${API_BASE_URL}/auth/logout`, {
-      method: "POST",
-      headers: getHeaders(),
-    });
-  } catch (err) {
-    console.warn("Logout request failed:", err);
-  }
-  setAuthToken(null);
-}
-
-export async function deleteAccount() {
-  const res = await fetch(`${API_BASE_URL}/auth/account`, {
-    method: "DELETE",
-    headers: getHeaders(),
-  });
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to delete account");
-  }
-  setAuthToken(null);
-}
-
-export async function passwordReset(email) {
-  const res = await fetch(`${API_BASE_URL}/auth/password-reset`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to send password reset email");
-  }
-  return await res.json();
-}
-
-export async function getOAuthAuthUrl(provider, redirectTo) {
-  const url = `${API_BASE_URL}/auth/oauth/${encodeURIComponent(provider)}/url?redirect_to=${encodeURIComponent(redirectTo)}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to get OAuth URL");
-  }
-  return await res.json();
-}
-
-export function getGoogleAuthUrl(redirectTo) {
-  return getOAuthAuthUrl("google", redirectTo);
-}
-
-export function getFacebookAuthUrl(redirectTo) {
-  return getOAuthAuthUrl("facebook", redirectTo);
-}
-
-export function getAppleAuthUrl(redirectTo) {
-  return getOAuthAuthUrl("apple", redirectTo);
-}
-
-
-export async function getUnitTranslations() {
-  const res = await fetch(`${API_BASE_URL}/i18n/units`);
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || "Failed to fetch unit translations");
-  }
-  return await res.json();
-}
-
-
-export async function loginWithAppleIdToken(idToken, nonce) {
-  const res = await fetch(`${API_BASE_URL}/auth/apple/id_token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id_token: idToken, nonce })
-  });
-  if (!res.ok) {
-    const errMsg = await getErrorMessage(res);
-    throw new Error(errMsg || 'Failed to authenticate with Apple');
-  }
-  return await res.json();
-}
-e x p o r t   a s y n c   f u n c t i o n   c h e c k H a s P a s s w o r d ( )   { 
-     c o n s t   r e s   =   a w a i t   f e t c h ( $ { A P I _ B A S E _ U R L } / a u t h / h a s - p a s s w o r d ,   { 
-         h e a d e r s :   g e t H e a d e r s ( ) , 
-     } ) ; 
-     i f   ( ! r e s . o k )   { 
-         r e t u r n   f a l s e ; 
-     } 
-     c o n s t   d a t a   =   a w a i t   r e s . j s o n ( ) ; 
-     r e t u r n   d a t a . h a s _ p a s s w o r d ; 
- } 
- 
- e x p o r t   a s y n c   f u n c t i o n   u p d a t e P a s s w o r d ( o l d P a s s w o r d ,   n e w P a s s w o r d )   { 
-     c o n s t   r e s   =   a w a i t   f e t c h ( $ { A P I _ B A S E _ U R L } / a u t h / p a s s w o r d ,   { 
-         m e t h o d :   " P U T " , 
-         h e a d e r s :   g e t H e a d e r s ( ) , 
-         b o d y :   J S O N . s t r i n g i f y ( { 
-             o l d _ p a s s w o r d :   o l d P a s s w o r d   | |   n u l l , 
-             n e w _ p a s s w o r d :   n e w P a s s w o r d , 
-         } ) , 
-     } ) ; 
-     i f   ( ! r e s . o k )   { 
-         c o n s t   e r r M s g   =   a w a i t   g e t E r r o r M e s s a g e ( r e s ) ; 
-         t h r o w   n e w   E r r o r ( e r r M s g   | |   " F a i l e d   t o   u p d a t e   p a s s w o r d " ) ; 
-     } 
-     r e t u r n   r e s . j s o n ( ) ; 
- }  
- 
+  return res.json();
+}
