@@ -519,11 +519,11 @@ const selectFromFile = async () => {
   };
 
   const homeFeatureItems = [
-    t.home.featureDocuments,
-    t.home.featureTranslation,
-    t.home.featureOrderList,
-    t.home.featureAiRecommend,
-  ];
+      { title: t.home.featureDocuments, color: '#EA4335' }, // Red
+      { title: t.home.featureTranslation, color: '#333333' }, // Dark
+      { title: t.home.featureOrderList, color: '#9E9E9E' }, // Grey
+      { title: t.home.featureAiRecommend, color: '#FBBC05' }, // Yellow
+    ];
 
   return (
     <Surface style={[styles.screen, isDesktopLayout && styles.screenDesktop, { backgroundColor: theme.colors.background, paddingTop: insets.top }]}>
@@ -547,11 +547,19 @@ const selectFromFile = async () => {
 
             <View style={styles.featureRow}>
               {homeFeatureItems.map((item, index) => (
-                <View key={item} style={[styles.featurePill, isDesktopLayout && styles.featurePillDesktop, { backgroundColor: theme.colors.surfaceVariant }]}>
-                  <Text style={[styles.featureNumber, { color: theme.dark ? "#FFFFFF" : theme.colors.primary }]}>{String(index + 1).padStart(2, "0")}</Text>
-                  <Text style={[styles.featureText, { color: theme.colors.onSurface }]}>{item}</Text>
-                </View>
-              ))}
+                  <View key={item.title} style={[
+                    styles.featureTextCard,
+                    isDesktopLayout && styles.featureTextCardDesktop,
+                    { borderTopColor: item.color }
+                  ]}>
+                    <Text style={[styles.featureNumber, { color: item.color }]}>
+                      {String(index + 1).padStart(2, "0")}
+                    </Text>
+                    <Text style={[styles.featureText, { color: theme.colors.onSurface }]}>
+                      {item.title}
+                    </Text>
+                  </View>
+                ))}
             </View>
           </View>
 
@@ -846,37 +854,34 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 12,
   },
-  featurePill: {
-    width: "48%",
-    minWidth: 140,
-    flexGrow: 1,
-    borderWidth: 1,
-    borderColor: "#E7E0EC",
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  featurePillDesktop: {
-    width: "48%",
-    maxWidth: "48%",
-  },
+  featureTextCard: {
+      width: "48%",
+      minWidth: 140,
+      flexGrow: 1,
+      borderTopWidth: 4,
+      backgroundColor: "transparent",
+      paddingHorizontal: 8,
+      paddingVertical: 16,
+      flexDirection: "column",
+      alignItems: "flex-start",
+      gap: 4,
+    },
+  featureTextCardDesktop: {
+      width: "23%",
+      maxWidth: "23%",
+      minWidth: 160,
+    },
   featureNumber: {
-    color: "#6D50B3",
-    fontSize: 14,
-    fontWeight: "800",
-    marginRight: 8,
-  },
+      fontSize: 18,
+      fontWeight: "800",
+      fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+    },
   featureText: {
-    color: "#1D1B20",
-    fontSize: 14,
-    fontWeight: "700",
-    lineHeight: 19,
-    flex: 1,
-    flexWrap: "wrap",
-  },
+      fontSize: 18,
+      fontWeight: "700",
+      lineHeight: 24,
+      marginTop: 4,
+    },
   toolKicker: {
     color: "#6D50B3",
     fontSize: 12,
