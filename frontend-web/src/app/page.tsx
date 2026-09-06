@@ -484,8 +484,8 @@ export default function Home() {
                       {text.home.steps.map((label, index) => {
                         const styles = [
                           { color: "text-[#EA4335]", border: "border-t-[#EA4335]" },
-                          { color: "text-[#333333]", border: "border-t-[#333333]" },
-                          { color: "text-[#9E9E9E]", border: "border-t-[#9E9E9E]" },
+                          { color: "text-[#4285F4]", border: "border-t-[#4285F4]" },
+                          { color: "text-[#34A853]", border: "border-t-[#34A853]" },
                           { color: "text-[#FBBC05]", border: "border-t-[#FBBC05]" },
                         ][index % 4];
                         return (
