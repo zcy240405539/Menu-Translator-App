@@ -47,6 +47,12 @@ from app.services.auth_service import (
 )
 from fastapi import Header
 from typing import Optional
+
+from pydantic import BaseModel
+class AppleIdTokenRequest(BaseModel):
+    id_token: str
+    nonce: Optional[str] = None
+
 from app.services.image_service import supabase
 from app.services.openrouter_service import (
     call_openrouter_for_dish_detail,
