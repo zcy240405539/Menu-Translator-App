@@ -32,18 +32,34 @@ def check_user_has_password(user_id: str) -> bool:
 
 
 def update_user_password(email: str, user_id: str, old_password: str | None, new_password: str) -> None:
-    client = get_supabase_client()
+    admin_client = get_supabase_client()
     has_password = check_user_has_password(user_id)
     if has_password:
         if not old_password:
             raise ValueError("Current password is required")
         try:
-            client.auth.sign_in_with_password({"email": email, "password": old_password})
+            # Create a separate client to avoid polluting the admin client's JWT token
+            auth_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+            auth_client.auth.sign_in_with_password({"email": email, "password": old_password})
         except Exception:
             raise ValueError("Invalid current password")
     
-    # Update password using admin API
-    client.auth.admin.update_user_by_id(user_id, {"password": new_password})
+    # Ensure 'email' is added to the user's providers list so the app recognizes they have a password
+    res = admin_client.auth.admin.get_user_by_id(user_id)
+    app_metadata = res.user.app_metadata or {}
+    providers = app_metadata.get("providers", [])
+    if "email" not in providers:
+        providers.append("email")
+        app_metadata["providers"] = providers
+
+    # Update password and metadata using admin API
+    admin_client.auth.admin.update_user_by_id(
+        user_id, 
+        {
+            "password": new_password,
+            "app_metadata": app_metadata
+        }
+    )
 
 
 def delete_user_account(db: Session, user: User) -> None:
