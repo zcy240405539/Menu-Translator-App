@@ -47,7 +47,8 @@ function ChangePasswordModule({ text }: { text: Catalog["settings"] }) {
     const token = window.localStorage.getItem("menu_app_token");
     if (!token) return;
     fetch(`${apiBaseUrl()}/auth/has-password`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store"
     })
       .then(res => res.json())
       .then(data => setHasPassword(data.has_password))

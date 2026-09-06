@@ -549,6 +549,7 @@ export async function loginWithAppleIdToken(idToken, nonce) {
 export async function checkHasPassword() {
   const res = await fetch(`${API_BASE_URL}/auth/has-password`, {
     headers: getHeaders(),
+    cache: 'no-store'
   });
   if (!res.ok) {
     return false;
