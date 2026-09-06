@@ -82,7 +82,8 @@
     "registered": "注册成功，正在跳转...",
     "missingRegistrationFields": "请输入用户名、邮箱和密码。",
     "newAccountPrompt": "还没有账号？立即注册",
-    "hasAccount": "已有账号？立即登录"
+    "hasAccount": "已有账号？立即登录",
+    "logout": "退出登录"
   },
   "saved": {
     "loading": "正在加载...",
@@ -216,7 +217,7 @@
     "authRequired": "需要进行身份验证",
     "authRequiredDesc": "为了安全起见，您必须登录才能永久删除您的账号和数据。",
     "loginToContinue": "登录以继续",
-    "dangerZone": "危险区域",
+    "dangerZone": "注意",
     "dangerZoneDesc": "此操作将永久删除您的账号及所有保存的数据。此操作无法撤销。",
     "deleteAccount": "删除我的账号",
     "confirmDeletion": "确认删除",

@@ -43,6 +43,7 @@ export default function AccountProfileModal({
   onClose,
   onUpdateUser,
   onLogout,
+  onRequireDeletionReauth,
 }) {
   const [phone, setPhone] = useState("");
   const [selectedDiets, setSelectedDiets] = useState([]);
@@ -196,28 +197,10 @@ export default function AccountProfileModal({
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(t.deleteAccountConfirmTitle, t.deleteAccountConfirmMessage, [
-      { text: t.deleteAccountCancel, style: "cancel" },
-      {
-        text: t.deleteAccountConfirm,
-        style: "destructive",
-        onPress: async () => {
-          setLoading(true);
-          setError("");
-          try {
-            await deleteAccount();
-            onLogout();
-            onClose();
-            Alert.alert(t.deleteAccountSuccess);
-          } catch (err) {
-            console.warn("Account deletion failed:", err);
-            setError(t.deleteAccountFailed);
-          } finally {
-            setLoading(false);
-          }
-        },
-      },
-    ]);
+    onClose();
+    if (onRequireDeletionReauth) {
+      onRequireDeletionReauth();
+    }
   };
 
   if (!currentUser) return null;

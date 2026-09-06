@@ -8,12 +8,13 @@ import MenuResultScreen from "./screens/MenuResultScreen";
 import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
-import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken, getUnitTranslations } from "./api";
+import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken, getUnitTranslations, deleteAccount } from "./api";
 import { Platform, Share, Alert, LogBox, Linking, ScrollView, StatusBar, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { detectUserCurrency, setUnitTranslations } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
 import AccountProfileModal from "./components/AccountProfileModal";
+import DeleteConfirmModal from "./components/DeleteConfirmModal";
 import OnboardingModal from "./components/OnboardingModal";
 import SettingsModal from "./components/SettingsModal";
 import { getCartItems, setCartCloudSyncHandler, setCartItems } from "./storage/cartStorage";
@@ -149,6 +150,11 @@ function AppContent({ themeMode, onThemeModeChange }) {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  const [deletionReauthPending, setDeletionReauthPending] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   const [incomingMenuUrl, setIncomingMenuUrl] = useState("");
   const [adsReady, setAdsReady] = useState(false);
 
@@ -298,6 +304,10 @@ function AppContent({ themeMode, onThemeModeChange }) {
       await AsyncStorage.setItem("menu_app_token", token);
       setAuthToken(token);
       setCurrentUser(user);
+      if (deletionReauthPending) {
+        setDeletionReauthPending(false);
+        setShowDeleteConfirmModal(true);
+      }
     } catch (e) {
       console.warn("Save token failed", e);
     }
@@ -310,6 +320,27 @@ function AppContent({ themeMode, onThemeModeChange }) {
       setCurrentUser(null);
     } catch (e) {
       console.warn("Remove token failed", e);
+    }
+  };
+
+  const handleRequireDeletionReauth = () => {
+    setDeletionReauthPending(true);
+    handleLogout();
+    setShowLoginModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteAccount();
+      Alert.alert(getText(targetLang).settings?.deleteSuccess || "Account Deleted");
+      setShowDeleteConfirmModal(false);
+      setDeleteConfirmText("");
+      handleLogout();
+    } catch (err) {
+      Alert.alert(getText(targetLang).settings?.deleteFailed || "Failed to delete account");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -577,6 +608,18 @@ function AppContent({ themeMode, onThemeModeChange }) {
         onOpenAccount={onOpenAccount}
         onReplayOnboarding={() => setShowOnboarding(true)}
         onClose={() => setShowSettingsModal(false)}
+      />
+      <DeleteConfirmModal
+        visible={showDeleteConfirmModal}
+        catalog={getText(targetLang)}
+        confirmText={deleteConfirmText}
+        setConfirmText={setDeleteConfirmText}
+        isDeleting={isDeleting}
+        onCancel={() => {
+          setShowDeleteConfirmModal(false);
+          setDeleteConfirmText("");
+        }}
+        onConfirm={handleConfirmDelete}
       />
       <OnboardingModal
         visible={showOnboarding}

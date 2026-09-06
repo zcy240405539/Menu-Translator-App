@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { History, Settings, ShoppingCart, User } from "lucide-react";
+import { History, Settings, ShoppingCart, User, LogOut } from "lucide-react";
 import UtilityPageHeader from "@/components/UtilityPageHeader";
 import { useText } from "@/hooks/useText";
 import {
@@ -201,13 +201,24 @@ export default function AccountPage() {
         {ready && user && <ChangePasswordModule text={text.settings} />}
 
         {ready && user && (
-          <nav className="divide-y divide-purple-100 border-t border-b border-purple-100" aria-label={text.nav.account}>
+          <nav className="divide-y divide-purple-100 border-t border-b border-purple-100 mb-6" aria-label={text.nav.account}>
             {accountLinks.map(({ href, label, icon: Icon }) => (
               <Link key={href} href={href} className="flex min-h-14 items-center gap-3 py-3 font-semibold text-gray-800 hover:text-purple-800">
                 <Icon className="h-5 w-5 text-purple-700" />
                 {label}
               </Link>
             ))}
+            <button
+              onClick={() => {
+                window.localStorage.removeItem("menu_app_token");
+                window.localStorage.removeItem("menu_app_user");
+                window.location.assign(`/?lang=${encodeURIComponent(lang)}`);
+              }}
+              className="flex w-full min-h-14 items-center gap-3 py-3 font-semibold text-red-600 hover:text-red-700"
+            >
+              <LogOut className="h-5 w-5 text-red-600" />
+              {text.auth?.logout || "Logout"}
+            </button>
           </nav>
         )}
       </div>

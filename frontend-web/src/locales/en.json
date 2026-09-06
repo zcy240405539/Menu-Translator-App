@@ -82,7 +82,8 @@
     "registered": "Account created. Redirecting...",
     "missingRegistrationFields": "Please enter your name, email, and password.",
     "newAccountPrompt": "New here? Create an account",
-    "hasAccount": "Already have an account? Sign in"
+    "hasAccount": "Already have an account? Sign in",
+    "logout": "Log Out"
   },
   "saved": {
     "loading": "Loading...",
@@ -216,7 +217,7 @@
     "authRequired": "Authentication Required",
     "authRequiredDesc": "For security reasons, you must log in to permanently delete your account and data.",
     "loginToContinue": "Log In to Continue",
-    "dangerZone": "Danger Zone",
+    "dangerZone": "Attention",
     "dangerZoneDesc": "This action will permanently delete your account and all your saved data. It cannot be undone.",
     "deleteAccount": "Delete My Account",
     "confirmDeletion": "Confirm Deletion",

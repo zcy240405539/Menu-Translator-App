@@ -72,7 +72,8 @@
     "facebook": "Facebookで続行",
     "facebookFailed": "Facebookログインを開けませんでした。",
     "apple": "Appleで続行",
-    "appleFailed": "Appleサインインを開けませんでした。"
+    "appleFailed": "Appleサインインを開けませんでした。",
+    "logout": "ログアウト"
   },
   "saved": {
     "loading": "読み込み中…",
@@ -206,7 +207,7 @@
     "authRequired": "認証が必要です",
     "authRequiredDesc": "セキュリティ上の理由から、アカウントとデータを完全に削除するにはログインする必要があります。",
     "loginToContinue": "ログインして続行",
-    "dangerZone": "危険ゾーン",
+    "dangerZone": "注意",
     "dangerZoneDesc": "この操作により、アカウントと保存されているすべてのデータが完全に削除されます。元に戻すことはできません。",
     "deleteAccount": "アカウントを削除",
     "confirmDeletion": "削除の確認",

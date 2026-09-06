@@ -163,7 +163,8 @@
     "facebookLogin": "Продолжить с Facebook",
     "facebookLoginFailed": "Не удалось начать вход через Facebook",
     "appleLogin": "Продолжить с Apple",
-    "appleLoginFailed": "Не удалось начать вход через Apple"
+    "appleLoginFailed": "Не удалось начать вход через Apple",
+    "logout": "Log Out"
   },
   "profile": {
     "title": "Настройки профиля",
@@ -223,7 +224,7 @@
     "authRequired": "Authentication Required",
     "authRequiredDesc": "For security reasons, you must log in to permanently delete your account and data.",
     "loginToContinue": "Log In to Continue",
-    "dangerZone": "Danger Zone",
+    "dangerZone": "Attention",
     "dangerZoneDesc": "This action will permanently delete your account and all your saved data. It cannot be undone.",
     "deleteAccount": "Delete My Account",
     "confirmDeletion": "Confirm Deletion",

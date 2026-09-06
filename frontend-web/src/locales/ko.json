@@ -72,7 +72,8 @@
     "facebook": "Facebook으로 계속",
     "facebookFailed": "Facebook 로그인을 열 수 없습니다.",
     "apple": "Apple로 계속",
-    "appleFailed": "Apple 로그인을 열 수 없습니다."
+    "appleFailed": "Apple 로그인을 열 수 없습니다.",
+    "logout": "로그아웃"
   },
   "saved": {
     "loading": "로딩 중...",
@@ -206,7 +207,7 @@
     "authRequired": "인증 필요",
     "authRequiredDesc": "보안상의 이유로 계정과 데이터를 영구적으로 삭제하려면 로그인해야 합니다.",
     "loginToContinue": "계속하려면 로그인하세요",
-    "dangerZone": "위험 구역",
+    "dangerZone": "주의",
     "dangerZoneDesc": "이 작업은 계정과 저장된 모든 데이터를 영구적으로 삭제합니다. 이 작업은 취소할 수 없습니다.",
     "deleteAccount": "내 계정 삭제",
     "confirmDeletion": "삭제 확인",

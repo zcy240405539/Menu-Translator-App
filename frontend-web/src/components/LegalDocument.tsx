@@ -27,7 +27,21 @@ function AccountDeletionFlow({ text }: { text: Catalog["settings"] }) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setToken(window.localStorage.getItem("menu_app_token"));
+    
+    // Check if we just re-authenticated for deletion
+    if (window.location.search.includes("action=confirm_delete")) {
+      setShowConfirm(true);
+      const newUrl = window.location.pathname + window.location.search.replace(/(&|\?)action=confirm_delete/, "");
+      window.history.replaceState({}, document.title, newUrl);
+    }
   }, []);
+
+  const handleRequestDeletion = () => {
+    // Force re-authentication
+    window.localStorage.removeItem("menu_app_token");
+    window.localStorage.removeItem("menu_app_user");
+    window.location.href = `/login?next=${encodeURIComponent("/account-deletion?action=confirm_delete")}`;
+  };
 
   const handleDelete = async () => {
     if (confirmText !== "DELETE") return;
@@ -39,6 +53,7 @@ function AccountDeletionFlow({ text }: { text: Catalog["settings"] }) {
       });
       if (!res.ok) throw new Error("Delete failed");
       window.localStorage.removeItem("menu_app_token");
+      window.localStorage.removeItem("menu_app_user");
       setDeleted(true);
     } catch {
       alert(text.deleteFailed);
@@ -65,7 +80,7 @@ function AccountDeletionFlow({ text }: { text: Catalog["settings"] }) {
         <h3 className="text-xl font-bold text-gray-900">{text.authRequired}</h3>
         <p className="mt-2 text-gray-600">{text.authRequiredDesc}</p>
         <Link 
-          href="/login?next=/account-deletion" 
+          href={`/login?next=${encodeURIComponent("/account-deletion?action=confirm_delete")}`}
           className="mt-6 inline-block rounded-full bg-purple-700 px-8 py-3 font-bold text-white transition-colors hover:bg-purple-800"
         >
           {text.loginToContinue}
@@ -80,7 +95,7 @@ function AccountDeletionFlow({ text }: { text: Catalog["settings"] }) {
         <h3 className="text-xl font-bold text-red-600">{text.dangerZone}</h3>
         <p className="mt-2 text-gray-600">{text.dangerZoneDesc}</p>
         <button 
-          onClick={() => setShowConfirm(true)} 
+          onClick={handleRequestDeletion} 
           className="mt-6 inline-block rounded-full bg-red-600 px-8 py-3 font-bold text-white transition-colors hover:bg-red-700"
         >
           {text.deleteAccount}

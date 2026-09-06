@@ -163,7 +163,8 @@
     "facebookLogin": "Continua con Facebook",
     "facebookLoginFailed": "Impossibile avviare l’accesso con Facebook",
     "appleLogin": "Continua con Apple",
-    "appleLoginFailed": "Impossibile avviare l’accesso con Apple"
+    "appleLoginFailed": "Impossibile avviare l’accesso con Apple",
+    "logout": "Log Out"
   },
   "profile": {
     "title": "Impostazioni del profilo",
@@ -223,7 +224,7 @@
     "authRequired": "Authentication Required",
     "authRequiredDesc": "For security reasons, you must log in to permanently delete your account and data.",
     "loginToContinue": "Log In to Continue",
-    "dangerZone": "Danger Zone",
+    "dangerZone": "Attention",
     "dangerZoneDesc": "This action will permanently delete your account and all your saved data. It cannot be undone.",
     "deleteAccount": "Delete My Account",
     "confirmDeletion": "Confirm Deletion",

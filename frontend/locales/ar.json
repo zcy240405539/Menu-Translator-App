@@ -163,7 +163,8 @@
     "facebookLogin": "المتابعة باستخدام فيسبوك",
     "facebookLoginFailed": "تعذر بدء تسجيل الدخول عبر فيسبوك",
     "appleLogin": "المتابعة باستخدام Apple",
-    "appleLoginFailed": "تعذر بدء تسجيل الدخول باستخدام Apple"
+    "appleLoginFailed": "تعذر بدء تسجيل الدخول باستخدام Apple",
+    "logout": "Log Out"
   },
   "profile": {
     "title": "إعدادات الملف الشخصي",
@@ -223,7 +224,7 @@
     "authRequired": "Authentication Required",
     "authRequiredDesc": "For security reasons, you must log in to permanently delete your account and data.",
     "loginToContinue": "Log In to Continue",
-    "dangerZone": "Danger Zone",
+    "dangerZone": "Attention",
     "dangerZoneDesc": "This action will permanently delete your account and all your saved data. It cannot be undone.",
     "deleteAccount": "Delete My Account",
     "confirmDeletion": "Confirm Deletion",

@@ -72,7 +72,8 @@
     "facebook": "Continuer avec Facebook",
     "facebookFailed": "Impossible d’ouvrir la connexion Facebook.",
     "apple": "Continuer avec Apple",
-    "appleFailed": "Impossible d’ouvrir la connexion Apple."
+    "appleFailed": "Impossible d’ouvrir la connexion Apple.",
+    "logout": "Log Out"
   },
   "saved": {
     "loading": "Chargement...",
@@ -206,7 +207,7 @@
     "authRequired": "Authentication Required",
     "authRequiredDesc": "For security reasons, you must log in to permanently delete your account and data.",
     "loginToContinue": "Log In to Continue",
-    "dangerZone": "Danger Zone",
+    "dangerZone": "Attention",
     "dangerZoneDesc": "This action will permanently delete your account and all your saved data. It cannot be undone.",
     "deleteAccount": "Delete My Account",
     "confirmDeletion": "Confirm Deletion",
