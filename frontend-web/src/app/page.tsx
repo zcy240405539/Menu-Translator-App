@@ -473,9 +473,9 @@ export default function Home() {
                     <Link
                       href={`/download${langQuery}`}
                       prefetch={false}
-                      className="flex w-full max-w-lg min-h-14 items-center justify-center gap-2 rounded-lg bg-[#5f259f] px-5 py-3 text-lg font-bold text-white shadow-md transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
+                      className="flex w-full max-w-lg min-h-16 items-center justify-center gap-2 rounded-xl bg-[#5f259f] px-6 py-4 text-xl font-bold text-white shadow-lg transition-colors hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
                     >
-                      <Smartphone className="h-6 w-6" />
+                      <Smartphone className="h-7 w-7" />
                       {text.download.homeCta}
                     </Link>
                   </div>
