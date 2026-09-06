@@ -11,12 +11,15 @@
     "production-ios": {
       "extends": "production",
       "env": {
-        "APP_VERSION": "1.0"
+        "APP_VERSION": "1.2"
       }
     },
     "production-android": {
       "extends": "production",
-      "autoIncrement": false
+      "autoIncrement": false,
+      "env": {
+        "APP_VERSION": "2.6"
+      }
     },
     "android-apk": {
       "extends": "production",
@@ -24,6 +27,9 @@
       "autoIncrement": false,
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "APP_VERSION": "2.6"
       }
     }
   },
