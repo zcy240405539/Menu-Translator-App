@@ -22,6 +22,30 @@ def get_supabase_client():
     return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 
+def check_user_has_password(user_id: str) -> bool:
+    client = get_supabase_client()
+    res = client.auth.admin.get_user_by_id(user_id)
+    if not res or not res.user:
+        return False
+    providers = res.user.app_metadata.get("providers", [])
+    return "email" in providers
+
+
+def update_user_password(email: str, user_id: str, old_password: str | None, new_password: str) -> None:
+    client = get_supabase_client()
+    has_password = check_user_has_password(user_id)
+    if has_password:
+        if not old_password:
+            raise ValueError("Current password is required")
+        try:
+            client.auth.sign_in_with_password({"email": email, "password": old_password})
+        except Exception:
+            raise ValueError("Invalid current password")
+    
+    # Update password using admin API
+    client.auth.admin.update_user_by_id(user_id, {"password": new_password})
+
+
 def delete_user_account(db: Session, user: User) -> None:
     """Delete the authenticated user from Supabase Auth and the app database."""
     client = get_supabase_client()

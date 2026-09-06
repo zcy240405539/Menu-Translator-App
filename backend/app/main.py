@@ -33,6 +33,7 @@ from app.core.schemas import (
     UserLoginRequest,
     GoogleLoginRequest,
     PasswordResetRequest,
+    PasswordUpdateRequest,
     UserProfileUpdate,
     UserResponse,
 )
@@ -44,6 +45,9 @@ from app.services.auth_service import (
     google_login_or_register as sb_google_login_or_register,
     reset_password as sb_reset_password,
     delete_user_account as sb_delete_user_account,
+    apple_login_with_id_token as sb_apple_login_with_id_token,
+    check_user_has_password,
+    update_user_password,
 )
 from fastapi import Header
 from typing import Optional
@@ -350,6 +354,31 @@ def update_profile(request: UserProfileUpdate, current_user: User = Depends(get_
     db.commit()
     db.refresh(current_user)
     return to_user_response(current_user)
+
+
+@app.get("/auth/has-password")
+def has_password(current_user: User = Depends(get_current_user)):
+    try:
+        has_pwd = check_user_has_password(current_user.id)
+        return {"has_password": has_pwd}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Unable to check password status") from exc
+
+
+@app.put("/auth/password")
+def update_password(request: PasswordUpdateRequest, current_user: User = Depends(get_current_user)):
+    try:
+        update_user_password(
+            email=current_user.email,
+            user_id=current_user.id,
+            old_password=request.old_password,
+            new_password=request.new_password,
+        )
+        return {"status": "success"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Unable to update password") from exc
 
 
 @app.delete("/auth/account", status_code=204)

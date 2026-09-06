@@ -10,6 +10,7 @@ import {
   applyDocumentLanguage,
   getPageLanguage,
   type WebLanguageCode,
+  type Catalog,
 } from "@/lib/i18n";
 
 type StoredUser = {
@@ -27,6 +28,104 @@ function storedUser(): StoredUser | null {
   } catch {
     return null;
   }
+}
+
+function apiBaseUrl() {
+  return (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
+}
+
+function ChangePasswordModule({ text }: { text: Catalog["settings"] }) {
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ text: string, type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    const token = window.localStorage.getItem("menu_app_token");
+    if (!token) return;
+    fetch(`${apiBaseUrl()}/auth/has-password`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setHasPassword(data.has_password))
+      .catch(console.error);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword) return;
+    
+    setLoading(true);
+    setMessage(null);
+    const token = window.localStorage.getItem("menu_app_token");
+    try {
+      const res = await fetch(`${apiBaseUrl()}/auth/password`, {
+        method: "PUT",
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ old_password: oldPassword || null, new_password: newPassword })
+      });
+      if (res.ok) {
+        setMessage({ text: text.changePasswordSuccess, type: "success" });
+        setOldPassword("");
+        setNewPassword("");
+        setHasPassword(true); // Now they have a password
+      } else {
+        setMessage({ text: text.changePasswordFailed, type: "error" });
+      }
+    } catch {
+      setMessage({ text: text.changePasswordFailed, type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (hasPassword === null) return null;
+
+  return (
+    <section className="border-t border-purple-100 py-7">
+      <h2 className="mb-4 text-xl font-bold">{hasPassword ? text.changePassword : text.setPassword}</h2>
+      {message && (
+        <div className={`mb-4 rounded-md p-3 text-sm ${message.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+          {message.text}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
+        {hasPassword && (
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-gray-700">{text.currentPassword}</label>
+            <input 
+              type="password" 
+              required 
+              value={oldPassword} 
+              onChange={(e) => setOldPassword(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
+            />
+          </div>
+        )}
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">{text.newPassword}</label>
+          <input 
+            type="password" 
+            required 
+            value={newPassword} 
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
+          />
+        </div>
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="mt-2 rounded-full bg-purple-700 px-6 py-2 font-bold text-white hover:bg-purple-800 disabled:opacity-50"
+        >
+          {loading ? text.updating : (hasPassword ? text.changePassword : text.setPassword)}
+        </button>
+      </form>
+    </section>
+  );
 }
 
 export default function AccountPage() {
@@ -70,7 +169,7 @@ export default function AccountPage() {
         <h1 className="text-4xl font-extrabold tracking-normal">{text.nav.account}</h1>
         <p className="mt-3 text-lg text-gray-600">{text.settings.accountDescription}</p>
 
-        <section className="mt-10 border-y border-purple-100 py-7">
+        <section className="mt-10 border-t border-purple-100 py-7">
           <div className="flex items-start gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-700">
               <User className="h-6 w-6" />
@@ -99,8 +198,10 @@ export default function AccountPage() {
           </div>
         </section>
 
+        {ready && user && <ChangePasswordModule text={text.settings} />}
+
         {ready && user && (
-          <nav className="divide-y divide-purple-100 border-b border-purple-100" aria-label={text.nav.account}>
+          <nav className="divide-y divide-purple-100 border-t border-b border-purple-100" aria-label={text.nav.account}>
             {accountLinks.map(({ href, label, icon: Icon }) => (
               <Link key={href} href={href} className="flex min-h-14 items-center gap-3 py-3 font-semibold text-gray-800 hover:text-purple-800">
                 <Icon className="h-5 w-5 text-purple-700" />

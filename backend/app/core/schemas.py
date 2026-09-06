@@ -102,6 +102,10 @@ class GoogleLoginRequest(BaseModel):
 class PasswordResetRequest(BaseModel):
     email: str
 
+class PasswordUpdateRequest(BaseModel):
+    old_password: Optional[str] = None
+    new_password: str
+
 class UserProfileUpdate(BaseModel):
     phone: Optional[str] = None
     diets: Optional[List[str]] = None

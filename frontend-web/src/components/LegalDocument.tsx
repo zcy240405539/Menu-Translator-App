@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ContentPageHeader from "@/components/ContentPageHeader";
 import { useText } from "@/hooks/useText";
-import { DEFAULT_LANGUAGE, getPageLanguage, replacePageLanguage, type WebLanguageCode } from "@/lib/i18n";
+import { DEFAULT_LANGUAGE, getPageLanguage, replacePageLanguage, type WebLanguageCode, type Catalog } from "@/lib/i18n";
 import { getLegalDocument, type LegalKind } from "@/lib/legalDocuments";
 
 const SUPPORT_EMAIL = "support@aimenu.us.kg";
@@ -17,7 +17,7 @@ function apiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
 }
 
-function AccountDeletionFlow() {
+function AccountDeletionFlow({ text }: { text: Catalog["settings"] }) {
   const [token, setToken] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
@@ -41,7 +41,7 @@ function AccountDeletionFlow() {
       window.localStorage.removeItem("menu_app_token");
       setDeleted(true);
     } catch {
-      alert("Failed to delete account. Please try again.");
+      alert(text.deleteFailed);
     } finally {
       setIsDeleting(false);
     }
@@ -50,10 +50,10 @@ function AccountDeletionFlow() {
   if (deleted) {
     return (
       <div className="my-8 rounded-2xl bg-green-50 p-8 text-center text-green-800 ring-1 ring-green-200">
-        <h3 className="text-xl font-bold">Account Deleted Successfully</h3>
-        <p className="mt-2 text-green-700">All your data has been permanently removed.</p>
+        <h3 className="text-xl font-bold">{text.deleteSuccess}</h3>
+        <p className="mt-2 text-green-700">{text.deleteSuccessDesc}</p>
         <Link href="/" className="mt-6 inline-block rounded-full bg-green-600 px-6 py-2 font-bold text-white hover:bg-green-700">
-          Return to Home
+          {text.returnHome}
         </Link>
       </div>
     );
@@ -62,13 +62,13 @@ function AccountDeletionFlow() {
   if (!token) {
     return (
       <div className="my-8 rounded-2xl bg-white p-8 text-center ring-1 ring-gray-200">
-        <h3 className="text-xl font-bold text-gray-900">Authentication Required</h3>
-        <p className="mt-2 text-gray-600">For security reasons, you must log in to permanently delete your account and data.</p>
+        <h3 className="text-xl font-bold text-gray-900">{text.authRequired}</h3>
+        <p className="mt-2 text-gray-600">{text.authRequiredDesc}</p>
         <Link 
           href="/login?next=/account-deletion" 
           className="mt-6 inline-block rounded-full bg-purple-700 px-8 py-3 font-bold text-white transition-colors hover:bg-purple-800"
         >
-          Log In to Continue
+          {text.loginToContinue}
         </Link>
       </div>
     );
@@ -77,13 +77,13 @@ function AccountDeletionFlow() {
   if (!showConfirm) {
     return (
       <div className="my-8 rounded-2xl bg-white p-8 text-center ring-1 ring-red-100">
-        <h3 className="text-xl font-bold text-red-600">Danger Zone</h3>
-        <p className="mt-2 text-gray-600">This action will permanently delete your account and all your saved data. It cannot be undone.</p>
+        <h3 className="text-xl font-bold text-red-600">{text.dangerZone}</h3>
+        <p className="mt-2 text-gray-600">{text.dangerZoneDesc}</p>
         <button 
           onClick={() => setShowConfirm(true)} 
           className="mt-6 inline-block rounded-full bg-red-600 px-8 py-3 font-bold text-white transition-colors hover:bg-red-700"
         >
-          Delete My Account
+          {text.deleteAccount}
         </button>
       </div>
     );
@@ -91,8 +91,8 @@ function AccountDeletionFlow() {
 
   return (
     <div className="my-8 rounded-2xl bg-red-50 p-8 text-center ring-1 ring-red-200">
-      <h3 className="text-xl font-bold text-red-700">Confirm Deletion</h3>
-      <p className="mt-2 text-red-600">Type <strong className="font-bold">DELETE</strong> below to confirm.</p>
+      <h3 className="text-xl font-bold text-red-700">{text.confirmDeletion}</h3>
+      <p className="mt-2 text-red-600">{text.confirmDeletionDesc}</p>
       <input 
         type="text" 
         value={confirmText} 
@@ -105,14 +105,14 @@ function AccountDeletionFlow() {
           onClick={() => setShowConfirm(false)} 
           className="rounded-full bg-gray-200 px-6 py-2 font-bold text-gray-800 transition-colors hover:bg-gray-300"
         >
-          Cancel
+          {text.cancel}
         </button>
         <button 
           onClick={handleDelete} 
           disabled={confirmText !== "DELETE" || isDeleting}
           className="rounded-full bg-red-600 px-6 py-2 font-bold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
         >
-          {isDeleting ? "Deleting..." : "Confirm Delete"}
+          {isDeleting ? text.deleting : text.confirmDelete}
         </button>
       </div>
     </div>
@@ -148,7 +148,7 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
         )}
 
         {isDeletion ? (
-          <AccountDeletionFlow />
+          <AccountDeletionFlow text={text.settings} />
         ) : (
           <p className="mt-8 text-base leading-7 text-gray-700">
             {legalDocument?.intro}
