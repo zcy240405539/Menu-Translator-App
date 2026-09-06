@@ -1,5 +1,5 @@
 {
-  "appTitle": "AI Menu APP",
+  "appTitle": "AI MenuLens",
   "home": {
     "heroKicker": "Start translating",
     "heroTitle": "Translate menus\norder with ease",
@@ -202,11 +202,11 @@
     "replayTutorial": "Replay tutorial",
     "replayTutorialDescription": "Review how to scan, translate, and understand a menu.",
     "rateApp": "Rate This APP",
-    "rateAppDescription": "Open AI Menu APP on Google Play.",
+    "rateAppDescription": "Open AI MenuLens on Google Play.",
     "legal": "Legal",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
-    "version": "AI Menu APP 2.5",
+    "version": "AI MenuLens 2.5",
     "done": "Done",
     "general": "General",
     "language": "Language",
@@ -239,13 +239,13 @@
   },
   "legal": {
     "common": {
-      "brand": "AI Menu APP",
+      "brand": "AI MenuLens",
       "back": "Back",
       "contact": "Contact"
     },
     "privacy": {
       "title": "Privacy Policy",
-      "intro": "AI Menu APP translates and explains restaurant menus. This policy describes the information we process, why we use it, and the choices available to you.",
+      "intro": "AI MenuLens translates and explains restaurant menus. This policy describes the information we process, why we use it, and the choices available to you.",
       "sections": [
         {
           "heading": "Information we process",
@@ -295,12 +295,12 @@
     },
     "terms": {
       "title": "Terms of Service",
-      "intro": "These Terms govern your use of AI Menu APP. By using the service, you agree to these Terms.",
+      "intro": "These Terms govern your use of AI MenuLens. By using the service, you agree to these Terms.",
       "sections": [
         {
           "heading": "The service",
           "items": [
-            "AI Menu APP uses OCR, translation, search, and AI systems to help users understand restaurant menus. Features may change, be interrupted, or be discontinued.",
+            "AI MenuLens uses OCR, translation, search, and AI systems to help users understand restaurant menus. Features may change, be interrupted, or be discontinued.",
             "You must provide accurate account information and are responsible for activity under your account."
           ]
         },
@@ -314,7 +314,7 @@
         {
           "heading": "Allergy and health notice",
           "items": [
-            "AI Menu APP does not provide medical advice and cannot guarantee that a dish is free of allergens or suitable for a diet.",
+            "AI MenuLens does not provide medical advice and cannot guarantee that a dish is free of allergens or suitable for a diet.",
             "For allergies or medical restrictions, contact the restaurant and a qualified healthcare professional before ordering."
           ]
         },
@@ -348,11 +348,11 @@
       ]
     },
     "deletion": {
-      "title": "Delete your AI Menu APP account",
+      "title": "Delete your AI MenuLens account",
       "subtitle": "Request deletion of your account and associated account data.",
       "requestEmail": "Email account deletion request",
-      "emailSubject": "AI Menu APP Account Deletion Request",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "emailSubject": "AI MenuLens Account Deletion Request",
+      "emailBody": "Please delete my AI MenuLens account.\n\nRegistered email:\nUsername if known:\n",
       "sections": [
         {
           "heading": "How to request deletion",
@@ -393,7 +393,7 @@
     "ar": "Arabic"
   },
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "Contact",
     "dishFallback": "Dish",
     "restaurantFallback": "Restaurant",
@@ -409,7 +409,7 @@
   "cart": {
     "title": "Order List",
     "heading": "My Order List",
-    "shareMessage": "Check out my order list in AI Menu APP.",
+    "shareMessage": "Check out my order list in AI MenuLens.",
     "items": "items",
     "total": "Total",
     "remove": "Remove",
@@ -418,7 +418,7 @@
   },
   "history": {
     "title": "Menu History",
-    "shareMessage": "Check out my menu history in AI Menu APP.",
+    "shareMessage": "Check out my menu history in AI MenuLens.",
     "items": "items",
     "open": "Tap to open",
     "empty": "No menu history yet",

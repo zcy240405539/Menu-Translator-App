@@ -1,5 +1,5 @@
 {
-  "appTitle": "AI Menu APP",
+  "appTitle": "AI MenuLens",
   "home": {
     "heroKicker": "Comece a traduzir",
     "heroTitle": "Traduza menus, faça pedidos com facilidade.",
@@ -206,7 +206,7 @@
     "legal": "Jurídico",
     "privacy": "política de Privacidade",
     "terms": "Termos de Serviço",
-    "version": "AI Menu APP 2.5",
+    "version": "AI MenuLens 2.5",
     "done": "Feito",
     "general": "Geral",
     "language": "Idioma",
@@ -239,7 +239,7 @@
   },
   "legal": {
     "common": {
-      "brand": "AI Menu APP",
+      "brand": "AI MenuLens",
       "back": "Voltar",
       "contact": "Contato"
     },
@@ -352,7 +352,7 @@
       "subtitle": "Solicite a exclusão da sua conta e dos dados associados a ela.",
       "requestEmail": "Solicitação de exclusão de conta de e-mail",
       "emailSubject": "Solicitação de exclusão de conta do aplicativo AI Menu",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "emailBody": "Please delete my AI MenuLens account.\n\nRegistered email:\nUsername if known:\n",
       "sections": [
         {
           "heading": "Como solicitar a exclusão",
@@ -393,7 +393,7 @@
     "ar": "árabe"
   },
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "Contato",
     "dishFallback": "Prato",
     "restaurantFallback": "Restaurante",

@@ -1,5 +1,5 @@
 {
-  "appTitle": "AI Menu APP",
+  "appTitle": "AI MenuLens",
   "home": {
     "heroKicker": "ابدأ الترجمة",
     "heroTitle": "ترجم قوائم الطعام، واطلب بكل سهولة",
@@ -206,7 +206,7 @@
     "legal": "قانوني",
     "privacy": "سياسة الخصوصية",
     "terms": "شروط الخدمة",
-    "version": "AI Menu APP 2.5",
+    "version": "AI MenuLens 2.5",
     "done": "منتهي",
     "general": "عام",
     "language": "اللغة",
@@ -239,7 +239,7 @@
   },
   "legal": {
     "common": {
-      "brand": "AI Menu APP",
+      "brand": "AI MenuLens",
       "back": "خلف",
       "contact": "اتصال"
     },
@@ -352,7 +352,7 @@
       "subtitle": "اطلب حذف حسابك والبيانات المرتبطة به.",
       "requestEmail": "طلب حذف حساب البريد الإلكتروني",
       "emailSubject": "طلب حذف حساب تطبيق قائمة الذكاء الاصطناعي",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "emailBody": "Please delete my AI MenuLens account.\n\nRegistered email:\nUsername if known:\n",
       "sections": [
         {
           "heading": "كيفية طلب الحذف",
@@ -393,7 +393,7 @@
     "ar": "العربية"
   },
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "اتصال",
     "dishFallback": "طبق",
     "restaurantFallback": "مطعم",

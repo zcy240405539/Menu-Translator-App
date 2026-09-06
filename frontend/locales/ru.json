@@ -1,5 +1,5 @@
 {
-  "appTitle": "AI Menu APP",
+  "appTitle": "AI MenuLens",
   "home": {
     "heroKicker": "Начать перевод",
     "heroTitle": "Переводите меню, делайте заказы с легкостью.",
@@ -206,7 +206,7 @@
     "legal": "Юридические",
     "privacy": "политика конфиденциальности",
     "terms": "Условия предоставления услуг",
-    "version": "AI Menu APP 2.5",
+    "version": "AI MenuLens 2.5",
     "done": "Сделанный",
     "general": "Основные",
     "language": "Язык",
@@ -239,13 +239,13 @@
   },
   "legal": {
     "common": {
-      "brand": "AI Menu APP",
+      "brand": "AI MenuLens",
       "back": "Назад",
       "contact": "Контакт"
     },
     "privacy": {
       "title": "политика конфиденциальности",
-      "intro": "Приложение AI Menu APP переводит и объясняет меню ресторанов. В данной политике описывается информация, которую мы обрабатываем, цели ее использования и доступные вам варианты.",
+      "intro": "Приложение AI MenuLens переводит и объясняет меню ресторанов. В данной политике описывается информация, которую мы обрабатываем, цели ее использования и доступные вам варианты.",
       "sections": [
         {
           "heading": "Информация, которую мы обрабатываем",
@@ -352,7 +352,7 @@
       "subtitle": "Запросите удаление вашей учетной записи и связанных с ней данных.",
       "requestEmail": "Запрос на удаление учетной записи электронной почты",
       "emailSubject": "Запрос на удаление учетной записи в приложении AI Menu",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "emailBody": "Please delete my AI MenuLens account.\n\nRegistered email:\nUsername if known:\n",
       "sections": [
         {
           "heading": "Как запросить удаление",
@@ -393,7 +393,7 @@
     "ar": "арабский"
   },
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "Контакт",
     "dishFallback": "Блюдо",
     "restaurantFallback": "Ресторан",

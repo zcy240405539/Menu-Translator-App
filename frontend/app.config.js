@@ -13,7 +13,7 @@ const googleMobileAdsPlugin = [
 
 module.exports = {
   expo: {
-    name: "AI Menu APP",
+    name: "AI MenuLens",
     slug: "ai-menu-app",
     owner: "scottz1995",
     scheme: "aimenuapp",

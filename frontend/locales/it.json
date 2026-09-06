@@ -1,5 +1,5 @@
 {
-  "appTitle": "AI Menu APP",
+  "appTitle": "AI MenuLens",
   "home": {
     "heroKicker": "Inizia la traduzione",
     "heroTitle": "Traduci i menu, ordina con facilità",
@@ -206,7 +206,7 @@
     "legal": "Legal",
     "privacy": "politica sulla riservatezza",
     "terms": "Termini di servizio",
-    "version": "AI Menu APP 2.5",
+    "version": "AI MenuLens 2.5",
     "done": "Fatto",
     "general": "Generali",
     "language": "Lingua",
@@ -239,7 +239,7 @@
   },
   "legal": {
     "common": {
-      "brand": "AI Menu APP",
+      "brand": "AI MenuLens",
       "back": "Indietro",
       "contact": "Contatto"
     },
@@ -352,7 +352,7 @@
       "subtitle": "Richiedi la cancellazione del tuo account e dei relativi dati.",
       "requestEmail": "Richiesta di cancellazione dell'account e-mail",
       "emailSubject": "Richiesta di eliminazione dell'account dell'app AI Menu",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "emailBody": "Please delete my AI MenuLens account.\n\nRegistered email:\nUsername if known:\n",
       "sections": [
         {
           "heading": "Come richiedere la cancellazione",
@@ -393,7 +393,7 @@
     "ar": "arabo"
   },
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "Contatto",
     "dishFallback": "Piatto",
     "restaurantFallback": "Ristorante",

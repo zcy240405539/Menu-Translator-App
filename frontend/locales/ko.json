@@ -1,5 +1,5 @@
 {
-  "appTitle": "AI Menu APP",
+  "appTitle": "AI MenuLens",
   "home": {
     "heroKicker": "번역을 시작하세요",
     "heroTitle": "메뉴를 번역하고 간편하게 주문하세요",
@@ -206,7 +206,7 @@
     "legal": "합법적인",
     "privacy": "개인정보 보호정책",
     "terms": "서비스 약관",
-    "version": "AI Menu APP 2.5",
+    "version": "AI MenuLens 2.5",
     "done": "완료",
     "general": "일반",
     "language": "언어",
@@ -239,7 +239,7 @@
   },
   "legal": {
     "common": {
-      "brand": "AI Menu APP",
+      "brand": "AI MenuLens",
       "back": "뒤쪽에",
       "contact": "연락하다"
     },
@@ -295,7 +295,7 @@
     },
     "terms": {
       "title": "서비스 약관",
-      "intro": "본 약관은 AI Menu APP 이용에 적용됩니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.",
+      "intro": "본 약관은 AI MenuLens 이용에 적용됩니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.",
       "sections": [
         {
           "heading": "서비스",
@@ -352,7 +352,7 @@
       "subtitle": "계정 및 관련 계정 데이터 삭제를 요청하세요.",
       "requestEmail": "이메일 계정 삭제 요청",
       "emailSubject": "AI 메뉴 앱 계정 삭제 요청",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "emailBody": "Please delete my AI MenuLens account.\n\nRegistered email:\nUsername if known:\n",
       "sections": [
         {
           "heading": "삭제 요청 방법",
@@ -393,7 +393,7 @@
     "ar": "아랍어"
   },
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "연락하다",
     "dishFallback": "접시",
     "restaurantFallback": "식당",

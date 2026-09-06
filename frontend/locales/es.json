@@ -202,11 +202,11 @@
     "replayTutorial": "Repetir tutorial",
     "replayTutorialDescription": "Repasa cómo escanear, traducir y entender un menú.",
     "rateApp": "Calificar esta APP",
-    "rateAppDescription": "Abrir AI Menu APP en Google Play.",
+    "rateAppDescription": "Abrir AI MenuLens en Google Play.",
     "legal": "Legal",
     "privacy": "Política de privacidad",
     "terms": "Términos del servicio",
-    "version": "AI Menu APP 2.5",
+    "version": "AI MenuLens 2.5",
     "done": "Listo",
     "general": "General",
     "language": "Idioma",
@@ -239,13 +239,13 @@
   },
   "legal": {
     "common": {
-      "brand": "AI Menu APP",
+      "brand": "AI MenuLens",
       "back": "Volver",
       "contact": "Contacto"
     },
     "privacy": {
       "title": "Política de privacidad",
-      "intro": "AI Menu APP traduce y explica menús de restaurantes. Esta política describe la información que procesamos, por qué la usamos y las opciones disponibles.",
+      "intro": "AI MenuLens traduce y explica menús de restaurantes. Esta política describe la información que procesamos, por qué la usamos y las opciones disponibles.",
       "sections": [
         {
           "heading": "Información que procesamos",
@@ -295,12 +295,12 @@
     },
     "terms": {
       "title": "Términos del servicio",
-      "intro": "Estos Términos rigen el uso de AI Menu APP. Al utilizar el servicio, aceptas estos Términos.",
+      "intro": "Estos Términos rigen el uso de AI MenuLens. Al utilizar el servicio, aceptas estos Términos.",
       "sections": [
         {
           "heading": "El servicio",
           "items": [
-            "AI Menu APP usa OCR, traducción, búsqueda e IA para ayudar a entender menús. Las funciones pueden cambiar, interrumpirse o dejar de estar disponibles.",
+            "AI MenuLens usa OCR, traducción, búsqueda e IA para ayudar a entender menús. Las funciones pueden cambiar, interrumpirse o dejar de estar disponibles.",
             "Debes proporcionar datos de cuenta correctos y eres responsable de la actividad de tu cuenta."
           ]
         },
@@ -314,7 +314,7 @@
         {
           "heading": "Aviso sobre alergias y salud",
           "items": [
-            "AI Menu APP no ofrece asesoramiento médico ni garantiza que un plato no contenga alérgenos o sea apto para una dieta.",
+            "AI MenuLens no ofrece asesoramiento médico ni garantiza que un plato no contenga alérgenos o sea apto para una dieta.",
             "Para alergias o restricciones médicas, consulta al restaurante y a un profesional sanitario antes de pedir."
           ]
         },
@@ -352,7 +352,7 @@
       "subtitle": "Solicitar la eliminación de su cuenta y los datos asociados a ella.",
       "requestEmail": "Solicitud de eliminación de cuenta de correo electrónico",
       "emailSubject": "Solicitud de eliminación de cuenta de la aplicación Menú de IA",
-      "emailBody": "Please delete my AI Menu APP account.\n\nRegistered email:\nUsername if known:\n",
+      "emailBody": "Please delete my AI MenuLens account.\n\nRegistered email:\nUsername if known:\n",
       "sections": [
         {
           "heading": "Cómo solicitar la eliminación",
@@ -393,7 +393,7 @@
     "ar": "árabe"
   },
   "common": {
-    "brand": "AI Menu APP",
+    "brand": "AI MenuLens",
     "contact": "Contacto",
     "dishFallback": "Plato",
     "restaurantFallback": "Restaurante",
