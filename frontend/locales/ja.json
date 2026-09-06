@@ -1,5 +1,5 @@
 {
-  "appTitle": "AI MenuLens",
+  "appTitle": "AIメニュー通",
   "home": {
     "heroKicker": "翻訳を開始する",
     "heroTitle": "メニューを翻訳して、簡単に注文できます",
@@ -206,7 +206,7 @@
     "legal": "法律上の",
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
-    "version": "AI MenuLens 2.5",
+    "version": "AIメニュー通 2.5",
     "done": "終わり",
     "general": "一般",
     "language": "言語",
@@ -239,7 +239,7 @@
   },
   "legal": {
     "common": {
-      "brand": "AI MenuLens",
+      "brand": "AIメニュー通",
       "back": "戻る",
       "contact": "接触"
     },
@@ -352,7 +352,7 @@
       "subtitle": "アカウントおよび関連するアカウントデータの削除をリクエストしてください。",
       "requestEmail": "メールアカウント削除依頼",
       "emailSubject": "AIメニューアプリのアカウント削除リクエスト",
-      "emailBody": "Please delete my AI MenuLens account.\n\nRegistered email:\nUsername if known:\n",
+      "emailBody": "Please delete my AIメニュー通 account.\n\nRegistered email:\nUsername if known:\n",
       "sections": [
         {
           "heading": "削除を依頼する方法",
@@ -393,7 +393,7 @@
     "ar": "アラビア語"
   },
   "common": {
-    "brand": "AI MenuLens",
+    "brand": "AIメニュー通",
     "contact": "接触",
     "dishFallback": "皿",
     "restaurantFallback": "レストラン",
