@@ -185,7 +185,8 @@
     "parseFailed": "伺服器解析失敗",
     "noHash": "解析結果沒有返回菜單雜湊。",
     "unknownError": "分析時發生錯誤。",
-    "ad": "廣告"
+    "ad": "廣告",
+    "photoLibrary": "照片圖庫"
   },
   "footer": {
     "privacy": "隱私政策",

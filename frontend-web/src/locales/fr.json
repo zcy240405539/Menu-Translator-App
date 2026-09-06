@@ -175,7 +175,8 @@
     "parseFailed": "L'analyse a échoué sur le serveur",
     "noHash": "Les données analysées ne contenaient pas de hachage de menu.",
     "unknownError": "Une erreur s'est produite lors de l'analyse.",
-    "ad": "Publicité"
+    "ad": "Publicité",
+    "photoLibrary": "Photo Library"
   },
   "footer": {
     "privacy": "politique de confidentialité",

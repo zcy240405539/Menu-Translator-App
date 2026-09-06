@@ -175,7 +175,8 @@
     "parseFailed": "El análisis falló en el servidor",
     "noHash": "El resultado no contiene un hash de menú.",
     "unknownError": "Ocurrió un error durante el análisis.",
-    "ad": "Anuncio"
+    "ad": "Anuncio",
+    "photoLibrary": "Fototeca"
   },
   "footer": {
     "privacy": "Política de privacidad",

@@ -185,7 +185,8 @@
     "parseFailed": "服务器解析失败",
     "noHash": "解析结果没有返回菜单哈希。",
     "unknownError": "分析时发生错误。",
-    "ad": "广告"
+    "ad": "广告",
+    "photoLibrary": "照片图库"
   },
   "footer": {
     "privacy": "隐私政策",

@@ -175,7 +175,8 @@
     "parseFailed": "Fehler beim Parsen auf dem Server",
     "noHash": "Die analysierten Daten enthielten keinen Menü-Hash.",
     "unknownError": "Bei der Analyse ist ein Fehler aufgetreten.",
-    "ad": "Werbung"
+    "ad": "Werbung",
+    "photoLibrary": "Photo Library"
   },
   "footer": {
     "privacy": "Datenschutzrichtlinie",

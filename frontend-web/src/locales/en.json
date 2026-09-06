@@ -185,7 +185,8 @@
     "parseFailed": "Parsing failed on server",
     "noHash": "Parsed data did not contain a menu hash.",
     "unknownError": "An error occurred during analysis.",
-    "ad": "Advertisement"
+    "ad": "Advertisement",
+    "photoLibrary": "Photo Library"
   },
   "footer": {
     "privacy": "Privacy Policy",

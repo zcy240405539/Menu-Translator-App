@@ -175,7 +175,8 @@
     "parseFailed": "A análise sintática falhou no servidor.",
     "noHash": "Os dados analisados ​​não continham um hash de menu.",
     "unknownError": "Ocorreu um erro durante a análise.",
-    "ad": "Anúncio"
+    "ad": "Anúncio",
+    "photoLibrary": "Photo Library"
   },
   "footer": {
     "privacy": "política de Privacidade",
