@@ -178,31 +178,29 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
     const handleAppleLogin = async () => {
     if (Platform.OS === 'ios') {
       try {
-        const rawNonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        const hashedNonce = await Crypto.digestStringAsync(
-          Crypto.CryptoDigestAlgorithm.SHA256,
-          rawNonce
-        );
         const credential = await AppleAuthentication.signInAsync({
-          requestedScopes: [
-            AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-            AppleAuthentication.AppleAuthenticationScope.EMAIL,
-          ],
-          nonce: hashedNonce,
-        });
+            requestedScopes: [
+              AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+              AppleAuthentication.AppleAuthenticationScope.EMAIL,
+            ],
+          });
         if (credential.identityToken) {
           setError("");
           setLoading(true);
-          const data = await loginWithAppleIdToken(credential.identityToken, rawNonce);
+          const data = await loginWithAppleIdToken(credential.identityToken);
           onLoginSuccess(data.access_token, data.user);
           onClose();
         }
       } catch (e) {
         console.error(e);
-        if (e.code === 'ERR_REQUEST_CANCELED') {
-          // ignore
+        if (e.code === 'ERR_CANCELED' || e.code === 'ERR_REQUEST_CANCELED') {
+          // ignore user cancel
+        } else if (e.code) {
+          // Native Apple Sign-In error
+          setError((t.appleLoginFailed || "Failed to start Apple sign-in") + " (" + e.code + ")");
         } else {
-          setError(t.appleLoginFailed || "Failed to start Apple sign-in");
+          // Backend / Network error
+          setError(e.message || "Failed to communicate with server");
         }
       } finally {
         setLoading(false);
