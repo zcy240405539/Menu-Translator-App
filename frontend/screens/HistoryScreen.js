@@ -7,6 +7,7 @@ import {
   Surface,
   Chip,
   IconButton,
+  useTheme,
 } from "react-native-paper";
 
 import {
@@ -135,4 +136,5 @@ const styles = StyleSheet.create({
     color: "#625B71",
   },
 });
+
 
