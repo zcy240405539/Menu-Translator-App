@@ -22,7 +22,7 @@ module.exports = {
     icon: "./assets/favicon.png",
     android: {
       package: "com.agentscottystudio.aimenuapp",
-      versionCode: 8,
+      versionCode: 9,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF"
