@@ -3,7 +3,7 @@
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown, Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles, Settings } from "lucide-react";
+import { ArrowLeft, ChevronDown, Globe, Utensils, Smartphone, CheckCircle, Share2, History, ShoppingCart, User, Sparkles, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
@@ -242,7 +242,7 @@ export default function Home() {
     }
   };
 
-  const handleHomeClick = (event: MouseEvent<HTMLAnchorElement>) => {
+  const handleHomeClick = (event: any) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     const url = new URL("/", window.location.origin);
@@ -382,7 +382,16 @@ export default function Home() {
               <Card className="w-full overflow-hidden border-purple-100 bg-white shadow-lg">
                 <CardHeader className="border-b bg-purple-50/60">
                   <CardTitle className="flex flex-col gap-2 text-2xl text-purple-950 sm:flex-row sm:items-center sm:justify-between">
-                    <span>{menuData?.business_name || text.result.restaurantMenu}</span>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={handleHomeClick} 
+                          className="rounded-full p-1.5 hover:bg-purple-200/50 transition-colors" 
+                          aria-label="Back"
+                        >
+                          <ArrowLeft className="h-6 w-6 text-purple-700" />
+                        </button>
+                        <span>{menuData?.business_name || text.result.restaurantMenu}</span>
+                      </div>
                     <span className="w-fit rounded-full bg-purple-200/60 px-3 py-1 text-sm font-normal text-purple-800">
                       {isLoadingMenu ? text.result.loading : `${itemCount} ${text.result.dishes}`} · {languageShortLabel(lang, lang)}
                     </span>
@@ -472,13 +481,21 @@ export default function Home() {
                   </div>
 
                   <div className="grid max-w-md grid-cols-2 gap-2 sm:gap-4">
-                    {text.home.steps.map((label, index) => (
-                      <div key={label} className="flex min-h-16 min-w-0 items-center gap-2 rounded-xl border border-purple-100 bg-white px-3 py-3 shadow-sm sm:gap-3 sm:px-4">
-                        <span className="shrink-0 font-bold text-purple-700">{String(index + 1).padStart(2, "0")}</span>
-                        <span className="min-w-0 whitespace-normal text-xs font-medium leading-snug text-gray-800 sm:text-sm">{label}</span>
-                      </div>
-                    ))}
-                  </div>
+                      {text.home.steps.map((label, index) => {
+                        const styles = [
+                          { color: "text-[#EA4335]", border: "border-t-[#EA4335]" },
+                          { color: "text-[#333333]", border: "border-t-[#333333]" },
+                          { color: "text-[#9E9E9E]", border: "border-t-[#9E9E9E]" },
+                          { color: "text-[#FBBC05]", border: "border-t-[#FBBC05]" },
+                        ][index % 4];
+                        return (
+                          <div key={label} className={`flex min-h-16 min-w-0 flex-col items-start gap-1 border-t-4 bg-transparent px-2 py-4 shadow-none ${styles.border}`}>
+                            <span className={`font-mono text-lg font-extrabold ${styles.color}`}>{String(index + 1).padStart(2, "0")}</span>
+                            <span className="min-w-0 whitespace-normal text-sm font-bold leading-snug text-gray-900 sm:text-base mt-1">{label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                 </div>
 
                 <div className="mx-auto w-full max-w-md lg:ml-auto">

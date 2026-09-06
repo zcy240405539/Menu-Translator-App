@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Camera, ChevronDown, FileUp, Link as LinkIcon, Wand2, Loader2 } from "lucide-react";
+import { Camera, ImageIcon, ChevronDown, FileUp, Link as LinkIcon, Wand2, Loader2 } from "lucide-react";
 import { LANGUAGES, SOURCE_LANGUAGES, languageLabel, languageShortLabel, sourceLanguageLabel, toBackendLanguage, type WebLanguageCode } from "@/lib/i18n";
 import { selectSourceLanguage, selectTargetLanguage } from "@/lib/languagePair";
 
@@ -74,6 +74,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const previousTargetLang = useRef(targetLang);
 
   const handleTargetLangChange = (value: string | null) => {
@@ -238,6 +239,22 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
         </div>
 
         <div className="space-y-4">
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            ref={galleryInputRef}
+            onChange={handleFileChange}
+          />
+          <Button
+            variant="outline"
+            className="h-14 w-full rounded-xl border-0 bg-purple-100 text-base font-medium text-purple-800 transition-colors hover:bg-purple-200"
+            onClick={() => galleryInputRef.current?.click()}
+          >
+            <ImageIcon className="mr-2 h-5 w-5" />
+            {selectedFile?.type.startsWith("image/") ? text.changePicture : ("Photo Library")}
+          </Button>
+
           <input
             type="file"
             accept="image/*"
