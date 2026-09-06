@@ -23,6 +23,7 @@ import {
 } from "react-native-paper";
 import { login, register, passwordReset, getAppleAuthUrl, getGoogleAuthUrl, loginWithAppleIdToken } from "../api";
 import * as AppleAuthentication from "expo-apple-authentication";
+import * as Crypto from "expo-crypto";
 import { getText } from "../i18n";
 
 const DIET_OPTIONS = [
@@ -177,20 +178,27 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
     const handleAppleLogin = async () => {
     if (Platform.OS === 'ios') {
       try {
+        const rawNonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const hashedNonce = await Crypto.digestStringAsync(
+          Crypto.CryptoDigestAlgorithm.SHA256,
+          rawNonce
+        );
         const credential = await AppleAuthentication.signInAsync({
           requestedScopes: [
             AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
             AppleAuthentication.AppleAuthenticationScope.EMAIL,
           ],
+          nonce: hashedNonce,
         });
         if (credential.identityToken) {
           setError("");
           setLoading(true);
-          const data = await loginWithAppleIdToken(credential.identityToken, credential.nonce);
+          const data = await loginWithAppleIdToken(credential.identityToken, rawNonce);
           onLoginSuccess(data.access_token, data.user);
           onClose();
         }
       } catch (e) {
+        console.error(e);
         if (e.code === 'ERR_REQUEST_CANCELED') {
           // ignore
         } else {
