@@ -344,3 +344,45 @@ def google_login_or_register(db: Session, email: str, name: str, avatar_url: str
         "token": access_token,
         "user": user_profile
     }
+
+
+def apple_login_with_id_token(db: Session, id_token: str, nonce: str | None = None) -> dict:
+    client = get_supabase_client()
+    try:
+        creds = {"provider": "apple", "id_token": id_token}
+        if nonce:
+            creds["nonce"] = nonce
+        login_res = client.auth.sign_in_with_id_token(creds)
+    except Exception as e:
+        raise ValueError(f"Failed to authenticate with Apple: {e}")
+
+    supabase_uid = login_res.user.id
+    access_token = login_res.session.access_token
+
+    user = db.query(User).filter(User.id == supabase_uid).first()
+    if not user:
+        email = login_res.user.email
+        name = login_res.user.user_metadata.get("name", "User")
+        avatar_url = login_res.user.user_metadata.get("avatar_url")
+        user = User(
+            id=supabase_uid,
+            email=email,
+            name=name,
+            avatar_url=avatar_url
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    ensure_user_subscription(db, user.id)
+
+    return {
+        "access_token": access_token,
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "avatar_url": user.avatar_url,
+            "role": user.role.value
+        }
+    }

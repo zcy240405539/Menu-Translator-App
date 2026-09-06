@@ -2698,3 +2698,14 @@ def merge_images_vertically(image_bytes_list: list[bytes]) -> bytes:
     buffer = BytesIO()
     merged.save(buffer, format="JPEG", quality=70, optimize=True)
     return buffer.getvalue()
+
+
+@app.post("/auth/apple/id_token")
+def login_with_apple_id_token(req: AppleIdTokenRequest, db: Session = Depends(get_db)):
+    try:
+        from app.services.auth_service import apple_login_with_id_token
+        return apple_login_with_id_token(db, req.id_token, req.nonce)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
