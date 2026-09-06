@@ -17,6 +17,7 @@
     "production-android": {
       "extends": "production",
       "autoIncrement": false,
+      "credentialsSource": "local",
       "env": {
         "APP_VERSION": "2.6"
       }

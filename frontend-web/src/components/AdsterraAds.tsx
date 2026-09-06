@@ -23,9 +23,7 @@ export default function AdsterraAds({ enabled, desktop, mobile }: AdsterraAdsPro
   const loader = `
     (() => {
       const config = ${config};
-      const pathname = location.pathname === "/" ? "/" : location.pathname.replace(/\\/+$/, "");
-      const mayLoad = config.enabled
-        && config.paths.includes(pathname);
+      const mayLoad = config.enabled;
       const placement = matchMedia("(max-width: 767px)").matches ? config.mobile : config.desktop;
       if (!mayLoad || !placement.key || !placement.scriptUrl) return;
 

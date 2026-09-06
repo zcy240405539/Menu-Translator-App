@@ -9,6 +9,7 @@ import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
 import { useText } from "@/hooks/useText";
 import { PUBLISHER_PAGES } from "@/lib/publisherPages";
+import { SupportedLanguagesGrid } from "@/components/SupportedLanguagesGrid";
 import { formatMenuPrice } from "@/lib/price";
 import {
   DEFAULT_LANGUAGE,
@@ -547,13 +548,7 @@ export default function Home() {
                 {text.publisher.home.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
               </div>
 
-              <nav aria-label={text.publisher.navigation} className="mt-8 flex flex-wrap gap-x-6 gap-y-3 border-y border-purple-100 py-5">
-                {PUBLISHER_PAGES.map(({ href, key }) => (
-                  <Link key={href} href={`${href}${langQuery}`} className="font-bold text-purple-700 hover:text-purple-900">
-                    {text.publisher.nav[key]}
-                  </Link>
-                ))}
-              </nav>
+              <SupportedLanguagesGrid text={text} />
 
               <h2 className="mt-14 text-3xl font-bold text-gray-950">{text.publisher.home.faqTitle}</h2>
               <div className="mt-6 divide-y divide-purple-100 border-y border-purple-100">
