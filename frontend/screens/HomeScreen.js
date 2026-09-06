@@ -552,9 +552,6 @@ const selectFromFile = async () => {
                     isDesktopLayout && styles.featureTextCardDesktop,
                     { borderTopColor: item.color }
                   ]}>
-                    <Text style={[styles.featureNumber, { color: item.color }]}>
-                      {String(index + 1).padStart(2, "0")}
-                    </Text>
                     <Text style={[styles.featureText, { color: theme.colors.onSurface }]}>
                       {item.title}
                     </Text>

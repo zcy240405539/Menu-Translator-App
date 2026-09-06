@@ -490,7 +490,6 @@ export default function Home() {
                         ][index % 4];
                         return (
                           <div key={label} className={`flex min-h-16 min-w-0 flex-col items-start gap-1 border-t-4 bg-transparent px-2 py-4 shadow-none ${styles.border}`}>
-                            <span className={`font-mono text-lg font-extrabold ${styles.color}`}>{String(index + 1).padStart(2, "0")}</span>
                             <span className="min-w-0 whitespace-normal text-sm font-bold leading-snug text-gray-900 sm:text-base mt-1">{label}</span>
                           </div>
                         );
