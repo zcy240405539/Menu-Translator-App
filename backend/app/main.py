@@ -357,18 +357,19 @@ def update_profile(request: UserProfileUpdate, current_user: User = Depends(get_
 
 
 @app.get("/auth/has-password")
-def has_password(current_user: User = Depends(get_current_user)):
+def has_password(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
-        has_pwd = check_user_has_password(current_user.id)
+        has_pwd = check_user_has_password(db, current_user.id)
         return {"has_password": has_pwd}
     except Exception as exc:
         raise HTTPException(status_code=500, detail="Unable to check password status") from exc
 
 
 @app.put("/auth/password")
-def update_password(request: PasswordUpdateRequest, current_user: User = Depends(get_current_user)):
+def update_password(request: PasswordUpdateRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         update_user_password(
+            db=db,
             email=current_user.email,
             user_id=current_user.id,
             old_password=request.old_password,

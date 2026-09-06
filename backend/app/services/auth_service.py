@@ -22,18 +22,17 @@ def get_supabase_client():
     return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 
-def check_user_has_password(user_id: str) -> bool:
-    client = get_supabase_client()
-    res = client.auth.admin.get_user_by_id(user_id)
-    if not res or not res.user:
+def check_user_has_password(db: Session, user_id: str) -> bool:
+    from sqlalchemy import text
+    res = db.execute(text("SELECT encrypted_password FROM auth.users WHERE id = :id"), {"id": user_id}).fetchone()
+    if not res:
         return False
-    providers = res.user.app_metadata.get("providers", [])
-    return "email" in providers
+    return bool(res[0])
 
 
-def update_user_password(email: str, user_id: str, old_password: str | None, new_password: str) -> None:
+def update_user_password(db: Session, email: str, user_id: str, old_password: str | None, new_password: str) -> None:
     admin_client = get_supabase_client()
-    has_password = check_user_has_password(user_id)
+    has_password = check_user_has_password(db, user_id)
     if has_password:
         if not old_password:
             raise ValueError("Current password is required")
