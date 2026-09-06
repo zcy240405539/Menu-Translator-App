@@ -228,7 +228,9 @@
     "deleteSuccess": "账号已成功删除",
     "deleteSuccessDesc": "您的所有数据已被永久移除。",
     "returnHome": "返回首页",
-    "deleteFailed": "删除账号失败，请重试。"
+    "deleteFailed": "删除账号失败，请重试。",
+    "confirmNewPassword": "确认新密码",
+    "passwordsDoNotMatch": "两次输入的新密码不一致。"
   },
   "legal": {
     "back": "返回AI菜单通",

@@ -235,7 +235,9 @@
     "deleteSuccess": "帳號已成功刪除",
     "deleteSuccessDesc": "您的所有數據已被永久移除。",
     "returnHome": "返回首頁",
-    "deleteFailed": "刪除帳號失敗，請重試。"
+    "deleteFailed": "刪除帳號失敗，請重試。",
+    "confirmNewPassword": "確認新密碼",
+    "passwordsDoNotMatch": "兩次輸入的新密碼不一致。"
   },
   "onboarding": {
     "skip": "跳過",

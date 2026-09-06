@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { History, Settings, ShoppingCart, User, LogOut } from "lucide-react";
+import { History, Settings, ShoppingCart, User, LogOut, ChevronDown } from "lucide-react";
 import UtilityPageHeader from "@/components/UtilityPageHeader";
 import { useText } from "@/hooks/useText";
 import {
@@ -38,8 +38,10 @@ function ChangePasswordModule({ text }: { text: Catalog["settings"] }) {
   const [hasPassword, setHasPassword] = useState<boolean | null>(null);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: "success" | "error" } | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const token = window.localStorage.getItem("menu_app_token");
@@ -54,7 +56,10 @@ function ChangePasswordModule({ text }: { text: Catalog["settings"] }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPassword) return;
+    if (!newPassword || newPassword !== confirmNewPassword) {
+      setMessage({ text: text.passwordsDoNotMatch || "Passwords do not match.", type: "error" });
+      return;
+    }
     
     setLoading(true);
     setMessage(null);
@@ -72,7 +77,8 @@ function ChangePasswordModule({ text }: { text: Catalog["settings"] }) {
         setMessage({ text: text.changePasswordSuccess, type: "success" });
         setOldPassword("");
         setNewPassword("");
-        setHasPassword(true); // Now they have a password
+        setConfirmNewPassword("");
+        setHasPassword(true);
       } else {
         setMessage({ text: text.changePasswordFailed, type: "error" });
       }
@@ -85,46 +91,72 @@ function ChangePasswordModule({ text }: { text: Catalog["settings"] }) {
 
   if (hasPassword === null) return null;
 
+  const title = hasPassword ? text.changePassword : text.setPassword;
+
   return (
-    <section className="border-t border-purple-100 py-7">
-      <h2 className="mb-4 text-xl font-bold">{hasPassword ? text.changePassword : text.setPassword}</h2>
-      {message && (
-        <div className={`mb-4 rounded-md p-3 text-sm ${message.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
-          {message.text}
+    <div className="border-t border-purple-100">
+      <button 
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex w-full min-h-14 items-center justify-between py-3 font-semibold text-gray-800 hover:text-purple-800"
+      >
+        <div className="flex items-center gap-3">
+          <Settings className="h-5 w-5 text-purple-700" />
+          {title}
+        </div>
+        <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+      </button>
+      
+      {isExpanded && (
+        <div className="mb-6 px-4 py-4 bg-white rounded-xl shadow-sm border border-purple-50">
+          {message && (
+            <div className={`mb-4 rounded-md p-3 text-sm ${message.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
+              {message.text}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
+            {hasPassword && (
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-gray-700">{text.currentPassword}</label>
+                <input 
+                  type="password" 
+                  required 
+                  value={oldPassword} 
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
+                />
+              </div>
+            )}
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{text.newPassword}</label>
+              <input 
+                type="password" 
+                required 
+                value={newPassword} 
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{text.confirmNewPassword || "Confirm New Password"}</label>
+              <input 
+                type="password" 
+                required 
+                value={confirmNewPassword} 
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
+              />
+            </div>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="mt-2 rounded-full bg-purple-700 px-6 py-2 font-bold text-white hover:bg-purple-800 disabled:opacity-50"
+            >
+              {loading ? text.updating : title}
+            </button>
+          </form>
         </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
-        {hasPassword && (
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">{text.currentPassword}</label>
-            <input 
-              type="password" 
-              required 
-              value={oldPassword} 
-              onChange={(e) => setOldPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
-            />
-          </div>
-        )}
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">{text.newPassword}</label>
-          <input 
-            type="password" 
-            required 
-            value={newPassword} 
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
-          />
-        </div>
-        <button 
-          type="submit" 
-          disabled={loading}
-          className="mt-2 rounded-full bg-purple-700 px-6 py-2 font-bold text-white hover:bg-purple-800 disabled:opacity-50"
-        >
-          {loading ? text.updating : (hasPassword ? text.changePassword : text.setPassword)}
-        </button>
-      </form>
-    </section>
+    </div>
   );
 }
 

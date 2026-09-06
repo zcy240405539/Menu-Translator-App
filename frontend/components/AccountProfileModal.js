@@ -54,6 +54,7 @@ export default function AccountProfileModal({
   const [hasPassword, setHasPassword] = useState(null);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [pwdLoading, setPwdLoading] = useState(false);
   const [pwdError, setPwdError] = useState("");
   const [pwdSuccess, setPwdSuccess] = useState("");
@@ -96,6 +97,11 @@ export default function AccountProfileModal({
 
   const handleUpdatePassword = async () => {
     if (!newPassword) return;
+    if (newPassword !== confirmNewPassword) {
+      setPwdError(catalog.settings.passwordsDoNotMatch || "Passwords do not match.");
+      return;
+    }
+    
     setPwdError("");
     setPwdSuccess("");
     setPwdLoading(true);
@@ -104,6 +110,7 @@ export default function AccountProfileModal({
       setPwdSuccess(catalog.settings.changePasswordSuccess || "Password updated successfully");
       setOldPassword("");
       setNewPassword("");
+      setConfirmNewPassword("");
       setHasPassword(true);
     } catch (err) {
       setPwdError(catalog.settings.changePasswordFailed || err.message);
@@ -360,11 +367,21 @@ export default function AccountProfileModal({
                         left={<TextInput.Icon icon="lock-plus" />}
                       />
                       
+                      <TextInput
+                        label={catalog.settings.confirmNewPassword || "Confirm New Password"}
+                        mode="outlined"
+                        value={confirmNewPassword}
+                        onChangeText={setConfirmNewPassword}
+                        secureTextEntry
+                        style={[styles.input, { backgroundColor: theme.colors.surface }]}
+                        left={<TextInput.Icon icon="lock-check" />}
+                      />
+
                       <Button
                         mode="contained-tonal"
                         onPress={handleUpdatePassword}
                         loading={pwdLoading}
-                        disabled={pwdLoading || !newPassword}
+                        disabled={pwdLoading || !newPassword || !confirmNewPassword}
                         style={{ marginTop: 8 }}
                       >
                         {hasPassword ? catalog.settings.changePassword : catalog.settings.setPassword}

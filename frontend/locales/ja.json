@@ -235,7 +235,9 @@
     "deleteSuccess": "アカウントが削除されました",
     "deleteSuccessDesc": "すべてのデータが完全に削除されました。",
     "returnHome": "ホームに戻る",
-    "deleteFailed": "アカウントの削除に失敗しました。もう一度お試しください。"
+    "deleteFailed": "アカウントの削除に失敗しました。もう一度お試しください。",
+    "confirmNewPassword": "新しいパスワードを確認",
+    "passwordsDoNotMatch": "パスワードが一致しません。"
   },
   "onboarding": {
     "skip": "スキップ",

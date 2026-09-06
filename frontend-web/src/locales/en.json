@@ -228,7 +228,9 @@
     "deleteSuccess": "Account Deleted Successfully",
     "deleteSuccessDesc": "All your data has been permanently removed.",
     "returnHome": "Return to Home",
-    "deleteFailed": "Failed to delete account. Please try again."
+    "deleteFailed": "Failed to delete account. Please try again.",
+    "confirmNewPassword": "Confirm New Password",
+    "passwordsDoNotMatch": "Passwords do not match."
   },
   "legal": {
     "back": "Back to AI MenuLens",

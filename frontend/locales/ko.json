@@ -235,7 +235,9 @@
     "deleteSuccess": "계정이 성공적으로 삭제되었습니다",
     "deleteSuccessDesc": "모든 데이터가 영구적으로 제거되었습니다.",
     "returnHome": "홈으로 돌아가기",
-    "deleteFailed": "계정 삭제에 실패했습니다. 다시 시도해 주세요."
+    "deleteFailed": "계정 삭제에 실패했습니다. 다시 시도해 주세요.",
+    "confirmNewPassword": "새 비밀번호 확인",
+    "passwordsDoNotMatch": "비밀번호가 일치하지 않습니다."
   },
   "onboarding": {
     "skip": "건너뛰다",
