@@ -25,7 +25,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
-import { deleteAccount, updateProfile, uploadAvatar, logout } from "../api";
+import { deleteAccount, updateProfile, uploadAvatar, logout, checkHasPassword, updatePassword } from "../api";
 import { getText } from "../i18n";
 
 const DIET_OPTIONS = [
@@ -50,6 +50,13 @@ export default function AccountProfileModal({
   const [budget, setBudget] = useState("");
   const [taste, setTaste] = useState("");
   
+  const [hasPassword, setHasPassword] = useState(null);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdError, setPwdError] = useState("");
+  const [pwdSuccess, setPwdSuccess] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [error, setError] = useState("");
@@ -71,6 +78,10 @@ export default function AccountProfileModal({
       setTaste(currentUser.taste || "");
       setError("");
       setSuccess("");
+      
+      checkHasPassword()
+        .then(res => setHasPassword(res))
+        .catch(() => setHasPassword(null));
     }
   }, [currentUser, visible]);
 
@@ -79,6 +90,24 @@ export default function AccountProfileModal({
       setSelectedDiets(selectedDiets.filter((k) => k !== dietKey));
     } else {
       setSelectedDiets([...selectedDiets, dietKey]);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!newPassword) return;
+    setPwdError("");
+    setPwdSuccess("");
+    setPwdLoading(true);
+    try {
+      await updatePassword(oldPassword, newPassword);
+      setPwdSuccess(catalog.settings.changePasswordSuccess || "Password updated successfully");
+      setOldPassword("");
+      setNewPassword("");
+      setHasPassword(true);
+    } catch (err) {
+      setPwdError(catalog.settings.changePasswordFailed || err.message);
+    } finally {
+      setPwdLoading(false);
     }
   };
 
@@ -315,6 +344,51 @@ export default function AccountProfileModal({
                     left={<TextInput.Icon icon="silverware-fork-knife" />}
                   />
 
+                  {/* Password Section */}
+                  {hasPassword !== null && (
+                    <View style={styles.passwordSection}>
+                      <Divider style={styles.cardDivider} />
+                      <Text style={[styles.prefLabel, { color: theme.colors.onSurface, fontSize: 16 }]}>
+                        {hasPassword ? catalog.settings.changePassword : catalog.settings.setPassword}
+                      </Text>
+
+                      {!!pwdError && <Text style={styles.errorText}>⚠️ {pwdError}</Text>}
+                      {!!pwdSuccess && <Text style={styles.successText}>✅ {pwdSuccess}</Text>}
+
+                      {hasPassword && (
+                        <TextInput
+                          label={catalog.settings.currentPassword}
+                          mode="outlined"
+                          value={oldPassword}
+                          onChangeText={setOldPassword}
+                          secureTextEntry
+                          style={[styles.input, { backgroundColor: theme.colors.surface }]}
+                          left={<TextInput.Icon icon="lock" />}
+                        />
+                      )}
+                      
+                      <TextInput
+                        label={catalog.settings.newPassword}
+                        mode="outlined"
+                        value={newPassword}
+                        onChangeText={setNewPassword}
+                        secureTextEntry
+                        style={[styles.input, { backgroundColor: theme.colors.surface }]}
+                        left={<TextInput.Icon icon="lock-plus" />}
+                      />
+                      
+                      <Button
+                        mode="contained-tonal"
+                        onPress={handleUpdatePassword}
+                        loading={pwdLoading}
+                        disabled={pwdLoading || !newPassword}
+                        style={{ marginTop: 8 }}
+                      >
+                        {hasPassword ? catalog.settings.changePassword : catalog.settings.setPassword}
+                      </Button>
+                    </View>
+                  )}
+
                   {/* Buttons */}
                   <Button
                     mode="contained"
@@ -460,6 +534,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 6,
     paddingHorizontal: 4,
+  },
+  passwordSection: {
+    marginBottom: 16,
   },
   chipRow: {
     flexDirection: "row",

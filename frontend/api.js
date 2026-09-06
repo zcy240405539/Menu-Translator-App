@@ -546,3 +546,30 @@ export async function loginWithAppleIdToken(idToken, nonce) {
   }
   return await res.json();
 }
+e x p o r t   a s y n c   f u n c t i o n   c h e c k H a s P a s s w o r d ( )   { 
+     c o n s t   r e s   =   a w a i t   f e t c h ( $ { A P I _ B A S E _ U R L } / a u t h / h a s - p a s s w o r d ,   { 
+         h e a d e r s :   g e t H e a d e r s ( ) , 
+     } ) ; 
+     i f   ( ! r e s . o k )   { 
+         r e t u r n   f a l s e ; 
+     } 
+     c o n s t   d a t a   =   a w a i t   r e s . j s o n ( ) ; 
+     r e t u r n   d a t a . h a s _ p a s s w o r d ; 
+ } 
+ 
+ e x p o r t   a s y n c   f u n c t i o n   u p d a t e P a s s w o r d ( o l d P a s s w o r d ,   n e w P a s s w o r d )   { 
+     c o n s t   r e s   =   a w a i t   f e t c h ( $ { A P I _ B A S E _ U R L } / a u t h / p a s s w o r d ,   { 
+         m e t h o d :   " P U T " , 
+         h e a d e r s :   g e t H e a d e r s ( ) , 
+         b o d y :   J S O N . s t r i n g i f y ( { 
+             o l d _ p a s s w o r d :   o l d P a s s w o r d   | |   n u l l , 
+             n e w _ p a s s w o r d :   n e w P a s s w o r d , 
+         } ) , 
+     } ) ; 
+     i f   ( ! r e s . o k )   { 
+         c o n s t   e r r M s g   =   a w a i t   g e t E r r o r M e s s a g e ( r e s ) ; 
+         t h r o w   n e w   E r r o r ( e r r M s g   | |   " F a i l e d   t o   u p d a t e   p a s s w o r d " ) ; 
+     } 
+     r e t u r n   r e s . j s o n ( ) ; 
+ }  
+ 
