@@ -2078,7 +2078,8 @@ def run_menu_parse_task(
             file_name=file_name,
         )
 
-        cache_material = file_bytes + (
+        combined_bytes = file_bytes_list if isinstance(file_bytes_list, bytes) else b"".join(file_bytes_list)
+        cache_material = combined_bytes + (
             f"|schema={MENU_CACHE_SCHEMA_VERSION}"
             f"|source={source_lang or ''}"
             f"|ocr={ocr_provider or ''}"
@@ -2155,20 +2156,39 @@ def run_menu_parse_task(
                 parser_name = "url_markitdown_openrouter"
 
             elif is_image_content(content_type, file_name):
-                print("Image detected. Extracting OCR Markdown.")
-                extracted_markdown, ocr_blocks, parser_name = extract_image_markdown_for_analysis(
-                    file_bytes=file_bytes,
-                    source_lang=source_lang,
-                    target_lang=target_lang,
-                    mime_type=content_type or "image/jpeg",
-                    ocr_provider=ocr_provider,
-                    document_provider=document_provider,
-                )
+                print(f"Images detected. Extracting OCR Markdown.")
+                extracted_markdown = ""
+                ocr_blocks = []
+                parser_name = "default"
+                
+                # ensure it's a list
+                f_list = file_bytes_list if isinstance(file_bytes_list, list) else [file_bytes_list]
+                for idx, b in enumerate(f_list):
+                    md, blocks, p_name = extract_image_markdown_for_analysis(
+                        file_bytes=b,
+                        source_lang=source_lang,
+                        target_lang=target_lang,
+                        mime_type=content_type or "image/jpeg",
+                        ocr_provider=ocr_provider,
+                        document_provider=document_provider,
+                    )
+                    if md:
+                        extracted_markdown += f"\n\n<!-- Image {idx+1} -->\n{md}"
+                    if blocks:
+                        # Optionally adjust coordinates by shifting Y down so they don't overlap, 
+                        # but OpenRouter usually doesn't care if there's multiple pages if we separate them.
+                        for block in blocks:
+                            # adding page attribute so the model knows
+                            block["page"] = idx + 1
+                        ocr_blocks.extend(blocks)
+                    parser_name = p_name
 
             else:
                 print("Document detected. Extracting Markdown with MarkItDown:", file_name, content_type)
+                # For non-images, just use the first file for now (PDFs, etc.)
+                first_file_bytes = file_bytes_list[0] if isinstance(file_bytes_list, list) else file_bytes_list
                 extracted_markdown = extract_markdown_from_file_bytes(
-                    file_bytes=file_bytes,
+                    file_bytes=first_file_bytes,
                     filename=file_name,
                     content_type=content_type,
                     target_lang=target_lang,
