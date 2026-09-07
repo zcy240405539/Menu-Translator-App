@@ -167,7 +167,8 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
       }));
       setSelectedFiles(files);
       setMenuUrl("");
-    }
+      Alert.alert(t.home.success || "Success", "选择成功 (Selection successful)");
+      }
   };
 
   const takePicture = async () => {
@@ -242,7 +243,8 @@ const selectFromFile = async () => {
 
     setImageUri(file.uri);
     setMenuUrl("");
-  } catch (error) {
+    Alert.alert(t.home.success || "Success", "选择成功 (Selection successful)");
+    } catch (error) {
     Alert.alert(t.home.fileSelectionFailed, error.message || t.home.unknownError);
   }
 };
@@ -306,17 +308,32 @@ const selectFromFile = async () => {
         interstitial.addAdEventListener(AdEventType.LOADED, () => {
           clearTimeout(adTimeout);
           adShown = true;
-          interstitial.show().catch((err) => {
-            console.warn("Failed to show interstitial ad:", err);
-            adClosed = true;
-            if (parseResult) {
-              navigateToResult(parseResult);
-              setLoading(false);
-            } else if (parseError) {
-              Alert.alert(t.home.analysisFailed, parseError.message || JSON.stringify(parseError));
-              setLoading(false);
-            }
-          });
+          
+          if (__DEV__) {
+            console.log("DEV mode: Skipping interstitial ad display to avoid being stuck.");
+            setTimeout(() => {
+              adClosed = true;
+              if (parseResult) {
+                navigateToResult(parseResult);
+                setLoading(false);
+              } else if (parseError) {
+                Alert.alert(t.home.analysisFailed || "Analysis Failed", parseError.message || JSON.stringify(parseError));
+                setLoading(false);
+              }
+            }, 2000); // simulate ad viewing for 2s
+          } else {
+            interstitial.show().catch((err) => {
+              console.warn("Failed to show interstitial ad:", err);
+              adClosed = true;
+              if (parseResult) {
+                navigateToResult(parseResult);
+                setLoading(false);
+              } else if (parseError) {
+                Alert.alert(t.home.analysisFailed || "Analysis Failed", parseError.message || JSON.stringify(parseError));
+                setLoading(false);
+              }
+            });
+          }
         });
 
         interstitial.addAdEventListener(AdEventType.CLOSED, () => {
