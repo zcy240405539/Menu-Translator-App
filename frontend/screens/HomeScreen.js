@@ -520,8 +520,8 @@ const selectFromFile = async () => {
 
   const homeFeatureItems = [
       { title: t.home.featureDocuments, color: '#EA4335' }, // Red
-      { title: t.home.featureTranslation, color: '#333333' }, // Dark
-      { title: t.home.featureOrderList, color: '#9E9E9E' }, // Grey
+      { title: t.home.featureTranslation, color: '#4285F4' }, // Blue
+      { title: t.home.featureOrderList, color: '#34A853' }, // Green
       { title: t.home.featureAiRecommend, color: '#FBBC05' }, // Yellow
     ];
 
