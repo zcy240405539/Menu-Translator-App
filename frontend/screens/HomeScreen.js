@@ -564,20 +564,6 @@ const selectFromFile = async () => {
             <Text variant="bodyLarge" style={[styles.subtitle, isDesktopLayout && styles.subtitleDesktop, { color: theme.colors.onSurfaceVariant }]}>
               {t.home.heroSubtitle}
             </Text>
-
-            <View style={styles.featureRow}>
-              {homeFeatureItems.map((item, index) => (
-                  <View key={item.title} style={[
-                    styles.featureTextCard,
-                    isDesktopLayout && styles.featureTextCardDesktop,
-                    { borderTopColor: item.color }
-                  ]}>
-                    <Text style={[styles.featureText, { color: theme.colors.onSurface }]}>
-                      {item.title}
-                    </Text>
-                  </View>
-                ))}
-            </View>
           </View>
 
           <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop, { backgroundColor: theme.colors.surface }]}>
@@ -756,6 +742,21 @@ const selectFromFile = async () => {
               )}
             </Card.Content>
           </Card>
+
+
+            <View style={styles.featureRow}>
+              {homeFeatureItems.map((item, index) => (
+                  <View key={item.title} style={[
+                    styles.featureTextCard,
+                    isDesktopLayout && styles.featureTextCardDesktop,
+                    { borderTopColor: item.color }
+                  ]}>
+                    <Text style={[styles.featureText, { color: theme.colors.onSurface }]}>
+                      {item.title}
+                    </Text>
+                  </View>
+                ))}
+            </View>
         </View>
       </ScrollView>
       </KeyboardAvoidingView>
@@ -867,6 +868,7 @@ const styles = StyleSheet.create({
     maxWidth: 560,
   },
   featureRow: {
+    marginTop: 32,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
