@@ -53,7 +53,8 @@
       "whatsapp": "WhatsApp",
       "email": "Correo electrónico"
     },
-    "selectFromGallery": "Photo Library"
+    "selectFromGallery": "Photo Library",
+    "maxImagesLimit": "You can select or take up to 6 images."
   },
   "result": {
     "title": "Resultados del Menú",

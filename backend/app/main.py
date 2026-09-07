@@ -2041,7 +2041,7 @@ MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
 
 def run_menu_parse_task(
     task_id: str,
-    file_bytes: bytes,
+    file_bytes_list: list[bytes] | bytes,
     target_lang: str,
     source_lang: str = "en",
 ):
@@ -2577,6 +2577,7 @@ def run_menu_parse_task(
 async def start_parse_menu(
     background_tasks: BackgroundTasks,
     file: Optional[UploadFile] = File(None),
+    files: List[UploadFile] = File([]),
     target_lang: str = "zh",
     source_lang: str = "auto",
     ocr_provider: Optional[str] = None,
@@ -2584,16 +2585,25 @@ async def start_parse_menu(
     structure_provider: Optional[str] = None,
 ):
     try:
-        if not file:
+        all_files = []
+        if file:
+            all_files.append(file)
+        if files:
+            all_files.extend(files)
+            
+        if not all_files:
             raise HTTPException(status_code=400, detail=ui_text("errors.menuFileRequired"))
 
-        file_bytes = await file.read()
-        content_type = file.content_type or ""
-        file_name = file.filename or "menu"
+        file_bytes_list = []
+        content_type = all_files[0].content_type or ""
+        file_name = all_files[0].filename or "menu"
 
-        if is_image_content(content_type, file_name):
-            file_bytes = compress_image_bytes(file_bytes)
-            content_type = "image/jpeg"
+        for f in all_files:
+            b = await f.read()
+            if is_image_content(f.content_type or "", f.filename or ""):
+                b = compress_image_bytes(b)
+                content_type = "image/jpeg"
+            file_bytes_list.append(b)
 
         task_id = str(uuid.uuid4())
 
@@ -2612,7 +2622,7 @@ async def start_parse_menu(
         background_tasks.add_task(
             run_menu_parse_task,
             task_id,
-            file_bytes,
+            file_bytes_list,
             target_lang,
             source_lang,
         )

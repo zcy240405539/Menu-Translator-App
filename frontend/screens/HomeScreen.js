@@ -151,15 +151,21 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
       mediaTypes: ["images"],
       quality: 0.4,
       allowsEditing: false,
+      allowsMultipleSelection: true,
+      selectionLimit: 6,
     });
     if (!result.canceled) {
-      const asset = result.assets[0];
-      setSelectedFile({
+      let assets = result.assets;
+      if (assets.length > 6) {
+        Alert.alert(t.home.maxImagesLimit || "Limit Exceeded", t.home.maxImagesLimit || "You can only select up to 6 images.");
+        assets = assets.slice(0, 6);
+      }
+      const files = assets.map(asset => ({
         uri: asset.uri,
         name: asset.fileName || "library-menu.jpg",
         mimeType: asset.mimeType || "image/jpeg",
-      });
-      setImageUri(asset.uri);
+      }));
+      setSelectedFiles(files);
       setMenuUrl("");
     }
   };
@@ -353,30 +359,28 @@ const selectFromFile = async () => {
   };
 
   const handleParse = async () => {
-    if (!selectedFile && !imageUri) {
+    if (!selectedFiles || selectedFiles.length === 0) {
       Alert.alert(t.home.noMenuTitle, t.home.noMenuMessage);
       return;
     }
 
-    const sourceFile = selectedFile || {
-      uri: imageUri,
-      name: "menu.jpg",
-      mimeType: "image/jpeg",
-    };
-
-    let fileToUpload = sourceFile;
-    if (isImageFile(sourceFile)) {
-      const compressedUri = await compressImage(sourceFile.uri);
-      fileToUpload = {
-        uri: compressedUri,
-        name: "menu_compressed.jpg",
-        mimeType: "image/jpeg",
-      };
+    let filesToUpload = [];
+    for (const sourceFile of selectedFiles) {
+      if (isImageFile(sourceFile)) {
+        const compressedUri = await compressImage(sourceFile.uri);
+        filesToUpload.push({
+          uri: compressedUri,
+          name: "menu_compressed.jpg",
+          mimeType: "image/jpeg",
+        });
+      } else {
+        filesToUpload.push(sourceFile);
+      }
     }
 
     return runMenuAnalysis(
-      () => parseMenuFile(fileToUpload, targetLang, sourceLang),
-      sourceFile.uri || imageUri
+      () => parseMenuFile(filesToUpload, targetLang, sourceLang),
+      selectedFiles[0].uri
     );
   };
 
@@ -387,8 +391,7 @@ const selectFromFile = async () => {
       return;
     }
 
-    setSelectedFile(null);
-    setImageUri(null);
+    setSelectedFiles([]);
 
     return runMenuAnalysis(
       () => parseMenuUrl(trimmedUrl, targetLang, sourceLang),
@@ -396,7 +399,7 @@ const selectFromFile = async () => {
     );
   };
 
-  const hasSelectedMenuFile = Boolean(selectedFile || imageUri);
+  const hasSelectedMenuFile = Boolean(selectedFiles && selectedFiles.length > 0);
   const hasMenuUrl = Boolean(menuUrl.trim());
   const canAnalyzeMenu = hasSelectedMenuFile || hasMenuUrl;
 

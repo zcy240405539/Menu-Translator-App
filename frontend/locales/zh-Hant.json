@@ -53,7 +53,8 @@
       "whatsapp": "WhatsApp",
       "email": "電子郵件"
     },
-    "selectFromGallery": "从相册选择"
+    "selectFromGallery": "从相册选择",
+    "maxImagesLimit": "最多可同时选择或拍摄6张图片。"
   },
   "result": {
     "title": "菜單分析結果",
