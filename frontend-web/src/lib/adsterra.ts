@@ -23,5 +23,5 @@ export function shouldLoadAdsterra(
   enabled: boolean,
   hasPlacement: boolean,
 ) {
-  return enabled && hasPlacement && isAdsterraContentPath(pathname);
+  return enabled && hasPlacement;
 }

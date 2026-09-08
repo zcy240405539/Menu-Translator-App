@@ -279,8 +279,12 @@ export default function Home() {
 
   useEffect(() => {
     applyDocumentLanguage(lang);
-    document.title = text.metaTitle;
-  }, [lang, text.metaTitle]);
+    document.title = text.metadata.home.title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", text.metadata.home.description);
+    }
+  }, [lang, text]);
 
   const sections = useMemo(() => displaySections(menuData, text.result.other), [menuData, text.result.other]);
   const itemCount = sections.reduce((total, section) => total + section.items.length, 0);
@@ -541,26 +545,9 @@ export default function Home() {
         )}
 
         {!showResultView && (
-          <section className="w-full border-t border-purple-100 bg-[#fbf8f4] py-20">
+          <section className="w-full border-t border-purple-100 bg-[#fbf8f4] py-10">
             <div className="mx-auto max-w-4xl px-5">
-              <h2 className="text-3xl font-bold text-gray-950 sm:text-4xl">{text.publisher.home.title}</h2>
-              <div className="mt-6 space-y-5 text-base leading-8 text-gray-700">
-                {text.publisher.home.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-              </div>
-
               <SupportedLanguagesGrid text={text} />
-
-              <h2 className="mt-14 text-3xl font-bold text-gray-950">{text.publisher.home.faqTitle}</h2>
-              <div className="mt-6 divide-y divide-purple-100 border-y border-purple-100">
-                {text.publisher.home.faq.map((item) => (
-                  <details key={item.question} className="group py-5">
-                    <summary className="cursor-pointer list-none pr-6 text-lg font-bold text-gray-900 marker:hidden">
-                      {item.question}
-                    </summary>
-                    <p className="mt-3 max-w-3xl leading-7 text-gray-700">{item.answer}</p>
-                  </details>
-                ))}
-              </div>
             </div>
           </section>
         )}

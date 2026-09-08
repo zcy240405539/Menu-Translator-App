@@ -66,6 +66,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
   const [targetLangMenuVisible, setTargetLangMenuVisible] = useState(false);
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [menuUrl, setMenuUrl] = useState("");
   const interstitialRef = useRef(null);
   const insets = useSafeAreaInsets();
@@ -416,7 +417,7 @@ const selectFromFile = async () => {
     );
   };
 
-  const hasSelectedMenuFile = Boolean(selectedFiles && selectedFiles.length > 0);
+  const hasSelectedMenuFile = Boolean((selectedFiles && selectedFiles.length > 0) || selectedFile || imageUri);
   const hasMenuUrl = Boolean(menuUrl.trim());
   const canAnalyzeMenu = hasSelectedMenuFile || hasMenuUrl;
 
