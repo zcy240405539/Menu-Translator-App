@@ -126,125 +126,116 @@ async function pollParseTask(taskId) {
 
 
 
-export async function parseMenuFile(file, targetLang = "zh", sourceLang = "auto") {
-
+export async function parseMenuFile(files, targetLang = "zh", sourceLang = "auto") {
   const url = `${API_BASE_URL}/menus/parse/start?target_lang=${encodeURIComponent(targetLang)}&source_lang=${encodeURIComponent(sourceLang)}`;
 
-
-
-  if (Platform.OS === "web") {
-
-    const formData = new FormData();
-
-    const fileName = file.name || "menu-upload";
-
-    const mimeType = file.mimeType || file.type || "application/octet-stream";
-
-
-
-    const fileResponse = await fetch(file.uri);
-
-    const blob = await fileResponse.blob();
-
-    const uploadFile = new File([blob], fileName, { type: mimeType });
-
-    formData.append("file", uploadFile);
-
-
-
-    const startRes = await fetch(url, {
-
-      method: "POST",
-
-      body: formData,
-
-    });
-
-
-
-    if (!startRes.ok) {
-
-      const text = await startRes.text();
-
-      console.log("Start parse failed:", startRes.status, text);
-
-      throw new Error(`Failed to start menu analysis: ${startRes.status}`);
-
-    }
-
-
-
-    const startData = await startRes.json();
-
-    return pollParseTask(startData.task_id);
-
-  } else {
-
-    // Native (Android/iOS): Use expo-file-system's native Multipart upload task.
-
-    // This completely bypasses the JS-side FormData and fetch serialization issues.
-
-    const headers = getHeaders(true);
-
-
-
-    const uploadTask = FileSystem.createUploadTask(
-
-      url,
-
-      file.uri,
-
-      {
-
-        httpMethod: "POST",
-
-        fieldName: "file",
-
-        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-
-        headers: headers,
-
-      }
-
-    );
-
-
-
-    const result = await uploadTask.uploadAsync();
-
-
-
-    if (!result || result.status < 200 || result.status >= 300) {
-
-      console.log("Start native parse failed:", result?.status, result?.body);
-
-      throw new Error(`Failed to start menu analysis: ${result?.status || 'Unknown error'} (URL: ${url})`);
-
-    }
-
-
-
-    let startData;
-
-    try {
-
-      startData = JSON.parse(result.body);
-
-    } catch (err) {
-
-      console.log("Parse native JSON failed:", result.body);
-
-      throw new Error(`JSON Parse error: ${err.message} (Status: ${result.status}, Body: ${result.body || '(empty)'}, URL: ${url})`);
-
-    }
-
-    return pollParseTask(startData.task_id);
-
+  let fileArray = Array.isArray(files) ? files : [files];
+  fileArray = fileArray.filter(f => f && f.uri); // Ensure valid objects with uri
+
+  if (fileArray.length === 0) {
+    throw new Error("No valid files to upload.");
   }
 
+  if (Platform.OS === "web") {
+    const formData = new FormData();
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      const fileName = file.name || `menu-upload-${i}`;
+      const mimeType = file.mimeType || file.type || "application/octet-stream";
+      const fileResponse = await fetch(file.uri);
+      const blob = await fileResponse.blob();
+      const uploadFile = new File([blob], fileName, { type: mimeType });
+      formData.append("files", uploadFile);
+    }
+
+    const startRes = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!startRes.ok) {
+      const text = await startRes.text();
+      throw new Error(`Failed to start menu analysis: ${startRes.status}`);
+    }
+
+    const startData = await startRes.json();
+    return pollParseTask(startData.task_id);
+  } else {
+    // Native (Android/iOS)
+    // If it's a single file, use expo-file-system for maximum reliability
+    if (fileArray.length === 1) {
+      const file = fileArray[0];
+      const headers = getHeaders(true);
+      const uploadTask = FileSystem.createUploadTask(
+        url,
+        file.uri,
+        {
+          httpMethod: "POST",
+          fieldName: "file",
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          headers: headers,
+        }
+      );
+
+      const result = await uploadTask.uploadAsync();
+      if (!result || result.status < 200 || result.status >= 300) {
+        throw new Error(`Failed to start menu analysis: ${result?.status || 'Unknown error'}`);
+      }
+      
+      let startData;
+      try {
+        startData = JSON.parse(result.body);
+      } catch (err) {
+        throw new Error("Invalid response from server");
+      }
+      return pollParseTask(startData.task_id);
+    } else {
+            // For multiple files, we MUST use XMLHttpRequest. Expo's fetch polyfill (convertFormData.ts) 
+      // has a critical bug handling FormData and Blobs in React Native, leading to "Unsupported FormDataPart implementation"
+      // or "Cannot assign to property 'type'". XMLHttpRequest uses the RN native networking stack directly.
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', url);
+
+        const headers = getHeaders();
+        delete headers["Content-Type"];
+        Object.keys(headers).forEach(key => {
+          xhr.setRequestHeader(key, headers[key]);
+        });
+
+        const formData = new FormData();
+        for (let i = 0; i < fileArray.length; i++) {
+          const file = fileArray[i];
+          // Pass the plain object with uri. RN's XHR polyfill handles this perfectly.
+          formData.append("files", {
+            uri: file.uri,
+            name: file.name || `menu-upload-${i}.jpg`,
+            type: file.mimeType || "image/jpeg",
+          });
+        }
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const startData = JSON.parse(xhr.responseText);
+              resolve(pollParseTask(startData.task_id));
+            } catch (err) {
+              reject(new Error("Failed to parse response: " + err.message));
+            }
+          } else {
+            reject(new Error(`Failed to start menu analysis: ${xhr.status}`));
+          }
+        };
+        xhr.onerror = () => {
+          reject(new Error("Network request failed"));
+        };
+
+        xhr.send(formData);
+      });
+      // End XMLHttpRequest block
+    }
+  }
 }
-
-
 
 export async function parseMenuUrl(menuUrl, targetLang = "zh", sourceLang = "auto") {
 

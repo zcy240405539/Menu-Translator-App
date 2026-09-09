@@ -1,6 +1,6 @@
 const ANDROID_AD_APP_ID = "ca-app-pub-8286400764174465~6115841032";
 const GOOGLE_IOS_TEST_APP_ID = "ca-app-pub-3940256099942544~1458002511";
-const APP_VERSION = process.env.APP_VERSION || "2.6";
+const APP_VERSION = process.env.APP_VERSION || "2.7";
 const googleMobileAdsPlugin = [
   "react-native-google-mobile-ads",
   {
@@ -22,7 +22,7 @@ module.exports = {
     icon: "./assets/favicon.png",
     android: {
       package: "com.agentscottystudio.aimenuapp",
-      versionCode: 10,
+      versionCode: 11,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF"

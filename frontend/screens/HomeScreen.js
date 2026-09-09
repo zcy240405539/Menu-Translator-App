@@ -161,7 +161,12 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
         Alert.alert(t.home.maxImagesLimit || "Limit Exceeded", t.home.maxImagesLimit || "You can only select up to 6 images.");
         assets = assets.slice(0, 6);
       }
-      const files = assets.map(asset => ({
+      const validAssets = assets.filter(a => a.fileSize !== 0);
+      if (validAssets.length === 0 && assets.length > 0) {
+        Alert.alert(t.home.noMenuTitle || "Empty File", t.home.noMenuMessage || "The selected file is empty. Please select a valid file.");
+        return;
+      }
+      const files = validAssets.map(asset => ({
         uri: asset.uri,
         name: asset.fileName || "library-menu.jpg",
         mimeType: asset.mimeType || "image/jpeg",
@@ -189,11 +194,13 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
 
     if (!result.canceled) {
       const asset = result.assets[0];
-      setSelectedFile({
+      const newFile = {
         uri: asset.uri,
         name: "camera-menu.jpg",
         mimeType: "image/jpeg",
-      });
+      };
+      setSelectedFile(newFile);
+      setSelectedFiles([newFile]);
       setImageUri(asset.uri);
       setMenuUrl("");
     }
@@ -235,13 +242,18 @@ const selectFromFile = async () => {
     }
 
     const file = result.assets[0];
-
-    setSelectedFile({
+    if (file.size === 0) {
+      Alert.alert(t.home.noMenuTitle || "Empty File", t.home.noMenuMessage || "The selected file is empty. Please select a valid file.");
+      return;
+    }
+    const newFile = {
       uri: file.uri,
       name: file.name || "menu",
       mimeType: file.mimeType || "application/octet-stream",
-    });
+    };
 
+    setSelectedFile(newFile);
+    setSelectedFiles([newFile]);
     setImageUri(file.uri);
     setMenuUrl("");
     Alert.alert(t.home.success || "Success", "选择成功 (Selection successful)");
@@ -417,7 +429,7 @@ const selectFromFile = async () => {
     );
   };
 
-  const hasSelectedMenuFile = Boolean((selectedFiles && selectedFiles.length > 0) || selectedFile || imageUri);
+  const hasSelectedMenuFile = Boolean(selectedFiles && selectedFiles.length > 0);
   const hasMenuUrl = Boolean(menuUrl.trim());
   const canAnalyzeMenu = hasSelectedMenuFile || hasMenuUrl;
 
@@ -425,8 +437,10 @@ const selectFromFile = async () => {
     if (hasSelectedMenuFile) {
       return handleParse();
     }
-
-    return handleParseUrl();
+    if (hasMenuUrl) {
+      return handleParseUrl();
+    }
+    Alert.alert(t.home.noMenuTitle || "No Menu Selected", t.home.noMenuMessage || "Please select a file or enter a menu URL.");
   };
 
   const getCurrentShareUrl = () => {
@@ -687,16 +701,16 @@ const selectFromFile = async () => {
                 />
               </View>
 
-              {(imageUri || selectedFile) && (
+              {(selectedFiles && selectedFiles.length > 0) && (
                 <View style={[styles.previewSection, isDesktopLayout && styles.previewSectionDesktop]}>
                   <Text variant="titleMedium" style={[styles.previewTitle, { color: theme.colors.onSurface }]}>
                     {t.home.selectedMenu}
                   </Text>
 
-                  {selectedFile && !isImageFile(selectedFile) ? (
+                  {selectedFiles[0] && !isImageFile(selectedFiles[0]) ? (
                     <View style={[styles.pdfPreview, isDesktopLayout && styles.pdfPreviewDesktop]}>
                       <Text style={[styles.pdfTitle, { color: theme.colors.onSurface }]}>
-                        {isPdfFile(selectedFile)
+                        {isPdfFile(selectedFiles[0])
                           ? t.home.pdfFileSelected
                           : t.home.documentFileSelected}
                       </Text>
@@ -705,16 +719,32 @@ const selectFromFile = async () => {
                         style={[styles.pdfName, { color: theme.colors.onSurfaceVariant }]}
                         numberOfLines={2}
                       >
-                        {selectedFile?.name || "menu.pdf"}
+                        {selectedFiles[0]?.name || "menu.pdf"}
                       </Text>
                     </View>
-                  ) : imageUri ? (
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={[styles.preview, isDesktopLayout && styles.previewDesktop]}
-                    />
-                  ) : null}
-                </View>
+                  ) : selectedFiles.length === 1 ? (
+                      <Image
+                        source={{ uri: selectedFiles[0].uri }}
+                        style={[styles.preview, isDesktopLayout && styles.previewDesktop]}
+                      />
+                    ) : (
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ width: '100%' }}>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                          {selectedFiles.map((file, idx) => (
+                            <Image
+                              key={idx}
+                              source={{ uri: file.uri }}
+                              style={[
+                                styles.preview,
+                                { width: 180, height: 250 },
+                                isDesktopLayout && styles.previewDesktop
+                              ]}
+                            />
+                          ))}
+                        </View>
+                      </ScrollView>
+                      )}
+                  </View>
               )}
 
               {loading ? (
