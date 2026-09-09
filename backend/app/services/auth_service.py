@@ -398,30 +398,35 @@ def apple_login_with_id_token(db: Session, id_token: str, nonce: str | None = No
     supabase_uid = login_res.user.id
     access_token = login_res.session.access_token
 
-    user = db.query(User).filter(User.id == supabase_uid).first()
-    if not user:
+    user_profile = db.query(User).filter(User.id == supabase_uid).first()
+    if not user_profile:
         email = login_res.user.email
-        name = login_res.user.user_metadata.get("name", "User")
-        avatar_url = login_res.user.user_metadata.get("avatar_url")
-        user = User(
-            id=supabase_uid,
-            email=email,
-            name=name,
-            avatar_url=avatar_url
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+        user_metadata = login_res.user.user_metadata or {}
+        username = user_metadata.get("name") or user_metadata.get("username") or email.split("@")[0]
+        
+        base_username = username
+        suffix = 1
+        while db.query(User).filter(User.username == username).first():
+            username = f"{base_username}{suffix}"
+            suffix += 1
 
-    ensure_user_subscription(db, user.id)
+        avatar_url = user_metadata.get("avatar_url")
+        user_profile = User(
+            id=supabase_uid,
+            username=username,
+            email=email,
+            avatar_url=avatar_url,
+            diets=[],
+            allergies=[],
+            preferred_language="zh",
+        )
+        db.add(user_profile)
+        db.commit()
+        db.refresh(user_profile)
+
+    ensure_user_subscription(db, user_profile.id)
 
     return {
-        "access_token": access_token,
-        "user": {
-            "id": user.id,
-            "email": user.email,
-            "name": user.name,
-            "avatar_url": user.avatar_url,
-            "role": user.role.value
-        }
+        "token": access_token,
+        "user": user_profile
     }
