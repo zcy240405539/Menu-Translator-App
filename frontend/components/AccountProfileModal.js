@@ -206,7 +206,9 @@ export default function AccountProfileModal({
   const handleDeleteAccount = () => {
     onClose();
     if (onRequireDeletionReauth) {
-      onRequireDeletionReauth();
+      setTimeout(() => {
+        onRequireDeletionReauth();
+      }, Platform.OS === 'ios' ? 500 : 0);
     }
   };
 
