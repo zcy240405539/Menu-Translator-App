@@ -388,7 +388,7 @@ def google_login_or_register(db: Session, email: str, name: str, avatar_url: str
 def apple_login_with_id_token(db: Session, id_token: str, nonce: str | None = None) -> dict:
     client = get_supabase_client()
     try:
-        creds = {"provider": "apple", "id_token": id_token}
+        creds = {"provider": "apple", "token": id_token}
         if nonce:
             creds["nonce"] = nonce
         login_res = client.auth.sign_in_with_id_token(creds)
