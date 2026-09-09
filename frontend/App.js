@@ -597,6 +597,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
         onClose={() => setShowProfileModal(false)}
         onUpdateUser={handleUpdateUser}
         onLogout={handleLogout}
+        onRequireDeletionReauth={() => setShowDeleteConfirmModal(true)}
       />
       <SettingsModal
         visible={showSettingsModal}
