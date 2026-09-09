@@ -11,6 +11,7 @@
     "expo-image-manipulator": "~57.0.16",
     "expo-image-picker": "~57.0.16",
     "expo-localization": "~57.0.1",
+    "expo-updates": "~57.0.21",
     "i18next": "^26.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",

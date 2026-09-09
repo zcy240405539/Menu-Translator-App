@@ -62,6 +62,12 @@ module.exports = {
     web: {
       favicon: "./assets/favicon.png"
     },
+    updates: {
+      url: "https://u.expo.dev/7009b713-84d5-4a8a-8662-39573cd01e1c"
+    },
+    runtimeVersion: {
+      policy: "appVersion"
+    },
     extra: {
       eas: {
         projectId: "7009b713-84d5-4a8a-8662-39573cd01e1c"
