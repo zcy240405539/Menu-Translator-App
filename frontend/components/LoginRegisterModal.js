@@ -188,7 +188,7 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
           setError("");
           setLoading(true);
           const data = await loginWithAppleIdToken(credential.identityToken);
-          onLoginSuccess(data.access_token, data.user);
+          onLoginSuccess(data.token || data.access_token, data.user);
           onClose();
         }
       } catch (e) {
