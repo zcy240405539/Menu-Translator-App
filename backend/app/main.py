@@ -2771,7 +2771,11 @@ def login_with_apple_id_token(req: AppleIdTokenRequest, db: Session = Depends(ge
     try:
         from app.services.auth_service import apple_login_with_id_token
         res = apple_login_with_id_token(db, req.id_token, req.nonce)
-        return {"token": res["token"], "user": to_user_response(res["user"])}
+        return {
+            "token": res["token"], 
+            "access_token": res["token"], 
+            "user": to_user_response(res["user"])
+        }
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
