@@ -19,7 +19,7 @@
       "autoIncrement": true,
       "credentialsSource": "local",
       "env": {
-        "APP_VERSION": "2.6"
+        "APP_VERSION": "2.7"
       }
     },
     "android-apk": {
@@ -30,7 +30,7 @@
         "buildType": "apk"
       },
       "env": {
-        "APP_VERSION": "2.6"
+        "APP_VERSION": "2.7"
       }
     }
   },
