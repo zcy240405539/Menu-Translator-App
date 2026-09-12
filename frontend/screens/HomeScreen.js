@@ -58,14 +58,26 @@ const DOCUMENT_PICKER_TYPES = [
 
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"];
 
+function getSelectedFiles(assets, fallbackName, fallbackType) {
+  if (!assets?.length || assets.some(asset =>
+    !asset || typeof asset.uri !== "string" || !asset.uri.trim() ||
+    asset.fileSize === 0 || asset.size === 0
+  )) {
+    throw new Error("The selected file cannot be read. Please select it again.");
+  }
+  return assets.map(asset => ({
+    uri: asset.uri,
+    name: asset.fileName || asset.name || fallbackName,
+    mimeType: asset.mimeType || fallbackType,
+  }));
+}
+
 export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, onGoHome, onOpenCart, onOpenHistory, onShare, onOpenSettings, initialMenuUrl, adsReady }) {
-  const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sourceLang, setSourceLang] = useState("auto");
   const [sourceLangMenuVisible, setSourceLangMenuVisible] = useState(false);
   const [targetLangMenuVisible, setTargetLangMenuVisible] = useState(false);
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [menuUrl, setMenuUrl] = useState("");
   const interstitialRef = useRef(null);
@@ -143,124 +155,85 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
 
 
   const selectFromPhotoLibrary = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert(t.home.permissionRequired || "Permission Required", "Photo library permission is required.");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 0.4,
-      allowsEditing: false,
-      allowsMultipleSelection: true,
-      selectionLimit: 6,
-    });
-    if (!result.canceled) {
-      let assets = result.assets;
-      if (assets.length > 6) {
-        Alert.alert(t.home.maxImagesLimit || "Limit Exceeded", t.home.maxImagesLimit || "You can only select up to 6 images.");
-        assets = assets.slice(0, 6);
-      }
-      const validAssets = assets.filter(a => a.fileSize !== 0);
-      if (validAssets.length === 0 && assets.length > 0) {
-        Alert.alert(t.home.noMenuTitle || "Empty File", t.home.noMenuMessage || "The selected file is empty. Please select a valid file.");
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(t.home.permissionRequired || "Permission Required", "Photo library permission is required.");
         return;
       }
-      const files = validAssets.map(asset => ({
-        uri: asset.uri,
-        name: asset.fileName || "library-menu.jpg",
-        mimeType: asset.mimeType || "image/jpeg",
-      }));
-      setSelectedFiles(files);
-      setMenuUrl("");
-      Alert.alert(t.home.success || "Success", "选择成功 (Selection successful)");
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        quality: 0.4,
+        allowsEditing: false,
+        allowsMultipleSelection: true,
+        selectionLimit: 6,
+      });
+      if (!result.canceled) {
+        let assets = result.assets;
+        if (assets?.length > 6) {
+          Alert.alert(t.home.maxImagesLimit || "Limit Exceeded", t.home.maxImagesLimit || "You can only select up to 6 images.");
+          assets = assets.slice(0, 6);
+        }
+        setSelectedFiles(getSelectedFiles(assets, "library-menu.jpg", "image/jpeg"));
+        setMenuUrl("");
       }
+    } catch (error) {
+      Alert.alert(t.home.fileSelectionFailed, error.message || t.home.unknownError);
+    }
   };
 
   const takePicture = async () => {
-    const permission = await ImagePicker.requestCameraPermissionsAsync();
-
-    if (!permission.granted) {
-      Alert.alert(t.home.permissionRequired, t.home.cameraPermission);
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ["images"],
-      quality: 0.4,
-      allowsEditing: false,
-      base64: false,
-    });
-
-    if (!result.canceled) {
-      const asset = result.assets[0];
-      const newFile = {
-        uri: asset.uri,
-        name: "camera-menu.jpg",
-        mimeType: "image/jpeg",
-      };
-      setSelectedFile(newFile);
-      setSelectedFiles([newFile]);
-      setImageUri(asset.uri);
-      setMenuUrl("");
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(t.home.permissionRequired, t.home.cameraPermission);
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        quality: 0.4,
+        allowsEditing: false,
+        base64: false,
+      });
+      if (!result.canceled) {
+        setSelectedFiles(getSelectedFiles(result.assets, "camera-menu.jpg", "image/jpeg"));
+        setMenuUrl("");
+      }
+    } catch (error) {
+      Alert.alert(t.home.fileSelectionFailed, error.message || t.home.unknownError);
     }
   };
 
-const compressImage = async (uri) => {
-  try {
-    const result = await ImageManipulator.manipulateAsync(
-      uri,
-      [
-        {
-          resize: {
-            width: 1000,
-          },
-        },
-      ],
-      {
-        compress: 0.85,
-        format: ImageManipulator.SaveFormat.JPEG,
+  const compressImage = async (file) => {
+    try {
+      const result = await ImageManipulator.manipulateAsync(
+        file.uri,
+        [{ resize: { width: 1000 } }],
+        { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      if (typeof result.uri !== "string" || !result.uri.trim()) {
+        throw new Error("Image compression returned no file.");
       }
-    );
-
-    return result.uri;
-  } catch (err) {
-    console.log("Image compression failed:", err);
-    return uri;
-  }
-};
-
-const selectFromFile = async () => {
-  try {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: DOCUMENT_PICKER_TYPES,
-      copyToCacheDirectory: false,
-    });
-
-    if (result.canceled) {
-      return;
+      return { uri: result.uri, name: "menu_compressed.jpg", mimeType: "image/jpeg" };
+    } catch (err) {
+      console.log("Image compression failed:", err);
+      return file;
     }
+  };
 
-    const file = result.assets[0];
-    if (file.size === 0) {
-      Alert.alert(t.home.noMenuTitle || "Empty File", t.home.noMenuMessage || "The selected file is empty. Please select a valid file.");
-      return;
-    }
-    const newFile = {
-      uri: file.uri,
-      name: file.name || "menu",
-      mimeType: file.mimeType || "application/octet-stream",
-    };
-
-    setSelectedFile(newFile);
-    setSelectedFiles([newFile]);
-    setImageUri(file.uri);
-    setMenuUrl("");
-    Alert.alert(t.home.success || "Success", "选择成功 (Selection successful)");
+  const selectFromFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: DOCUMENT_PICKER_TYPES,
+        copyToCacheDirectory: true,
+      });
+      if (result.canceled) return;
+      setSelectedFiles(getSelectedFiles(result.assets, "menu", "application/octet-stream"));
+      setMenuUrl("");
     } catch (error) {
-    Alert.alert(t.home.fileSelectionFailed, error.message || t.home.unknownError);
-  }
-};
+      Alert.alert(t.home.fileSelectionFailed, error.message || t.home.unknownError);
+    }
+  };
 
   const runMenuAnalysis = async (parseAction, historySource) => {
     let adShown = false;
@@ -273,7 +246,7 @@ const selectFromFile = async () => {
 
       const navigateToResult = async (data) => {
         try {
-          await saveMenuHistory(data, historySource || imageUri || menuUrl, targetLang);
+          await saveMenuHistory(data, historySource || menuUrl, targetLang);
           onMenuParsed(data);
         } catch (err) {
           console.warn("Save history failed:", err);
@@ -394,22 +367,14 @@ const selectFromFile = async () => {
       return;
     }
 
-    let filesToUpload = [];
-    for (const sourceFile of selectedFiles) {
-      if (isImageFile(sourceFile)) {
-        const compressedUri = await compressImage(sourceFile.uri);
-        filesToUpload.push({
-          uri: compressedUri,
-          name: "menu_compressed.jpg",
-          mimeType: "image/jpeg",
-        });
-      } else {
-        filesToUpload.push(sourceFile);
-      }
-    }
-
     return runMenuAnalysis(
-      () => parseMenuFile(filesToUpload, targetLang, sourceLang),
+      async () => {
+        const filesToUpload = [];
+        for (const file of selectedFiles) {
+          filesToUpload.push(isImageFile(file) ? await compressImage(file) : file);
+        }
+        return parseMenuFile(filesToUpload, targetLang, sourceLang);
+      },
       selectedFiles[0].uri
     );
   };

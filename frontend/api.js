@@ -129,11 +129,11 @@ async function pollParseTask(taskId) {
 export async function parseMenuFile(files, targetLang = "zh", sourceLang = "auto") {
   const url = `${API_BASE_URL}/menus/parse/start?target_lang=${encodeURIComponent(targetLang)}&source_lang=${encodeURIComponent(sourceLang)}`;
 
-  let fileArray = Array.isArray(files) ? files : [files];
-  fileArray = fileArray.filter(f => f && f.uri); // Ensure valid objects with uri
-
-  if (fileArray.length === 0) {
-    throw new Error("No valid files to upload.");
+  const fileArray = Array.isArray(files) ? files : [files];
+  if (!fileArray.length || fileArray.some(file =>
+    !file || typeof file.uri !== "string" || !file.uri.trim()
+  )) {
+    throw new Error("The selected file cannot be read. Please select it again.");
   }
 
   if (Platform.OS === "web") {
@@ -172,6 +172,7 @@ export async function parseMenuFile(files, targetLang = "zh", sourceLang = "auto
         {
           httpMethod: "POST",
           fieldName: "file",
+          mimeType: file.mimeType || file.type || "application/octet-stream",
           uploadType: FileSystem.FileSystemUploadType.MULTIPART,
           headers: headers,
         }
