@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   View,
@@ -46,6 +46,7 @@ export default function AccountProfileModal({
   onRequireDeletionReauth,
 }) {
   const [phone, setPhone] = useState("");
+  const deletionRequested = useRef(false);
   const [selectedDiets, setSelectedDiets] = useState([]);
   const [allergiesText, setAllergiesText] = useState("");
   const [budget, setBudget] = useState("");
@@ -204,19 +205,26 @@ export default function AccountProfileModal({
   };
 
   const handleDeleteAccount = () => {
+    if (!onRequireDeletionReauth || deletionRequested.current) return;
+    deletionRequested.current = true;
     onClose();
-    if (onRequireDeletionReauth) {
-      setTimeout(() => {
-        onRequireDeletionReauth();
-      }, Platform.OS === 'ios' ? 500 : 0);
+    if (Platform.OS !== "ios") {
+      deletionRequested.current = false;
+      onRequireDeletionReauth();
     }
+  };
+
+  const handleDismiss = () => {
+    if (!deletionRequested.current) return;
+    deletionRequested.current = false;
+    onRequireDeletionReauth?.();
   };
 
   if (!currentUser) return null;
 
   return (
     <Portal>
-      <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <Modal visible={visible} animationType="slide" onRequestClose={onClose} onDismiss={handleDismiss}>
         <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
           <Appbar.Header style={[styles.appbar, { backgroundColor: theme.colors.background }]} mode="center-aligned">
             <Appbar.BackAction onPress={onClose} />

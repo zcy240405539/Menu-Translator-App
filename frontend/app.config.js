@@ -6,8 +6,7 @@ const googleMobileAdsPlugin = [
   {
     androidAppId: process.env.EXPO_PUBLIC_AD_APP_ID || ANDROID_AD_APP_ID,
     iosAppId: process.env.EXPO_PUBLIC_IOS_AD_APP_ID || GOOGLE_IOS_TEST_APP_ID,
-    delayAppMeasurementInit: true,
-    userTrackingUsageDescription: "Your device identifier may be used to show and measure relevant ads when you allow tracking."
+    delayAppMeasurementInit: true
   }
 ];
 

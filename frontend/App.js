@@ -330,6 +330,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
   };
 
   const handleConfirmDelete = async () => {
+    if (isDeleting || deleteConfirmText !== "DELETE") return;
     setIsDeleting(true);
     try {
       await deleteAccount();
@@ -597,7 +598,10 @@ function AppContent({ themeMode, onThemeModeChange }) {
         onClose={() => setShowProfileModal(false)}
         onUpdateUser={handleUpdateUser}
         onLogout={handleLogout}
-        onRequireDeletionReauth={() => setShowDeleteConfirmModal(true)}
+        onRequireDeletionReauth={() => {
+          setDeleteConfirmText("");
+          setShowDeleteConfirmModal(true);
+        }}
       />
       <SettingsModal
         visible={showSettingsModal}
@@ -617,6 +621,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
         setConfirmText={setDeleteConfirmText}
         isDeleting={isDeleting}
         onCancel={() => {
+          if (isDeleting) return;
           setShowDeleteConfirmModal(false);
           setDeleteConfirmText("");
         }}

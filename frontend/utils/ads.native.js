@@ -1,3 +1,4 @@
+import React from "react";
 import { Platform } from "react-native";
 import {
   default as mobileAds,
@@ -78,6 +79,16 @@ export async function isAdPrivacyOptionsRequired() {
   }
 }
 
-export const InterstitialAd = NativeInterstitialAd;
-export const BannerAd = NativeBannerAd;
+const withPrivacyOptions = (options = {}) => Platform.OS === "ios"
+  ? { ...options, requestNonPersonalizedAdsOnly: true }
+  : options;
+
+export const InterstitialAd = {
+  createForAdRequest(unitId, options) {
+    return NativeInterstitialAd.createForAdRequest(unitId, withPrivacyOptions(options));
+  },
+};
+export function BannerAd(props) {
+  return <NativeBannerAd {...props} requestOptions={withPrivacyOptions(props.requestOptions)} />;
+}
 export { AdEventType, BannerAdSize };
