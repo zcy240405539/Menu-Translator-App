@@ -122,8 +122,8 @@ def apply_cache_to_items(db, menu_items, target_lang):
         cached_image = image_cache_map.get(normalized_name) if normalized_name else None
 
         if cached_dish:
-            item["translated_name"] = cached_dish.translated_name
-            item["description"] = cached_dish.description
+            item["translated_name"] = item.get("translated_name") or cached_dish.translated_name
+            item["description"] = item.get("description") or cached_dish.description
             item["ingredients"] = cached_dish.ingredients or []
             item["allergens"] = cached_dish.allergens or []
             item["spicy_level"] = cached_dish.spicy_level or 0

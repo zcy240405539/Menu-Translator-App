@@ -434,6 +434,7 @@ def _compact_ocr_blocks(ocr_blocks: list) -> list:
             {
                 "text": text,
                 "page": block.get("page", block.get("page_num", 1)),
+                "column": block.get("column"),
                 "x": rounded("center_x"),
                 "y": rounded("center_y"),
                 "x0": rounded("x_min"),
@@ -746,6 +747,10 @@ OCR blocks:
 
 Rules:
 - Use coordinates to preserve columns, visual groups, section headings, and item order.
+- Read each column top to bottom. Never join descriptions or prices across columns or pages.
+- A dish name followed by ingredient/description lines is ONE item. Attach its trailing price to that item, not to every OCR line.
+- Keep add-on prices in the description, separate from base/size prices. Never propagate a standalone price to an entire section without explicit printed evidence.
+- Ignore cropped background-menu fragments and promotional boxes (events, seating capacity, discounts, service fees).
 - Process the entire OCR list. Do not stop after the first section or truncate the output. You must return ALL visible items.
 - Merge split headings before assigning dishes, e.g. "STARTERS +" + "SNACKS" => "STARTERS + SNACKS".
 - Assign dishes to the closest heading above them in the same column/group/box.

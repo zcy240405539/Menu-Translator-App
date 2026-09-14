@@ -83,6 +83,16 @@ def test_menu_translation_preserves_product_identity_descriptions(monkeypatch):
     assert translated["menu_items"][1]["description"] == "胡椒酱，蒜泥蛋黄酱"
 
 
+def test_uppercase_ingredients_are_translated(monkeypatch):
+    monkeypatch.setattr(google_translation_service, "translate_texts", lambda **kwargs: {
+        "BEETS, MARINATED FETA CHEESE, GREENS": "甜菜、腌制菲达奶酪、绿叶菜"
+    })
+    result = google_translation_service.translate_menu_result_with_google({
+        "menu_items": [{"original_name": "Salad", "description_original": "BEETS, MARINATED FETA CHEESE, GREENS"}]
+    }, target_lang="zh", source_lang="en")
+    assert result["menu_items"][0]["description"] == "甜菜、腌制菲达奶酪、绿叶菜"
+
+
 def test_menu_translation_translates_short_comma_terms_individually(monkeypatch):
     translations = {
         "BOBAL, TEMPRANILLO": "博巴尔，天妇罗",

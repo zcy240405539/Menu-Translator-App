@@ -32,6 +32,7 @@ def _post_gemini_generate(
     max_output_tokens: int = LAYOUT_MAX_TOKENS,
     timeout: int = GEMINI_MENU_STRUCTURE_TIMEOUT,
     model: str | None = None,
+    thinking_budget: int | None = None,
 ) -> str:
     if not GEMINI_API_KEY:
         raise RuntimeError("GEMINI_API_KEY is missing")
@@ -53,6 +54,9 @@ def _post_gemini_generate(
             "responseMimeType": "application/json",
         },
     }
+
+    if thinking_budget is not None:
+        payload["generationConfig"]["thinkingConfig"] = {"thinkingBudget": thinking_budget}
 
     last_error = None
     for attempt in range(GEMINI_MENU_MAX_RETRIES):
@@ -79,6 +83,8 @@ def _post_gemini_generate(
         candidates = data.get("candidates") or []
         if not candidates:
             raise RuntimeError(f"Gemini response missing candidates: {data}")
+        if candidates[0].get("finishReason") == "MAX_TOKENS":
+            raise RuntimeError("Menu analysis exceeded the output limit; no partial menu was returned.")
 
         parts = candidates[0].get("content", {}).get("parts") or []
         text = "".join(str(part.get("text") or "") for part in parts).strip()
@@ -272,7 +278,9 @@ def call_gemini_for_menu_layout(
     source_language_name = get_language_name(source_lang)
     language_profile = get_language_profile(source_lang)
     language_context = build_language_prompt_context(source_lang, target_lang)
-    selected_model = language_profile.gemini_structure_model or GEMINI_MENU_STRUCTURE_MODEL
+    selected_model = language_profile.gemini_structure_model or os.getenv(
+        "GEMINI_MENU_LAYOUT_MODEL", "gemini-2.5-flash"
+    )
 
     system_prompt = """
 You are a strict restaurant menu layout reconstruction parser.
@@ -293,8 +301,17 @@ OCR blocks with coordinates:
 
 Layout rules:
 - Return grouped sections using the JSON contract below.
+- Read each column top to bottom before moving to the next column. Never join descriptions or prices across columns or pages.
+- A dish name followed by several ingredient/description lines is ONE item, not one item per OCR line. Attach the price at the end of its description to that dish.
+- Multiple sizes belong to ONE item with labeled prices (e.g. Small: 10.00 / Large: 18.00). Add-on prices belong in the description, not as the base price or a separate dish.
+- The price field may be a STRING, not only a number. If text says "dressing 9.00 LARGE 15.00", price must be "Regular: 9.00 / Large: 15.00", never just 9.00. Include every printed size price in this field, not only in description_original.
+- Complimentary bread with priced additional orders is one bread item: include the paid portion sizes in price, and explain the complimentary serving in description_original.
+- Indented flavor choices without separate prices belong in the parent drink description, not separate items. Section-wide add-ons belong in business_description.notes, not menu_items.
+- A price-only line belongs only to the adjacent item in the same column. Never propagate it as a section default without explicit printed evidence.
+- Ignore cropped background-menu fragments at page edges and promotional boxes (events, seating capacity, discounts, service fees). These are not dishes or prices.
 - Use coordinates to preserve columns, visual groups, section headings, item order, and page order.
 - Assign each dish to the closest visible section heading above it in the same column/group/box.
+- Dish names are NOT section headings. A bold name followed by ingredients and a price must be original_name; the ingredients must be description_original.
 - Do not infer categories from food type when a visible heading exists.
 - Merge split section headings, e.g. "STARTERS +" plus "SNACKS" => "STARTERS + SNACKS".
 - Never use price-only lines such as "9", "$14", or "22" as section headings or item names.
@@ -314,8 +331,9 @@ Layout rules:
     content = _post_gemini_generate(
         system_prompt,
         user_prompt,
-        max_output_tokens=LAYOUT_MAX_TOKENS,
+        max_output_tokens=max(LAYOUT_MAX_TOKENS, 12000),
         model=selected_model,
+        thinking_budget=1024 if selected_model.startswith("gemini-2.5-flash") else None,
     )
     return _finalize_menu_result(
         _parse_gemini_json(content, "layout"),

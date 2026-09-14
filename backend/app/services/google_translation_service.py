@@ -102,6 +102,10 @@ def _clean_text(value) -> str:
 
 
 def _looks_like_proper_name(value) -> bool:
+    # OCR often capitalizes an entire ingredient sentence; capitalization alone
+    # is not evidence that it is a producer or product name.
+    if _clean_text(value).isupper():
+        return False
     words = re.findall(r"[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ.'’\-]*", _clean_text(value))
     if len(words) < 2:
         return False

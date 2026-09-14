@@ -69,6 +69,7 @@ function getSelectedFiles(assets, fallbackName, fallbackType) {
     uri: asset.uri,
     name: asset.fileName || asset.name || fallbackName,
     mimeType: asset.mimeType || fallbackType,
+    width: asset.width,
   }));
 }
 
@@ -163,7 +164,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
       }
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
-        quality: 0.4,
+        quality: 1,
         allowsEditing: false,
         allowsMultipleSelection: true,
         selectionLimit: 6,
@@ -191,7 +192,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
       }
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ["images"],
-        quality: 0.4,
+        quality: 1,
         allowsEditing: false,
         base64: false,
       });
@@ -208,8 +209,8 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
     try {
       const result = await ImageManipulator.manipulateAsync(
         file.uri,
-        [{ resize: { width: 1000 } }],
-        { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG }
+        file.width > 2000 ? [{ resize: { width: 2000 } }] : [],
+        { compress: 0.9, format: ImageManipulator.SaveFormat.JPEG }
       );
       if (typeof result.uri !== "string" || !result.uri.trim()) {
         throw new Error("Image compression returned no file.");

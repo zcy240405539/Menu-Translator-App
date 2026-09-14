@@ -806,17 +806,26 @@ def call_menu_layout_structure_parser(
     if effective_provider == "gemini":
         from app.services.gemini_menu_service import call_gemini_for_menu_layout
 
-        return call_gemini_for_menu_layout(
-            ocr_blocks=ocr_blocks,
-            target_lang=target_lang,
-            source_lang=source_lang,
-        )
+        try:
+            result = call_gemini_for_menu_layout(
+                ocr_blocks=ocr_blocks,
+                target_lang=target_lang,
+                source_lang=source_lang,
+            )
+            result["_structure_provider_used"] = "gemini"
+            return result
+        except Exception:
+            if get_requested_structure_provider(structure_provider) != "auto":
+                raise
+            print("Gemini layout parsing failed; trying OpenRouter with the same coordinates.")
 
-    return call_openrouter_for_menu_layout(
+    result = call_openrouter_for_menu_layout(
         ocr_blocks=ocr_blocks,
         target_lang=target_lang,
         source_lang=source_lang,
     )
+    result["_structure_provider_used"] = "openrouter"
+    return result
 
 
 def load_local_ocr_functions():
@@ -1733,9 +1742,9 @@ def dish_detail(
 def compress_image_bytes(file_bytes: bytes, max_size: int = None, quality: int = None) -> bytes:
     try:
         if max_size is None:
-            max_size = int(os.getenv("MENU_IMAGE_MAX_SIZE", "1280"))
+            max_size = int(os.getenv("MENU_IMAGE_MAX_SIZE", "2048"))
         if quality is None:
-            quality = int(os.getenv("MENU_IMAGE_JPEG_QUALITY", "68"))
+            quality = int(os.getenv("MENU_IMAGE_JPEG_QUALITY", "85"))
 
         img = Image.open(BytesIO(file_bytes))
 
@@ -2032,7 +2041,7 @@ def apply_restaurant_type_display(db, result: dict, target_lang: str, source_lan
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 25
+MENU_CACHE_SCHEMA_VERSION = 27
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
     "MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE",
@@ -2211,15 +2220,29 @@ def run_menu_parse_task(
             source_lang = detected_source_lang
 
             analysis_started_at = time.perf_counter()
-            result = call_menu_structure_parser(
-                extracted_markdown=extracted_markdown,
-                target_lang=target_lang,
-                source_lang=detected_source_lang,
-                structure_provider=structure_provider,
-                source_url=source_url,
-                content_type=content_type,
-                file_name=file_name,
-            )
+            if is_image_content(content_type, file_name) and ocr_blocks:
+                from app.services.menu_layout_service import parse_menu_layout_pages
+
+                result = parse_menu_layout_pages(
+                    ocr_blocks,
+                    lambda blocks: call_menu_layout_structure_parser(
+                        ocr_blocks=blocks,
+                        target_lang=target_lang,
+                        source_lang=detected_source_lang,
+                        structure_provider=structure_provider,
+                    ),
+                )
+                parser_name = "image_page_layout"
+            else:
+                result = call_menu_structure_parser(
+                    extracted_markdown=extracted_markdown,
+                    target_lang=target_lang,
+                    source_lang=detected_source_lang,
+                    structure_provider=structure_provider,
+                    source_url=source_url,
+                    content_type=content_type,
+                    file_name=file_name,
+                )
             if isinstance(result, dict) and (not result.get("source_language") or result.get("source_language") == "auto"):
                 result["source_language"] = detected_source_lang
             result = translate_menu_result_with_google(
