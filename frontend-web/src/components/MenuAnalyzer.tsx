@@ -26,6 +26,7 @@ type MenuAnalyzerProps = {
     targetLanguage: string;
     autoDetect: string;
     takePicture: string;
+    photoLibrary?: string;
     changePicture: string;
     selectFromFile: string;
     changeFile: string;
@@ -252,7 +253,7 @@ export default function MenuAnalyzer({ targetLang, onTargetLangChange, text }: M
             onClick={() => galleryInputRef.current?.click()}
           >
             <ImageIcon className="mr-2 h-5 w-5" />
-            {selectedFile?.type.startsWith("image/") ? text.changePicture : ((text as any).photoLibrary || "Photo Library")}
+            {selectedFile?.type.startsWith("image/") ? text.changePicture : (text.photoLibrary || "Photo Library")}
           </Button>
 
           <input

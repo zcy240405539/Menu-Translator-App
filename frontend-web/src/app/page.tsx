@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 import MenuAnalyzer from "@/components/MenuAnalyzer";
 import { useText } from "@/hooks/useText";
-import { PUBLISHER_PAGES } from "@/lib/publisherPages";
 import { SupportedLanguagesGrid } from "@/components/SupportedLanguagesGrid";
 import { formatMenuPrice } from "@/lib/price";
 import {
@@ -243,7 +242,7 @@ export default function Home() {
     }
   };
 
-  const handleHomeClick = (event: any) => {
+  const handleHomeClick = (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     const url = new URL("/", window.location.origin);

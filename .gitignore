@@ -22,9 +22,37 @@ frontend-web/out/
 frontend/dist/
 frontend/dist-feature-check/
 frontend/dist-*-check/
+frontend/dist-*/
 frontend/web-build/
 frontend-web/.env*
 /release/
+
+# IDE and one-off local artifacts
+.idea/
+.codex-remote-attachments/
+*.bak
+*.tmp
+*.orig
+*.rej
+/patch_*.py
+/fix_*.py
+/test_*.py
+/backend/test_*.py
+/result_*.json
+/ocr_result.md
+/parse_result.json
+frontend/patch_*
+frontend/bump_*
+frontend/fix_*
+frontend/rename_*
+frontend/revert_*
+frontend/style_*
+frontend/update_*
+frontend-web/add_*.js
+frontend-web/fix_*.js
+frontend-web/rename_*.js
+frontend-web/update_*.js
+frontend-web/update_*.mjs
 
 # Local runtime/test artifacts
 backend/*.log
@@ -43,5 +71,4 @@ frontend/android/
 
 # Local development resources
 APP_Develop_Resouce/
-my-release-key.keystore
 my-release-key.keystore

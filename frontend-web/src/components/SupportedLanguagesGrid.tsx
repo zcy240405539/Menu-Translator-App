@@ -17,6 +17,13 @@ const COLORS = [
   "bg-orange-50 text-orange-600",
 ];
 
+const EXTRA_LANGUAGE_CODES = ["hi", "th", "vi", "tr"] as const;
+type ExtraLanguageCode = (typeof EXTRA_LANGUAGE_CODES)[number];
+
+function isExtraLanguageCode(code: string): code is ExtraLanguageCode {
+  return EXTRA_LANGUAGE_CODES.includes(code as ExtraLanguageCode);
+}
+
 export function SupportedLanguagesGrid({ text }: { text: Catalog }) {
   const allCodes = [
     "en", "es", "fr", "de", "it",
@@ -37,8 +44,7 @@ export function SupportedLanguagesGrid({ text }: { text: Catalog }) {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {allCodes.map((code, idx) => {
           let name = "";
-          if (["hi", "th", "vi", "tr"].includes(code)) {
-            // @ts-ignore
+          if (isExtraLanguageCode(code)) {
             name = text.languageNamesExtra?.[code] || code;
           } else {
             name = text.languageNames[code as WebLanguageCode] || code;
@@ -50,7 +56,6 @@ export function SupportedLanguagesGrid({ text }: { text: Catalog }) {
           );
         })}
         <div className="flex items-center justify-center py-3 px-4 rounded-xl text-sm font-medium bg-indigo-50 text-indigo-600">
-          {/* @ts-ignore */}
           {text.languageNamesExtra?.more || "+ 35 more"}
         </div>
       </div>
