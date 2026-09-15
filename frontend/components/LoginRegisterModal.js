@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -57,6 +57,15 @@ export default function LoginRegisterModal({ visible, targetLang, onClose, onLog
   const [successMessage, setSuccessMessage] = useState("");
   
   const theme = useTheme();
+
+  useEffect(() => {
+    if (!visible) return;
+
+    setIsLogin(true);
+    setIsForgotPassword(false);
+    setError("");
+    setSuccessMessage("");
+  }, [visible]);
 
   const catalog = getText(targetLang);
   const authText = catalog.auth;

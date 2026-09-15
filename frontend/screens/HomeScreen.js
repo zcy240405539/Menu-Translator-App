@@ -549,9 +549,6 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
 
           <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop, { backgroundColor: theme.colors.surface }]}>
             <Card.Content style={styles.toolContent}>
-              <View>
-              </View>
-
               <View style={styles.languageRow}>
                 <View style={styles.languageBox}>
                   <Text style={[styles.languageLabel, { color: theme.colors.onSurfaceVariant }]}>{t.home.sourceLanguage}</Text>
@@ -564,6 +561,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
                         mode="outlined"
                         onPress={() => setSourceLangMenuVisible(true)}
                         style={styles.languageButton}
+                        labelStyle={styles.languageButtonLabel}
                       >
                         {SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.flag}{" "}
                         {getSourceLanguageLabel(SOURCE_LANGUAGES.find((item) => item.code === sourceLang))}
@@ -594,6 +592,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
                         mode="outlined"
                         onPress={() => setTargetLangMenuVisible(true)}
                         style={styles.languageButton}
+                        labelStyle={styles.languageButtonLabel}
                       >
                         {LANGUAGES.find((item) => item.code === targetLang)?.flag}{" "}
                         {getLanguageLabel(targetLang, targetLang)}
@@ -781,9 +780,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 28,
+    justifyContent: "flex-start",
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    paddingBottom: 132,
     alignSelf: "center",
     width: "100%",
     maxWidth: 960,
@@ -797,7 +797,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 1120,
     alignSelf: "center",
-    gap: 18,
+    gap: 12,
   },
   homeLayoutDesktop: {
     maxWidth: 1180,
@@ -807,7 +807,7 @@ const styles = StyleSheet.create({
   },
   heroPanel: {
     paddingHorizontal: 4,
-    paddingBottom: 4,
+    paddingBottom: 0,
   },
   heroPanelDesktop: {
     flex: 1,
@@ -817,7 +817,7 @@ const styles = StyleSheet.create({
     paddingVertical: 42,
   },
   toolPanel: {
-    borderRadius: 22,
+    borderRadius: 24,
     backgroundColor: "#FFFFFF",
   },
   toolPanelDesktop: {
@@ -826,8 +826,9 @@ const styles = StyleSheet.create({
     borderColor: "#E7E0EC",
   },
   toolContent: {
-    padding: 24,
-    gap: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
+    gap: 14,
   },
   heroKicker: {
     color: "#6D50B3",
@@ -843,7 +844,7 @@ const styles = StyleSheet.create({
     color: "#6D50B3",
     fontSize: 24,
     lineHeight: 32,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   titleDesktop: {
     textAlign: "left",
@@ -855,7 +856,9 @@ const styles = StyleSheet.create({
     textAlign: "left",
     color: "#625B71",
     lineHeight: 24,
-    marginBottom: 18,
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 0,
   },
   subtitleDesktop: {
     textAlign: "left",
@@ -865,7 +868,7 @@ const styles = StyleSheet.create({
     maxWidth: 560,
   },
   featureRow: {
-    marginTop: 32,
+    marginTop: 6,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
@@ -911,19 +914,19 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   button: {
-    borderRadius: 8,
+    borderRadius: 14,
   },
   outlineButton: {
-    borderRadius: 8,
+    borderRadius: 14,
   },
   analyzeButton: {
-    borderRadius: 8,
+    borderRadius: 14,
   },
   buttonContent: {
-    height: 50,
+    height: 52,
   },
   inputActions: {
-    gap: 10,
+    gap: 12,
   },
   urlInput: {
     backgroundColor: "#FFFFFF",
@@ -989,13 +992,13 @@ const styles = StyleSheet.create({
 
   languageRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
     flexWrap: "wrap",
   },
 
   languageBox: {
     flex: 1,
-    minWidth: 150,
+    minWidth: 128,
   },
 
   languageLabel: {
@@ -1006,7 +1009,11 @@ const styles = StyleSheet.create({
   },
 
   languageButton: {
-    borderRadius: 8,
+    borderRadius: 14,
+  },
+  languageButtonLabel: {
+    fontSize: 13,
+    marginHorizontal: 0,
   },
   analyzeButtonDesktop: {
     marginTop: 2,

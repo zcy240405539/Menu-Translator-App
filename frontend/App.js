@@ -7,7 +7,7 @@ import HomeScreen from "./screens/HomeScreen";
 import MenuResultScreen from "./screens/MenuResultScreen";
 import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
-import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
+import { getInitialLanguage, getSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
 import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken, getUnitTranslations, deleteAccount } from "./api";
 import { Platform, Share, Alert, LogBox, Linking, ScrollView, StatusBar, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { detectUserCurrency, setUnitTranslations } from "./utils/price";
@@ -411,24 +411,36 @@ function AppContent({ themeMode, onThemeModeChange }) {
   }, [appInitialized, targetLang, screen, menuResult]);
 
   useEffect(() => {
-    if (languageInitialized || hasSavedLanguage()) {
+    let active = true;
+
+    const initializeLanguage = async () => {
+      const savedLanguage = await getSavedLanguage();
+      if (!active) return;
+
+      if (savedLanguage) {
+        setTargetLang(savedLanguage);
+        setLanguageInitialized(true);
+        return;
+      }
+
+      const locales = Localization.getLocales?.();
+      const locale = locales?.[0];
+      const deviceLang = (
+        locale?.languageTag ||
+        Localization.locale ||
+        locale?.languageCode ||
+        "en"
+      ).toLowerCase();
+
+      setTargetLang(mapUrlLangToInternal(deviceLang));
       setLanguageInitialized(true);
-      return;
-    }
+    };
 
-    const locales = Localization.getLocales?.();
-    const locale = locales?.[0];
-    const deviceLang = (
-      locale?.languageTag ||
-      Localization.locale ||
-      locale?.languageCode ||
-      "en"
-    ).toLowerCase();
-
-    setTargetLang(mapUrlLangToInternal(deviceLang));
-
-    setLanguageInitialized(true);
-  }, [languageInitialized]);
+    initializeLanguage();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [shareUrl, setShareUrl] = useState("https://aimenu.us.kg");

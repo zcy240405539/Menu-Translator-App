@@ -10,6 +10,7 @@ import pt from "./locales/pt.json";
 import ru from "./locales/ru.json";
 import zh from "./locales/zh.json";
 import zhHant from "./locales/zh-Hant.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "menu_app_language";
 
@@ -96,10 +97,32 @@ export function hasSavedLanguage() {
   return typeof localStorage !== "undefined" && !!localStorage.getItem(STORAGE_KEY);
 }
 
-export function saveLanguage(lang) {
+export async function getSavedLanguage() {
   if (typeof localStorage !== "undefined") {
-    localStorage.setItem(STORAGE_KEY, normalizeLanguage(lang));
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? normalizeLanguage(saved) : null;
   }
+
+  try {
+    const saved = await AsyncStorage.getItem(STORAGE_KEY);
+    return saved ? normalizeLanguage(saved) : null;
+  } catch (error) {
+    console.warn("Unable to load saved language:", error);
+    return null;
+  }
+}
+
+export function saveLanguage(lang) {
+  const normalized = normalizeLanguage(lang);
+
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, normalized);
+    return Promise.resolve();
+  }
+
+  return AsyncStorage.setItem(STORAGE_KEY, normalized).catch((error) => {
+    console.warn("Unable to save language:", error);
+  });
 }
 
 export function t(lang, key) {
