@@ -99,6 +99,7 @@ def detect_source_language(
         return "en"
 
     compact = re.sub(r"\s+", " ", text.lower())
+    latin_count = len(re.findall(r"[a-zA-ZÀ-ÿ]", text))
     kana_count = len(re.findall(r"[\u3040-\u30ff]", text))
     hangul_count = len(re.findall(r"[\uac00-\ud7af]", text))
     cyrillic_count = len(re.findall(r"[\u0400-\u04ff]", text))
@@ -107,13 +108,12 @@ def detect_source_language(
         return "ja"
     if hangul_count >= 3:
         return "ko"
-    if cyrillic_count >= 3:
+    if cyrillic_count >= 3 and cyrillic_count >= latin_count * 0.1:
         return "ru"
-    if arabic_count >= 3:
+    if arabic_count >= 3 and arabic_count >= latin_count * 0.1:
         return "ar"
 
     cjk_count = len(re.findall(r"[\u3400-\u9fff]", text))
-    latin_count = len(re.findall(r"[a-zA-ZÀ-ÿ]", text))
     total_letters = max(1, cjk_count + latin_count)
     if cjk_count >= 6 and cjk_count / total_letters >= 0.18:
         for variant_code, marker_chars in get_language_profile("zh").detection_variant_markers:

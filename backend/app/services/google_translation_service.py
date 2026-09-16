@@ -319,6 +319,12 @@ def _load_database_glossary(texts: list[str], target_lang: str, source_lang: str
         db.close()
 
 
+class _TranslationMap(dict):
+    def __init__(self, values: dict[str, str], glossary_keys):
+        super().__init__(values)
+        self.glossary_keys = frozenset(glossary_keys)
+
+
 def translate_texts(
     texts: list[str],
     target_lang: str = "zh",
@@ -341,13 +347,16 @@ def translate_texts(
     pending = [text for text in cleaned if text not in glossary_overrides]
 
     if not pending:
-        return {text: glossary_overrides.get(text, text) for text in cleaned}
+        return _TranslationMap(
+            {text: glossary_overrides.get(text, text) for text in cleaned},
+            glossary_overrides,
+        )
 
     target_code = _google_language_code(target_lang)
     source_code = _google_language_code(source_lang, source=True)
 
     if source_code and source_code == target_code:
-        return {text: text for text in cleaned}
+        return _TranslationMap({text: text for text in cleaned}, ())
 
     if not is_google_translation_configured():
         if _has_google_api_key():
@@ -356,11 +365,17 @@ def translate_texts(
                 target_code=target_code,
                 source_code=source_code,
             )
-            return {
-                text: glossary_overrides.get(text) or v2_translations.get(text) or text
-                for text in cleaned
-            }
-        return {text: glossary_overrides.get(text, text) for text in cleaned}
+            return _TranslationMap(
+                {
+                    text: glossary_overrides.get(text) or v2_translations.get(text) or text
+                    for text in cleaned
+                },
+                glossary_overrides,
+            )
+        return _TranslationMap(
+            {text: glossary_overrides.get(text, text) for text in cleaned},
+            glossary_overrides,
+        )
 
     translations: dict[str, str] = dict(glossary_overrides)
     try:
@@ -383,7 +398,7 @@ def translate_texts(
             )
         )
 
-    return translations
+    return _TranslationMap(translations, glossary_overrides)
 
 
 def _translate_value(value, translation_map: dict[str, str]):
@@ -446,6 +461,7 @@ def translate_menu_result_with_google(
         translation_map = {}
         provider = "google_cloud_translation_failed"
 
+    glossary_keys = getattr(translation_map, "glossary_keys", frozenset())
     category_translations = {}
     for item in result.get("menu_items") or []:
         original_name = _clean_text(item.get("original_name"))
@@ -454,21 +470,22 @@ def translate_menu_result_with_google(
 
         if original_name:
             translated_name = translation_map.get(original_name) or item.get("translated_name") or original_name
-            identity = _leading_uppercase_identity(original_name)
-            translatable_name = identity[0] if identity else original_name
-            comma_terms = _short_comma_terms(translatable_name)
-            if comma_terms:
-                separator = "，" if target_lang in {"zh", "zh-Hant"} else ", "
-                translated_name = separator.join(translation_map.get(term) or term for term in comma_terms)
-            elif identity:
-                translated_name = translation_map.get(translatable_name) or translatable_name
-            if identity:
-                translated_name = f"{translated_name} {identity[1]}"
+            if original_name not in glossary_keys:
+                identity = _leading_uppercase_identity(original_name)
+                translatable_name = identity[0] if identity else original_name
+                comma_terms = _short_comma_terms(translatable_name)
+                if comma_terms:
+                    separator = "，" if target_lang in {"zh", "zh-Hant"} else ", "
+                    translated_name = separator.join(translation_map.get(term) or term for term in comma_terms)
+                elif identity:
+                    translated_name = translation_map.get(translatable_name) or translatable_name
+                if identity:
+                    translated_name = f"{translated_name} {identity[1]}"
             item["translated_name"] = translated_name
         if description_original:
             item["description"] = (
                 description_original
-                if _looks_like_proper_name(description_original)
+                if _looks_like_proper_name(description_original) and description_original not in glossary_keys
                 else translation_map.get(description_original) or item.get("description") or ""
             )
         else:

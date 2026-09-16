@@ -32,7 +32,9 @@ def test_translation_skips_provider_when_glossary_covers_all_texts(monkeypatch=N
         set_attr("_translate_texts_v3", fail_provider)
         set_attr("_translate_texts_v2", fail_provider)
 
-        assert google_translation_service.translate_texts(texts, target_lang="zh", source_lang="en") == glossary
+        translations = google_translation_service.translate_texts(texts, target_lang="zh", source_lang="en")
+        assert translations == glossary
+        assert translations.glossary_keys == frozenset(texts)
     finally:
         if not monkeypatch:
             google_translation_service._load_database_glossary = original_load_glossary
@@ -152,6 +154,26 @@ def test_menu_translation_preserves_wine_identity_suffix(monkeypatch):
 
 def test_regular_mixed_case_dish_name_is_not_treated_as_product_identity():
     assert google_translation_service._leading_uppercase_identity("BBQ Chicken Sandwich") is None
+
+
+def test_glossary_name_wins_over_dietary_suffix_processing(monkeypatch):
+    source = "ACCIUGHE (GF, DF)"
+    expected = "油浸鳀鱼（无麸质、无乳制品）"
+    monkeypatch.setattr(
+        google_translation_service,
+        "translate_texts",
+        lambda **kwargs: google_translation_service._TranslationMap(
+            {source: expected}, {source}
+        ),
+    )
+
+    result = google_translation_service.translate_menu_result_with_google(
+        {"menu_items": [{"original_name": source}]},
+        target_lang="zh",
+        source_lang="en",
+    )
+
+    assert result["menu_items"][0]["translated_name"] == expected
 
 
 if __name__ == "__main__":

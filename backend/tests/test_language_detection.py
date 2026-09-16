@@ -44,6 +44,15 @@ def test_english_bar_menu_with_spanish_names_stays_english():
     assert detect_source_language(extracted_markdown=text, requested_source_lang="auto") == "en"
 
 
+@pytest.mark.parametrize("noise", ["слосло", "مقبلات"])
+def test_english_menu_ignores_sparse_foreign_script_ocr_noise(noise):
+    text = " ".join([
+        "Premium all you can eat menu with meat seafood vegetables and broth"
+    ] * 20) + f"\n- {noise}"
+
+    assert detect_source_language(extracted_markdown=text, requested_source_lang="auto") == "en"
+
+
 @pytest.mark.parametrize(
     ("expected", "text"),
     [
