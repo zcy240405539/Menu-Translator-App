@@ -200,15 +200,37 @@ def parse_menu_layout_pages(ocr_blocks, parse_page):
     merged["menu_items"] = []
     merged["page_analysis"] = []
     for page, result in results:
+        page_items = []
+        seen = {}
+        for item in result["menu_items"]:
+            key = (
+                str(item.get("section_heading_original") or item.get("category") or "").strip().casefold(),
+                str(item.get("original_name") or "").strip().casefold(),
+            )
+            previous = page_items[seen[key]] if key[1] and key in seen else None
+            if previous:
+                old_price, new_price = previous.get("price"), item.get("price")
+                old_desc = previous.get("description_original") or previous.get("description")
+                new_desc = item.get("description_original") or item.get("description")
+                if (not old_price or not new_price or old_price == new_price) and (
+                    not old_desc or not new_desc or old_desc == new_desc
+                ):
+                    for field in ("price", "description_original", "description"):
+                        if not previous.get(field) and item.get(field):
+                            previous[field] = item[field]
+                    continue
+            if key[1]:
+                seen[key] = len(page_items)
+            page_items.append(item)
         for key in ("business_name", "currency", "restaurant_type"):
             if not merged.get(key) and result.get(key):
                 merged[key] = result[key]
         merged["page_analysis"].append({
             "page": page,
-            "items": len(result["menu_items"]),
+            "items": len(page_items),
             "provider": result.get("_structure_provider_used"),
         })
-        for item in result["menu_items"]:
+        for item in page_items:
             merged["menu_items"].append({
                 **item,
                 "id": f"dish_{len(merged['menu_items']) + 1:03d}",

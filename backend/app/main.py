@@ -89,6 +89,7 @@ from app.services.document_text_service import (
     extract_markdown_from_url,
     is_image_content,
     ocr_blocks_to_markdown,
+    pdf_text_needs_layout_ocr,
     validate_public_http_url,
 )
 from app.services.google_translation_service import (
@@ -2041,7 +2042,7 @@ def apply_restaurant_type_display(db, result: dict, target_lang: str, source_lan
 # =========================
 
 MENU_TASKS = {}
-MENU_CACHE_SCHEMA_VERSION = 29
+MENU_CACHE_SCHEMA_VERSION = 30
 MENU_PARSE_INITIAL_DETAIL_LIMIT = int(os.getenv("MENU_PARSE_INITIAL_DETAIL_LIMIT", "0"))
 MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE = os.getenv(
     "MENU_PARSE_WRITE_DISH_CACHE_ON_PARSE",
@@ -2205,6 +2206,36 @@ def run_menu_parse_task(
                     document_provider=document_provider,
                 )
                 parser_name = "document_markitdown_openrouter"
+                if (
+                    ((content_type or "").split(";")[0] == "application/pdf" or Path(file_name).suffix.lower() == ".pdf")
+                    and (document_provider or "auto").lower() == "auto"
+                    and pdf_text_needs_layout_ocr(extracted_markdown)
+                ):
+                    from app.services.pdf_service import pdf_bytes_to_images
+
+                    document_markdown = extracted_markdown
+                    try:
+                        extracted_markdown = ""
+                        for index, image_bytes in enumerate(pdf_bytes_to_images(first_file_bytes), start=1):
+                            page_markdown, page_blocks, _ = extract_image_markdown_for_analysis(
+                                file_bytes=image_bytes,
+                                source_lang=source_lang,
+                                target_lang=target_lang,
+                                mime_type="image/jpeg",
+                                ocr_provider=ocr_provider,
+                                document_provider=None,
+                            )
+                            if not page_blocks:
+                                raise ValueError(f"No OCR blocks for PDF page {index}")
+                            extracted_markdown += f"\n\n<!-- Image {index} -->\n{page_markdown}"
+                            for block in page_blocks:
+                                block["page"] = index
+                            ocr_blocks.extend(page_blocks)
+                        parser_name = "pdf_image_page_layout"
+                    except Exception as exc:
+                        print("PDF layout OCR skipped:", exc)
+                        extracted_markdown = document_markdown
+                        ocr_blocks = []
 
             timings["extraction_seconds"] = round(time.perf_counter() - extraction_started_at, 3)
 
@@ -2220,7 +2251,7 @@ def run_menu_parse_task(
             source_lang = detected_source_lang
 
             analysis_started_at = time.perf_counter()
-            if is_image_content(content_type, file_name) and ocr_blocks:
+            if ocr_blocks and (is_image_content(content_type, file_name) or parser_name == "pdf_image_page_layout"):
                 from app.services.menu_layout_service import parse_menu_layout_pages
 
                 result = parse_menu_layout_pages(
@@ -2232,7 +2263,8 @@ def run_menu_parse_task(
                         structure_provider=structure_provider,
                     ),
                 )
-                parser_name = "image_page_layout"
+                if parser_name != "pdf_image_page_layout":
+                    parser_name = "image_page_layout"
             else:
                 result = call_menu_structure_parser(
                     extracted_markdown=extracted_markdown,

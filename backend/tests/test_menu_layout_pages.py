@@ -37,6 +37,26 @@ def test_failed_page_never_returns_partial_success():
                                 lambda blocks: {"menu_items": []} if blocks[0]["page"] == 1 else {})
 
 
+def test_duplicate_layout_dishes_combine_description_and_price():
+    blocks = [{"page": 1}, {"page": 2}]
+
+    def parse(page_blocks):
+        if page_blocks[0]["page"] == 2:
+            return {"menu_items": [{"original_name": "Soup", "price": None, "category": "Lunch"}]}
+        return {"menu_items": [
+            {"original_name": "Soup", "price": None, "description_original": "Creamy tomato", "category": "Starters"},
+            {"original_name": "Soup", "price": "12", "description_original": "", "category": "Starters"},
+            {"original_name": "Soup", "price": "16", "description_original": "Large bowl", "category": "Starters"},
+        ]}
+
+    result = parse_menu_layout_pages(blocks, parse)
+
+    assert [(item["source_page"], item["price"]) for item in result["menu_items"]] == [
+        (1, "12"), (1, "16"), (2, None),
+    ]
+    assert result["menu_items"][0]["description_original"] == "Creamy tomato"
+
+
 def test_layout_retains_all_size_prices(monkeypatch):
     def generate(system, prompt, **kwargs):
         assert kwargs["max_output_tokens"] >= 12000

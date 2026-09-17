@@ -483,6 +483,15 @@ def _looks_like_pdf_ocr_line(text: str) -> bool:
     return bool(text and not text.startswith("<image:") and len(text) >= 2)
 
 
+def pdf_text_needs_layout_ocr(markdown: str) -> bool:
+    lines = [line for line in (markdown or "").splitlines() if line.startswith("- ")]
+    spaced_names = sum(
+        bool(re.search(r"(?:\b[A-ZÀ-Ý]\s+){4,}[A-ZÀ-Ý]\b", line))
+        for line in lines
+    )
+    return spaced_names >= 12 and spaced_names >= len(lines) * 0.18
+
+
 def _pdf_text_layer_markdown(file_bytes: bytes, max_pages: int = 5) -> str:
     import fitz
 

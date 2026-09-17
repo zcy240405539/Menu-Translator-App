@@ -61,6 +61,14 @@ def test_pdf_openrouter_vision_is_explicit(monkeypatch=None):
     assert calls == ["openrouter", "text_layer"]
 
 
+def test_letter_spaced_pdf_text_uses_layout_ocr_only_when_widespread():
+    spaced = "- S O U P S A L A D S\n" * 14
+    normal = "- Tomato Soup 12\n" * 40
+
+    assert document_text_service.pdf_text_needs_layout_ocr(spaced + normal)
+    assert not document_text_service.pdf_text_needs_layout_ocr(spaced[:40] + normal)
+
+
 if __name__ == "__main__":
     test_html_extraction_keeps_repeated_prices_in_distinct_items()
     test_pdf_auto_prefers_document_ai()
