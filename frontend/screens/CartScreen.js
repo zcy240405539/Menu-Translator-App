@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, Platform, TouchableRipple } from "react-native";
+import { View, StyleSheet, FlatList, Platform } from "react-native";
 import {
   Card,
   Appbar,
@@ -8,6 +8,7 @@ import {
   Button,
   Chip,
   IconButton,
+  TouchableRipple,
   useTheme,
 } from "react-native-paper";
 
