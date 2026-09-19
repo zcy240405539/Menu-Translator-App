@@ -547,11 +547,8 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
             </Text>
           </View>
 
-          <Card mode={isDesktopLayout ? "outlined" : "elevated"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop, { backgroundColor: theme.colors.surface }]}>
+          <Card mode={isDesktopLayout ? "outlined" : "contained"} style={[styles.toolPanel, isDesktopLayout && styles.toolPanelDesktop, { backgroundColor: theme.colors.surface }]}>
             <Card.Content style={styles.toolContent}>
-              <View>
-              </View>
-
               <View style={styles.languageRow}>
                 <View style={styles.languageBox}>
                   <Text style={[styles.languageLabel, { color: theme.colors.onSurfaceVariant }]}>{t.home.sourceLanguage}</Text>
@@ -564,8 +561,10 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
                         mode="outlined"
                         onPress={() => setSourceLangMenuVisible(true)}
                         style={styles.languageButton}
+                        contentStyle={styles.languageButtonContent}
+                        labelStyle={styles.compactButtonLabel}
                       >
-                        {SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.flag}{" "}
+                        {sourceLang === "auto" ? "" : `${SOURCE_LANGUAGES.find((item) => item.code === sourceLang)?.flag} `}
                         {getSourceLanguageLabel(SOURCE_LANGUAGES.find((item) => item.code === sourceLang))}
                       </Button>
                     }
@@ -594,6 +593,8 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
                         mode="outlined"
                         onPress={() => setTargetLangMenuVisible(true)}
                         style={styles.languageButton}
+                        contentStyle={styles.languageButtonContent}
+                        labelStyle={styles.compactButtonLabel}
                       >
                         {LANGUAGES.find((item) => item.code === targetLang)?.flag}{" "}
                         {getLanguageLabel(targetLang, targetLang)}
@@ -615,13 +616,15 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
               </View>
 
               <View style={styles.inputActions}>
-                <Button
+                <View style={styles.uploadRow}>
+                  <Button
                     mode="contained-tonal"
                     icon="image-outline"
-                    style={styles.button}
+                    style={[styles.button, styles.uploadButton]}
                     contentStyle={styles.buttonContent}
-                    buttonColor="#EADDFF"
-                    textColor="#21005D"
+                    labelStyle={styles.compactButtonLabel}
+                    buttonColor={theme.colors.primaryContainer}
+                    textColor={theme.colors.onPrimaryContainer}
                     onPress={selectFromPhotoLibrary}
                     disabled={loading}
                   >
@@ -631,15 +634,17 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
                   <Button
                     mode="contained-tonal"
                     icon="camera-outline"
-                  style={styles.button}
-                  contentStyle={styles.buttonContent}
-                  buttonColor="#EADDFF"
-                  textColor="#21005D"
-                  onPress={takePicture}
-                  disabled={loading}
-                >
-                  {t.home.takePicture}
-                </Button>
+                    style={[styles.button, styles.uploadButton]}
+                    contentStyle={styles.buttonContent}
+                    labelStyle={styles.compactButtonLabel}
+                    buttonColor={theme.colors.primaryContainer}
+                    textColor={theme.colors.onPrimaryContainer}
+                    onPress={takePicture}
+                    disabled={loading}
+                  >
+                    {t.home.takePicture}
+                  </Button>
+                </View>
 
                 <Button
                   mode="outlined"
@@ -664,6 +669,7 @@ export default function HomeScreen({ targetLang, setTargetLang, onMenuParsed, on
                   keyboardType="url"
                   left={<TextInput.Icon icon="link-variant" />}
                   style={[styles.urlInput, { backgroundColor: theme.colors.surface }]}
+                  outlineStyle={styles.inputOutline}
                 />
               </View>
 
@@ -781,9 +787,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 16,
-    paddingVertical: 28,
+    paddingTop: 16,
+    paddingBottom: 136,
     alignSelf: "center",
     width: "100%",
     maxWidth: 960,
@@ -797,7 +804,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 1120,
     alignSelf: "center",
-    gap: 18,
+    gap: 12,
   },
   homeLayoutDesktop: {
     maxWidth: 1180,
@@ -806,8 +813,7 @@ const styles = StyleSheet.create({
     gap: 28,
   },
   heroPanel: {
-    paddingHorizontal: 4,
-    paddingBottom: 4,
+    paddingHorizontal: 6,
   },
   heroPanelDesktop: {
     flex: 1,
@@ -817,8 +823,9 @@ const styles = StyleSheet.create({
     paddingVertical: 42,
   },
   toolPanel: {
-    borderRadius: 22,
+    borderRadius: 28,
     backgroundColor: "#FFFFFF",
+    overflow: "hidden",
   },
   toolPanelDesktop: {
     width: 468,
@@ -826,8 +833,8 @@ const styles = StyleSheet.create({
     borderColor: "#E7E0EC",
   },
   toolContent: {
-    padding: 24,
-    gap: 18,
+    padding: 18,
+    gap: 14,
   },
   heroKicker: {
     color: "#6D50B3",
@@ -841,9 +848,9 @@ const styles = StyleSheet.create({
     textAlign: "left",
     fontWeight: "800",
     color: "#6D50B3",
-    fontSize: 24,
+    fontSize: 26,
     lineHeight: 32,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   titleDesktop: {
     textAlign: "left",
@@ -854,8 +861,8 @@ const styles = StyleSheet.create({
   subtitle: {
     textAlign: "left",
     color: "#625B71",
-    lineHeight: 24,
-    marginBottom: 18,
+    fontSize: 15,
+    lineHeight: 22,
   },
   subtitleDesktop: {
     textAlign: "left",
@@ -865,7 +872,7 @@ const styles = StyleSheet.create({
     maxWidth: 560,
   },
   featureRow: {
-    marginTop: 32,
+    marginTop: 8,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
@@ -877,7 +884,7 @@ const styles = StyleSheet.create({
       borderTopWidth: 4,
       backgroundColor: "transparent",
       paddingHorizontal: 8,
-      paddingVertical: 16,
+      paddingVertical: 12,
       flexDirection: "column",
       alignItems: "flex-start",
       gap: 4,
@@ -893,9 +900,9 @@ const styles = StyleSheet.create({
       fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
     },
   featureText: {
-      fontSize: 18,
+      fontSize: 14,
       fontWeight: "700",
-      lineHeight: 24,
+      lineHeight: 20,
       marginTop: 4,
     },
   toolKicker: {
@@ -911,22 +918,36 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   button: {
-    borderRadius: 8,
+    borderRadius: 16,
   },
   outlineButton: {
-    borderRadius: 8,
+    borderRadius: 16,
   },
   analyzeButton: {
-    borderRadius: 8,
+    borderRadius: 16,
   },
   buttonContent: {
-    height: 50,
+    height: 48,
+  },
+  compactButtonLabel: {
+    fontSize: 12,
+    lineHeight: 16,
   },
   inputActions: {
-    gap: 10,
+    gap: 9,
+  },
+  uploadRow: {
+    flexDirection: "row",
+    gap: 9,
+  },
+  uploadButton: {
+    flex: 1,
   },
   urlInput: {
     backgroundColor: "#FFFFFF",
+  },
+  inputOutline: {
+    borderRadius: 16,
   },
   previewSection: {
     marginTop: 2,
@@ -989,24 +1010,26 @@ const styles = StyleSheet.create({
 
   languageRow: {
     flexDirection: "row",
-    gap: 12,
-    flexWrap: "wrap",
+    gap: 10,
   },
 
   languageBox: {
     flex: 1,
-    minWidth: 150,
+    minWidth: 0,
   },
 
   languageLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     color: "#625B71",
-    marginBottom: 6,
+    marginBottom: 5,
   },
 
   languageButton: {
-    borderRadius: 8,
+    borderRadius: 14,
+  },
+  languageButtonContent: {
+    height: 48,
   },
   analyzeButtonDesktop: {
     marginTop: 2,
