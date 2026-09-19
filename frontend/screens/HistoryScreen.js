@@ -63,7 +63,10 @@ export default function HistoryScreen({ onBack, onOpenMenu, targetLang, onOpenHi
                 {new Date(item.createdAt).toLocaleString()}
               </Text>
 
-              <Chip style={styles.chip}>
+              <Chip
+                style={[styles.chip, { backgroundColor: theme.colors.secondaryContainer }]}
+                textStyle={{ color: theme.colors.onSecondaryContainer }}
+              >
                 {t.history.open}
               </Chip>
             </Card.Content>
@@ -128,7 +131,6 @@ const styles = StyleSheet.create({
   chip: {
     marginTop: 12,
     alignSelf: "flex-start",
-    backgroundColor: "#E8DEF8",
   },
   empty: {
     marginTop: 32,
