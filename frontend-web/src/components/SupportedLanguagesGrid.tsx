@@ -1,4 +1,4 @@
-import { WebLanguageCode, Catalog } from "@/lib/i18n";
+import { LANGUAGES, Catalog } from "@/lib/i18n";
 
 const COLORS = [
   "bg-indigo-50 text-indigo-600",
@@ -18,12 +18,6 @@ const COLORS = [
 ];
 
 export function SupportedLanguagesGrid({ text }: { text: Catalog }) {
-  const allCodes = [
-    "en", "es", "fr", "de", "it",
-    "pt", "ru", "ja", "zh-cn", "ko",
-    "ar", "hi", "th", "vi", "tr"
-  ];
-
   return (
     <div className="mt-12 mb-12 border-y border-purple-100 py-10">
       <div className="mb-12 text-center">
@@ -35,23 +29,13 @@ export function SupportedLanguagesGrid({ text }: { text: Catalog }) {
         </p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {allCodes.map((code, idx) => {
-          let name = "";
-          if (["hi", "th", "vi", "tr"].includes(code)) {
-            // @ts-ignore
-            name = text.languageNamesExtra?.[code] || code;
-          } else {
-            name = text.languageNames[code as WebLanguageCode] || code;
-          }
-          return (
-            <div key={code} className={`flex items-center justify-center py-3 px-4 rounded-xl text-sm font-medium ${COLORS[idx % COLORS.length]}`}>
-              {name}
-            </div>
-          );
-        })}
+        {LANGUAGES.map(({ code }, idx) => (
+          <div key={code} className={`flex items-center justify-center py-3 px-4 rounded-xl text-sm font-medium ${COLORS[idx % COLORS.length]}`}>
+            {text.languageNames[code]}
+          </div>
+        ))}
         <div className="flex items-center justify-center py-3 px-4 rounded-xl text-sm font-medium bg-indigo-50 text-indigo-600">
-          {/* @ts-ignore */}
-          {text.languageNamesExtra?.more || "+ 35 more"}
+          {text.languageNamesExtra.more}
         </div>
       </div>
     </div>
