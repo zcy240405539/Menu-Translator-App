@@ -790,7 +790,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 136,
+    paddingBottom: 16,
     alignSelf: "center",
     width: "100%",
     maxWidth: 960,
