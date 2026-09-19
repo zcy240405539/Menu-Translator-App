@@ -53,6 +53,8 @@ module.exports = {
       [
         "expo-image-picker",
         {
+          "photosPermission": "AI MenuLens accesses only the menu photos you select for translation. For example, a selected menu photo is uploaded for OCR and AI analysis to translate dish names, descriptions, and ingredients.",
+          "cameraPermission": "AI MenuLens uses the camera to photograph restaurant menus you choose to translate. For example, a menu photo is uploaded for OCR and AI analysis to translate dish names, descriptions, and ingredients.",
           "microphonePermission": false
         }
       ],
