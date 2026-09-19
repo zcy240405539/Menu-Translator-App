@@ -774,10 +774,6 @@
     }
   },
   "languageNamesExtra": {
-    "hi": "Hindi",
-    "th": "Tailandese",
-    "vi": "Vietnamita",
-    "tr": "Turco",
-    "more": "+ 35 altre"
+    "more": "+ altro"
   }
 }
