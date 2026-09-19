@@ -61,6 +61,7 @@ try {
   if (Test-Path -LiteralPath $outputAab) { throw "Output already exists: $outputAab" }
   Copy-Item -LiteralPath $sourceAab -Destination $outputAab
 
+  Add-Type -AssemblyName System.IO.Compression.FileSystem
   $archive = [System.IO.Compression.ZipFile]::OpenRead($outputAab)
   try {
     if ($archive.Entries.Count -eq 0) { throw "AAB is empty" }

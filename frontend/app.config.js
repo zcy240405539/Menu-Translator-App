@@ -1,7 +1,7 @@
 const ANDROID_AD_APP_ID = "ca-app-pub-8286400764174465~6115841032";
 const GOOGLE_IOS_TEST_APP_ID = "ca-app-pub-3940256099942544~1458002511";
-const APP_VERSION = process.env.APP_VERSION || "2.10";
-const ANDROID_VERSION_CODE = Number(process.env.ANDROID_VERSION_CODE || 16);
+const APP_VERSION = process.env.APP_VERSION || "2.11";
+const ANDROID_VERSION_CODE = Number(process.env.ANDROID_VERSION_CODE || 17);
 const googleMobileAdsPlugin = [
   "react-native-google-mobile-ads",
   {
