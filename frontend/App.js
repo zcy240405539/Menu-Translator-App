@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as Localization from "expo-localization";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { PaperProvider } from "react-native-paper";
@@ -9,7 +9,7 @@ import CartScreen from "./screens/CartScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import { getInitialLanguage, hasSavedLanguage, getText, getUrlLangParam, mapUrlLangToInternal } from "./i18n";
 import { getCachedMenu, getProfile, getUserCart, saveUserCart, setAuthToken, getUnitTranslations, deleteAccount } from "./api";
-import { Platform, Share, Alert, LogBox, Linking, ScrollView, StatusBar, StyleSheet, Text, View, useColorScheme } from "react-native";
+import { BackHandler, Platform, Share, Alert, LogBox, Linking, ScrollView, StatusBar, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { detectUserCurrency, setUnitTranslations } from "./utils/price";
 import ShareDialog from "./components/ShareDialog";
 import LoginRegisterModal from "./components/LoginRegisterModal";
@@ -141,6 +141,7 @@ function getOAuthTokenFromUrl(urlString) {
 
 function AppContent({ themeMode, onThemeModeChange }) {
   const [screen, setScreen] = useState("home");
+  const screenHistory = useRef(["home"]);
   const [menuResult, setMenuResult] = useState(null);
   const [targetLang, setTargetLang] = useState(getInitialLanguage());
   const [languageInitialized, setLanguageInitialized] = useState(false);
@@ -157,6 +158,38 @@ function AppContent({ themeMode, onThemeModeChange }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [incomingMenuUrl, setIncomingMenuUrl] = useState("");
   const [adsReady, setAdsReady] = useState(false);
+
+  const navigateTo = useCallback((nextScreen) => {
+    setScreen((currentScreen) => {
+      if (currentScreen === nextScreen) return currentScreen;
+      screenHistory.current.push(nextScreen);
+      return nextScreen;
+    });
+  }, []);
+
+  const goHome = useCallback(() => {
+    screenHistory.current = ["home"];
+    setScreen("home");
+  }, []);
+
+  const goBack = useCallback(() => {
+    if (screenHistory.current.length > 1) {
+      screenHistory.current.pop();
+      setScreen(screenHistory.current[screenHistory.current.length - 1]);
+      return true;
+    }
+    if (screen !== "home") {
+      goHome();
+      return true;
+    }
+    return false;
+  }, [goHome, screen]);
+
+  useEffect(() => {
+    if (Platform.OS === "web") return undefined;
+    const subscription = BackHandler.addEventListener("hardwareBackPress", goBack);
+    return () => subscription.remove();
+  }, [goBack]);
 
   useEffect(() => {
     let mounted = true;
@@ -242,13 +275,13 @@ function AppContent({ themeMode, onThemeModeChange }) {
             } else {
               setTargetLang(fetchLang);
             }
-            setScreen("result");
+            navigateTo("result");
           } catch (err) {
             console.log("Failed to load shared menu:", err);
           }
         } else if (sharedMenuUrl) {
           setIncomingMenuUrl(sharedMenuUrl);
-          setScreen("home");
+          goHome();
           if (mappedLang) {
             setTargetLang(mappedLang);
           }
@@ -261,7 +294,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
         const sharedUrl = getSharedMenuUrlFromAppUrl(initialAppUrl);
         if (sharedUrl) {
           setIncomingMenuUrl(sharedUrl);
-          setScreen("home");
+          goHome();
         }
       }
       setAppInitialized(true);
@@ -290,7 +323,7 @@ function AppContent({ themeMode, onThemeModeChange }) {
       const sharedUrl = getSharedMenuUrlFromAppUrl(url);
       if (sharedUrl) {
         setIncomingMenuUrl(sharedUrl);
-        setScreen("home");
+        goHome();
       }
     });
 
@@ -498,17 +531,17 @@ function AppContent({ themeMode, onThemeModeChange }) {
   if (screen === "cart") {
     screenComponent = (
       <CartScreen
-        onBack={() => setScreen("home")}
+        onBack={goBack}
         targetLang={targetLang}
-        onOpenHistory={() => setScreen("history")}
-        onOpenCart={() => setScreen("cart")}
+        onOpenHistory={() => navigateTo("history")}
+        onOpenCart={() => navigateTo("cart")}
         onShare={handleShareGlobal}
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
         hasMenuResult={menuResult !== null}
-        onBackToResult={() => setScreen("result")}
-        onGoHome={() => setScreen("home")}
+        onBackToResult={() => navigateTo("result")}
+        onGoHome={goHome}
         onOpenSettings={onOpenSettings}
         adsReady={adsReady}
       />
@@ -517,21 +550,21 @@ function AppContent({ themeMode, onThemeModeChange }) {
     screenComponent = (
       <HistoryScreen
         targetLang={targetLang}
-        onBack={() => setScreen("home")}
-        onOpenCart={() => setScreen("cart")}
-        onOpenHistory={() => setScreen("history")}
+        onBack={goBack}
+        onOpenCart={() => navigateTo("cart")}
+        onOpenHistory={() => navigateTo("history")}
         onOpenMenu={(record) => {
           setMenuResult(record.raw || record);
           setTargetLang(record.targetLang || targetLang);
-          setScreen("result");
+          navigateTo("result");
         }}
         onShare={handleShareGlobal}
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
         onOpenProfile={onOpenProfile}
         hasMenuResult={menuResult !== null}
-        onBackToResult={() => setScreen("result")}
-        onGoHome={() => setScreen("home")}
+        onBackToResult={() => navigateTo("result")}
+        onGoHome={goHome}
         onOpenSettings={onOpenSettings}
         adsReady={adsReady}
       />
@@ -541,9 +574,9 @@ function AppContent({ themeMode, onThemeModeChange }) {
       <MenuResultScreen
         menuResult={menuResult}
         targetLang={targetLang}
-        onBack={() => setScreen("home")}
-        onOpenCart={() => setScreen("cart")}
-        onOpenHistory={() => setScreen("history")}
+        onBack={goBack}
+        onOpenCart={() => navigateTo("cart")}
+        onOpenHistory={() => navigateTo("history")}
         onShare={handleShareGlobal}
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
@@ -559,11 +592,11 @@ function AppContent({ themeMode, onThemeModeChange }) {
         setTargetLang={setTargetLang}
         onMenuParsed={(data) => {
           setMenuResult(data);
-          setScreen("result");
+          navigateTo("result");
         }}
-        onGoHome={() => setScreen("home")}
-        onOpenCart={() => setScreen("cart")}
-        onOpenHistory={() => setScreen("history")}
+        onGoHome={goHome}
+        onOpenCart={() => navigateTo("cart")}
+        onOpenHistory={() => navigateTo("history")}
         onShare={handleShareGlobal}
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}
