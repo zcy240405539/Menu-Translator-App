@@ -64,9 +64,17 @@ export default function SettingsModal({
     }
   };
 
+  const handleBack = () => {
+    if (legalKind) {
+      setLegalKind(null);
+      return;
+    }
+    onClose();
+  };
+
   return (
     <>
-      <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <Modal visible={visible} animationType="slide" onRequestClose={handleBack}>
         <Surface style={[styles.screen, { backgroundColor: theme.colors.background }]}>
           <Appbar.Header style={{ backgroundColor: theme.colors.background }}>
             <Appbar.BackAction onPress={onClose} />
@@ -163,19 +171,13 @@ export default function SettingsModal({
             </View>
           </ScrollView>
         </Surface>
-        <LegalDocumentModal
-        visible={Boolean(legalKind)}
-        kind={legalKind}
-        targetLang={targetLang}
-        onClose={() => setLegalKind(null)}
-      />
-      </Modal>
-      <LegalDocumentModal
-        visible={Boolean(legalKind)}
-        kind={legalKind}
-        targetLang={targetLang}
-        onClose={() => setLegalKind(null)}
-      />
+          <LegalDocumentModal
+            visible={Boolean(legalKind)}
+            kind={legalKind}
+            targetLang={targetLang}
+            onClose={() => setLegalKind(null)}
+          />
+        </Modal>
     </>
   );
 }
