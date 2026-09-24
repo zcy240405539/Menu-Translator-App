@@ -133,6 +133,43 @@ def test_sanitize_merges_separate_option_price_row_into_previous_dish():
     assert all(item["original_name"] != "ADDITIONAL ORDERS" for item in result["menu_items"])
 
 
+def test_sanitize_merges_individual_size_rows_into_previous_dish():
+    result = openrouter_service.sanitize_menu_result_structure(
+        {
+            "source_language": "en",
+            "menu_items": [
+                {
+                    "original_name": "ROSEMARY BREAD",
+                    "description_original": "DRESSED WITH OLIVE OIL",
+                    "price": None,
+                    "section_heading_original": "STARTERS",
+                },
+                {
+                    "original_name": "ADDITIONAL ORDERS",
+                    "description_original": "",
+                    "price": None,
+                    "section_heading_original": "STARTERS",
+                },
+                {
+                    "original_name": "1/2 ROUND",
+                    "description_original": "",
+                    "price": "6.00",
+                    "section_heading_original": "STARTERS",
+                },
+                {
+                    "original_name": "FULL ROUND",
+                    "description_original": "",
+                    "price": "12.00",
+                    "section_heading_original": "STARTERS",
+                },
+            ],
+        }
+    )
+
+    assert result["menu_items"][0]["price"] == "6.00 / 12.00"
+    assert all(item["original_name"] not in {"1/2 ROUND", "FULL ROUND"} for item in result["menu_items"])
+
+
 def test_vision_model_candidates_start_with_language_override(monkeypatch):
     captured_models = []
 

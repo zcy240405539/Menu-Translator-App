@@ -662,7 +662,17 @@ def _looks_like_option_price_row(name: str, price) -> bool:
     price_values = re.findall(r"(?<!\d)\d{1,4}(?:\.\d{1,2})?(?!\d)", price_text)
     has_multiple_prices = len(price_values) >= 2
     has_labeled_price = bool(OPTION_PRICE_RE.search(price_text))
-    return has_option_label and (has_multiple_prices or has_labeled_price)
+    standalone_option_label = bool(re.fullmatch(
+        r"(?:\d+\s*/\s*\d+\s+)?(?:half|full|small|large)?\s*"
+        r"(?:round|order|portion|size|serving|glass|bottle|cup)s?",
+        label,
+        re.IGNORECASE,
+    ))
+    return (
+        has_option_label and (has_multiple_prices or has_labeled_price)
+    ) or (
+        standalone_option_label and bool(price_values)
+    )
 
 
 def _merge_option_row_into_previous_item(cleaned_items: list[dict], item: dict) -> bool:
