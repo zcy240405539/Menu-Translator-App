@@ -1,4 +1,5 @@
 import en from "@/locales/en.json";
+import { languageFromPathname } from "@/lib/seo";
 
 export type WebLanguageCode =
   | "en"
@@ -78,9 +79,15 @@ export function getInitialLanguage(): WebLanguageCode {
   return normalizeLanguage(window.navigator.language);
 }
 
-export function getPageLanguage(): WebLanguageCode {
+export function getPageLanguage(fallback?: WebLanguageCode): WebLanguageCode {
   if (typeof window === "undefined") return DEFAULT_LANGUAGE;
-  return normalizeLanguage(new URLSearchParams(window.location.search).get("lang") || getInitialLanguage());
+  const pathLanguage = languageFromPathname(window.location.pathname);
+  if (pathLanguage) return pathLanguage;
+  return normalizeLanguage(
+    new URLSearchParams(window.location.search).get("lang")
+      || fallback
+      || getInitialLanguage(),
+  );
 }
 
 export function saveLanguage(lang: WebLanguageCode) {

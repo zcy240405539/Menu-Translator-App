@@ -12,7 +12,8 @@
     "test:prices": "node --no-warnings --experimental-strip-types scripts/check-price-format.mjs",
     "test:bundle": "node scripts/check-initial-bundle.mjs",
     "test:device-actions": "node --no-warnings --experimental-strip-types scripts/check-device-actions.mjs",
-    "test:language-pairs": "node --no-warnings --experimental-strip-types scripts/check-language-pairs.mjs"
+    "test:language-pairs": "node --no-warnings --experimental-strip-types scripts/check-language-pairs.mjs",
+    "test:seo": "node scripts/check-seo-output.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

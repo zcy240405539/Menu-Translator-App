@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import AdsterraAds, { type AdsterraPlacement } from "@/components/AdsterraAds";
 import SiteFooter from "@/components/SiteFooter";
 import { getText } from "@/lib/i18n";
+import { localizedAlternates } from "@/lib/seo";
 import "./globals.css";
 
 const defaultText = getText("en");
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://aimenu.us.kg"),
   title: defaultMetadata.title,
   description: defaultMetadata.description,
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    languages: localizedAlternates("/"),
+  },
   openGraph: {
     type: "website",
     url: "/",

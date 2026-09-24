@@ -1,27 +1,30 @@
-"use client";
-
 import { Mail } from "lucide-react";
-import { useEffect, useState } from "react";
 import ContentPageHeader from "@/components/ContentPageHeader";
-import { useText } from "@/hooks/useText";
 import {
   DEFAULT_LANGUAGE,
-  applyDocumentLanguage,
-  getPageLanguage,
-  replacePageLanguage,
+  getText,
+  htmlLanguage,
+  type Catalog,
   type WebLanguageCode,
 } from "@/lib/i18n";
 import { PUBLISHER_PAGES, type PublisherPageKey } from "@/lib/publisherPages";
+import { absoluteLocalizedUrl } from "@/lib/seo";
 
 const SUPPORT_EMAIL = "support@aimenu.us.kg";
 
-export default function PublisherPage({ pageKey }: { pageKey: PublisherPageKey }) {
-  const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
-  const text = useText(lang);
+export default function PublisherPage({
+  pageKey,
+  lang = DEFAULT_LANGUAGE,
+  text = getText(DEFAULT_LANGUAGE),
+}: {
+  pageKey: PublisherPageKey;
+  lang?: WebLanguageCode;
+  text?: Catalog;
+}) {
   const publisher = text.publisher;
   const page = publisher.pages[pageKey];
   const pageRoute = PUBLISHER_PAGES.find(({ key }) => key === pageKey)?.href || "/";
-  const canonicalUrl = `https://aimenu.us.kg${pageRoute}/`;
+  const canonicalUrl = absoluteLocalizedUrl(pageRoute, lang);
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -43,39 +46,13 @@ export default function PublisherPage({ pageKey }: { pageKey: PublisherPageKey }
     ],
   };
 
-  useEffect(() => {
-    queueMicrotask(() => {
-      const nextLanguage = getPageLanguage();
-      setLang(nextLanguage);
-      applyDocumentLanguage(nextLanguage);
-    });
-  }, [pageKey]);
-
-  useEffect(() => {
-    applyDocumentLanguage(lang);
-    const localizedTitle = `${page.title} | ${text.common.brand}`;
-    const updateTitle = () => {
-      if (document.title !== localizedTitle) document.title = localizedTitle;
-    };
-    updateTitle();
-    const observer = new MutationObserver(updateTitle);
-    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
-    return () => observer.disconnect();
-  }, [lang, page.title, text.common.brand]);
-
-  const changeLanguage = (nextLanguage: string) => {
-    const normalized = replacePageLanguage(nextLanguage);
-    setLang(normalized);
-    applyDocumentLanguage(normalized);
-  };
-
   return (
-    <main className="min-h-screen bg-[#fbf8f4] text-gray-950">
+    <main lang={htmlLanguage(lang)} dir={lang === "ar" ? "rtl" : "ltr"} className="min-h-screen bg-[#fbf8f4] text-gray-950">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
       />
-      <ContentPageHeader lang={lang} currentPage={pageKey} onLanguageChange={changeLanguage} />
+      <ContentPageHeader lang={lang} text={text} currentPage={pageKey} />
 
       <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
         <p className="text-sm font-bold uppercase text-purple-700">{publisher.resourceLabel}</p>

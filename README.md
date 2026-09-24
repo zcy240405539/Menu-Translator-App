@@ -1,5 +1,7 @@
 # AI Menu Translator & Food Analyzer
 
+[**Open AI MenuLens on the web**](https://aimenu.us.kg/) · [Google Play](https://play.google.com/store/apps/details?id=com.agentscottystudio.aimenuapp) · [Release notes](./RELEASE_NOTES.md)
+
 An AI-powered multilingual restaurant menu translation and food analysis system built with FastAPI, React Native (Expo), Google Document AI / Cloud Vision, Google Cloud Translation, Gemini, OpenRouter, and local OCR fallback.
 
 Users can:

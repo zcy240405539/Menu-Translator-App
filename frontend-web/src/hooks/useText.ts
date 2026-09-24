@@ -8,11 +8,11 @@ type LoadedCatalog = {
   catalog: Catalog;
 };
 
-export function useText(language: WebLanguageCode | string) {
+export function useText(language: WebLanguageCode | string, initialCatalog?: Catalog) {
   const normalized = normalizeLanguage(language);
   const [loaded, setLoaded] = useState<LoadedCatalog>(() => ({
     language: normalized,
-    catalog: getText(normalized),
+    catalog: initialCatalog || getText(normalized),
   }));
 
   useEffect(() => {

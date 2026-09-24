@@ -154,7 +154,7 @@ export function LegalDocument({ kind }: LegalDocumentProps) {
 
   return (
     <main className="min-h-screen bg-[#fbf8f4] text-gray-950">
-      <ContentPageHeader lang={lang} onLanguageChange={handleLanguageChange} />
+      <ContentPageHeader lang={lang} text={text} onLanguageChange={handleLanguageChange} />
       <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
         <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-purple-700">{legal.brand}</p>
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-950">{documentText.title}</h1>

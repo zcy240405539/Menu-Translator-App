@@ -12,6 +12,7 @@ import {
   type WebLanguageCode,
 } from "@/lib/i18n";
 import { PUBLISHER_PAGES } from "@/lib/publisherPages";
+import { languageQuery, localizedPublicPath } from "@/lib/seo";
 
 export default function SiteFooter() {
   const [lang, setLang] = useState<WebLanguageCode>(DEFAULT_LANGUAGE);
@@ -35,7 +36,7 @@ export default function SiteFooter() {
   }, []);
 
   const text = useText(lang);
-  const langQuery = `?lang=${encodeURIComponent(lang)}`;
+  const query = languageQuery(lang);
 
   return (
     <footer data-site-footer className="w-full border-t bg-gray-50 py-8 text-gray-500">
@@ -43,14 +44,14 @@ export default function SiteFooter() {
         <p className="text-sm">© {new Date().getFullYear()} {text.common.brand}. {text.footer.rights}</p>
         <nav aria-label={text.publisher.navigation} className="flex flex-wrap justify-center gap-x-5 gap-y-2">
           {PUBLISHER_PAGES.map(({ href, key }) => (
-            <Link key={href} href={`${href}${langQuery}`} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
+            <Link key={href} href={localizedPublicPath(href, lang)} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
               {text.publisher.nav[key]}
             </Link>
           ))}
-            <Link href={`/privacy-policy${langQuery}`} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
+            <Link href={`/privacy-policy${query}`} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.privacy}
             </Link>
-            <Link href={`/terms-of-service${langQuery}`} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
+            <Link href={`/terms-of-service${query}`} prefetch={false} className="text-sm transition-colors hover:text-purple-600">
               {text.footer.terms}
             </Link>
         </nav>
