@@ -648,6 +648,46 @@ def _split_name_description(value: str) -> tuple[str, str]:
     return parts[0], " | ".join(parts[1:])
 
 
+def _looks_like_option_price_row(name: str, price) -> bool:
+    label = str(name or "").strip()
+    price_text = str(price or "").strip()
+    if not label or not price_text:
+        return False
+
+    has_option_label = bool(re.search(
+        r"\b(additional|extra|options?|sizes?|orders?|half|full|small|large)\b",
+        label,
+        re.IGNORECASE,
+    ))
+    price_values = re.findall(r"(?<!\d)\d{1,4}(?:\.\d{1,2})?(?!\d)", price_text)
+    has_multiple_prices = len(price_values) >= 2
+    has_labeled_price = bool(OPTION_PRICE_RE.search(price_text))
+    return has_option_label and (has_multiple_prices or has_labeled_price)
+
+
+def _merge_option_row_into_previous_item(cleaned_items: list[dict], item: dict) -> bool:
+    section = str(item.get("section_heading_original") or "").strip().lower()
+    for previous in reversed(cleaned_items[-3:]):
+        previous_section = str(previous.get("section_heading_original") or "").strip().lower()
+        if section and previous_section and section != previous_section:
+            break
+
+        has_dish_evidence = bool(
+            previous.get("price")
+            or str(previous.get("description_original") or previous.get("description") or "").strip()
+        )
+        if not has_dish_evidence:
+            continue
+
+        option_price = str(item.get("price") or "").strip()
+        current_price = str(previous.get("price") or "").strip()
+        if option_price and option_price not in current_price:
+            previous["price"] = f"{current_price} / {option_price}" if current_price else option_price
+        return True
+
+    return False
+
+
 def _looks_like_schedule_text(value) -> bool:
     text = str(value or "").strip()
     if not text:
@@ -759,6 +799,9 @@ def sanitize_menu_result_structure(result: dict) -> dict:
         item["section_heading_original"] = section_original or "Other"
         item["section_heading_translated"] = section_translated
         item["category"] = re.sub(r"[^a-z0-9]+", "_", item["section_heading_original"].lower()).strip("_") or "other"
+        if _looks_like_option_price_row(original_name, item.get("price")):
+            if _merge_option_row_into_previous_item(cleaned_items, item):
+                continue
         cleaned_items.append(item)
 
     result["menu_items"] = cleaned_items
