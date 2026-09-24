@@ -81,6 +81,46 @@ def test_text_menu_parser_flattens_grouped_response(monkeypatch):
     assert result["menu_items"][0]["description_original"] == "Care Carinea 2024"
 
 
+def test_sanitize_separates_inline_description_and_preserves_option_prices():
+    result = openrouter_service.sanitize_menu_result_structure(
+        {
+            "source_language": "en",
+            "menu_items": [
+                {
+                    "original_name": "INSALATA VERDE | GREEN LEAF LETTUCE",
+                    "description_original": "CAPER DRESSING 10.00 LARGE 18.00",
+                    "price": "10.00",
+                    "section_heading_original": "INSALATA",
+                }
+            ],
+        }
+    )
+
+    item = result["menu_items"][0]
+    assert item["original_name"] == "INSALATA VERDE"
+    assert item["description_original"].startswith("GREEN LEAF LETTUCE")
+    assert item["price"] == "10.00 / LARGE: 18.00"
+
+
+def test_vision_model_candidates_start_with_language_override(monkeypatch):
+    captured_models = []
+
+    def fake_post(payload, timeout):
+        captured_models.append(payload["model"])
+        return {"choices": [{"message": {"content": '{"ocr_lines":["SOUP | $8"]}'}}]}
+
+    monkeypatch.setenv("OPENROUTER_VISION_MODEL_EN", "google/quality-vision")
+    monkeypatch.setattr(openrouter_service, "VISION_FALLBACK_MODELS", [
+        "google/fallback-vision",
+        "google/quality-vision",
+    ])
+    monkeypatch.setattr(openrouter_service, "_post_openrouter", fake_post)
+
+    openrouter_service.call_openrouter_vision_for_menu(b"image", source_lang="en")
+
+    assert captured_models == ["google/quality-vision"]
+
+
 if __name__ == "__main__":
     test_flatten_nested_section_items()
     print("menu json flatten checks passed")

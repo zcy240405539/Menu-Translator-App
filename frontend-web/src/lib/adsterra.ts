@@ -9,6 +9,16 @@ export const ADSTERRA_CONTENT_PATHS = [
 
 const ADSTERRA_CONTENT_PATH_SET = new Set<string>(ADSTERRA_CONTENT_PATHS);
 
+export const ADSTERRA_BLOCKED_PATHS = [
+  "/download",
+  "/history",
+  "/cart",
+  "/account-deletion",
+  "/ad-frame",
+] as const;
+
+const ADSTERRA_BLOCKED_PATH_SET = new Set<string>(ADSTERRA_BLOCKED_PATHS);
+
 function normalizePathname(pathname: string) {
   if (pathname === "/") return pathname;
   return pathname.replace(/\/+$/, "");
@@ -23,5 +33,5 @@ export function shouldLoadAdsterra(
   enabled: boolean,
   hasPlacement: boolean,
 ) {
-  return enabled && hasPlacement;
+  return enabled && hasPlacement && !ADSTERRA_BLOCKED_PATH_SET.has(normalizePathname(pathname));
 }

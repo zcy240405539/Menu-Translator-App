@@ -66,11 +66,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData).replace(/</g, "\\u003c") }}
         />
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8286400764174465"
-          crossOrigin="anonymous"
-        ></script>
       </head>
       <body className="flex min-h-full flex-col">
         {children}

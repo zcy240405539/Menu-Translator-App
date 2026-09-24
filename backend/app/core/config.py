@@ -89,7 +89,7 @@ _load_multiline_service_account_json()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.5-flash-lite")
-OPENROUTER_VISION_MODEL = os.getenv("OPENROUTER_VISION_MODEL", "google/gemini-2.5-flash-lite")
+OPENROUTER_VISION_MODEL = os.getenv("OPENROUTER_VISION_MODEL", "google/gemini-3.1-flash-lite")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 LAYOUT_MAX_TOKENS = int(os.getenv("LAYOUT_MAX_TOKENS", os.getenv("OPENROUTER_LAYOUT_MAX_TOKENS", "6500")))

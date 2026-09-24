@@ -146,7 +146,7 @@
   position: fixed;
   z-index: 40;
   right: 0;
-  bottom: var(--adsterra-footer-offset, 0px);
+  bottom: 0;
   left: 0;
   width: auto;
   max-width: none;
@@ -161,11 +161,18 @@
   box-shadow: 0 -8px 24px rgb(17 24 39 / 10%);
   opacity: 1;
   pointer-events: auto;
-  transition: bottom 120ms ease;
+}
+
+body:has(.adsterra-slot[data-adsterra-active="true"]) {
+  padding-bottom: calc(66px + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 768px) {
   .adsterra-slot[data-adsterra-active="true"] {
     min-height: 106px;
+  }
+
+  body:has(.adsterra-slot[data-adsterra-active="true"]) {
+    padding-bottom: calc(106px + env(safe-area-inset-bottom));
   }
 }

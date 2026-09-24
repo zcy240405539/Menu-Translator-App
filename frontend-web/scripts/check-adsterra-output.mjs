@@ -20,6 +20,14 @@ function htmlFor(route) {
   return fs.readFileSync(path.join(output, route, "index.html"), "utf8");
 }
 
+function emittedCss() {
+  const chunks = path.join(output, "_next", "static", "chunks");
+  return fs.readdirSync(chunks)
+    .filter((name) => name.endsWith(".css"))
+    .map((name) => fs.readFileSync(path.join(chunks, name), "utf8"))
+    .join("\n");
+}
+
 function visibleWordCount(html) {
   const text = html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -38,9 +46,11 @@ for (const [route, minimumWords] of Object.entries(contentRoutes)) {
 }
 
 const home = htmlFor("");
+const css = emittedCss();
 assert.ok(home.includes("adsterra-slot"), "homepage lost the Adsterra slot");
 assert.ok(home.includes("document.write"), "Adsterra must load during HTML parsing");
-assert.ok(home.includes("--adsterra-footer-offset"), "Adsterra must move above the footer");
+assert.match(css, /body:has\(\.adsterra-slot\[data-adsterra-active=true\]\)\{padding-bottom:calc\(66px\s*\+\s*env\(safe-area-inset-bottom\)\)\}/, "Adsterra must reserve mobile page space");
+assert.match(css, /body:has\(\.adsterra-slot\[data-adsterra-active=true\]\)\{padding-bottom:calc\(106px\s*\+\s*env\(safe-area-inset-bottom\)\)\}/, "Adsterra must reserve desktop page space");
 assert.ok(home.includes("MutationObserver"), "Adsterra must wait for a real creative before becoming visible");
 assert.ok(home.includes("data-site-footer"), "footer lost its Adsterra visibility marker");
 assert.ok(!/srcdoc=|srcDoc=/.test(home), "Adsterra must not run inside a srcDoc iframe");
